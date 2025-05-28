@@ -17,7 +17,8 @@ steps:
       SMTPSERVER: sendria
     commands:
       - cat /private/xmlcalabash-libs.enc | openssl enc -aes-256-cbc -salt -pbkdf2 -d -k $${LIBRARY_PASSPHRASE} | tar zxf -
-      - ./gradlew --console=plain   test 
+      - ls -l /woodpecker/src/codeberg.org/xmlcalabash/xmlcalabash3/tests/3.0-test-suite/docker/apache2/htdocs
+      - echo ./gradlew --console=plain   test 
   - name: test-report
     image: xmlcalabash-build
     commands:
