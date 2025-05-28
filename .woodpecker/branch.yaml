@@ -19,6 +19,7 @@ steps:
     image: xmlcalabash-build
     commands:
       - echo ./gradlew --console=plain -PWHOST=http://apache2 -PSHOST=sendria test-driver:test-report
+      - echo "Hello"
       - pwd
 
 services:
