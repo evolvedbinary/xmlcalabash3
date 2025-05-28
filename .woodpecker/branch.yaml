@@ -22,6 +22,7 @@ steps:
     image: xmlcalabash-build
     commands:
       - echo ./gradlew --console=plain -PWHOST=http://apache2 -PSHOST=sendria test-driver:quick-report
+      - ./gradlew --console=plain javaToolchains
       - ./gradlew --console=plain -PWHOST=http://apache2 -PSHOST=sendria -PtestPattern=ab-file-copy-029 test-driver:run-test
 
 # N.B. The xproc-test-suite-apache2 container has a complete copy of 
