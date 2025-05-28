@@ -23,6 +23,8 @@ steps:
     image: xmlcalabash-build
     commands:
       - whoami
+      - pwd
+      - ls -la .
       - echo ./gradlew --console=plain -PWHOST=http://apache2 -PSHOST=sendria test-driver:quick-report
       - echo ./gradlew --console=plain javaToolchains
       - echo ./gradlew --console=plain -PWHOST=http://apache2 -PSHOST=sendria -PtestPattern=ab-file-copy-029 test-driver:run-test
