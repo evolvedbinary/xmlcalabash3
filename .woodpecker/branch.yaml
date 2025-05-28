@@ -15,6 +15,7 @@ steps:
       LIBRARY_PASSPHRASE:
         from_secret: LIBRARY_PASSPHRASE
       SMTPSERVER: sendria
+      DISPLAY: :99
     commands:
       - sudo chown -R builder:builder .
       # Avoid Invalid Java installation found at '/home/builder/.gradle/.tmp/jdks/... ???
@@ -24,6 +25,8 @@ steps:
   - name: test-report
     image: xmlcalabash-build
     commands:
+      - Xvfb :99
+      - fluxbox -display :99
       - echo ./gradlew --console=plain -PWHOST=http://apache2 -PSHOST=sendria test-driver:test-report
       - ./gradlew --console=plain -PWHOST=http://apache2 -PSHOST=sendria -PtestPattern=selenium-022 test-driver:run-test
 
