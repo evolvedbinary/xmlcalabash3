@@ -25,9 +25,6 @@ steps:
   - name: test-report
     image: xmlcalabash-build
     commands:
-      - echo "Starting xvfb so chromedriver has a display."
-      - sudo Xvfb :99
-      - fluxbox -display :99
       - echo ./gradlew --console=plain -PWHOST=http://apache2 -PSHOST=sendria test-driver:test-report
       - ./gradlew --console=plain -PWHOST=http://apache2 -PSHOST=sendria -PtestPattern=selenium-022 test-driver:run-test
 
