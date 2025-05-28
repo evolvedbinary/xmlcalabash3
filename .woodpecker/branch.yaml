@@ -17,13 +17,15 @@ steps:
       SMTPSERVER: sendria
     commands:
       - sudo chown -R builder:builder .
+      # Avoid Invalid Java installation found at '/home/builder/.gradle/.tmp/jdks/... ???
+      - rm -rf /home/builer/.gradle/.tmp
       - cat /private/xmlcalabash-libs.enc | openssl enc -aes-256-cbc -salt -pbkdf2 -d -k $${LIBRARY_PASSPHRASE} | tar zxf -
       - echo ./gradlew --console=plain test 
   - name: test-report
     image: xmlcalabash-build
     commands:
-      - echo ./gradlew --console=plain -PWHOST=http://apache2 -PSHOST=sendria test-driver:quick-report
-      - ./gradlew --console=plain -PWHOST=http://apache2 -PSHOST=sendria -PtestPattern=wait-for-update test-driver:run-test
+      - ./gradlew --console=plain -PWHOST=http://apache2 -PSHOST=sendria test-driver:test-report
+      - echo ./gradlew --console=plain -PWHOST=http://apache2 -PSHOST=sendria -PtestPattern=wait-for-update test-driver:run-test
 
 # N.B. The xproc-test-suite-apache2 container has a complete copy of 
 # the /usr/local/apache2 directory (including binaries) from the apache2
