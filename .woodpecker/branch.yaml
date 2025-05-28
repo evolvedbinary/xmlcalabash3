@@ -8,7 +8,7 @@ steps:
     environment:
       LIBRARY_PASSPHRASE:
         from_secret: LIBRARY_PASSPHRASE
-      SMTPSERVER=sendria
+      SMTPSERVER: sendria
     commands:
       - git submodule init
       - git submodule update
