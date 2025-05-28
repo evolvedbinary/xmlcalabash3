@@ -12,6 +12,7 @@ steps:
     commands:
       - git submodule init
       - git submodule update
+      - pwd
       - cat /private/xmlcalabash-libs.enc | openssl enc -aes-256-cbc -salt -pbkdf2 -d -k $${LIBRARY_PASSPHRASE} | tar zxf -
       - ./gradlew --console=plain   test 
   - name: test-report
