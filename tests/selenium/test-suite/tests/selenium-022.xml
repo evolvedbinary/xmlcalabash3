@@ -34,7 +34,7 @@
   <p:output port="result" sequence="true"/>
   <p:option name="WHOST" select="'http://localhost:8246'" static="true"/>
 
-  <!-- Does not work in firefox -->
+  <!-- Does not work in firefox; no-sandbox needed when run in (some?) docker containers  -->
   <cx:selenium browser="chrome">
     <p:with-option name="arguments" select="('--headless', '--no-sandbox')"/>
     <p:with-input>
