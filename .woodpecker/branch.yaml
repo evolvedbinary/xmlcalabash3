@@ -17,6 +17,7 @@ steps:
       SMTPSERVER: sendria
     commands:
       - whoami
+      - sudo chown -R builder .
       - pwd
       - ls -la .
       - cat /private/xmlcalabash-libs.enc | openssl enc -aes-256-cbc -salt -pbkdf2 -d -k $${LIBRARY_PASSPHRASE} | tar zxf -
@@ -37,7 +38,6 @@ services:
     image: apache2
     volumes:
       - xproc-test-suite-apache2:/usr/local/apache2
-
 
   - name: sendria
     image: sendria
