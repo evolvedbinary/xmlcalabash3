@@ -23,6 +23,9 @@ steps:
     commands:
       - ./gradlew --console=plain -PWHOST=http://apache2 -PSHOST=sendria test-driver:quick-report
 
+# N.B. The xproc-test-suite-apache2 container has a complete copy of 
+# the /usr/local/apache2 directory (including binaries) from the apache2
+# container. Parts of it are (will be!) updated by a different workflow.
 services:
   - name: apache2
     image: apache2
