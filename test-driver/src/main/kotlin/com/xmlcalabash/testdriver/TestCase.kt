@@ -318,8 +318,8 @@ class TestCase(val xmlCalabash: XmlCalabash, val testOptions: TestOptions, val t
         origOut = System.out
         origErr = System.err
 
-        System.setOut(stdout)
-        System.setErr(stderr)
+        //System.setOut(stdout)
+        //System.setErr(stderr)
     }
 
     private fun endIO() {
@@ -327,8 +327,8 @@ class TestCase(val xmlCalabash: XmlCalabash, val testOptions: TestOptions, val t
             return
         }
 
-        System.setOut(origOut)
-        System.setErr(origErr)
+        //System.setOut(origOut)
+        //System.setErr(origErr)
 
         stderrOutput = stderrBais!!.toString(Charsets.UTF_8)
         if (stderrOutput != "") {
@@ -771,8 +771,10 @@ class TestCase(val xmlCalabash: XmlCalabash, val testOptions: TestOptions, val t
                 posix.add(PosixFilePermission.OWNER_WRITE)
             }
 
+            println("SET: ${file.toPath()} to ${posix}")
             Files.setPosixFilePermissions(file.toPath(), posix)
         } catch (ex: UnsupportedOperationException) {
+            println("EX: ${ex.message}")
             if (prop.writable == false) {
                 if (file.isDirectory) {
                     requiresUnwritableDirectory = true
