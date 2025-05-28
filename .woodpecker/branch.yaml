@@ -3,10 +3,10 @@ when:
     branch: ci-testing
 
 clone:
-  - git:
-      image: woodpeckerci/plugin-git
-      settings:
-        recursive: true
+  git:
+    image: woodpeckerci/plugin-git
+    settings:
+      recursive: true
 
 steps:
   - name: build
