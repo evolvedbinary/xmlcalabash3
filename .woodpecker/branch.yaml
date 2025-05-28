@@ -25,10 +25,10 @@ services:
   - name: sendria
     image: sendria
     environment:
-      - MAIL_DRIVER=smtp
-      - MAIL_HOST=127.0.0.1
-      - MAIL_PORT=1025
-      - MAIL_USERNAME=username
-      - MAIL_PASSWORD=password
-      - MAIL_ENCRYPTION=tcp
-      - MAIL_FROM_ADDRESS=nobody@example.com
+      MAIL_DRIVER: smtp
+      MAIL_HOST: 127.0.0.1
+      MAIL_PORT: 1025
+      MAIL_USERNAME: username
+      MAIL_PASSWORD: password
+      MAIL_ENCRYPTION: tcp
+      MAIL_FROM_ADDRESS: nobody@example.com
