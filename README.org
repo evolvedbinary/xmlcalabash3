@@ -1,6 +1,6 @@
 #+TITLE: XML Calabash 3.x
 
-This is XML Calabash 3.x, a (mostly) conformant implementation of
+This is XML Calabash 3.x, a conformant implementation of
 [[https://spec.xproc.org/master/head/xproc/][XProc 3.x]].
 
 XML Calabash implements the standard step library
