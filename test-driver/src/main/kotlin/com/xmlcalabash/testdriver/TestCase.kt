@@ -88,6 +88,7 @@ class TestCase(val xmlCalabash: XmlCalabash, val testOptions: TestOptions, val t
             UNSUPPORTED_FEATURES.add("p-validate-with-xsd")
             UNSUPPORTED_FEATURES.add("xslt-function-import")
             UNSUPPORTED_FEATURES.add("xquery-function-import")
+            UNSUPPORTED_FEATURES.add("psvi-support")
         }
 
         loaded = true
