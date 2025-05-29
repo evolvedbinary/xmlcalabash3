@@ -11,6 +11,8 @@ clone:
 steps:
   - name: build-and-test
     image: xmlcalabash-build
+    volumes:
+      - builder-home:/home/builder
     environment:
       LIBRARY_PASSPHRASE:
         from_secret: LIBRARY_PASSPHRASE
@@ -25,11 +27,15 @@ steps:
 
   - name: test-suites
     image: xmlcalabash-build
+    volumes:
+      - builder-home:/home/builder
     commands:
       - ./gradlew --console=plain --max-workers=2 -PWHOST=http://apache2 -PSHOST=sendria test-driver:test-report
 
   - name: documentation
     image: xmlcalabash-build
+    volumes:
+      - builder-home:/home/builder
     commands:
       - ./gradlew --console=plain documentation:reference documentation:userguide
       - ./gradlew --console=plain xmlcalabash:apidocs dokkaHtmlMultiModule
@@ -38,10 +44,92 @@ steps:
 
   - name: publish
     image: xmlcalabash-build
-    when:
-      event: tag
+    volumes:
+      - builder-home:/home/builder
     commands:
-      - ./gradlew --console=plain publish
+      - export VERSION=`cat gradle.properties|grep xmlcalabashVersion|cut -f2 -d=`
+      - export SNAPSHOT=`echo $VERSION | grep SNAPSHOT`
+      - if [ "$CI_TAG" != "" -o "$SNAPSHOT" != "" ]; then
+      -   ./gradlew --console=plain publish
+      - else
+      -   echo "Not publishing untagged $VERSION"
+      - fi
+
+  - name: checkout www.xmlcalabash.com
+    image: xmlcalabash-build
+    volumes:
+      - builder-home:/home/builder
+    commands:
+      - cd build
+      - git clone ssh://git@codeberg.org/xmlcalabash/www.git
+
+  - name: update the current test-report
+    image: xmlcalabash-build
+    volumes:
+      - builder-home:/home/builder
+    commands:
+      - cd build/www
+      - export VERSION=`cat gradle.properties|grep xmlcalabashVersion|cut -f2 -d=`
+      - export SNAPSHOT=`echo $VERSION | grep SNAPSHOT`
+      - rsync -ar --delete /woodpecker/src/codeberg.org/xmlcalabash/xmlcalabash3/test-driver/build/test-report/ src/main/test-report/current/
+
+  - name: update the tagged test-report
+    when: 
+      - evaluate: 'CI_TAG != "" && not (CI_TAG contains "SNAPSHOT")'
+    image: xmlcalabash-build
+    volumes:
+      - builder-home:/home/builder
+    commands:
+      - cd build/www
+      - mkdir -p src/main/test-report/$CI_TAG
+      - rsync -ar --delete src/main/test-report/current/ src/main/test-report/$CI_TAG/
+
+  - name: update www.xmlcalabash.com
+    image: xmlcalabash-build
+    volumes:
+      - builder-home:/home/builder
+    commands:
+      - cd build/www
+      - git config --global user.email "norm@tovey-walsh.com"
+      - git config --global user.name "Norm Tovey-Walsh"
+      - git status
+      - git add .
+      - git commit -m "Updated documentation from XML Calabash build"
+      - git push
+
+  - name: checkout docs.xmlcalabash.com
+    image: xmlcalabash-build
+    volumes:
+      - builder-home:/home/builder
+    commands:
+      - cd build
+      - git clone ssh://git@codeberg.org/xmlcalabash/docs.git
+
+  - name: update the documentation
+    when: 
+      - evaluate: 'CI_TAG != "" && not (CI_TAG contains "SNAPSHOT")'
+    image: xmlcalabash-build
+    volumes:
+      - builder-home:/home/builder
+    commands:
+      - export VERSION=`cat gradle.properties|grep xmlcalabashVersion|cut -f2 -d=`
+      - export SNAPSHOT=`echo $VERSION | grep SNAPSHOT`
+      - cd build/docs
+      - mkdir -p apidocs/$VERSION apidocs/current
+      - mkdir -p reference/$VERSION reference/current
+      - mkdir -p userguide/$VERSION userguide/current
+      - rsync -ar ../../documentation/build/reference/current/ reference/$VERSION/
+      - rsync -ar ../../documentation/build/userguide/current/ userguide/$VERSION/
+      - rsync -ar ../dokka/htmlMultiModule/ apidocs/$VERSION/
+      - rsync -ar reference/$VERSION/ reference/current/
+      - rsync -ar userguide/$VERSION/ userguide/current/
+      - rsync -ar apidocs/$VERSION/ apidocs/current/
+      - rsync -var --checksum reference/$VERSION datamagician:/Volumes/Websites/xcdocs/reference
+      - rsync -var --checksum --delete reference/current datamagician:/Volumes/Websites/xcdocs/reference
+      - rsync -var --checksum userguide/$VERSION datamagician:/Volumes/Websites/xcdocs/userguide
+      - rsync -var --checksum --delete userguide/current datamagician:/Volumes/Websites/xcdocs/userguide
+      - rsync -var --checksum apidocs/$VERSION datamagician:/Volumes/Websites/xcdocs/apidocs
+      - rsync -var --checksum --delete apidocs/current datamagician:/Volumes/Websites/xcdocs/apidocs
 
 # N.B. The xproc-test-suite-apache2 container has a complete copy of 
 # the /usr/local/apache2 directory (including binaries) from the apache2
