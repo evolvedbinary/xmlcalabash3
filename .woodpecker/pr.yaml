@@ -1,5 +1,5 @@
 when:
-  - event: pr
+  - event: pull_request
     branch: ci-testing
 
 clone:
