@@ -22,12 +22,26 @@ steps:
       - rm -rf /home/builder/.gradle/.tmp
       - cat /private/xmlcalabash-libs.enc | openssl enc -aes-256-cbc -salt -pbkdf2 -d -k $${LIBRARY_PASSPHRASE} | tar zxf -
       - ./gradlew --console=plain --max-workers=2 test 
+
   - name: test-suites
     image: xmlcalabash-build
     commands:
       - ./gradlew --console=plain --max-workers=2 -PWHOST=http://apache2 -PSHOST=sendria test-driver:test-report
 
-# ./gradlew --console=plain -PWHOST=http://apache2 -PSHOST=sendria -PtestPattern=selenium-022 test-driver:run-test
+  - name: documentation
+    image: xmlcalabash-build
+    commands:
+      - ./gradlew --console=plain documentation:reference documentation:userguide
+      - ./gradlew --console=plain xmlcalabash:apidocs dokkaHtmlMultiModule
+      - ./gradlew --console=plain userguide reference apidocs
+      - ./gradlew --console=plain release
+
+  - name: publish
+    image: xmlcalabash-build
+    when:
+      event: tag
+    commands:
+      - ./gradlew --console=plain publish
 
 # N.B. The xproc-test-suite-apache2 container has a complete copy of 
 # the /usr/local/apache2 directory (including binaries) from the apache2
