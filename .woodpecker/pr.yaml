@@ -18,12 +18,12 @@ steps:
       - sudo chown -R builder:builder .
       # Avoid Invalid Java installation found at '/home/builder/.gradle/.tmp/jdks/... ???
       - rm -rf /home/builder/.gradle/.tmp
-      - ./gradlew --console=plain test 
+      - ./gradlew --console=plain --max-workers=2 test 
 
   - name: test-suites
     image: xmlcalabash-build
     commands:
-      - ./gradlew --console=plain -PWHOST=http://apache2 -PSHOST=sendria test-driver:test-report
+      - ./gradlew --console=plain --max-workers=2 -PWHOST=http://apache2 -PSHOST=sendria test-driver:test-report
 
 # N.B. The xproc-test-suite-apache2 container has a complete copy of 
 # the /usr/local/apache2 directory (including binaries) from the apache2
