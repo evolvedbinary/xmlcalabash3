@@ -6,6 +6,7 @@ import com.xmlcalabash.util.UriUtils
 import com.xmlcalabash.parsers.xpl.XplParser
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable
 import java.io.StringReader
 import javax.xml.transform.stream.StreamSource
 
@@ -33,6 +34,7 @@ class ParserTest {
     }
 
     @Test
+    @DisabledIfEnvironmentVariable(named = "SKIP_EE_TESTS", matches = "true")
     fun importFunctions1() {
         val xmlCalabash = XmlCalabash.newInstance();
         val builder = xmlCalabash.newPipelineBuilder()

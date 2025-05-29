@@ -8,6 +8,7 @@ import com.xmlcalabash.namespace.Ns
 import com.xmlcalabash.namespace.NsCx
 import com.xmlcalabash.namespace.NsXs
 import com.xmlcalabash.util.*
+import net.sf.saxon.Configuration
 import net.sf.saxon.event.ReceiverOption
 import net.sf.saxon.expr.parser.ExpressionTool
 import net.sf.saxon.expr.parser.ExpressionVisitor
@@ -47,12 +48,7 @@ class TestCase(val xmlCalabash: XmlCalabash, val testOptions: TestOptions, val t
         val READABLE = QName("readable")
         val WRITABLE = QName("writable")
         val HIDDEN = QName("hidden")
-
-        val UNSUPPORTED_FEATURES = if (System.getenv("XMLCALABASH_TEST_CHROME") == "false") {
-            listOf("xslt-1", "xquery_1_0", "selenium-chrome")
-        } else {
-            listOf("xslt-1", "xquery_1_0")
-        }
+        val UNSUPPORTED_FEATURES = mutableListOf<String>("xslt-1", "xquery_1_0")
     }
 
     val builder = xmlCalabash.newPipelineBuilder()
@@ -85,6 +81,16 @@ class TestCase(val xmlCalabash: XmlCalabash, val testOptions: TestOptions, val t
     var requiresUnwritableDirectory = false
 
     fun load() {
+        if (System.getenv("XMLCALABASH_TEST_CHROME") == "false") {
+            UNSUPPORTED_FEATURES.add("selenium-chrome")
+        }
+        if (!xmlCalabash.saxonConfiguration.configuration.isLicensedFeature(Configuration.LicenseFeature.SCHEMA_VALIDATION)) {
+            UNSUPPORTED_FEATURES.add("p-validate-with-xsd")
+            UNSUPPORTED_FEATURES.add("xslt-function-import")
+            UNSUPPORTED_FEATURES.add("xquery-function-import")
+            UNSUPPORTED_FEATURES.add("psvi-support")
+        }
+
         loaded = true
         val builder = xmlCalabash.saxonConfiguration.processor.newDocumentBuilder()
         builder.isLineNumbering = true
@@ -318,8 +324,8 @@ class TestCase(val xmlCalabash: XmlCalabash, val testOptions: TestOptions, val t
         origOut = System.out
         origErr = System.err
 
-        System.setOut(stdout)
-        System.setErr(stderr)
+        //System.setOut(stdout)
+        //System.setErr(stderr)
     }
 
     private fun endIO() {
@@ -327,8 +333,8 @@ class TestCase(val xmlCalabash: XmlCalabash, val testOptions: TestOptions, val t
             return
         }
 
-        System.setOut(origOut)
-        System.setErr(origErr)
+        //System.setOut(origOut)
+        //System.setErr(origErr)
 
         stderrOutput = stderrBais!!.toString(Charsets.UTF_8)
         if (stderrOutput != "") {
@@ -771,8 +777,10 @@ class TestCase(val xmlCalabash: XmlCalabash, val testOptions: TestOptions, val t
                 posix.add(PosixFilePermission.OWNER_WRITE)
             }
 
+            println("SET: ${file.toPath()} to ${posix}")
             Files.setPosixFilePermissions(file.toPath(), posix)
         } catch (ex: UnsupportedOperationException) {
+            println("EX: ${ex.message}")
             if (prop.writable == false) {
                 if (file.isDirectory) {
                     requiresUnwritableDirectory = true

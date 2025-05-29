@@ -1,0 +1,47 @@
+when:
+  - event: pull_request
+    branch: ci-testing
+
+clone:
+  git:
+    image: woodpeckerci/plugin-git
+    settings:
+      recursive: true
+
+steps:
+  - name: build-and-test
+    image: xmlcalabash-build
+    environment:
+      SMTPSERVER: sendria
+      SKIP_EE_TESTS: true
+    commands:
+      # This build has to run as a non-root user
+      - sudo chown -R builder:builder .
+      # Avoid Invalid Java installation found at '/home/builder/.gradle/.tmp/jdks/... ???
+      - rm -rf /home/builder/.gradle/.tmp
+      - ./gradlew --console=plain --max-workers=2 test 
+
+  - name: test-suites
+    image: xmlcalabash-build
+    commands:
+      - ./gradlew --console=plain --max-workers=2 -PWHOST=http://apache2 -PSHOST=sendria test-driver:test-report
+
+# N.B. The xproc-test-suite-apache2 container has a complete copy of 
+# the /usr/local/apache2 directory (including binaries) from the apache2
+# container. Parts of it are (will be!) updated by a different workflow.
+services:
+  - name: apache2
+    image: apache2
+    volumes:
+      - xproc-test-suite-apache2:/usr/local/apache2
+
+  - name: sendria
+    image: sendria
+    environment:
+      MAIL_DRIVER: smtp
+      MAIL_HOST: 127.0.0.1
+      MAIL_PORT: 1025
+      MAIL_USERNAME: username
+      MAIL_PASSWORD: password
+      MAIL_ENCRYPTION: tcp
+      MAIL_FROM_ADDRESS: nobody@example.com
