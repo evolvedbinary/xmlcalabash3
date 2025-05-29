@@ -86,6 +86,8 @@ class TestCase(val xmlCalabash: XmlCalabash, val testOptions: TestOptions, val t
         }
         if (!xmlCalabash.saxonConfiguration.configuration.isLicensedFeature(Configuration.LicenseFeature.SCHEMA_VALIDATION)) {
             UNSUPPORTED_FEATURES.add("p-validate-with-xsd")
+            UNSUPPORTED_FEATURES.add("xslt-function-import")
+            UNSUPPORTED_FEATURES.add("xquery-function-import")
         }
 
         loaded = true
