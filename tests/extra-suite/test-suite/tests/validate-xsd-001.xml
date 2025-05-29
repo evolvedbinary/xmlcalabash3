@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <t:test expected="pass"
+        features="p-validate-with-xsd"
         xmlns:t="http://xproc.org/ns/testsuite/3.0">
   <t:info>
     <t:title>validate-xsd-001</t:title>
