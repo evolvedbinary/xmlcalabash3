@@ -18,7 +18,7 @@ steps:
       - sudo chown -R builder:builder .
       # Avoid Invalid Java installation found at '/home/builder/.gradle/.tmp/jdks/... ???
       - rm -rf /home/builder/.gradle/.tmp
-      - echo ./gradlew --console=plain test 
+      - ./gradlew --console=plain test 
 
   - name: test-suites
     image: xmlcalabash-build
