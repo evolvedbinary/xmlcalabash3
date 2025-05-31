@@ -58,6 +58,7 @@ open class CompileEnvironment(override val episode: String, override val xmlCala
         "gif" to "image/gif",
         "gz" to "application/gzip",
         "gzip" to "application/gzip",
+        "ixml" to "text/plain",
         "jar" to "application/java-archive",
         "jpeg" to "image/jpeg",
         "jpg" to "image/jpeg",
