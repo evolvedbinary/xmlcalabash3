@@ -67,7 +67,7 @@ The early testing releases are distributed in a Maven snapshots repository:
 
 * Reporting issues
 :PROPERTIES:
-:CUSTOM_ID: h-3896F665-7A7C-466D-AB43-3E011046C2E9
+:CUSTOM_ID: issues
 :END:
 
 Please [[https://codeberg.org/xmlcalabash/xmlcalabash3/issues][open issues]] for any problems you encounter. There are going to be bugs,
