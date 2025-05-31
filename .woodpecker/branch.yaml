@@ -131,6 +131,17 @@ steps:
       - rsync -var --checksum apidocs/$VERSION datamagician:/Volumes/Websites/xcdocs/apidocs
       - rsync -var --checksum --delete apidocs/current datamagician:/Volumes/Websites/xcdocs/apidocs
 
+  - name: publish-release
+    image: woodpeckerci/plugin-release
+    when:
+      - evaluate: 'CI_TAG != "" && not (CI_TAG contains "SNAPSHOT")'
+    settings:
+      files:
+        - 'app/build/distributions/*.zip'
+        - 'ext/polyglot/build/distributions/*.zip'
+      api_key:
+        from_secret: ACCESS_TOKEN
+
 # N.B. The xproc-test-suite-apache2 container has a complete copy of 
 # the /usr/local/apache2 directory (including binaries) from the apache2
 # container. Parts of it are (will be!) updated by a different workflow.
