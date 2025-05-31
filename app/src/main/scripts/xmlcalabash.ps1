@@ -3,21 +3,26 @@
 # directory ahead of jar files from the "lib" directory. This should support
 # overriding jars. And supports running steps that require extra libraries.
 
-$cp = "$PSScriptRoot\xmlcalabash-app-@@VERSION@@.jar"
+$cp = Join-Path -Path $PSScriptRoot -ChildPath "xmlcalabash-app-@@VERSION@@.jar"
 
 if (![System.IO.File]::Exists("$cp")) {
   Write-Host "XML Calabash script did not find the @@VERSION@@ distribution jar"
   Exit 1
 }
 
-Get-ChildItem "$PSScriptRoot\extra" -Filter *.jar |
+$cpdelim = if($IsLinux -or $IsMacOS) {":"} else {";"}
+$slash = if($IsLinux -or $IsMacOS) {"/"} else {"\"}
+
+$extraRoot = Join-Path -Path $PSScriptRoot -ChildPath "extra"
+Get-ChildItem $extraRoot -Filter *.jar |
 ForEach-Object {
-  $cp = "$cp;$PSScriptroot\lib\$_"
+  $cp = "${cp}${cpdelim}${PSScriptroot}${slash}extra${slash}$_"
 }
 
-Get-ChildItem "$PSScriptRoot\lib" -Filter *.jar |
+$libRoot = Join-Path -Path $PSScriptRoot -ChildPath "lib"
+Get-ChildItem $libRoot -Filter *.jar |
 ForEach-Object {
-  $cp = "$cp;$PSScriptroot\lib\$_"
+  $cp = "${cp}${cpdelim}${PSScriptroot}${slash}lib${slash}$_"
 }
 
 # FIXME: should there be some attempt to look for $Env:JAVA_HOME here?
