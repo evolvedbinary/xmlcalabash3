@@ -30,7 +30,7 @@ step.</para>
 <title>Installation</title>
 <para>The <tag>cx:python</tag> step is not included in the standard XML Calabash release.
 You must
-<link xlink:href="https://github.com/xmlcalabash/xmlcalabash3/releases">obtain it separately</link>
+<link xlink:href="https://codeberg.org/xmlcalabash/xmlcalabash3/releases">obtain it separately</link>
 and install it on your classpath before you can use this step.
 See <tag xlink:href="cx-polyglot.html">cx:polyglot</tag> for more details.</para>
 </refsection>
