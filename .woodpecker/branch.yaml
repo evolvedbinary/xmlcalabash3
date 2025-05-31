@@ -108,7 +108,7 @@ steps:
 
   - name: update the documentation
     when: 
-      - evaluate: '$CI_COMMIT_TAG != "" && not ($CI_COMMIT_TAG contains "SNAPSHOT")'
+      - event: tag
     image: xmlcalabash-build
     volumes:
       - builder-home:/home/builder
@@ -134,8 +134,8 @@ steps:
 
   - name: publish-release
     image: woodpeckerci/plugin-release
-    when:
-      - evaluate: '$CI_COMMIT_TAG != "" && not ($CI_COMMIT_TAG contains "SNAPSHOT")'
+    when: 
+      - event: tag
     settings:
       files:
         - 'app/build/distributions/*.zip'
