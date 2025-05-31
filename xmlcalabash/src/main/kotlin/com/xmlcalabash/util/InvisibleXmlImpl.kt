@@ -17,28 +17,28 @@ open class InvisibleXmlImpl(val stepConfig: XProcStepConfiguration, val prefer: 
 
     open fun parse(grammar: String?, input: String, failOnError: Boolean, parameters: Map<QName, XdmValue>): XProcDocument {
         var tried = ""
+        var impl: InvisibleXmlImpl? = null
+
         try {
             when (prefer) {
                 "nineml" -> {
                     tried = "nineml"
-                    val impl = loadNineML()
+                    impl = loadNineML()
                     if (impl != null) {
                         if (!loggedNineML || loggedMarkupBlitz) {
                             stepConfig.debug { "Using NineML for p:invisible-xml"}
                             loggedNineML = true
                         }
-                        return impl.parse(grammar, input, failOnError, parameters)
                     }
                 }
                 "blitz", "markup-blitz" -> {
                     tried = "markup-blitz"
-                    val impl = loadMarkupBlitz()
+                    impl = loadMarkupBlitz()
                     if (impl != null) {
                         if (!loggedMarkupBlitz || loggedNineML) {
                             stepConfig.debug { "Using Markup Blitz for p:invisible-xml"}
                             loggedMarkupBlitz = true
                         }
-                        return impl.parse(grammar, input, failOnError, parameters)
                     }
                 }
                 else -> {
@@ -56,34 +56,50 @@ open class InvisibleXmlImpl(val stepConfig: XProcStepConfiguration, val prefer: 
             }
         }
 
-        // Try the other one
-        try {
-            if (tried == "nineml") {
-                val impl = loadMarkupBlitz()
-                if (impl != null) {
-                    if (!loggedMarkupBlitz || loggedNineML) {
-                        stepConfig.debug { "Using Markup Blitz for p:invisible-xml"}
-                        loggedMarkupBlitz = true
+        if (impl == null) {
+            // Try the other one
+            try {
+                if (tried == "nineml") {
+                    impl = loadMarkupBlitz()
+                    if (impl != null) {
+                        if (!loggedMarkupBlitz || loggedNineML) {
+                            stepConfig.debug { "Using Markup Blitz for p:invisible-xml"}
+                            loggedMarkupBlitz = true
+                        }
                     }
-                    return impl.parse(grammar, input, failOnError, parameters)
-                }
-            } else {
-                val impl = loadNineML()
-                if (impl != null) {
-                    if (!loggedNineML || loggedMarkupBlitz) {
-                        stepConfig.debug { "Using NineML for p:invisible-xml"}
-                        loggedNineML = true
+                } else {
+                    impl = loadNineML()
+                    if (impl != null) {
+                        if (!loggedNineML || loggedMarkupBlitz) {
+                            stepConfig.debug { "Using NineML for p:invisible-xml"}
+                            loggedNineML = true
+                        }
                     }
-                    return impl.parse(grammar, input, failOnError, parameters)
                 }
-            }
-        } catch (ex: Throwable) {
-            if (ex is XProcException) {
-                throw ex
+            } catch (ex: Throwable) {
+                if (ex is XProcException) {
+                    throw ex
+                }
             }
         }
 
-        throw stepConfig.exception(XProcError.xdStepFailed("No Invisible XML implementation available"))
+        if (impl == null) {
+            throw stepConfig.exception(XProcError.xdStepFailed("No Invisible XML implementation available"))
+        }
+
+        try {
+            return impl.parse(grammar, input, failOnError, parameters)
+        } catch (ex: Exception) {
+            if (ex is XProcException) {
+                throw ex
+            }
+            // This is a terrible hack; the NineML library really needs to be improved!
+            if (ex is NullPointerException && tried == "nineml") {
+                throw stepConfig.exception(XProcError.xcInvalidIxmlGrammar(), ex)
+            }
+            throw stepConfig.exception(XProcError.xcInvisibleXmlParseFailed(), ex)
+        }
+
     }
 
     private fun loadNineML(): InvisibleXmlImpl? {

@@ -25,6 +25,8 @@ class InvisibleXmlStep(): AbstractAtomicStep() {
             ?: System.getProperty("com.xmlcalabash.invisible-xml")
             ?: "nineml"
 
+        stepConfig.debug { "Invisible XML implementation: ${implementation}" }
+
         if (stepParams.stepType == NsP.ixml) {
             stepConfig.info { "The step type p:ixml is deprecated, use p:invisible-xml instead" }
         }
@@ -32,7 +34,7 @@ class InvisibleXmlStep(): AbstractAtomicStep() {
         val failOnError = booleanBinding(Ns.failOnError) != false
         val parameters = qnameMapBinding(Ns.parameters)
 
-        var grammarText = if (grammar.isEmpty()) {
+        val grammarText = if (grammar.isEmpty()) {
             null
         } else {
             if (grammar.size != 1) {
