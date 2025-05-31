@@ -104,6 +104,13 @@
   </a>
 </xsl:template>
 
+<xsl:template match="db:cbissue">
+  <a href="https://codeberg.org/xmlcalabash/xmlcalabash3/issues/{@number}">
+    <xsl:text>issue #</xsl:text>
+    <xsl:value-of select="@number"/>
+  </a>
+</xsl:template>
+
 <xsl:template match="*">
   <xsl:message terminate="yes" select="'Unexpected changelog element: ' || local-name(.)"/>
 </xsl:template>
