@@ -49,6 +49,7 @@ steps:
     commands:
       - export VERSION=`cat gradle.properties|grep xmlcalabashVersion|cut -f2 -d=`
       - export SNAPSHOT=`echo $VERSION | grep SNAPSHOT`
+      - echo "TAG $CI_TAG and SNAP $SNAPSHOT"
       - if [ "$CI_TAG" != "" -o "$SNAPSHOT" != "" ]; then
       -   ./gradlew --console=plain publish
       - else
@@ -75,7 +76,7 @@ steps:
 
   - name: update the tagged test-report
     when: 
-      - evaluate: 'CI_TAG != "" && not (CI_TAG contains "SNAPSHOT")'
+      - evaluate: '$CI_TAG != "" && not ($CI_TAG contains "SNAPSHOT")'
     image: xmlcalabash-build
     volumes:
       - builder-home:/home/builder
@@ -107,7 +108,7 @@ steps:
 
   - name: update the documentation
     when: 
-      - evaluate: 'CI_TAG != "" && not (CI_TAG contains "SNAPSHOT")'
+      - evaluate: '$CI_TAG != "" && not ($CI_TAG contains "SNAPSHOT")'
     image: xmlcalabash-build
     volumes:
       - builder-home:/home/builder
@@ -134,7 +135,7 @@ steps:
   - name: publish-release
     image: woodpeckerci/plugin-release
     when:
-      - evaluate: 'CI_TAG != "" && not (CI_TAG contains "SNAPSHOT")'
+      - evaluate: '$CI_TAG != "" && not ($CI_TAG contains "SNAPSHOT")'
     settings:
       files:
         - 'app/build/distributions/*.zip'
