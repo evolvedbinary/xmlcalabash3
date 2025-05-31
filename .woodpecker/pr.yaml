@@ -11,6 +11,8 @@ clone:
 steps:
   - name: build-and-test
     image: xmlcalabash-build
+    volumes:
+      - builder-home:/home/builder
     environment:
       SMTPSERVER: sendria
       SKIP_EE_TESTS: true
@@ -23,6 +25,8 @@ steps:
 
   - name: test-suites
     image: xmlcalabash-build
+    volumes:
+      - builder-home:/home/builder
     commands:
       - ./gradlew --console=plain --max-workers=2 -PWHOST=http://apache2 -PSHOST=sendria test-driver:test-report
 
