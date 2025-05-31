@@ -17,7 +17,28 @@ finer detail.</para>
 <revnumber>3.0.0-beta8</revnumber>
 <date>2025-05-31</date>
 <revdescription>
-<para>What about <cbissue number="1"/>.</para>
+<para>The big change here is moving from GitHub to Codeberg.</para>
+<itemizedlist>
+<listitem><para>Fixed <ghissue number="542"/>. Added support for the
+<tag class="attribute">version</tag> attribute on <tag>cc:xml-calabash</tag>.
+Improved the messages associated with errors in the configuration file.
+</para></listitem>
+<listitem><para>Fixed <ghissue number="541"/>. Fixed a bug that caused
+<tag>p:run</tag> inside a loop to “get stuck” because of a problem with
+how input ports were handled.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="8"/>. Fix Windows platform dependencies
+in <code>xmlcalabash.ps1</code>. There’s
+<link xlink:href="https://github.com/xmlcalabash/xmlcalabash3/issues/546">another bug</link>
+with piped input, but it’s not clear how to fix that.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="7"/>. Cleaned up some of the implementation
+details in the <tag>p:invisible-xml</tag> step.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="6"/>. Set the default content type for
+<code>.ixml</code> files to <code>text/plain</code>.
+</para></listitem>
+</itemizedlist>
 </revdescription>
 </revision>
 
