@@ -777,7 +777,6 @@ class TestCase(val xmlCalabash: XmlCalabash, val testOptions: TestOptions, val t
                 posix.add(PosixFilePermission.OWNER_WRITE)
             }
 
-            println("SET: ${file.toPath()} to ${posix}")
             Files.setPosixFilePermissions(file.toPath(), posix)
         } catch (ex: UnsupportedOperationException) {
             println("EX: ${ex.message}")
