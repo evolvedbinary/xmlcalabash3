@@ -8,7 +8,7 @@
 </info>
 
 <para>It is an explicit goal of XML Calabash that it should produce reasonable
-and useful error messages. <link xlink:href="https://github.com/xmlcalabash/xmlcalabash3/issues">Bug
+and useful error messages. <link xlink:href="https://codeberg.org/xmlcalabash/xmlcalabash3/issues">Bug
 reports</link> to the effect that “such and such an error is confusing” are
 most welcome.</para>
 

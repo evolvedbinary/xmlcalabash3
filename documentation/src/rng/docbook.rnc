@@ -83,7 +83,13 @@ db.ghissue =
         empty
     }
 
-db.error.inlines |= db.error | db.ghissue
+db.cbissue =
+    element db:cbissue {
+        attribute number { xsd:integer },
+        empty
+    }
+
+db.error.inlines |= db.error | db.ghissue | db.cbissue
 
 # ======================================================================
 

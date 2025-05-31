@@ -10,7 +10,7 @@
 <para>XML Calabash version <?version version?> is still very much an alpha
 release. While it’s still in alpha/beta, it’s not being published anywhere except on
 the
-<link xlink:href="https://github.com/xmlcalabash/xmlcalabash3/releases">releases
+<link xlink:href="https://codeberg.org/xmlcalabash/xmlcalabash3/releases">releases
 page</link>. That release is the command line application. In the future,
 library releases will be published as well.
 </para>
@@ -129,7 +129,6 @@ resources, XML Calabash defines a pragmatically more useful default.</para>
 <row><entry>.fo</entry><entry>application/xml</entry></row>
 <row><entry>.gz</entry><entry>application/gzip</entry></row>
 <row><entry>.gzip</entry><entry>application/gzip</entry></row>
-<row><entry>.ixml</entry><entry>text/plain</entry></row>
 <row><entry>.jar</entry><entry>application/java-archive</entry></row>
 <row><entry>.json</entry><entry>application/json</entry></row>
 <row><entry>.jsonld</entry><entry>application/ld+json</entry></row>

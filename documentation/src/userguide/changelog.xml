@@ -13,6 +13,14 @@ See the commits and pull requests on
 finer detail.</para>
 
 <revhistory>
+<revision xml:id="r300-beta8">
+<revnumber>3.0.0-beta8</revnumber>
+<date>2025-05-31</date>
+<revdescription>
+<para>What about <cbissue number="1"/>.</para>
+</revdescription>
+</revision>
+
 <revision xml:id="r300-beta7">
 <revnumber>3.0.0-beta7</revnumber>
 <date>2025-05-25</date>
