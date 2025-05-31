@@ -63,7 +63,7 @@ You can find the necessary jar files in the release archive. Dependencies
 
 The early testing releases are distributed in a Maven snapshots repository:
 
-+ https://oss.sonatype.org/content/repositories/snapshots/
++ https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/
 
 * Reporting issues
 :PROPERTIES:
