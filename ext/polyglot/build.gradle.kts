@@ -140,7 +140,7 @@ publishing {
       url = if (xmlbuild.version.get().contains("SNAPSHOT")) {
         uri("https://central.sonatype.com/repository/maven-snapshots/")
       } else {
-        uri("https://ossrh-staging-api.central.sonatype.com/service/local/")
+        uri("https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/")
       }
     }
   }
@@ -153,12 +153,12 @@ publishing {
         name = "XML Calabash Polyglot Step"
         packaging = "jar"
         description = "An polyglot step for XML Calabash 3.x"
-        url = "https://github.com/xmlcalabash/xmlcalabash3"
+        url = "https://codeberg.org/xmlcalabash/xmlcalabash3"
 
         scm {
-          url = "scm:git@github.com:xmlcalabash/xmlcalabash3.git"
-          connection = "scm:git@github.com:xmlcalabash/xmlcalabash3.git"
-          developerConnection = "scm:git@github.com:xmlcalabash/xmlcalabash3.git"
+          url = "scm:git@codeberg.org:xmlcalabash/xmlcalabash3.git"
+          connection = "scm:git@codeberg.org:xmlcalabash/xmlcalabash3.git"
+          developerConnection = "scm:git@codeberg.org:xmlcalabash/xmlcalabash3.git"
         }
 
         licenses {

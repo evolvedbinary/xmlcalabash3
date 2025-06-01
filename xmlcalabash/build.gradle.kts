@@ -101,7 +101,7 @@ tasks.withType<DokkaTaskPartial>().configureEach {
       includes.from("Module.md")
       sourceLink {
         localDirectory.set(file("src/main/kotlin"))
-        remoteUrl.set(URI("https://github.com/xmlcalabash/xmlcalabash3").toURL())
+        remoteUrl.set(URI("https://codeberg.org/xmlcalabash/xmlcalabash3").toURL())
         remoteLineSuffix.set("#L")
       }
     }
@@ -117,6 +117,13 @@ tasks.register("apidocs") {
   }
 }
 
+tasks.register("helloWorld") {
+  doLast {
+    println("${project.findProperty("sonatypeUsername").toString()}")
+    println("${project.findProperty("sonatypePassword").toString()}")
+  }
+}
+
 publishing {
   repositories {
     maven {
@@ -127,7 +134,7 @@ publishing {
       url = if (xmlbuild.version.get().contains("SNAPSHOT")) {
         uri("https://central.sonatype.com/repository/maven-snapshots/")
       } else {
-        uri("https://ossrh-staging-api.central.sonatype.com/service/local/")
+        uri("https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/")
       }
     }
   }
@@ -140,12 +147,12 @@ publishing {
         name = "XML Calabash"
         packaging = "jar"
         description = "An XProc 3.0 processor"
-        url = "https://github.com/xmlcalabash/xmlcalabash3"
+        url = "https://codeberg.org/xmlcalabash/xmlcalabash3"
 
         scm {
-          url = "scm:git@github.com:xmlcalabash/xmlcalabash3.git"
-          connection = "scm:git@github.com:xmlcalabash/xmlcalabash3.git"
-          developerConnection = "scm:git@github.com:xmlcalabash/xmlcalabash3.git"
+          url = "scm:git@codeberg.org:xmlcalabash/xmlcalabash3.git"
+          connection = "scm:git@codeberg.org:xmlcalabash/xmlcalabash3.git"
+          developerConnection = "scm:git@codeberg.org:xmlcalabash/xmlcalabash3.git"
         }
 
         licenses {

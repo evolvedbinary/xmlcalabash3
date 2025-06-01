@@ -13,6 +13,13 @@ See the commits and pull requests on
 finer detail.</para>
 
 <revhistory>
+<revision xml:id="r300">
+<revnumber>3.0.0</revnumber>
+<date>2025-06-01</date>
+<revdescription>
+<para>The first non-α, non-β release. 🤞.</para>
+</revdescription>
+</revision>
 <revision xml:id="r300-beta8">
 <revnumber>3.0.0-beta8</revnumber>
 <date>2025-05-31</date>
