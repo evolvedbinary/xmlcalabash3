@@ -80,6 +80,18 @@ tasks.jar {
   archiveFileName.set(xmlbuild.jarArchiveFilename())
 }
 
+tasks.javadoc {
+  if (JavaVersion.current().isJava9Compatible) {
+    (options as StandardJavadocDocletOptions).addBooleanOption("html5", true)
+  }
+}
+
+val javadocJar = tasks.register<Jar>("javadocJar") {
+  dependsOn("dokkaJavadoc")
+  archiveClassifier = "javadoc"
+  from(tasks.dokkaJavadoc)
+}
+
 val sourcesJar by tasks.registering(Jar::class) {
   archiveClassifier = "sources"
   from(sourceSets.main.get().allSource)
@@ -173,6 +185,7 @@ publishing {
 
       from(components["java"])
       artifact(sourcesJar.get())
+      artifact(javadocJar.get())
     }
   }
 }

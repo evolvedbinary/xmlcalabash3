@@ -1,10 +1,23 @@
 import java.nio.file.*
 import com.xmlcalabash.build.XmlCalabashBuildExtension
 
+import org.jetbrains.dokka.DokkaConfiguration.Visibility
+import org.jetbrains.dokka.gradle.DokkaTask
+import org.jetbrains.dokka.gradle.DokkaTaskPartial
+import org.jetbrains.dokka.base.DokkaBase
+import org.jetbrains.dokka.base.DokkaBaseConfiguration
+
+buildscript {
+  dependencies {
+    classpath("org.jetbrains.dokka:dokka-base:1.9.20")
+  }
+}
+
 plugins {
   id("buildlogic.kotlin-library-conventions")
   id("com.xmlcalabash.build.xmlcalabash-build")
   id("org.graalvm.buildtools.native") version "0.10.2"
+  id("org.jetbrains.dokka") version "1.9.20"
   id("maven-publish")
   id("signing")
 }
@@ -69,6 +82,18 @@ tasks.jar {
 val sourcesJar by tasks.registering(Jar::class) {
   archiveClassifier = "sources"
   from(sourceSets.main.get().allSource)
+}
+
+tasks.javadoc {
+  if (JavaVersion.current().isJava9Compatible) {
+    (options as StandardJavadocDocletOptions).addBooleanOption("html5", true)
+  }
+}
+
+val javadocJar = tasks.register<Jar>("javadocJar") {
+  dependsOn("dokkaJavadoc")
+  archiveClassifier = "javadoc"
+  from(tasks.dokkaJavadoc)
 }
 
 tasks.withType<Test> {
@@ -179,6 +204,7 @@ publishing {
 
       from(components["java"])
       artifact(sourcesJar.get())
+      artifact(javadocJar.get())
     }
   }
 }
