@@ -13,8 +13,7 @@ and the additional step libraries:
 [[https://spec.xproc.org/3.1/text/][text steps]],
 [[https://spec.xproc.org/3.1/validation/][validation steps]], and
 [[https://spec.xproc.org/3.1/ixml/][iXML steps]]. It also ships with
-[a number](https://docs.xmlcalabash.com/reference/current/extension-steps.html)
-of extension steps.
+[[https://docs.xmlcalabash.com/reference/current/extension-steps.html][a number]] of extension steps.
 
 Instructions for installing and running the command line application are in the
 [[https://docs.xmlcalabash.com/userguide/current/][User Guide]]. The [[https://docs.xmlcalabash.com/reference/current/][Reference Guide]] describes all of the steps and other details.
