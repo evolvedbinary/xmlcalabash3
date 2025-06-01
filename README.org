@@ -1,18 +1,18 @@
 #+TITLE: XML Calabash 3.x
 
 This is XML Calabash 3.x, a conformant implementation of
-[[https://spec.xproc.org/master/head/xproc/][XProc 3.x]].
+[[https://spec.xproc.org/3.1/xproc/][XProc 3.1]].
 
 XML Calabash implements the standard step library
 and the additional step libraries:
-[[https://spec.xproc.org/master/head/run/][dynamic pipelines (p:run)]],
-[[https://spec.xproc.org/master/head/file/][file steps]],
-[[https://spec.xproc.org/master/head/os/][OS steps]],
-[[https://spec.xproc.org/master/head/mail/][mail steps]],
-[[https://spec.xproc.org/master/head/paged-media/][paged media steps]],
-[[https://spec.xproc.org/master/head/text/][text steps]],
-[[https://spec.xproc.org/master/head/validation/][validation steps]], and
-[[https://spec.xproc.org/master/head/ixml/][iXML steps]]. It also ships with
+[[https://spec.xproc.org/3.1/run/][dynamic pipelines (p:run)]],
+[[https://spec.xproc.org/3.1/file/][file steps]],
+[[https://spec.xproc.org/3.1/os/][OS steps]],
+[[https://spec.xproc.org/3.1/mail/][mail steps]],
+[[https://spec.xproc.org/3.1/paged-media/][paged media steps]],
+[[https://spec.xproc.org/3.1/text/][text steps]],
+[[https://spec.xproc.org/3.1/validation/][validation steps]], and
+[[https://spec.xproc.org/3.1/ixml/][iXML steps]]. It also ships with
 [a number](https://docs.xmlcalabash.com/reference/current/extension-steps.html)
 of extension steps.
 
@@ -22,33 +22,30 @@ Instructions for installing and running the command line application are in the
 [[https://docs.xmlcalabash.com/apidocs/current/][API docs]] are available, but at this point, the API should be considered unstable
 and liable to change in arbitrary ways.
 
-| This is beta software                                                             |
-|-----------------------------------------------------------------------------------|
-| A lot of things work. Some don’t. Do not put this in production.                  |
-
 The [[https://xmlcalabash.com/test-report/current/][test report]] provides some insights into what is expected to work and what is
 known to be broken.
 
 * Quick start
 :PROPERTIES:
-:CUSTOM_ID: h-28FFCEFF-A256-4FB6-9E1A-47295373CE82
+:CUSTOM_ID: quick-start
 :END:
 
 XML Calabash requires Java 11 or later. Everything else is in the distribution.
 
-1. Download the [[https://github.com/xmlcalabash/xmlcalabash3/releases][latest release]]. You need ~xmlcalabash-3.0.0-betaXX.zip~ where “XX”
-   is the release number. The other zip files on the release page are extension steps
-   with additional third party dependencies. You have to download them too, if you want
-   to use those steps.
+1. Download the [[https://codeberg.org/xmlcalabash/xmlcalabash3/releases][latest release]]. You need ~xmlcalabash-3.X.Y.zip~ where “X” and “Y”
+   are the release number (for example, 3.0.0).
+   The other zip files on the release page are extension steps with additional
+   third party dependencies. You have to download them too, if you want to use
+   those steps.
 2. Unzip it somewhere on your local file system.
-3. Run ~java -jar xmlcalabash-app-3.0.0-betaXX.jar help~ to see a quick list of the options.
-4. Run ~java -jar xmlcalabash-app-3.0.0-betaXX.jar helloWorld.xpl~ to run the sample pipeline.
+3. Run ~java -jar xmlcalabash-app-3.X.Y.jar help~ to see a quick list of the options.
+4. Run ~java -jar xmlcalabash-app-3.X.Y.jar helloWorld.xpl~ to run the sample pipeline.
 
 There are more complete instructions in the [[https://docs.xmlcalabash.com/userguide/current/][User Guide]].
 
 ** Running the main class
 :PROPERTIES:
-:CUSTOM_ID: h-6A41C601-A650-4C16-8CC5-5452157CE191
+:CUSTOM_ID: running
 :END:
 
 The main class for the command line application is ~com.xmlcalabash.app.Main~.
@@ -58,12 +55,13 @@ You can find the necessary jar files in the release archive. Dependencies
 
 ** Using with Maven
 :PROPERTIES:
-:CUSTOM_ID: h-C3C1B934-F48D-4038-83ED-75274C6FA61B
+:CUSTOM_ID: maven
 :END:
 
-The early testing releases are distributed in a Maven snapshots repository:
+Maven releases are available [[https://central.sonatype.com/][Maven Central]].
 
-+ https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/
+Snapshot releases of current development are available from
+[[https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/][the snapshot repository]].
 
 * Reporting issues
 :PROPERTIES:
