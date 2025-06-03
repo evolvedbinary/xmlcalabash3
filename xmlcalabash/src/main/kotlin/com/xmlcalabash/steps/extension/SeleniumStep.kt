@@ -77,6 +77,7 @@ class SeleniumStep(): AbstractAtomicStep() {
         val _message = QName(NamespaceUri.NULL, "message")
         val _move = QName(NamespaceUri.NULL, "move")
         val _navigate = QName(NamespaceUri.NULL, "navigate")
+        val _original = QName(NamespaceUri.NULL, "original")
         val _output = QName(NamespaceUri.NULL, "output")
         val _page = QName(NamespaceUri.NULL, "page")
         val _param = QName(NamespaceUri.NULL, "param")
@@ -172,6 +173,7 @@ class SeleniumStep(): AbstractAtomicStep() {
     private val findResults = mutableMapOf<String, FindResult>()
     private val subroutines = mutableMapOf<String, XdmNode>()
     private val whitelist = mutableListOf<Regex>()
+    private val whitelisted = mutableSetOf<String>()
 
     override fun run() {
         super.run()
@@ -234,9 +236,11 @@ class SeleniumStep(): AbstractAtomicStep() {
         }
 
         try {
+            stepConfig.debug { "Getting ${page} " }
             driver.get("${page}")
             interpretScript(script)
         } finally {
+            stepConfig.debug { "Quitting " }
             driver.quit()
             findResults.clear()
         }
@@ -312,53 +316,74 @@ class SeleniumStep(): AbstractAtomicStep() {
 
     private fun interpretFind(element: XdmNode) {
         val all = element.getAttributeValue(_all)
-        if (all == null) {
-            interpretFindElement(element)
-        } else {
-            interpretFindAllElements(element)
-        }
+        interpretFindElement(element, all != null)
     }
 
-    private fun interpretFindElement(element: XdmNode) {
+    private fun interpretFindElement(element: XdmNode, all: Boolean) {
         val name = element.getAttributeValue(Ns.name)!!
         val find = element.getAttributeValue(_string)!!
         val type = element.getAttributeValue(_type)!!
         val waitAttr = element.getAttributeValue(_wait)
         val pauseAttr = element.getAttributeValue(_pause)
+        val originalVar = element.getAttributeValue(_original)
 
-        val wait = if (waitAttr != null || pauseAttr != null) {
+        val wait = if (waitAttr != null || pauseAttr != null || originalVar != null) {
             DurationUtils.parseDuration(stepConfig, waitAttr ?: "PT30S")
         } else {
             null
         }
 
-        val pause = if (waitAttr != null || pauseAttr != null) {
+        val pause = if (waitAttr != null || pauseAttr != null || originalVar != null) {
             DurationUtils.parseDuration(stepConfig, pauseAttr ?: "PT0.25S")
         } else {
             null
         }
 
+        stepConfig.debug { "Find \$${name}"}
+
         val start = Instant.now()
 
         while (true) {
             try {
-                val element = when (type) {
-                    "name" -> driver.findElement(By.name(find))
-                    "selector" -> driver.findElement(By.cssSelector(find))
-                    "id" -> driver.findElement(By.id(find))
-                    "link-text" -> driver.findElement(By.linkText(find))
-                    "partial-link-text" -> driver.findElement(By.partialLinkText(find))
-                    "tag" -> driver.findElement(By.tagName(find))
-                    "class" -> driver.findElement(By.className(find))
-                    "xpath" -> driver.findElement(By.xpath(find))
-                    else -> {
-                        throw stepConfig.exception(XProcError.xdStepFailed("Unexpected find type: ${type}"))
+                val elements = doFind(element, all)
+                val nodes = mutableListOf<XdmValue>()
+                for (element in elements) {
+                    nodes.add(nodeFor(element.getDomProperty("outerHTML")!!))
+                }
+
+                val result = FindResult(nodes, elements)
+
+                if (originalVar == null) {
+                    findResults[name] = result
+                    return
+                }
+
+                val original = findResults[originalVar]
+                    ?: throw stepConfig.exception(XProcError.xdStepFailed("No '\$${originalVar}' defined"))
+
+                var different = true
+                for (origv in original.values) {
+                    for (newv in result.values) {
+                        if (stepConfig.typeUtils.xpathDeepEqual(origv, newv)) {
+                            different = false
+                        }
                     }
                 }
-                val domSerialization = element.getDomProperty("outerHTML")!!
-                val node = nodeFor(domSerialization)
-                findResults[name] = FindResult(node, element)
-                return
+
+                if (different) {
+                    findResults[name] = result
+                    return
+                }
+
+                stepConfig.debug { "Waiting for value to be different; pausing ${pause} for up to ${wait}." }
+
+                val interval = Duration.between(start, Instant.now())
+                if (interval > wait) {
+                    findResults[name] = result
+                    return
+                }
+
+                Thread.sleep(pause!!.toMillis())
             } catch (_: NoSuchElementException) {
                 if (wait != null) {
                     stepConfig.debug { "Did not find \$${name}; pausing ${pause} for up to ${wait}."}
@@ -375,12 +400,12 @@ class SeleniumStep(): AbstractAtomicStep() {
         }
     }
 
-    private fun interpretFindAllElements(element: XdmNode) {
-        val name = element.getAttributeValue(Ns.name)!!
+    private fun doFind(element: XdmNode, all: Boolean): List<WebElement> {
         val find = element.getAttributeValue(_string)!!
         val type = element.getAttributeValue(_type)!!
 
-        try {
+        if (all) {
+            stepConfig.debug { "Find all elements by ${type}: ${find}"}
             val elements = when (type) {
                 "name" -> driver.findElements(By.name(find))
                 "selector" -> driver.findElements(By.cssSelector(find))
@@ -394,14 +419,25 @@ class SeleniumStep(): AbstractAtomicStep() {
                     throw stepConfig.exception(XProcError.xdStepFailed("Unexpected find type: ${type}"))
                 }
             }
-            val nodes = mutableListOf<XdmValue>()
-            for (element in elements) {
-                nodes.add(nodeFor(element.getDomProperty("outerHTML")!!))
-            }
-            findResults[name] = FindResult(nodes, elements)
-        } catch (_: NoSuchElementException) {
-            findResults[name] = FindResult()
+            return elements
         }
+
+        stepConfig.debug { "Find element by ${type}: ${find}"}
+        val element = when (type) {
+            "name" -> driver.findElement(By.name(find))
+            "selector" -> driver.findElement(By.cssSelector(find))
+            "id" -> driver.findElement(By.id(find))
+            "link-text" -> driver.findElement(By.linkText(find))
+            "partial-link-text" -> driver.findElement(By.partialLinkText(find))
+            "tag" -> driver.findElement(By.tagName(find))
+            "class" -> driver.findElement(By.className(find))
+            "xpath" -> driver.findElement(By.xpath(find))
+            else -> {
+                throw stepConfig.exception(XProcError.xdStepFailed("Unexpected find type: ${type}"))
+            }
+        }
+
+        return listOf(element)
     }
 
     private fun interpretSet(element: XdmNode) {
@@ -453,6 +489,32 @@ class SeleniumStep(): AbstractAtomicStep() {
             else -> throw stepConfig.exception(XProcError.xdStepFailed("Unexpected set type: ${type}"))
         }
 
+        stepConfig.debug {
+            when (type) {
+                "window", "page" -> {
+                    val param = element.getAttributeValue(_param)!!
+                    "Set \$${name}: ${type} ${param} = ${value}"
+                }
+                "string" -> {
+                    "Set \$${name}: ${type} = ${value}"
+                }
+                "xpath" -> {
+                    val expr = element.getAttributeValue(_xpath)!!
+                    "Set \$${name}: ${type} ${expr} = ${value}"
+                }
+                "element" -> {
+                    val from = element.getAttributeValue(Ns.from)!!
+                    val prop = element.getAttributeValue(_property)
+                    "Set \$${name}: ${type} ${from} ${prop} = ${value}"
+                }
+                "cookie" -> {
+                    val cookieName = element.getAttributeValue(_cookie)!!
+                    "Set \$${name}: ${type} ${cookieName} = ${value}"
+                }
+                else -> "" // This can't happen
+            }
+        }
+
         findResults[name] = FindResult(XdmAtomicValue(value))
     }
 
@@ -471,6 +533,15 @@ class SeleniumStep(): AbstractAtomicStep() {
         }
 
         val cookie = builder.build()
+
+        stepConfig.debug {
+            if (duration == null) {
+                "Add cookie ${name}=${value}; path=${path}; duration=${duration}"
+            } else {
+                "Add cookie ${name}=${value}; path=${path}"
+            }
+        }
+
         driver.manage().addCookie(cookie)
     }
 
@@ -495,7 +566,9 @@ class SeleniumStep(): AbstractAtomicStep() {
             for (element in result.elements) {
                 actions.sendKeys(element, text)
             }
+            stepConfig.debug { "Send to ${name}: ${text}"}
         } else {
+            stepConfig.debug { "Send: ${text}"}
             actions.sendKeys(text)
         }
     }
@@ -509,8 +582,10 @@ class SeleniumStep(): AbstractAtomicStep() {
         if (name != null) {
             val skey = keymap[name]!!
             if (direction == "up") {
+                stepConfig.debug { "Key up ${name}" }
                 actions.keyUp(skey)
             } else {
+                stepConfig.debug { "Key down ${name}" }
                 actions.keyDown(skey)
             }
             return
@@ -523,8 +598,10 @@ class SeleniumStep(): AbstractAtomicStep() {
             index += Character.charCount(cp)
             val seq = String(Character.toChars(cp))
             if (direction == "up") {
+                stepConfig.debug { "Key up ${seq}" }
                 actions.keyUp(seq)
             } else {
+                stepConfig.debug { "Key down ${seq}" }
                 actions.keyDown(seq)
             }
         }
@@ -537,6 +614,7 @@ class SeleniumStep(): AbstractAtomicStep() {
         val type = click.getAttributeValue(Ns.type)!!
         val result = usefulResult(name)
         for (element in result.elements) {
+            stepConfig.debug { "Mouse ${type} \$${name}"}
             when (type) {
                 "click" -> actions.click(element)
                 "doubleclick" -> actions.doubleClick(element)
@@ -553,6 +631,7 @@ class SeleniumStep(): AbstractAtomicStep() {
         val dy = scroll.getAttributeValue(_deltaY)?.toInt() ?: 0
 
         if (to != null) {
+            stepConfig.debug { "Scroll to ${to}" }
             val result = usefulResult(to)
             // In Firefox, moveToElement won't move outside the current viewport.
             // Hackaroonie!
@@ -564,6 +643,7 @@ class SeleniumStep(): AbstractAtomicStep() {
         }
 
         if (from != null) {
+            stepConfig.debug { "Scroll from ${from}" }
             val result = usefulResult(from)
             for (element in result.elements) {
                 val origin = WheelInput.ScrollOrigin.fromElement(element)
@@ -572,12 +652,15 @@ class SeleniumStep(): AbstractAtomicStep() {
             return
         }
 
+        stepConfig.debug { "Scroll from ${dx}, ${dy}" }
         actions.scrollByAmount(dx, dy)
     }
 
     private fun interpretDrag(drag: XdmNode, actions: Actions) {
         val from = drag.getAttributeValue(Ns.from)!!
         val to = drag.getAttributeValue(Ns.to)!!
+
+        stepConfig.debug { "Drag from ${from} to ${to}" }
 
         val fromResult = usefulResult(from)
         val toResult = usefulResult(to)
@@ -587,6 +670,8 @@ class SeleniumStep(): AbstractAtomicStep() {
 
     private fun interpretMove(scroll: XdmNode, actions: Actions) {
         val to = scroll.getAttributeValue(Ns.to)!!
+
+        stepConfig.debug { "Move to ${to}" }
 
         val result = usefulResult(to)
         for (element in result.elements) {
@@ -598,24 +683,32 @@ class SeleniumStep(): AbstractAtomicStep() {
     }
 
     private fun interpretRelease(@Suppress("UNUSED_PARAMETER") release: XdmNode, actions: Actions) {
+        stepConfig.debug { "Release" }
         actions.release()
     }
 
     private fun interpretPause(pause: XdmNode, actions: Actions) {
         val time = pause.getAttributeValue(Ns.duration)!!
+
+        stepConfig.debug { "Pause ${time} " }
+
         val duration = DurationUtils.parseDuration(stepConfig, time)
         actions.pause(duration)
     }
 
     private fun interpretWait(@Suppress("UNUSED_PARAMETER") wait: XdmNode) {
         var state = driver.executeScript("return document.readyState;")?.toString()
+        stepConfig.debug { "Wait ${state} " }
         while (state != "complete") {
             Thread.sleep(100)
             state = driver.executeScript("return document.readyState;")?.toString()
+            stepConfig.debug { "Wait ${state} " }
         }
     }
 
     private fun interpretRefresh(@Suppress("UNUSED_PARAMETER") refresh: XdmNode) {
+        stepConfig.debug { "Refresh" }
+
         driver.navigate().refresh()
     }
 
@@ -629,16 +722,20 @@ class SeleniumStep(): AbstractAtomicStep() {
         if (string != null) {
             val type = output.getAttributeValue(Ns.type)
             if (type == "xpath") {
+                stepConfig.debug { "Output xpath ${string}" }
                 val selector = selector(string)
                 builder.addText(selector.evaluate().toString())
             } else {
+                stepConfig.debug { "Output ${string}" }
                 builder.addText(string)
             }
         } else {
             val nodes = mutableListOf<XdmValue>()
             if (name == null) {
+                stepConfig.debug { "Output pageSource" }
                 nodes.add(nodeFor(driver.pageSource!!))
             } else {
+                stepConfig.debug { "Output \$${name}" }
                 val result = findResults[name]
                     ?: throw stepConfig.exception(XProcError.xdStepFailed("No '${name}' element selected"))
                 nodes.addAll(result.values)
@@ -669,11 +766,17 @@ class SeleniumStep(): AbstractAtomicStep() {
         if (to != null) {
             val url = UriUtils.resolve(URI(driver.currentUrl!!),to)!!.toURL()
             checkWhitelist(to)
+
+            stepConfig.debug { "Navigate to ${url}" }
+
             driver.navigate().to(url)
             return
         }
 
         val direction = navigate.getAttributeValue(_direction)!!
+
+        stepConfig.debug { "Navigate ${direction}" }
+
         if (direction.startsWith("for")) {
             driver.navigate().forward()
         } else {
@@ -964,12 +1067,15 @@ class SeleniumStep(): AbstractAtomicStep() {
 
         for (regex in whitelist) {
             if (regex.matches(uri)) {
-                stepConfig.debug { "Selenium whitelisted: ${uri}" }
+                if (uri !in whitelisted) {
+                    stepConfig.debug { "Selenium whitelisted: ${uri}" }
+                }
+                whitelisted.add(uri)
                 return
             }
-            stepConfig.debug { "Selenium blacklisted: ${uri}" }
         }
 
+        stepConfig.debug { "Selenium blacklisted: ${uri}" }
         throw stepConfig.exception(XProcError.xcxSeleniumNotWhitelisted(uri))
     }
 

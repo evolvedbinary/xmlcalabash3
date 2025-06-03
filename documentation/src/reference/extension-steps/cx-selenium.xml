@@ -83,7 +83,7 @@ identifies the page to open in the browser, and has one or more statements.</par
 <figure xml:id="fig.scripting.railroad">
 <title>Overall structure of a cx:selenium script</title>
 <programlisting role="railroad">
-script ::= "script version 0.2" "." "page" string "." statement+
+script ::= "script version 0.3" "." "page" string "." statement+
 </programlisting>
 </figure>
 
@@ -97,19 +97,36 @@ expected between the ovals and boxes, except that whitespace around punctuation
 is often optional.</para>
 
 <para>The summary in <xref linkend="fig.scripting.railroad"/> indicates that a
-script begins with the literal text “<literal>script version 0.2</literal>”
+script begins with the literal text “<literal>script version 0.3</literal>”
 followed by (optional) whitespace, the literal text “<literal>.</literal>”,
 whitespace, the literal text “<literal>page</literal>”, whitespace, any
 <emphasis linkend="fig.string.railroad">string</emphasis>, the literal text
 “<literal>.</literal>”, and one or more <emphasis
 linkend="fig.statement.railroad">statements</emphasis>. For example:</para>
 
-<screen>script version 0.2. page "http://example.com/" .
+<screen>script version 0.3. page "http://example.com/" .
 output "Hello, world." .
 </screen>
 
-<para>Currently, the only version supported is “0.2”.</para>
+<para>The following versions are supported:</para>
 
+<variablelist>
+<varlistentry><term>0.2</term>
+<listitem>
+<para>The first published version.</para>
+</listitem>
+</varlistentry>
+<varlistentry><term>0.3</term>
+<listitem>
+<para>Introduces the “until different” clause on
+<phrase linkend="selenium-find">find</phrase> and fixes an error in the
+grammar of the <phrase linkend="selenium-send">send</phrase> statement.
+</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<para>All version 0.2 grammars are valid in 0.3.</para>
 <refsection>
 <title>Statement</title>
 
@@ -242,6 +259,12 @@ match the locator. If <literal>wait</literal> is added, the processor will wait 
 as the specified duration for the locator to find at least one match. A <literal>pause</literal>
 specifies the duration to wait between each attempt; the default is 0.25s.</para>
 
+<para xml:id="fig.originalvar.railroad">If an “until different” clause is
+specified, the find statement will loop until the value returned differs from
+the value in <varname>$originalvar</varname>. If either variable is a list (a
+“find all”), they are different only if no value in the new result appears in
+<varname>$originalvar</varname>.</para>
+
 <para>In Selenium, it’s an error if the locator doesn’t match anything. In the
 <tag>cx:selenium</tag> step, it’s not an error, the variable will simply hold
 the empty sequence. If, however, a further attempt is made to perform a Selenium
@@ -255,6 +278,7 @@ find ::= "find" "all"? varname "by"?
          ("name" | "selector" | "id" | "link-text" | "partial-link-text"
           | "tag" | "class" | "xpath") "=" string
           ("wait" duration)? ("pause" duration)?
+          ("until" "different" "from"? originalvar)?
 </programlisting>
 </figure>
 
@@ -412,7 +436,7 @@ or in a <link linkend="selenium-subroutine">subroutine</link>, they always have 
 last value set.</para>
 </refsection>
 
-<refsection>
+<refsection xml:id="selenium-send">
 <title>send statement</title>
 
 <para>The send statement sends text to the input on the page identified by
@@ -424,12 +448,16 @@ send a longer fragment, delimit it with
 <title>The send statement</title>
 <programlisting role="railroad">
 send = -"send", @string, ((-"to")?, @varname)?
-     | -"send", -"¶", ~["¶"]*, -"¶", (-"to")?, @varname
-     | -"send", -"⁋", ~["⁋"]*, -"⁋", (-"to")?, @varname
-     | -"send", -"§", ~["§"]*, -"§", (-"to")?, @varname
-     | -"send", -#c, ~[#c]*, -#c, (-"to")?, @varname .
+     | -"send", -"¶", ~["¶"]*, -"¶", ((-"to")?, @varname)?
+     | -"send", -"⁋", ~["⁋"]*, -"⁋", ((-"to")?, @varname)?
+     | -"send", -"§", ~["§"]*, -"§", ((-"to")?, @varname)?
+     | -"send", -#c, ~[#c]*, -#c, ((-"to")?, @varname)? .
 </programlisting>
 </figure>
+
+<para>Version 0.3 fixed a bug where the
+<varname>$varname</varname> was only option in the simple “string” case.</para>
+
 </refsection>
 
 <refsection>
@@ -498,7 +526,7 @@ message ::= "message" expression
 </figure>
 </refsection>
 
-<refsection>
+<refsection xml:id="selenium-output">
 <title>output statement</title>
 <para>The output statement sends output from the step. The element on the page
 identified by <varname>$varname</varname>, arbitrary text, or the result of
@@ -821,7 +849,7 @@ in the table, then it returns the latitude and longitude in two text documents.<
     <p:with-option name="arguments" select="('--headless')"/>
     <p:with-input>
       <p:inline content-type="text/plain">
-script version 0.2 .
+script version 0.3 .
 page "https://testdata.xmlcalabash.com/cities/" .
 
 # Wait until the table has been populated
