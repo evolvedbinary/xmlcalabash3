@@ -3,7 +3,7 @@ ixml version "1.1-nineml" .
 script = versionDecl, s, page, s, statement++RS, s .
 
 -versionDecl = s, -"script version ", version, s, -"." .
-@version = "0.2" .
+@version = "0.2" | "0.3" .
 
 @page = -"page", RS, string, s, -"." .
 
@@ -36,7 +36,8 @@ perform = compoundStatement, (RS, -"then", RS, compoundStatement)+, s, -"." .
 -block = ifBlock | whileBlock | untilBlock | subroutine .
 
 find = -"find", RS, (all, RS)?, @varname, RS, (-"by", RS)?, findType, ((s, -"=", s) | RS), @string,
-       (RS, @wait)?, (RS, @pause)? .
+       (RS, @wait)?, (RS, @pause)?,
+       (RS, -"until", RS, -"different", (RS, "-from")?, RS, @varname>original)? .
 @findType>type = "name" | "selector" | "id" | "link-text" | "partial-link-text"
                | "tag" | "class" | "xpath" .
 
@@ -70,10 +71,10 @@ set = -"set", RS, @varname, RS, (-"to", RS)?, setWindowType, RS, setWindowParam
 -digit = ["0"-"9"] .
 
 send = -"send", RS, @string, (RS, (-"to", RS)?, @varname)?
-     | -"send", RS, -"¶", ~["¶"]*, -"¶", RS, (-"to", RS)?, @varname
-     | -"send", RS, -"⁋", ~["⁋"]*, -"⁋", RS, (-"to", RS)?, @varname
-     | -"send", RS, -"§", ~["§"]*, -"§", RS, (-"to", RS)?, @varname
-     | -"send", RS, -ff, ~[#c]*, -ff, RS, (-"to", RS)?, @varname .
+     | -"send", RS, -"¶", ~["¶"]*, -"¶", (RS, (-"to", RS)?, @varname)?
+     | -"send", RS, -"⁋", ~["⁋"]*, -"⁋", (RS, (-"to", RS)?, @varname)?
+     | -"send", RS, -"§", ~["§"]*, -"§", (RS, (-"to", RS)?, @varname)?
+     | -"send", RS, -ff, ~[#c]*, -ff, (RS, (-"to", RS)?, @varname)? .
 
 click = clickType, (RS, @varname)?
       | clickHold, (RS, @varname)? .
