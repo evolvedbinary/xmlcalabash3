@@ -210,7 +210,7 @@ class SeleniumStep(): AbstractAtomicStep() {
         }
 
         val version = script.getAttributeValue(Ns.version)
-        if (version != "0.2") {
+        if (version != "0.2" && version != "0.3") {
             throw stepConfig.exception(XProcError.xdStepFailed("Invalid script version: ${version}"))
         }
         page = URI(script.getAttributeValue(_page))
