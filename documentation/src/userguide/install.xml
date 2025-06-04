@@ -133,6 +133,7 @@ resources, XML Calabash defines a pragmatically more useful default.</para>
 <row><entry>.json</entry><entry>application/json</entry></row>
 <row><entry>.jsonld</entry><entry>application/ld+json</entry></row>
 <row><entry>.lzma</entry><entry>application/lzma</entry></row>
+<row><entry>.md</entry><entry>text/markdown</entry></row>
 <row><entry>.n3</entry><entry>text/n3</entry></row>
 <row><entry>.nq</entry><entry>application/n-quads</entry></row>
 <row><entry>.nt</entry><entry>application/n-triples</entry></row>
