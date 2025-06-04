@@ -382,7 +382,7 @@ class StandardLibrary private constructor(builder: PipelineBuilder, private val 
         input = decl.input("alternate", primary=false, sequence=false)
         input.contentTypes = MediaType.parseList("any")
 
-        var output = decl.output("result", primary=false, sequence=false)
+        var output = decl.output("result", primary=true, sequence=false)
         output.contentTypes = MediaType.parseList("application/xml")
         output = decl.output("differences", primary=false, sequence=true)
         output.contentTypes = MediaType.parseList("any")
