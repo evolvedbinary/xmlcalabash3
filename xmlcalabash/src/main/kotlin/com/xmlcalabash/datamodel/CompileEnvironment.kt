@@ -65,6 +65,7 @@ open class CompileEnvironment(override val episode: String, override val xmlCala
         "json" to "application/json",
         "jsonld" to "application/ld+json",
         "lzma" to "application/lzma",
+        "md" to "text/markdown",
         "n3" to "text/n3",
         "nq" to "application/n-quads",
         "nt" to "application/n-triples",
