@@ -89,8 +89,10 @@ abstract class FileCopyOrMove(stepType: QName): FileStep(stepType) {
                 }
             }
 
-            if (source.isDirectory) {
-                source.deleteRecursively()
+            if (stepType == NsP.fileMove) {
+                if (source.isDirectory) {
+                    source.deleteRecursively()
+                }
             }
         }
 
