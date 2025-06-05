@@ -13,6 +13,39 @@ See the commits and pull requests on
 finer detail.</para>
 
 <revhistory>
+<revision xml:id="r301">
+<revnumber>3.0.1</revnumber>
+<date>2025-06-05</date>
+<revdescription>
+<itemizedlist>
+<listitem><para>Fixed <cbissue number="33"/>. If no specific XSL processor is requested,
+use FOP by default.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="30"/>. Allow text documents on the <port>insertion</port> and
+<port>result</port> ports of <tag>p:insert</tag>.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="29"/>. Make the content type of “<code>.md</code>” files
+<code>text/markdown</code> by default.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="28"/> where <tag>p:file-copy</tag> sometimes
+acted like <tag>p:file-move</tag> and removed the originals!
+</para></listitem>
+<listitem><para>Fixed <cbissue number="26"/>. Make the result port on <tag>p:compare</tag> primary!
+</para></listitem>
+<listitem><para>Updated the <tag>cx:selenium</tag> step:</para>
+<orderedlist>
+<listitem><para>Added an “until different” clause to the find statement</para></listitem>
+<listitem><para>Fixed a bug in the grammar of the send statement</para></listitem>
+<listitem><para>Bumped the grammar version from 0.2 to 0.3</para></listitem>
+<listitem><para>Version 0.2 grammars are compatible with 0.3 and still accepted</para></listitem>
+<listitem><para>Added more debugging statements to the cx:selenium step</para></listitem>
+</orderedlist>
+</listitem>
+<listitem><para>Make the default assertion level “ignore” not “warning”.
+</para></listitem>
+</itemizedlist>
+</revdescription>
+</revision>
 <revision xml:id="r300">
 <revnumber>3.0.0</revnumber>
 <date>2025-06-01</date>
