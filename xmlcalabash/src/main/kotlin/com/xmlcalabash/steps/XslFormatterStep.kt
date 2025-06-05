@@ -7,6 +7,7 @@ import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.namespace.Ns
 import com.xmlcalabash.namespace.NsCx
 import com.xmlcalabash.spi.PagedMediaManager
+import com.xmlcalabash.steps.pagedmedia.fop.FopManager
 import com.xmlcalabash.util.UriUtils
 import com.xmlcalabash.util.spi.StandardPagedMediaProvider
 import net.sf.saxon.s9api.QName
@@ -51,7 +52,10 @@ open class XslFormatterStep(): AbstractAtomicStep() {
             for (manager in stepConfig.xmlCalabashConfig.pagedMediaManagers) {
                 if (manager.formatterAvailable(formatter)) {
                     xslManager = manager
-                    break
+                    // If no processor was requested, default to FOP
+                    if (xslManager is FopManager || formatter != StandardPagedMediaProvider.genericXslFormatter) {
+                        break
+                    }
                 }
             }
             if (xslManager != null) {
