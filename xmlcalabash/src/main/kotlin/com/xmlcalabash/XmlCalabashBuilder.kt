@@ -563,7 +563,7 @@ class XmlCalabashBuilder {
         internal var _errorExplanation: ErrorExplanation? = null
         internal var _documentManager: DocumentManager? = null
 
-        internal var _assertions = AssertionsLevel.WARNING
+        internal var _assertions = AssertionsLevel.IGNORE
         internal var _consoleEncoding = DEFAULT_CONSOLE_ENCODING
         internal var _debug = false
         internal var _debugger = false
