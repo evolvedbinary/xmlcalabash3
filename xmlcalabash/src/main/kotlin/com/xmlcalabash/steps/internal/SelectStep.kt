@@ -1,5 +1,7 @@
 package com.xmlcalabash.steps.internal
 
+import com.xmlcalabash.documents.DocumentProperties
+import com.xmlcalabash.namespace.Ns
 import com.xmlcalabash.runtime.parameters.SelectStepParameters
 import com.xmlcalabash.steps.AbstractAtomicStep
 import com.xmlcalabash.util.S9Api
@@ -22,7 +24,11 @@ open class SelectStep(val params: SelectStepParameters): AbstractAtomicStep() {
             val result = params.select.evaluate(params.select.stepConfig)
 
             for (doc in S9Api.makeDocuments(params.select.stepConfig, result)) {
-                receiver.output("result", doc)
+                val props = DocumentProperties(doc.properties)
+                if (doc.contentClassification != document.contentClassification) {
+                    props.remove(Ns.serialization)
+                }
+                receiver.output("result", doc.with(props))
             }
         }
     }
