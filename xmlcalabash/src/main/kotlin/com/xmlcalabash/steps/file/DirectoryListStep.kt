@@ -43,7 +43,7 @@ open class DirectoryListStep(): FileStep(NsP.directoryList) {
             throw stepConfig.exception(XProcError.xcUnsupportedScheme(path.scheme))
         }
 
-        rootPath = path.toString()
+        rootPath = Urify.urify(path.toString())
         val dir = File(UriUtils.path(path))
         if (!dir.isDirectory) {
             throw stepConfig.exception(XProcError.xcNotADirectory(UriUtils.path(path)))
@@ -88,7 +88,7 @@ open class DirectoryListStep(): FileStep(NsP.directoryList) {
             }
 
             val urifyPath = Urify.urify(path)
-            val matchString = urifyPath.substring(rootPath.length + 1)
+            val matchString = urifyPath.substring(rootPath.length)
 
             if (includeFilters.isNotEmpty()) {
                 include = false
