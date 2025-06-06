@@ -40,7 +40,7 @@ SOFTWARE.
   <output indent="yes" use-when="$schxslt:debug"/>
 
   <variable name="schxslt:version" as="xs:string"
-                select="if (starts-with('1.3.1', '$')) then 'development' else '1.3.1'"/>
+                select="if (starts-with('v1.3.5', '$')) then 'development' else 'v1.3.5'"/>
 
   <param name="schxslt:phase" as="xs:string" select="'#DEFAULT'">
     <!--
@@ -469,7 +469,7 @@ SOFTWARE.
       </call-template>
       <choose>
         <when test="@value">
-          <attribute name="select" select="schxslt:protect-curlies(@value)"/>
+          <attribute name="select" select="@value"/>
         </when>
         <otherwise>
           <if test="not(@as)">
@@ -488,7 +488,7 @@ SOFTWARE.
       </call-template>
       <choose>
         <when test="@value">
-          <attribute name="select" select="schxslt:protect-curlies(@value)"/>
+          <attribute name="select" select="@value"/>
         </when>
         <otherwise>
           <if test="not(@as)">
