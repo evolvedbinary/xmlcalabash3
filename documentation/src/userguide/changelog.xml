@@ -13,6 +13,25 @@ See the commits and pull requests on
 finer detail.</para>
 
 <revhistory>
+<revision xml:id="r302">
+<revnumber>3.0.2</revnumber>
+<date>2025-06-06</date>
+<revdescription>
+<itemizedlist>
+<listitem><para>Fixed <cbissue number="45"/>. Make sure that the path used for include/exclude
+matching in <tag>p:directory-list</tag> is correct. (Removes a spurious leading “/”.)
+</para></listitem>
+<listitem><para>Fixed <cbissue number="43"/>. Enable logging for warnings and errors.
+This got disabled accidentally at some point.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="42"/>. Preserve document properties when doing
+selections. This is an attempt to address issue
+<link xlink:href="https://github.com/xproc/3.0-specification/issues/1156">#1156</link>
+from the specification.
+</para></listitem>
+</itemizedlist>
+</revdescription>
+</revision>
 <revision xml:id="r301">
 <revnumber>3.0.1</revnumber>
 <date>2025-06-05</date>
