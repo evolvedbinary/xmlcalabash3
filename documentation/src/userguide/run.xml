@@ -29,7 +29,7 @@ extensive features for managing dependencies. In the short term, it’s just a b
 
 <tip xml:id="upgrading-saxon">
 <title>Upgrading Saxon</title>
-<para>The one library that you are likely to want to change in Saxon. If you
+<para>The one library that you are likely to want to change is Saxon. If you
 have a license for Saxon PE or Saxon EE, it makes sense to swap out the Saxon HE
 library that ships with XML Calabash for PE or EE.</para>
 <para>To save you the trouble of constructing and managing a large classpath, the
