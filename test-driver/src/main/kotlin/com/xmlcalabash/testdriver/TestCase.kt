@@ -48,7 +48,6 @@ class TestCase(val xmlCalabash: XmlCalabash, val testOptions: TestOptions, val t
         val READABLE = QName("readable")
         val WRITABLE = QName("writable")
         val HIDDEN = QName("hidden")
-        val UNSUPPORTED_FEATURES = mutableListOf<String>("xslt-1", "xquery_1_0")
     }
 
     val builder = xmlCalabash.newPipelineBuilder()
@@ -79,6 +78,7 @@ class TestCase(val xmlCalabash: XmlCalabash, val testOptions: TestOptions, val t
     var origErr: PrintStream? = null
     var requiresUnreadableFiles = false
     var requiresUnwritableDirectory = false
+    val UNSUPPORTED_FEATURES = mutableListOf<String>("xslt-1", "xquery_1_0")
 
     fun load() {
         if (System.getenv("XMLCALABASH_TEST_CHROME") == "false") {
