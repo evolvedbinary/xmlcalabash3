@@ -164,10 +164,15 @@ class Graph private constructor(val environment: GraphEnvironment) {
             return sbx.toString()
         }
         visited.push(model)
+
+        val checkedForLoop = mutableSetOf<Model>()
         for (edge in edges.filter { it.from == model }) {
-            val loop = loop(edge.to, visited)
-            if (loop != null) {
-                return loop
+            if (edge.to !in checkedForLoop) {
+                val loop = loop(edge.to, visited)
+                if (loop != null) {
+                    return loop
+                }
+                checkedForLoop.add(edge.to)
             }
         }
         visited.pop()

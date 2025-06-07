@@ -186,14 +186,17 @@ class XmlCalabashCli private constructor() {
             // to fix that today.
             evaluateOptions(xprocParser.builder, commandLine)
 
+            val compStart = System.nanoTime()
             val declstep = if (commandLine.pipeline != null) {
                 xprocParser.parse(commandLine.pipeline!!.toURI(), commandLine.step)
             } else {
                 val type = stepConfig.typeUtils.parseQName(commandLine.step!!, commandLine.namespaces)
                 constructWrapper(type)
             }
-
             val pipeline = declstep.getExecutable()
+            val compEnd = System.nanoTime()
+
+            stepConfig.debug { "Elapsed compile time: ${(compEnd - compStart) / 1e9}s" }
 
             var explicitStdin: String? = null
             for ((port, uris) in commandLine.inputs) {
