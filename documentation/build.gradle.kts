@@ -204,6 +204,18 @@ val rngPipelineMessagesSchema = tasks.register<RelaxNGTranslateTask>("rngPipelin
   outputType("rng")
 }              
 
+val rngFilesetSchema = tasks.register<RelaxNGTranslateTask>("rngFilesetSchema") {
+  inputs.file(
+      layout.projectDirectory.file("../xmlcalabash/src/main/resources/com/xmlcalabash/ext/fileset.rnc"))
+  outputs.file(layout.buildDirectory.file("fileset.rng"))
+
+  input(
+      layout.projectDirectory.file("../xmlcalabash/src/main/resources/com/xmlcalabash/ext/fileset.rnc"))
+  output(layout.buildDirectory.file("fileset.rng").get().asFile)
+  inputType("rnc")
+  outputType("rng")
+}              
+
 val xincludeReference = tasks.register<SaxonXsltTask>("xincludeReference") {
   dependsOn("makeExamples")
   dependsOn(rngArchiveManifestSchema)

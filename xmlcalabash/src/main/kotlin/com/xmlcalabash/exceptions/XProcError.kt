@@ -9,7 +9,7 @@ import net.sf.saxon.s9api.*
 import java.net.URI
 import java.util.*
 
-open class XProcError protected constructor(val code: QName, val variant: Int, errorLocation: Location, val inputLocation: Location, vararg val details: Any) {
+open class XProcError protected constructor(val code: QName, val variant: Int, val errorLocation: Location, val inputLocation: Location, vararg val details: Any) {
     companion object {
         val DEBUGGER_ABORT = 9997
 
@@ -433,6 +433,16 @@ open class XProcError protected constructor(val code: QName, val variant: Int, e
         fun xcxBadRegexInFind(regex: String) = xstep(40, regex)
         fun xcxBadXPathInFind(xpath: String) = xstep(41, xpath)
         fun xcxAtMostOneQuery() = xstep(42)
+        fun xcxRootElementMustBeFileset() = xstep(43)
+        fun xcxOptionCanOnlyBeSetOnce(name: QName) = xstep(44, name)
+        fun xcxRequiredAttribute(name: QName) = xstep(45, name)
+        fun xcxInvalidValue(name: String, value: String) = xstep(46, name, value)
+        fun xcxOnlyOneSelector() = xstep(47)
+        fun xcxOnlyOneMapper() = xstep(48)
+        fun xcxUnknownSelector(name: QName) = xstep(49, name)
+        fun xcxUnknownMapper(name: QName) = xstep(50, name)
+        fun xcxFileUriRequired(uri: String) = xstep(51, uri)
+        fun xcxPathMustExist(path: String) = xstep(52, path)
 
         fun xiNoSuchOutputPort(port: String)= internal(1, port)
         fun xiImpossibleNodeType(type: XdmNodeKind) = internal(2, type)
@@ -548,6 +558,15 @@ open class XProcError protected constructor(val code: QName, val variant: Int, e
     fun at(location: Location): XProcError {
         if (location != Location.NULL) {
             val error = XProcError(code, variant, location, inputLocation, *details)
+            error._moreDetails.addAll(moreDetails)
+            return error
+        }
+        return this
+    }
+
+    fun atInput(location: Location): XProcError {
+        if (location != Location.NULL) {
+            val error = XProcError(code, variant, errorLocation,location, *details)
             error._moreDetails.addAll(moreDetails)
             return error
         }

@@ -18,6 +18,7 @@ class StandardDocumentResolver: DocumentResolverProvider, DocumentResolver {
         URI("https://xmlcalabash.com/ext/library/diagramming.xpl") to "/com/xmlcalabash/ext/diagramming.xpl",
         URI("https://xmlcalabash.com/ext/library/ebnf-convert.xpl") to "/com/xmlcalabash/ext/ebnf-convert.xpl",
         URI("https://xmlcalabash.com/ext/library/epubcheck.xpl") to "/com/xmlcalabash/ext/epubcheck.xpl",
+        URI("https://xmlcalabash.com/ext/library/fileset.xpl") to "/com/xmlcalabash/ext/fileset.xpl",
         URI("https://xmlcalabash.com/ext/library/find.xpl") to "/com/xmlcalabash/ext/find.xpl",
         URI("https://xmlcalabash.com/ext/library/json-patch.xpl") to "/com/xmlcalabash/ext/json-patch.xpl",
         URI("https://xmlcalabash.com/ext/library/jsonpath.xpl") to "/com/xmlcalabash/ext/jsonpath.xpl",
