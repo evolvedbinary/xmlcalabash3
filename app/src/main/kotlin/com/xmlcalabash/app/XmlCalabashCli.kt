@@ -54,6 +54,7 @@ class XmlCalabashCli private constructor() {
     private lateinit var cliPrinter: MessagePrinter
     private lateinit var cliExplain: ErrorExplanation
     private lateinit var stepConfig: InstructionConfiguration
+    private val serializationParameters = mutableMapOf<String, MutableMap<QName, XdmAtomicValue>>()
     private var sawStdout = false
 
     private fun run(args: Array<out String>) {
@@ -179,6 +180,8 @@ class XmlCalabashCli private constructor() {
                 }
                 else -> Unit
             }
+
+            evaluateSerializationParameters(commandLine)
 
             // N.B. It's illegal to shadow a static option name, so we can shove all the
             // options into the static options before we parse the pipeline. This is...odd
@@ -332,6 +335,33 @@ class XmlCalabashCli private constructor() {
                 }
             }
 
+            for ((name, map) in serializationParameters) {
+                val portName = if (name == "*") {
+                    var rname: String? = null
+                    for ((pname, port) in pipeline.outputManifold) {
+                        if (port.primary) {
+                            rname = pname
+                            break
+                        }
+                    }
+                    if (rname == null) {
+                        throw XProcError.xiCliNoPrimaryOutputPort().exception()
+                    }
+                    rname
+                } else {
+                    name
+                }
+
+                val port = pipeline.outputManifold[portName]
+                if (port == null) {
+                    throw XProcError.xiCliNoOutputPort(portName).exception()
+                }
+                for ((key, value) in map) {
+                    stepConfig.debug { "Override serialization property on ${portName}: ${key}=${value}" }
+                    port.serialization = port.serialization.put(XdmAtomicValue(key), value)
+                }
+            }
+
             pipeline.receiver = FileOutputReceiver(xmlCalabash, stepConfig.processor, pipeline.outputManifold, realOutputs, explicitStdout ?: implicitStdout)
             tstart = System.nanoTime()
             pipeline.run()
@@ -378,7 +408,22 @@ class XmlCalabashCli private constructor() {
         return MediaType.XML
     }
 
+    private fun evaluateSerializationParameters(commandLine: CommandLine) {
+        for ((port, map) in commandLine.serializationParameters) {
+            for ((key, value) in map) {
+                val pair = evaluateKeyValue(commandLine, key, value)
+                if (pair.second !is XdmAtomicValue) {
+                    throw XProcError.xiCliSerializationMustBeAtomic(pair.first).exception()
+                }
+                val map = serializationParameters[port] ?: mutableMapOf<QName,XdmAtomicValue>()
+                map.put(pair.first, pair.second as XdmAtomicValue)
+                serializationParameters[port] = map
+            }
+        }
+    }
+
     private fun evaluateOptions(pipelineBuilder: PipelineBuilder, commandLine: CommandLine) {
+        // FIXME: refactor this method to use evaluateKeyValue()
         val defaults = mutableMapOf<NamespaceUri, String>(
             NsXs.namespace to "xs",
             NsFn.namespace to "fn",
@@ -454,6 +499,46 @@ class XmlCalabashCli private constructor() {
         if (mapOptions.isNotEmpty()) {
             pipelineBuilder.option(implicitParameterName!!, stepConfig.typeUtils.asXdmMap(mapOptions))
         }
+    }
+
+    private fun evaluateKeyValue(commandLine: CommandLine, name: String, value: String): Pair<QName, XdmValue> {
+        val defaults = mutableMapOf<NamespaceUri, String>(
+            NsXs.namespace to "xs",
+            NsFn.namespace to "fn",
+            NsFn.mapNamespace to "map",
+            NsFn.arrayNamespace to "array",
+            NsFn.mathNamespace to "math",
+            NamespaceUri.of("http://saxon.sf.net/") to "saxon"
+        )
+
+        val nsmap = mutableMapOf<String, NamespaceUri>()
+        for ((key, value) in commandLine.namespaces) {
+            nsmap[key] = value
+            defaults.remove(value)
+        }
+        for ((value, key) in defaults) {
+            nsmap[key] = value
+        }
+
+        val processor = stepConfig.processor
+
+        val compiler = processor.newXPathCompiler()
+        compiler.baseURI = UriUtils.cwdAsUri()
+        compiler.isSchemaAware = processor.isSchemaAware
+        for ((name, namespace) in nsmap) {
+            compiler.declareNamespace(name, namespace.toString())
+        }
+
+        val qname = stepConfig.typeUtils.parseQName(name, nsmap)
+        val ivalue = if (value.startsWith("?")) {
+            val exec = compiler.compile(value.substring(1))
+            val selector = exec.load()
+            selector.evaluate()
+        } else {
+            XdmAtomicValue(value, ItemType.UNTYPED_ATOMIC)
+        }
+
+        return Pair(qname, ivalue)
     }
 
     private fun loadConfiguration(commandLineConfig: File?) {

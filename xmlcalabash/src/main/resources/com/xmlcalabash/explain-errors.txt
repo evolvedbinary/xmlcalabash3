@@ -1666,6 +1666,15 @@ Duplicate output file: “$1”.
 cxerr:XI0207
 Pipeline has more than one $1; port name required on command line.
 
+cxerr:XI0208
+The value the serialization parameter $1 must be atomic.
+
+cxerr:XI0209
+The pipeline has no output port named “$1”.
+
+cxerr:XI0209
+The pipeline has no primary output port; serialization port must be named.
+
 cxerr:XI0213
 Static options cannot be provided after the pipeline has been compiled: “$1”.
 

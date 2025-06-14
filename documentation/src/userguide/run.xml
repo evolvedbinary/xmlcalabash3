@@ -100,6 +100,7 @@ given, the <command>run</command> command is assumed.</para>
   <arg rep="norepeat" linkend="cli-step">--step:<replaceable>step-name</replaceable></arg>
   <arg linkend="cli-pipeline"><replaceable>pipeline.xpl</replaceable></arg>
   <arg rep="repeat" linkend="cli-option"><replaceable>option</replaceable>=<replaceable>value</replaceable></arg>
+  <arg rep="repeat" linkend="cli-serial"><replaceable>!serialparam</replaceable>=<replaceable>value</replaceable></arg>
 </cmdsynopsis>
 
 <para>Where the options and arguments are:</para>
@@ -235,7 +236,8 @@ if you want to save the output.</para>
 <para>Binds the specified <replaceable>prefix</replaceable> to the <replaceable>uri</replaceable>.
 This has no effect on the pipeline; these bindings are only used when evaluating
 the <option linkend="cli-step">--step</option> option and in
-expressions used to define <phrase linkend="cli-option">options</phrase>.
+expressions used to define <phrase linkend="cli-option">options</phrase>
+and <phrase linkend="cli-serial">serialization parameters</phrase>.
 </para>
 
 <para>The default namespace bindings on the command line are:</para>
@@ -563,7 +565,8 @@ used to change the namespace bindings.</para>
 </varlistentry>
 
 <varlistentry xml:id="cli-option">
-  <term><option><replaceable>option</replaceable>=<replaceable>value</replaceable></option>, sets an option</term>
+  <term><option><replaceable>option</replaceable>=<replaceable>value</replaceable></option>,
+sets an option</term>
 <listitem>
 <para>You can provide values for pipeline options on the command line. These
 override any defaults declared in the pipeline. There must be a pipeline option
@@ -635,6 +638,73 @@ that the step being run has an <emphasis>option</emphasis> named
 <code>serialization</code>. This doesn’t otherwise have any effect on the
 serialization options of any output port.</para>
 
+</listitem>
+</varlistentry>
+
+<varlistentry xml:id="cli-serial">
+  <term><option><replaceable>!serialparam</replaceable>=<replaceable>value</replaceable></option>,
+sets a serialization parameter</term>
+<listitem>
+
+<para>You can provide values for serialization parameters on the command line. These
+override any defaults declared in the pipeline. The <replaceable>serialparam</replaceable> name
+must be the name of a serialization parameter.</para>
+
+<para>Two forms are used:</para>
+
+<variablelist>
+<varlistentry>
+<term><option><replaceable>portname</replaceable>::<replaceable>serialparam</replaceable>=<replaceable>value</replaceable></option></term>
+<listitem>
+<para>In this form, the <option>serialparam</option> applies to the port named
+<replaceable>portname</replaceable>. It is an error if the pipeline has no port
+named <replaceable>portname</replaceable>.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><option><replaceable>serialparam</replaceable>=<replaceable>value</replaceable></option></term>
+<listitem>
+<para>In this form, the <option>serialparam</option> applies to the primary output
+port. It is an error if the pipeline has no primary output port.
+</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<para>In both cases, the name can be an EQName or it can use a prefix previously
+defined with <option linkend="cli-namespace">--namespace</option>; if the name
+is a simple <type>NCName</type>, it is not in a namespace.</para>
+
+<para>If the <replaceable>value</replaceable> begins with “?”, what follows is taken to be
+an XPath expression. That expression is evaluated using the namespace bindings defined. The
+context item is undefined. The result of evaluating the expression is the value of the option.
+If the <replaceable>value</replaceable> does not begin with a “?”, the whole string
+becomes the value as an <type>xs:untypedAtomic</type>.</para>
+
+<para>If multiple assignments to the same <option>serialparam</option>
+appear, only the last value is used.</para>
+
+<para>For example, suppose that the following sequences of options are given:</para>
+
+<variablelist>
+<varlistentry><term><code>!method=xml !indent=true</code></term>
+<listitem><para>Sets the output method on the primary result port to “xml” and enables
+indentation.
+</para></listitem>
+</varlistentry>
+<varlistentry><term><code>!method=xml !indent=true !secondary::indent=false</code></term>
+<listitem><para>Sets the output method on the primary result port to “xml” and enables
+indentation. Disables indentation on the <literal>secondary</literal> output port.
+</para></listitem>
+</varlistentry>
+<varlistentry><term><code>!indent=true !result:indent=false</code></term>
+<listitem><para>Sets the indent true on the primary output port and false on the port named
+<literal>result</literal>. If those are the same port, indentation will be disabled.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<para>It is an error if the parameter value is not an atomic value.</para>
 </listitem>
 </varlistentry>
 </variablelist>

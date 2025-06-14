@@ -5,9 +5,10 @@ import com.xmlcalabash.io.MediaType
 import net.sf.saxon.s9api.XdmMap
 import net.sf.saxon.s9api.XdmNode
 
-open class RuntimePort(val name: String, val unbound: Boolean, val primary: Boolean, val sequence: Boolean, val contentTypes: List<MediaType>, val serialization: XdmMap = XdmMap()) {
+open class RuntimePort(val name: String, val unbound: Boolean, val primary: Boolean, val sequence: Boolean, val contentTypes: List<MediaType>, initialSerialization: XdmMap = XdmMap()) {
     val assertions = mutableListOf<XdmNode>()
     val defaultBindings = mutableListOf<ConnectionInstruction>()
+    var serialization = initialSerialization
     internal var weldedShut = false
 
     constructor(port: RuntimePort): this(port.name, port.unbound, port.primary, port.sequence, port.contentTypes, port.serialization) {
