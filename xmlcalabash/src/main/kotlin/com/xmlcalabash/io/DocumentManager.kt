@@ -298,21 +298,32 @@ open class DocumentManager(val resolver: XMLResolver): EntityResolver, EntityRes
     }
 
     override fun resolve(moduleURI: String?, baseURI: String?, locations: Array<out String>?): Array<StreamSource>? {
-        val href = constructUri(moduleURI, baseURI) ?: return null
-
-        val inputSource = inputFromCache(href)
-        if (inputSource != null) {
-            return arrayOf(StreamSource(inputSource.byteStream, href.toString()))
+        val schemaLocations = mutableListOf<String>()
+        if (locations != null) {
+            schemaLocations.addAll(locations)
+        }
+        if (schemaLocations.isEmpty()) {
+            return null
         }
 
-        val request = ResourceRequestImpl(resolver.configuration, ResolverConstants.SCHEMA_NATURE, ResolverConstants.VALIDATION_PURPOSE)
-        request.uri = moduleURI
-        request.baseURI = baseURI
+        for (location in schemaLocations) {
+            val href = constructUri(location, baseURI)
+            if (href != null) {
+                val inputSource = inputFromCache(href)
+                if (inputSource != null) {
+                    return arrayOf(StreamSource(inputSource.byteStream, href.toString()))
+                }
 
-        val resp = resolver.resolve(request)
-        if (resp.inputStream != null) {
-            val source = StreamSource(resp.inputStream, href.toString())
-            return arrayOf(source)
+                val request = ResourceRequestImpl(resolver.configuration, ResolverConstants.SCHEMA_NATURE, ResolverConstants.VALIDATION_PURPOSE)
+                request.uri = href.toString()
+                request.baseURI = baseURI
+
+                val resp = resolver.resolve(request)
+                if (resp.inputStream != null) {
+                    val source = StreamSource(resp.inputStream, href.toString())
+                    return arrayOf(source)
+                }
+            }
         }
 
         return null
