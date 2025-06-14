@@ -24,7 +24,11 @@ open class SelectStep(val params: SelectStepParameters): AbstractAtomicStep() {
             val result = params.select.evaluate(params.select.stepConfig)
 
             for (doc in S9Api.makeDocuments(params.select.stepConfig, result)) {
-                val props = DocumentProperties(doc.properties)
+                val props = DocumentProperties(document.properties)
+                for ((name, value) in doc.properties.asMap()) {
+                    props[name] = value
+                }
+
                 if (doc.contentClassification != document.contentClassification) {
                     props.remove(Ns.serialization)
                 }
