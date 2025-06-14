@@ -56,12 +56,14 @@ class TryInstruction(parent: XProcInstruction): CompoundStepDeclaration(parent, 
 
         elaborateInstructionInfo()
 
+        /* ??? choose doesn't have options
         for (option in children.filterIsInstance<OptionInstruction>()) {
             option.elaborateInstructions()
             if (option.canBeResolvedStatically()) {
                 _staticOptions[option.name] = builder.staticOptionsManager.get(option)
             }
         }
+         */
 
         // Do the with-inputs first...
         var withInput = false

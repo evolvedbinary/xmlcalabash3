@@ -315,6 +315,11 @@ class DeclareStepInstruction(parent: XProcInstruction?, stepConfig: InstructionC
                 declaredSteps.add(child)
                 registerPipelineFunction(child)
             } else {
+                // Elaborate static options early so that they're available in nested declare steps
+                if (child is OptionInstruction && child.static) {
+                    child.elaborateInstructions()
+                }
+
                 newChildren.add(child)
             }
         }
