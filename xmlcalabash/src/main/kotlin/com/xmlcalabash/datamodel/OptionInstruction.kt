@@ -48,10 +48,17 @@ open class OptionInstruction(parent: XProcInstruction, name: QName, stepConfig: 
         }
 
     override fun canBeResolvedStatically(): Boolean {
-        return static && select?.canBeResolvedStatically() ?: false
+        return static
     }
 
+    // Static options have to be elaborated early because their scope extends
+    // into declare step instructions. But we can't elaborate them twice!
+    private var elaborated = false
     override fun elaborateInstructions() {
+        if (elaborated) {
+            return
+        }
+        elaborated = true
         alwaysDynamic = !static
         required = required == true
         visibility = visibility ?: Visibility.PUBLIC

@@ -156,7 +156,9 @@ abstract class StepDeclaration(parent: XProcInstruction?, stepConfig: Instructio
 
         for (option in options) {
             if (option.canBeResolvedStatically()) {
-                _staticOptions[option.name] = builder.staticOptionsManager.get(option)
+                // Nothing to do with the StaticOptionsManager because p:with-option
+                // expressions are never set from the outside.
+                _staticOptions[option.name] = StaticOptionDetails(option)
             } else {
                 val exprStep = AtomicExpressionStepInstruction(this, option.name, option.select!!)
                 exprStep.depends.addAll(depends)

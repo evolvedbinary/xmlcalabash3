@@ -32,10 +32,12 @@ class StaticOptionsManager() {
         if (!options.containsKey(variable)) {
             val details = when (variable) {
                 is OptionInstruction -> {
+                    val deets = StaticOptionDetails(variable)
                     if (variable.static == true) {
                         _staticOptions.add(variable.name)
+                        options[variable] = deets
                     }
-                    StaticOptionDetails(variable)
+                    deets
                 }
                 is WithOptionInstruction -> StaticOptionDetails(variable)
                 is VariableInstruction -> StaticOptionDetails(variable)
@@ -45,8 +47,10 @@ class StaticOptionsManager() {
             if (compileTimeOptions.containsKey(variable.name)) {
                 details.override(compileTimeOptions[variable.name]!!.evaluate(variable.stepConfig))
             }
-            options[variable] = details
+
+            return details
         }
+
         return options[variable]!!
     }
 }

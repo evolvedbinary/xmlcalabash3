@@ -50,11 +50,13 @@ open class ChooseInstruction(parent: XProcInstruction, tag: QName = NsP.choose):
         val current = InputInstruction(this, "!context", true, true)
         _children.add(1, current)
 
+        /* ??? choose doesn't have options
         for (option in children.filterIsInstance<OptionInstruction>()) {
             if (option.canBeResolvedStatically()) {
                 _staticOptions[option.name] = builder.staticOptionsManager.get(option)
             }
         }
+         */
 
         var hasContext = true
         val withInput = children.filterIsInstance<WithInputInstruction>().first()
