@@ -1,4 +1,4 @@
-Usage: [command] [options] pipeline.xpl optname=value…
+Usage: [command] [options] pipeline.xpl optname=value… !serialparam=value…
 
 Where command is:
 
@@ -30,6 +30,10 @@ specified value will be used to initialize the option. (The value
 is created as an untyped atomic value.)
 
 The ports and options specified must exist on the pipeline.
+
+Serialization parameters can be set with “!serialparam=value”.
+Note that the leading “!” may need to be escaped in some terminal
+environments.
 
 For a more complete explanation, see the User Guide:
 https://docs.xmlcalabash.com/userguide/current/

@@ -8,7 +8,9 @@ import com.xmlcalabash.util.AssertionsLevel
 import com.xmlcalabash.util.UriUtils
 import com.xmlcalabash.util.Verbosity
 import net.sf.saxon.om.NamespaceUri
+import net.sf.saxon.s9api.QName
 import net.sf.saxon.s9api.ValidationMode
+import net.sf.saxon.s9api.XdmAtomicValue
 import java.io.File
 import java.net.URI
 
@@ -84,6 +86,7 @@ class CommandLine private constructor(val args: Array<out String>) {
     private val _xmlCatalogs = mutableListOf<URI>()
     private var _nogo = false
     private var _mimetypeExtension: String? = null
+    private var _serialization = mutableMapOf<String,MutableMap<String, String>>()
 
     /** The command.
      *
@@ -198,6 +201,19 @@ class CommandLine private constructor(val args: Array<out String>) {
      */
     val options: Map<String, List<String>>
         get() = _options
+
+    /** The serialization options.
+     * <p>This is a map from ports to a map of serialization parameter name/value pairs.
+     * The serialization parameter names must be QNames expressed as
+     * <code><a href="https://www.w3.org/TR/xpath-31/#doc-xpath31-EQName">EQName</a></code>s
+     * or using namespace bindings provided by the <code>--namespace</code> options.</p>
+     * <p>If the value begins with a <code>?</code>, the value after the leading question mark
+     * will be evaluated as an XPath expression and the resulting value becomes the value of the option.
+     * Otherwise, the value of the option is the string value as an <code>xs:untypedAtomic</code>.</p>
+     * <p>If the port name is '*' it refers to the primary output port.
+     */
+    val serializationParameters: Map<String,Map<String,String>>
+        get() = _serialization
 
     /** In-scope namespace declarations for argument parsing. */
     val namespaces: Map<String, NamespaceUri>
@@ -380,7 +396,11 @@ class CommandLine private constructor(val args: Array<out String>) {
                 if (option.startsWith("-")) {
                     _errors.add(XProcError.xiCliUnrecognizedOption(option).exception())
                 } else if (opt.contains("=")) {
-                    parseOptionParam(opt)
+                    if (opt.startsWith("!")) {
+                        parseSerializationParam(opt)
+                    } else {
+                        parseOptionParam(opt)
+                    }
                 } else {
                     if (_pipeline != null) {
                         _errors.add(XProcError.xiCliMoreThanOnePipeline(_pipeline.toString(), opt).exception())
@@ -533,6 +553,24 @@ class CommandLine private constructor(val args: Array<out String>) {
             "lax" -> _validationMode = ValidationMode.LAX
             else -> throw XProcError.xiCliInvalidValue("--validation-mode", arg).exception()
         }
+    }
+
+    private fun parseSerializationParam(arg: String) {
+        val (opt, value) = split(arg.substring(1), "serialization")
+        val port = if (opt.contains("::")) {
+            opt.substring(0, opt.indexOf("::"))
+        } else {
+            "*"
+        }
+        val name = if (opt.contains("::")) {
+            opt.substring(opt.indexOf("::")+2)
+        } else {
+            opt
+        }
+
+        val map = _serialization[port] ?: mutableMapOf<String,String>()
+        map[name] = value
+        _serialization[port] = map
     }
 
     private fun parseOptionParam(arg: String) {
