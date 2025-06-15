@@ -1,9 +1,10 @@
+.#*
 .gradle/
 .kotlin/
-build/
-/lib/
 /documentation/lib/
+/lib/
 /paged-media/**/lib/
 /test-driver/lib/
+/tests/data
+build/
 saxon-license.lic
-.#*

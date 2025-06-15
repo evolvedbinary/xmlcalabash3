@@ -1,0 +1,437 @@
+namespace db = "http://docbook.org/ns/docbook"
+
+start = fs.fileset
+
+fs.include =
+    element include {
+        [ db:purpose
+              [ "A single glob pattern" ]
+        ]
+        attribute name { text },
+        [ db:purpose
+              [ "Use this inclusion if this is true" ]
+        ]
+        attribute if { text }?,
+        [ db:purpose
+              [ "Use this inclusion unless this is true" ]
+        ]
+        attribute unless { text }?,
+        empty
+    }
+
+fs.exclude =
+    element exclude {
+        [ db:purpose
+              [ "A single glob pattern" ]
+        ]
+        attribute name { text },
+        [ db:purpose
+              [ "Use this exclusion if this is true" ]
+        ]
+        attribute if { text }?,
+        [ db:purpose
+              [ "Use this exclusion unless this is true" ]
+        ]
+        attribute unless { text }?,
+        empty
+    }
+
+fs.fileset =
+    element fileset {
+        [ db:purpose
+              [ "Enable default exclusions" ]
+        ]
+        attribute default-excludes { xsd:boolean }?,
+        [ db:purpose
+              [ "Default case sensitivity" ]
+        ]
+        attribute case-sensitive { xsd:boolean }?,
+        [ db:purpose
+              [ "Raise an error if the path doesn't exist" ]
+        ]
+        attribute error-on-missing-dir { xsd:boolean }?,
+        [ db:purpose
+              [ "Default value for following symlinks" ]
+        ]
+        attribute follow-symlinks { xsd:boolean }?,
+        [ db:purpose
+              [ "One or more glob patterns to include" ]
+        ]
+        attribute includes { text }?,
+        [ db:purpose
+              [ "One or more glob patterns to exclude" ]
+        ]
+        attribute excludes { text }?,
+        (fs.include|fs.exclude|fs.selector)*
+    }
+
+fs.selector =
+    fs.contains | fs.date | fs.depend | fs.depth | fs.different
+    | fs.filename | fs.present | fs.contains-regexp | fs.size | fs.type
+    | fs.readable | fs.writable | fs.executable | fs.symlink | fs.owned-by
+    | fs.posix-group | fs.posix-permissions | fs.content-type
+
+fs.and =
+    element and {
+        fs.selector*
+    }
+
+fs.or =
+    element or {
+        fs.selector*
+    }
+
+fs.not =
+    element not {
+        fs.selector*
+    }
+
+fs.none =
+    element none {
+        fs.selector*
+    }
+
+fs.majority =
+    element majority {
+        attribute allow-tie { xsd:boolean }?,
+        fs.selector*
+    }
+
+fs.contains =
+    element contains {
+        [ db:purpose
+              [ "The text that must appear in the document" ]
+        ]
+        attribute text { text },
+        [ db:purpose
+              [ "Should the search be case sensitive?" ]
+        ]
+        attribute case-sensitive { xsd:boolean }?,
+        [ db:purpose
+              [ "Ignore whitespace?" ]
+        ]
+        attribute ignore-whitespace { xsd:boolean }?,
+        [ db:purpose
+              [ "The encoding to use when reading the document" ]
+        ]
+        attribute encoding { text }?,
+        empty
+    }
+
+fs.date =
+    element date {
+        [ db:purpose
+              [ "The target date-time" ]
+        ]
+        attribute date-time { xsd:dateTime },
+        [ db:purpose
+              [ "The relationship to test" ]
+        ]
+        attribute when { "before" | "after" | "equal" },
+        [ db:purpose
+              [ "Granularity of comparison" ]
+        ]
+        attribute granularity { xsd:integer }?,
+        empty
+    }
+
+fs.depend =
+    element depend {
+        [ db:purpose
+              [ "The target directory" ]
+        ]
+        attribute target-dir { xsd:anyURI }?,
+        [ db:purpose
+              [ "Granularity of comparison" ]
+        ]
+        attribute granularity { xsd:integer }?,
+        fs.mapper?
+    }
+
+fs.depth =
+    element depth {
+        [ db:purpose
+              [ "The minimum depth" ]
+        ]
+        attribute min { xsd:integer }?,
+        [ db:purpose
+              [ "The maximum depth" ]
+        ]
+        attribute max { xsd:integer }?,
+        empty
+    }
+
+fs.different =
+    element different {
+        [ db:purpose
+              [ "The target directory" ]
+        ]
+        attribute target-dir { xsd:anyURI }?,
+        [ db:purpose
+              [ "Ignore last modified time?" ]
+        ]
+        attribute ignore-file-times { xsd:boolean }?,
+        [ db:purpose
+              [ "Ignore the file contents?" ]
+        ]
+        attribute ignore-contents { xsd:boolean }?,
+        [ db:purpose
+              [ "Granularity of comparison" ]
+        ]
+        attribute granularity { xsd:integer }?,
+        fs.mapper
+    }
+
+fs.filename =
+    element filename {
+        [ db:purpose
+              [ "A single glob pattern" ]
+        ]
+        attribute name { text }?,
+        [ db:purpose
+              [ "A regular expression" ]
+        ]
+        attribute regex { text }?,
+        [ db:purpose
+              [ "Should the comparison be case sensitive?" ]
+        ]
+        attribute case-sensitive { xsd:boolean }?,
+        [ db:purpose
+              [ "Reverse the effect of the selection" ]
+        ]
+        attribute negate { xsd:boolean }?,
+        empty
+    }
+
+fs.present =
+    element present {
+        [ db:purpose
+              [ "The target directory" ]
+        ]
+        attribute target-dir { xsd:anyURI },
+        [ db:purpose
+              [ "Only in the source, or in both?" ]
+        ]
+        attribute present { "srconly" | "both" }?,
+        fs.mapper
+    }
+
+fs.contains-regexp =
+    element contains-regexp {
+        [ db:purpose
+              [ "The expression to match" ]
+        ]
+        attribute expression { text },
+        [ db:purpose
+              [ "Should the search be case sensitive?" ]
+        ]
+        attribute case-sensitive { xsd:boolean }?,
+        [ db:purpose
+              [ "The encoding to use when reading the document" ]
+        ]
+        attribute encoding { text }?,
+        [ db:purpose
+              [ "Use multi-line searches" ]
+        ]
+        attribute multi-line { xsd:boolean }?,
+        [ db:purpose
+              [ "Use single-line searches" ]
+        ]
+        attribute single-line { xsd:boolean }?,
+        empty
+    }
+
+fs.size =
+    element size {
+        [ db:purpose
+              [ "The value" ]
+        ]
+        attribute value { xsd:integer },
+        [ db:purpose
+              [ "The units" ]
+        ]
+        attribute units { "da" | "h" | "k" | "M" | "G" | "T" | "P"
+                          | "Ki" | "Mi" | "Gi" | "Ti" | "Pi" }?,
+        [ db:purpose
+              [ "The relationship to test" ]
+        ]
+        attribute when { "less" | "more" | "equal" }?,
+        empty
+    }
+
+fs.readable =
+    element readable {
+        empty
+    }
+
+fs.writable =
+    element writable {
+        empty
+    }
+
+fs.executable =
+    element executable {
+        empty
+    }
+
+fs.symlink =
+    element symlink {
+        empty
+    }
+
+fs.owned-by =
+    element owned-by {
+        [ db:purpose
+              [ "The owner name" ]
+        ]
+        attribute owner { text },
+        [ db:purpose
+              [ "Follow symlinks?" ]
+        ]
+        attribute follow-symlinks { xsd:boolean }?,
+        empty
+    }
+
+fs.posix-group =
+    element posix-group {
+        [ db:purpose
+              [ "The group name" ]
+        ]
+        attribute group { text },
+        [ db:purpose
+              [ "Follow symlinks?" ]
+        ]
+        attribute follow-symlinks { xsd:boolean }?,
+        empty
+    }
+
+fs.posix-permissions =
+    element posix-permissions {
+        [ db:purpose
+              [ "The permissions" ]
+        ]
+        attribute permissions { text },
+        [ db:purpose
+              [ "Follow symlinks?" ]
+        ]
+        attribute follow-symlinks { xsd:boolean }?,
+        empty
+    }
+
+fs.content-type =
+    element content-type {
+        [ db:purpose
+              [ "The list of content types (as per p:input)" ]
+        ]
+        attribute content-types { text },
+        empty
+    }
+
+fs.mapper =
+    fs.identity-mapper | fs.flatten-mapper | fs.merge-mapper
+    | fs.glob-mapper | fs.regexp-mapper | fs.package-mapper | fs.unpackage-mapper
+    | fs.composite-mapper | fs.chained-mapper | fs.first-match-mapper
+    | fs.cut-dirs-mapper
+
+fs.identity-mapper =
+    element identity-mapper {
+        empty
+    }
+
+fs.flatten-mapper =
+    element flatten-mapper {
+        empty
+    }
+
+fs.merge-mapper =
+    element merge-mapper {
+        [ db:purpose
+              [ "The target value" ]
+        ]
+        attribute to { text },
+        empty
+    }
+
+fs.glob-mapper =
+    element glob-mapper {
+        [ db:purpose
+              [ "The match glob" ]
+        ]
+        attribute from { text },
+        [ db:purpose
+              [ "The target glob" ]
+        ]
+        attribute to { text },
+        [ db:purpose
+              [ "Default case sensitivity" ]
+        ]
+        attribute case-sensitive { xsd:boolean }?,
+        empty
+    }
+
+fs.regexp-mapper =
+    element regexp-mapper {
+        [ db:purpose
+              [ "The match regular expression" ]
+        ]
+        attribute to { text },
+        [ db:purpose
+              [ "The replacement expression" ]
+        ]
+        attribute from { text },
+        [ db:purpose
+              [ "Default case sensitivity" ]
+        ]
+        attribute case-sensitive { xsd:boolean }?,
+        empty
+    }
+
+fs.package-mapper =
+    element package-mapper {
+        [ db:purpose
+              [ "The match glob" ]
+        ]
+        attribute from { text },
+        [ db:purpose
+              [ "The target glob" ]
+        ]
+        attribute to { text },
+        empty
+    }
+
+fs.unpackage-mapper =
+    element unpackage-mapper {
+        [ db:purpose
+              [ "The match glob" ]
+        ]
+        attribute from { text },
+        [ db:purpose
+              [ "The target glob" ]
+        ]
+        attribute to { text },
+        empty
+    }
+
+fs.composite-mapper =
+    element composite-mapper {
+        fs.mapper+
+    }
+
+fs.chained-mapper =
+    element chained-mapper {
+        fs.mapper+
+    }
+
+fs.first-match-mapper =
+    element first-match-mapper {
+        fs.mapper+
+    }
+
+fs.cut-dirs-mapper =
+    element cut-dirs-mapper {
+        [ db:purpose
+              [ "The number of directories to remove" ]
+        ]
+        attribute dirs { xsd:integer },
+        empty
+    }

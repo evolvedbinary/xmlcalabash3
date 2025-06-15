@@ -1526,6 +1526,33 @@ Invalid XPath expression: “$1”.
 cxerr:XC0042
 At most one of grep, jsonpath, or xpath may be provided.
 
+cxerr:XC0043
+Root element of the cx:fileset source must be “fileset”.
+
+cxerr:XC0044
+Option “$1” can only be set once, on cx:fileset or on the fileset element.
+
+cxerr:XC0045
+Required attribute “$1” missing.
+
+cxerr:XC0046
+The value “$2” is not allowed for the attribute “$1”.
+
+cxerr:XC0047
+Only one selector is allowed.
+
+cxerr:XC0048
+Only one mapper is allowed.
+
+cxerr:XC0049
+Unknown selector: “$1”.
+
+cxerr:XC0050
+Unknown mapper: “$1”.
+
+cxerr:XC0051
+The path must be a file URI: “$1”.
+
 cxerr:XI0001
 Pipeline has no “$1” output port.
 Cannot save the output from a port that doesn’t exist.

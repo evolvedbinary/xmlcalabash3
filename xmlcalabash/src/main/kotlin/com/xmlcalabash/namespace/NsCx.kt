@@ -121,6 +121,7 @@ object NsCx {
     val ditaa = QName(namespace, "cx:ditaa")
     val ePubCheck = QName(namespace, "cx:epubcheck")
     val ebnfConvert = QName(namespace, "cx:ebnf-convert")
+    val fileset = QName(namespace, "cx:fileset")
     val find = QName(namespace, "cx:find")
     val jsonDiff = QName(namespace, "cx:json-diff")
     val jsonPatch = QName(namespace, "cx:json-patch")

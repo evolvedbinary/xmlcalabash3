@@ -21,6 +21,7 @@ import org.apache.logging.log4j.kotlin.logger
 import org.xml.sax.InputSource
 import org.xmlresolver.ResolverFeature
 import java.io.*
+import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.attribute.FileTime
@@ -48,6 +49,8 @@ class TestCase(val xmlCalabash: XmlCalabash, val testOptions: TestOptions, val t
         val READABLE = QName("readable")
         val WRITABLE = QName("writable")
         val HIDDEN = QName("hidden")
+        val EXECUTABLE = QName("executable")
+        val ENCODING = QName("encoding")
     }
 
     val builder = xmlCalabash.newPipelineBuilder()
@@ -223,6 +226,10 @@ class TestCase(val xmlCalabash: XmlCalabash, val testOptions: TestOptions, val t
                 elapsedSeconds = (System.nanoTime() - start) / 1e9
                 endIO()
                 throw e
+            }
+
+            for (msg in messageReporter.messages(Verbosity.DEBUG)) {
+                System.err.println(msg)
             }
 
             val result = outputReceiver.outputs["result"] ?: emptyList()
@@ -597,8 +604,18 @@ class TestCase(val xmlCalabash: XmlCalabash, val testOptions: TestOptions, val t
     }
 
     private fun loadFileEnvironment(node: XdmNode) {
+        val xml = if (node.getAttributeValue(SRC) != null) {
+            val builder = testConfig.processor.newDocumentBuilder()
+            builder.isLineNumbering = true
+            val fn = node.baseURI.resolve(node.getAttributeValue(SRC))
+            val xml = builder.build(SAXSource(InputSource(fn.toString())))
+            rootElement(xml)
+        } else {
+            node
+        }
+
         val properties = mutableListOf<TestFileProperties>()
-        for (child in node.axisIterator(Axis.CHILD)) {
+        for (child in xml.axisIterator(Axis.CHILD)) {
             if (child.nodeKind == XdmNodeKind.ELEMENT) {
                 val props = when (child.nodeName) {
                     NsT.file -> loadFile(child)
@@ -627,6 +644,8 @@ class TestCase(val xmlCalabash: XmlCalabash, val testOptions: TestOptions, val t
 
     private fun loadFile(node: XdmNode): TestFile? {
         val folder = loadFolder(node) ?: return null
+        val executable = testBoolean(node.getAttributeValue(EXECUTABLE))
+        val encoding = node.getAttributeValue(ENCODING) ?: "UTF-8"
         var content: String? = null
         for (child in node.axisIterator(Axis.CHILD)) {
             when (child.nodeKind) {
@@ -647,7 +666,9 @@ class TestCase(val xmlCalabash: XmlCalabash, val testOptions: TestOptions, val t
                 else -> println("Unexpected content type in t:file...")
             }
         }
-        return TestFile(folder.path, folder.lastModified, folder.readable, folder.writable, folder.hidden, content)
+        return TestFile(folder.path, folder.lastModified,
+            folder.readable, folder.writable, folder.hidden, executable,
+            encoding, content)
     }
 
     private fun testBoolean(value: String?): Boolean? {
@@ -738,7 +759,7 @@ class TestCase(val xmlCalabash: XmlCalabash, val testOptions: TestOptions, val t
         val file = File(folder, prop.path)
         val parent = File(file.parent)
         parent.mkdirs()
-        val stream = PrintStream(FileOutputStream(file))
+        val stream = PrintStream(FileOutputStream(file),true, Charset.forName(prop.encoding))
         stream.print(content)
         stream.close()
         setFileProperties(file, prop)
@@ -767,7 +788,7 @@ class TestCase(val xmlCalabash: XmlCalabash, val testOptions: TestOptions, val t
 
         try {
             val posix = mutableSetOf<PosixFilePermission>()
-            if (file.isDirectory) {
+            if (file.isDirectory || prop.executable == true) {
                 posix.add(PosixFilePermission.OWNER_EXECUTE)
             }
             if (prop.readable != false) {
@@ -829,14 +850,15 @@ class TestCase(val xmlCalabash: XmlCalabash, val testOptions: TestOptions, val t
     inner class FileEnvironment(val properties: List<TestFileProperties>)
 
     abstract inner class TestFileProperties(val path: String, val lastModified: Date? = null,
-        val readable: Boolean? = null, val writable: Boolean? = null, val hidden: Boolean? = null) {
+        val readable: Boolean? = null, val writable: Boolean? = null, val hidden: Boolean? = null, val executable: Boolean? = null) {
     }
 
     inner class TestFolder(path: String, lastModified: Date? = null,
                            readable: Boolean? = null, writable: Boolean? = null, hidden: Boolean?): TestFileProperties(path, lastModified, readable, writable, hidden)
 
     inner class TestFile(path: String, lastModified: Date? = null,
-                         readable: Boolean? = null, writable: Boolean? = null, hidden: Boolean?,
-                         val content: String? = null): TestFileProperties(path, lastModified, readable, writable, hidden)
+                         readable: Boolean? = null, writable: Boolean? = null, hidden: Boolean?, executable: Boolean?,
+                         val encoding: String? = "UTF-8",
+                         val content: String? = null): TestFileProperties(path, lastModified, readable, writable, hidden, executable)
 
 }
