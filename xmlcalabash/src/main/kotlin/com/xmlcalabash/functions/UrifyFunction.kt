@@ -42,7 +42,8 @@ class UrifyFunction(private val config: SaxonConfiguration): ExtensionFunctionDe
             if (arguments.size > 1 && arguments[1].head() != null) {
                 return StringValue(Urify.urify(relativeUri, arguments[1].head().stringValue))
             }
-            return StringValue(Urify.urify(relativeUri))
+            val uri = Urify.urify(relativeUri)
+            return StringValue(uri)
         }
     }
 }

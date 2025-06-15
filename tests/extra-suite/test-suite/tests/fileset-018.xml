@@ -19,7 +19,7 @@
     <p>Tests the writable selector</p>
   </t:description>
 
-   <t:file-environment src="../documents/fileset-environment.xml"/>
+   <t:file-environment src="../documents/fileset-environment-unreadable.xml"/>
 
   <t:pipeline>
 <p:declare-step xmlns:p="http://www.w3.org/ns/xproc"

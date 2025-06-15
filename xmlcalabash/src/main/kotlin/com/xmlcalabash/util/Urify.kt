@@ -49,6 +49,7 @@ class Urify(filepath: String, basedir: String?) {
         private val otherSchemeRE = "^(?i)([-a-z0-9+.]+):(.*)$".toRegex()
         private val authorityRE = "^//([^/]+)(/.*)?$".toRegex()
         private val plainPathRE = "^[^:]+$".toRegex()
+        private val slashPathRE = "^(?i)/[a-z]:.*$".toRegex()
 
         fun urify(filestr: String): String {
             return urify(filestr, null)
@@ -58,7 +59,15 @@ class Urify(filepath: String, basedir: String?) {
             return urify(filestr, basedir.toString())
         }
 
-        fun urify(filestr: String, basedir: String?): String {
+        fun urify(userFilestr: String, basedir: String?): String {
+            // Handle a special case where the input path is /C:/path/to/file
+            // This arises in URI("file:///C:/path/to/file").path
+            val filestr = if (isWindows && slashPathRE.matches(userFilestr)) {
+                userFilestr.substring(1)
+            } else {
+                userFilestr
+            }
+
             var filepath = Urify(filestr, basedir)
 
             var suffix: String? = null

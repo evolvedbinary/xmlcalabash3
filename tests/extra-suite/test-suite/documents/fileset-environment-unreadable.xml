@@ -20,6 +20,17 @@
   <t:file path="compare/b/two.txt" last-modified="2025-02-02T01:01:00Z">two</t:file>
   <t:file path="compare/b/three.txt" last-modified="2025-01-01T01:01:00Z">THREE</t:file>
 
+  <t:folder path="attr"/>
+  <t:file path="attr/readable.txt">readable</t:file>
+  <t:file path="attr/unreadable.txt" readable="false">unreadable</t:file>
+
+  <t:file path="attr/writable.txt">writable</t:file>
+  <t:file path="attr/unwritable.txt" writable="false">unwritable</t:file>
+
+  <t:file path="attr/executable.sh" executable="true">#!/bin/sh
+echo "Hello, world."
+</t:file>
+
   <t:folder path="hier/one/two/three"/>
   <t:file path="hier/one/a.txt"/>
   <t:file path="hier/one/b.txt"/>

@@ -799,8 +799,7 @@ class TestCase(val xmlCalabash: XmlCalabash, val testOptions: TestOptions, val t
             }
 
             Files.setPosixFilePermissions(file.toPath(), posix)
-        } catch (ex: UnsupportedOperationException) {
-            println("EX: ${ex.message}")
+        } catch (_: UnsupportedOperationException) {
             if (prop.writable == false) {
                 if (file.isDirectory) {
                     requiresUnwritableDirectory = true
