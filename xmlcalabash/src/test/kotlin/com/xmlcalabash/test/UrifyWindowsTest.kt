@@ -4,6 +4,7 @@ import com.xmlcalabash.exceptions.XProcException
 import com.xmlcalabash.util.Urify
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.fail
+import java.net.URI
 
 class UrifyWindowsTest {
     companion object {
@@ -29,6 +30,20 @@ class UrifyWindowsTest {
         fun teardown(): Unit {
             Urify.mockOs(saveOsName, saveFilesep, saveCwd)
         }
+    }
+
+    @Test
+    fun urify_slash_path() {
+        val path1 = Urify.urify("/C:/path/to/file")
+        Assertions.assertEquals("file:///C:/path/to/file", path1)
+    }
+
+    @Test
+    fun urify_urify() {
+        val path1 = Urify.urify("C:\\path\\to\\file")
+        val uri = URI(path1)
+        val path2 = Urify.urify(uri.path)
+        Assertions.assertEquals("file:///C:/path/to/file", path2)
     }
 
     @Test

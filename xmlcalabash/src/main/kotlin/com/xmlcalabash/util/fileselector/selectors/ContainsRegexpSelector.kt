@@ -3,6 +3,7 @@ package com.xmlcalabash.util.fileselector.selectors
 import com.xmlcalabash.io.DocumentLoader
 import com.xmlcalabash.io.MediaType
 import com.xmlcalabash.runtime.XProcStepConfiguration
+import com.xmlcalabash.util.Urify
 import com.xmlcalabash.util.fileselector.FSFile
 import java.io.File
 import java.io.FileInputStream
@@ -17,7 +18,7 @@ class ContainsRegexpSelector(val stepConfig: XProcStepConfiguration,
                              val singleline: Boolean = false) : Selector {
     override fun selects(file: FSFile): Boolean {
         val charset = Charset.forName(encoding)
-        val loader = DocumentLoader(stepConfig, URI(file.path.absolutePath))
+        val loader = DocumentLoader(stepConfig, URI(Urify.urify(file.path.absolutePath)))
         val doc = loader.load(FileInputStream(file.path), MediaType.TEXT, charset)
 
         val content = doc.value.underlyingValue.stringValue
