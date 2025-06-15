@@ -228,7 +228,7 @@ class TestCase(val xmlCalabash: XmlCalabash, val testOptions: TestOptions, val t
                 throw e
             }
 
-            for (msg in messageReporter.messages(Verbosity.DEBUG)) {
+            for (msg in messageReporter.messages(if (testOptions.debug) Verbosity.DEBUG else Verbosity.INFO)) {
                 System.err.println(msg)
             }
 
