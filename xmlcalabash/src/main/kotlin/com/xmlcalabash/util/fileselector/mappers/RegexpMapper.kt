@@ -1,12 +1,5 @@
 package com.xmlcalabash.util.fileselector.mappers
 
-import net.sf.saxon.regex.ARegexIterator
-import net.sf.saxon.regex.RECompiler
-import net.sf.saxon.regex.REFlags
-import net.sf.saxon.regex.REMatcher
-import net.sf.saxon.str.StringView
-import net.sf.saxon.str.UnicodeString
-
 open class RegexpMapper(val from: String, val to: String, val caseSensitive: Boolean = true): Mapper {
     override fun selects(targetPaths: List<String>): List<String> {
         val opts = if (caseSensitive) {

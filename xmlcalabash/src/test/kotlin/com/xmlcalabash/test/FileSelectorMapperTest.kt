@@ -1,26 +1,8 @@
 package com.xmlcalabash.test
 
-import com.xmlcalabash.util.fileselector.FileSelector
-import com.xmlcalabash.util.fileselector.mappers.ChainedMapper
-import com.xmlcalabash.util.fileselector.mappers.CompositeMapper
-import com.xmlcalabash.util.fileselector.mappers.CutDirsMapper
-import com.xmlcalabash.util.fileselector.mappers.FlattenMapper
-import com.xmlcalabash.util.fileselector.mappers.GlobMapper
-import com.xmlcalabash.util.fileselector.mappers.IdentityMapper
-import com.xmlcalabash.util.fileselector.mappers.MergeMapper
-import com.xmlcalabash.util.fileselector.mappers.PackageMapper
-import com.xmlcalabash.util.fileselector.mappers.RegexpMapper
-import com.xmlcalabash.util.fileselector.mappers.UnpackageMapper
-import com.xmlcalabash.util.fileselector.selectors.DateSelector
-import com.xmlcalabash.util.fileselector.selectors.WhenRelative
+import com.xmlcalabash.util.fileselector.mappers.*
 import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.Assertions.fail
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
-import java.io.File
-import java.io.PrintStream
-import java.time.Instant
 
 class FileSelectorMapperTest {
     @Test
@@ -89,22 +71,6 @@ class FileSelectorMapperTest {
     }
 
     @Test
-    fun testPackageMapper() {
-        val mapper = PackageMapper("*.java", "*.xml")
-        val list = listOf("a/file.java", "/a/file.JAVA", "/a/b/file.java", "a/b/c/file.json")
-        val select = mapper.selects(list)
-        Assertions.assertEquals(listOf("a.file.xml", ".a.b.file.xml"), select)
-    }
-
-    @Test
-    fun testPackageMapperCaseInsensitive() {
-        val mapper = PackageMapper("*.java", "*.xml", false)
-        val list = listOf("a/file.java", "/a/file.JAVA", "/a/b/file.java", "a/b/c/file.json")
-        val select = mapper.selects(list)
-        Assertions.assertEquals(listOf("a.file.xml", ".a.file.xml", ".a.b.file.xml"), select)
-    }
-
-    @Test
     fun testRegexMapper() {
         val mapper = RegexpMapper("^(.*)/([^/]+)/([^/]*)$", "\\1/\\2/\\2-\\3", false)
         val select = mapper.selects(listOf("A.java", "foo/bar/B.java", "C.properties", "Classes/dir/dir2/A.properties"))
@@ -126,8 +92,25 @@ class FileSelectorMapperTest {
     }
 
     @Test
+    fun testPackageMapper() {
+        val mapper = PackageMapper("(.*).java", "\\1.xml")
+        val list = listOf("a/file.java", "/a/file.JAVA", "/a/b/file.java", "a/b/c/file.json")
+        val select = mapper.selects(list)
+        Assertions.assertEquals(listOf("a.file.xml", "a.b.file.xml"), select)
+    }
+
+    @Test
+    fun testPackageMapperCaseInsensitive() {
+        val mapper = PackageMapper("(.*).java", "\\1.xml", false)
+        val list = listOf("a/file.java", "/a/file.JAVA", "/a/b/file.java", "a/b/c/file.json")
+        val select = mapper.selects(list)
+        Assertions.assertEquals(listOf("a.file.xml", "a.file.xml", "a.b.file.xml"), select)
+    }
+
+
+    @Test
     fun testUnpackageMapper() {
-        val mapper = UnpackageMapper("*.java", "*.xml")
+        val mapper = UnpackageMapper("(.*).java", "\\1.xml")
         val list = listOf("a.file.java", ".a.file.JAVA", ".a.b.file.java", "a.b.c.file.json")
         val select = mapper.selects(list)
         Assertions.assertEquals(listOf("a/file.xml", "/a/b/file.xml"), select)
@@ -135,7 +118,7 @@ class FileSelectorMapperTest {
 
     @Test
     fun testUnpackageMapperCaseInsensitive() {
-        val mapper = UnpackageMapper("*.java", "*.xml", false)
+        val mapper = UnpackageMapper("(.*).java", "\\1.xml", false)
         val list = listOf("a.file.java", ".a.file.JAVA", ".a.b.file.java", "a.b.c.file.json")
         val select = mapper.selects(list)
         Assertions.assertEquals(listOf("a/file.xml", "/a/file.xml", "/a/b/file.xml"), select)
