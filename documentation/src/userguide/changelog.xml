@@ -13,6 +13,41 @@ See the commits and pull requests on
 finer detail.</para>
 
 <revhistory>
+<revision xml:id="r303">
+<revnumber>3.0.3</revnumber>
+<date>2025-06-15</date>
+<revdescription>
+<itemizedlist>
+<listitem><para>Fixed <cbissue number="64"/>. On Windows, the <function>p:urify()</function>
+function didn’t handle “/C:/path/to/file” correctly.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="61"/>. Made  the XML Schema module URI resolver
+do the right thing.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="59"/>. Added support for setting
+<link linkend="cli-serial">serialization parameters</link> on the
+command line.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="56"/>. Corrected several errors in option handling.
+Static options that did not have an initializer were not recognized and options passed from
+the command line applied to all steps, not just the outer-most step.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="53"/>. Resolved a performance issue during graph
+construction.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="40"/>. Corrected an error in the test driver.
+</para></listitem>
+<listitem><para>Added the <tag>cx:fileset</tag> step, inspired by Ant FileSets.
+</para></listitem>
+<listitem><para>Fixed a bug in the way document properties were handled when using
+<tag class="attribute">select</tag> on <tag>p:with-input</tag>.
+</para></listitem>
+<listitem><para>Updated the Schematron implementation to
+<link xlink:href="https://codeberg.org/schxslt/schxslt2">SchXslt2</link> version 1.3.5.
+</para></listitem>
+</itemizedlist>
+</revdescription>
+</revision>
 <revision xml:id="r302">
 <revnumber>3.0.2</revnumber>
 <date>2025-06-06</date>
