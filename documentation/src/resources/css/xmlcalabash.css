@@ -116,7 +116,6 @@ code.literal {
     padding: 4px;
     line-height: 1.25;
     white-space: nowrap;
-    overflow-x: scroll;
 }
 
 .element-syntax { color: #000000; }

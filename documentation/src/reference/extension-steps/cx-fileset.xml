@@ -1,0 +1,687 @@
+<refentry xmlns:p="http://www.w3.org/ns/xproc"
+          xmlns:e="http://www.w3.org/1999/XSL/Spec/ElementSyntax"
+          xmlns:cxerr="http://xmlcalabash.com/ns/error"
+          xmlns:xi="http://www.w3.org/2001/XInclude"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          xmlns="http://docbook.org/ns/docbook"
+          xml:id="cx-fileset">
+<?db filename="cx-fileset"?>
+<refnamediv>
+  <refname>cx:fileset</refname>
+  <refpurpose>Approximates the Ant notion of a fileset</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv>
+<refsection role="introduction">
+<title>Introduction</title>
+<para>This step selects files using a vocabulary based on the 
+<link xlink:href="https://ant.apache.org/manual/Types/fileset.html">FileSet</link> vocabulary
+of <link xlink:href="https://ant.apache.org/">Ant</link>.
+</para>
+</refsection>
+
+<refsection role="step-declaration">
+<title>Step declaration</title>
+<xi:include href="../../../../xmlcalabash/src/main/resources/com/xmlcalabash/ext/fileset.xpl"
+            xpointer="xpath(/*/*[@type='cx:fileset'])"/>
+<?import fileset.xpl?>
+</refsection>
+
+<refsection role="errors">
+<title>Errors</title>
+<para>Errors from the entry body are summarized here.</para>
+</refsection>
+</refsynopsisdiv>
+
+<refsection>
+<title>Description</title>
+
+<para>This step is based on the <link xlink:href="https://ant.apache.org/">Ant</link>
+notion of <link xlink:href="https://ant.apache.org/manual/Types/fileset.html">FileSets</link>.
+Conceptually, all of the files below some starting point (the
+<option>path</option>) are filtered through a set of inclusions and exclusions. Any files
+that satisfy the filters are further subjected to a set of selectors (which may use mappers)
+to determine if they are in the final result or not.</para>
+
+<para>The <tag>cx:fileset</tag> step differs from Ant in some ways:</para>
+
+<orderedlist>
+<listitem>
+<para>The files selected by <tag>cx:fileset</tag> are normalized with <function>urify()</function>.
+They exclusively use “/” as the path separator.</para>
+</listitem>
+<listitem>
+<para>The step is only concerned with selecting existing files.</para>
+  <orderedlist>
+    <listitem><para>The “type” selector is not provided.</para></listitem>
+    <listitem><para>Attributes related to filtering directories are not provided.</para></listitem>
+    <listitem><para>It doesn’t support anything like Ant
+    <link xlink:href="https://ant.apache.org/manual/Types/filterset.html">FilterSets</link> which
+    change the contents of files.</para></listitem>
+  </orderedlist>
+</listitem>
+<listitem>
+<para>The names of the elements and attributes have been changed to make them
+more consistent with XProc (“compound-name” instead of “compoundname”).</para>
+</listitem>
+<listitem>
+<para>The “scriptselector” is not supported.</para>
+</listitem>
+<listitem>
+<para>You can’t provide a custom filter or mapper class, the step isn’t extensible in that way.</para>
+</listitem>
+<listitem>
+<para>Ant has a number of features for defining filters, patterns, and selectors and then
+reusing them by reference. XProc has lots of features for constructing XML documents, so those
+mechanisms are not supported.</para>
+</listitem>
+</orderedlist>
+
+<para>In order to avoid having all of Ant become a dependency, this is a
+reimplementation of the functionality. The Ant documentation isn’t especially
+precise. It’s possible that there are unintentional semantic differences beyond
+the differences outlined here. (Please report them.)</para>
+
+<para>This step differs substantially from he <tag>p:directory-list</tag> step in that the
+include and exclude filters are “<link linkend="cxfs-globs">globs</link>” not regular expressions!</para>
+
+<para>If the <port>source</port> port is not empty, it must contain a
+<link linkend="cxfs.fileset">fileset</link> document.
+<error code="cxerr:XC0043">It is a <glossterm>dynamic error</glossterm> if the source
+document is not a <tag>fileset</tag> document.</error>
+</para>
+
+<important>
+<para>Where regular expressions are used, they use the regular expression syntax of the
+underlying platform. This will change in the future and the XPath regular expression syntax
+will be used instead. For most simple cases, there’s no difference.</para>
+</important>
+
+<refsection>
+<title>Step options</title>
+
+<para>The <tag>cx:fileset</tag> step has several options.</para>
+
+<variablelist>
+<varlistentry><term><option>path</option></term>
+<listitem>
+<para>The path. The value provided will be normalized with the <function>urify()</function>
+function. The resulting URI must be a “file” URI. 
+<error code="cxerr:XC0051">It is a <glossterm>dynamic error</glossterm> if the path
+provided is not a file: URI.</error>
+</para>
+</listitem>
+</varlistentry>
+<varlistentry><term><option>case-sensitive</option></term>
+<listitem>
+<para>Several selectors support case-sensitive or case-insensitive comparisons.
+This option provides the default value for those selectors.</para>
+</listitem>
+</varlistentry>
+<varlistentry><term><option>default-excludes</option></term>
+<listitem>
+<para>If this option is true, the <link linkend="cxfs-default-excludes">default exclusions</link>
+are automatically used.</para>
+</listitem>
+</varlistentry>
+<varlistentry><term><option>detailed</option></term>
+<listitem>
+<para>If this option is true, detailed information will be provided about each file.
+See <tag>p:directory-list</tag> for more details.</para>
+</listitem>
+</varlistentry>
+<varlistentry><term><option>error-on-missing-dir</option></term>
+<listitem>
+<para><error code="cxerr:XC0052">It is a <glossterm>dynamic error</glossterm> if the path
+provided does not exist and error-on-missing-dir is true.</error></para>
+</listitem>
+</varlistentry>
+<varlistentry><term><option>excludes</option></term>
+<listitem>
+<para>A space or comma separated list of <link linkend="cxfs-globs">globs</link>.
+Any file that matches will be excluded.</para>
+</listitem>
+</varlistentry>
+<varlistentry><term><option>follow-symlinks</option></term>
+<listitem>
+<para>Several selectors have an option to follow symbolic links.
+This option provides the default value for those selectors.</para>
+</listitem>
+</varlistentry>
+<varlistentry><term><option>includes</option></term>
+<listitem>
+<para>A space or comma separated list of <link linkend="cxfs-globs">globs</link>.
+Any file that matches will be included, unless it also matches an exclusion.
+If no inclusions are provided, all of the descendants are included by default.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+</refsection>
+
+<refsection>
+<title>The fileset document</title>
+
+<para>The fileset document contains zero or more <tag>include</tag> or <tag>exclude</tag>
+elements and zero or more selectors. Some selectors may contain mappers.</para>
+
+<para>A selector tests each file that is filtered through the includes and
+excludes. If the file “passes” the selection test, it remains included. If it
+“fails”, it is removed.</para>
+
+<para>Selectors that compare the file in question against other files on the
+filesystem may use mappers to transform the filename. For example:</para>
+
+<programlisting language="xml"><![CDATA[<cx:fileset path="/path/to/input" includes="*.svg">
+  <p:with-input>
+    <fileset>
+      <present target="/path/to/output">
+        <glob-mapper from="*.svg" to="*.png"/>
+      </present>
+    </fileset>
+  </p:with-input>
+</cx:fileset>]]></programlisting>
+
+<para>This <tag linkend="cxfs.fileset">fileset</tag> begins with all of the SVG
+files under <filename>/path/to/input</filename>. For each one, the
+<tag linkend="cxfs.present">present</tag> selector tests, does this file exist at an
+equivalent location under the <filename>/path/to/output</filename> directory?
+The <tag linkend="cxfs.glob-mapper">glob-mapper</tag> changes the
+<filename class="extension">.svg</filename> extension to <filename class="extension">.png</filename>.
+</para>
+
+<para>Suppose <filename>/path/to/input</filename> contains <filename>a.svg</filename>,
+<filename>b.svg</filename>, and <filename>c.svg</filename> and 
+<filename>/path/to/output</filename> contains <filename>a.svg</filename>,
+<filename>b.png</filename>, and <filename>d.png</filename>.</para>
+
+<para>The only file returned will be <filename>b.svg</filename>. Neither 
+<filename>a.svg</filename> nor <filename>c.svg</filename> will be returned because
+there’s no equivalent PNG file in the output directory. And <filename>d.svg</filename>
+won’t be returned because there’s no such file in the input directory.</para>
+
+<para>If more than one selector is provided, that is the same as a single <tag>and</tag>
+selector containing all of them.</para>
+
+<refsection xml:id="cxfs.fileset">
+<title>The fileset element</title>
+
+<para>The <tag>fileset</tag> element contains the configuration of the step.</para>
+
+<rng-pattern schema="../../build/fileset.rng"
+             name="fs.fileset" format="table"/>
+
+<para>The options for default exclusions, case sensitivity, whether it’s an error
+if the path is missing, and the default for following symbolic links must be specified
+<emphasis>either</emphasis> on the step <emphasis>or</emphasis> on the <tag>fileset</tag>
+element.
+<error code="cxerr:XC0044">It is a <glossterm>dynamic error</glossterm> if they are
+specified in both places.</error> If inclusions or exclusions are specified in both
+places, both sets of patterns (and the patterns from any nested <tag>include</tag>
+or <tag>exclude</tag> elements) are used.</para>
+</refsection>
+
+<refsection xml:id="cxfs.include">
+<title>The include element</title>
+
+<para>The <tag>include</tag> element identifies a (single) glob pattern to include.
+If the <tag class="attribute">if</tag> attribute is false or the
+<tag class="attribute">unless</tag> attribute is true, the element is ignored.</para>
+
+<rng-pattern schema="../../build/fileset.rng"
+             name="fs.include" format="table"/>
+
+</refsection>
+<refsection xml:id="cxfs.exclude">
+<title>The exclude element</title>
+
+<para>The <tag>exclude</tag> element identifies a (single) glob pattern to exclude.
+If the <tag class="attribute">if</tag> attribute is false or the
+<tag class="attribute">unless</tag> attribute is true, the element is ignored.</para>
+
+<rng-pattern schema="../../build/fileset.rng"
+             name="fs.exclude" format="table"/>
+</refsection>
+
+<refsection xml:id="cxfs.contains">
+<title>The contains element</title>
+
+<para>The <tag>contains</tag> element selects a file if it contains the specified text.</para>
+
+<rng-pattern schema="../../build/fileset.rng"
+             name="fs.contains" format="table"/>
+
+<para>If <tag class="attribute">ignore-whitespace</tag> is true, all white space is
+stripped from the search text and the file before making the comparision.</para>
+
+</refsection>
+<refsection xml:id="cxfs.content-type">
+<title>The content-type element</title>
+
+<para>The <tag>content-type</tag> element selects a file if it has one of the specified content types.</para>
+
+<rng-pattern schema="../../build/fileset.rng"
+             name="fs.content-type" format="table"/>
+
+<para>This selector is not present in Ant.</para>
+
+</refsection>
+<refsection xml:id="cxfs.date">
+<title>The date element</title>
+
+<para>The <tag>date</tag> element selects a file if it’s last modified time matches
+the constraints specified.</para>
+
+<rng-pattern schema="../../build/fileset.rng"
+             name="fs.date" format="table"/>
+
+<para>If <tag class="attribute">when</tag> is “before”, the last modified time must be before
+the specified <tag class="attribute">date-time</tag>. If it’s “after”, it must be after. If
+it’s “equal” (the default), it must be equal.</para>
+
+<para>For the purposes of comparision, the last modified time is equal to the specified date
+time if it’s within <tag class="attribute">granularity</tag> milliseconds of the specified
+<tag class="attribute">date-time</tag>. On Windows, the default granularity is 2 seconds, on 
+other systems, it’s 0.</para>
+
+</refsection>
+<refsection xml:id="cxfs.depend">
+<title>The depend element</title>
+
+<para>The <tag>depend</tag> element selects a file if it exists under the 
+<tag class="attribute">target-dir</tag> and if the target file is newer.</para>
+
+<rng-pattern schema="../../build/fileset.rng"
+             name="fs.depend" format="table"/>
+
+<para>For the purposes of comparision, two files are considered to have the same
+last modified time if they are within <tag class="attribute">granularity</tag>
+milliseconds of each other. On Windows, the default granularity is 2 seconds, on
+other systems, it’s 0.</para>
+
+<para>If no mapper is specified, the <tag linkend="cxfs.identity-mapper">identity-mapper</tag>
+is used.</para>
+</refsection>
+<refsection xml:id="cxfs.depth">
+<title>The depth element</title>
+
+<para>The <tag>depth</tag> element selects a file if it is at least
+<tag class="attribute">min</tag> directory levels and at most
+<tag class="attribute">max</tag> directory levels from the root.</para>
+
+<rng-pattern schema="../../build/fileset.rng"
+             name="fs.depth" format="table"/>
+
+<para>If <tag class="attribute">min</tag> is unspecified, it defaults to 0.
+If <tag class="attribute">max</tag> is unspecified, it defaults to ∞.</para>
+
+</refsection>
+<refsection xml:id="cxfs.different">
+<title>The different element</title>
+
+<para>The <tag>different</tag> element selects a file if it exists under the 
+<tag class="attribute">target-dir</tag> and is different.</para>
+
+<rng-pattern schema="../../build/fileset.rng"
+             name="fs.different" format="table"/>
+
+<para>The default value for <tag class="attribute">ignore-file-times</tag> is true;
+the default value for <tag class="attribute">ignore-contents</tag> is false.</para>
+
+<para>For the purposes of comparision, two files are considered to have the same
+last modified time if they are within <tag class="attribute">granularity</tag>
+milliseconds of each other. On Windows, the default granularity is 2 seconds, on
+other systems, it’s 0.</para>
+
+<para>If no mapper is specified, the <tag linkend="cxfs.identity-mapper">identity-mapper</tag>
+is used.</para>
+</refsection>
+<refsection xml:id="cxfs.filename">
+<title>The filename element</title>
+
+<para>The <tag>filename</tag> element matches a file if it matches the glob or
+regular expression provided.</para>
+
+<rng-pattern schema="../../build/fileset.rng"
+             name="fs.filename" format="table"/>
+
+<para>Exactly one of <tag class="attribute">name</tag> or <tag class="attribute">regex</tag> 
+must be provided.</para>
+
+<para>This element is like the <tag linkend="cxfs.include">include</tag> element,
+but it can be combined with other selectors. If <tag class="attribute">negate</tag>
+is true, this element is like the <tag linkend="cxfs.include">exclude</tag> element.</para>
+
+</refsection>
+<refsection xml:id="cxfs.present">
+<title>The present element</title>
+
+<para>The <tag>present</tag> element selects a file by comparing it
+against an equivalent file under the <tag class="attribute">target-dir</tag>.</para>
+
+<rng-pattern schema="../../build/fileset.rng"
+             name="fs.present" format="table"/>
+
+<para>If <tag class="attribute">present</tag> is “srconly”, the file is selected if
+it only exists in the source (if it is not under the <tag class="attribute">target-dir</tag>).
+If <tag class="attribute">present</tag> is “both”, the file is selected if
+it exists in both places. (A “target only” value is incoherent because the comparison
+is always against a file that <emphasis>does</emphasis> exist.)</para>
+
+<para>If no mapper is specified, the <tag linkend="cxfs.identity-mapper">identity-mapper</tag>
+is used.</para>
+</refsection>
+<refsection xml:id="cxfs.contains-regexp">
+<title>The contains-regexp element</title>
+
+<para>The <tag>contains-regexp</tag> element selects a file if it contains the specified
+regular expression.</para>
+
+<rng-pattern schema="../../build/fileset.rng"
+             name="fs.contains-regexp" format="table"/>
+
+<para>If <tag class="attribute">multi-line</tag> is true, the match may extend across line breaks.</para>
+
+<para>If <tag class="attribute">single-line</tag> is true, “.” may match newlines. (This is
+the “dotall” flag in Java regular expressions.</para>
+
+</refsection>
+<refsection xml:id="cxfs.size">
+<title>The size element</title>
+
+<para>The <tag>size</tag> element selects a file based on its size.</para>
+
+<rng-pattern schema="../../build/fileset.rng"
+             name="fs.size" format="table"/>
+
+<para>If no units are specified, the <tag class="attribute">value</tag> is an exact
+number of bytes. If <tag class="attribute">units</tag> are specified, they have the following
+effect: <literal>da</literal> multiplies the value by 10, <literal>h</literal> multiplies
+the value by 100,
+<literal>k</literal>, 1,000,
+<literal>M</literal>, 1,000,000,
+<literal>G</literal>, 10<superscript>9</superscript>
+<literal>T</literal>, 10<superscript>12</superscript> and
+<literal>P</literal>, 10<superscript>15</superscript>.</para>
+<para>The remaining units multiply by powers of two:
+<literal>Ki</literal>, 1024,
+<literal>Mi</literal>, 1024<superscript>2</superscript>,
+<literal>Gi</literal>, 1024<superscript>3</superscript>,
+<literal>Ti</literal>, 1024<superscript>4</superscript>, and
+<literal>Pi</literal>, 1024<superscript>5</superscript>.</para>
+
+<para>The <tag class="attribute">when</tag> attribute determines how the actual file size 
+must compare to the specified value.</para>
+</refsection>
+<refsection xml:id="cxfs.readable">
+<title>The readable element</title>
+
+<para>The <tag>readable</tag> element selects a file if it is readable by the user.</para>
+
+<rng-pattern schema="../../build/fileset.rng"
+             name="fs.readable" format="table"/>
+
+</refsection>
+<refsection xml:id="cxfs.writable">
+<title>The writable element</title>
+
+<para>The <tag>readable</tag> element selects a file if it is writable by the user.</para>
+
+<rng-pattern schema="../../build/fileset.rng"
+             name="fs.writable" format="table"/>
+
+</refsection>
+<refsection xml:id="cxfs.executable">
+<title>The executable element</title>
+
+<para>The <tag>executable</tag> element selects a file if it is executable by the user.</para>
+
+<rng-pattern schema="../../build/fileset.rng"
+             name="fs.executable" format="table"/>
+
+</refsection>
+<refsection xml:id="cxfs.symlink">
+<title>The symlink element</title>
+
+<para>The <tag>symlink</tag> element selects a file if it is a symbolic link.</para>
+
+<rng-pattern schema="../../build/fileset.rng"
+             name="fs.symlink" format="table"/>
+
+<para>Symbolic links are platform specific. This selector returns true if the underlying
+<link xlink:href="https://en.wikipedia.org/wiki/Java_virtual_machine">JVM</link>
+considers a file on the particular filesystem in use a “symbolic link”.</para>
+
+</refsection>
+<refsection xml:id="cxfs.owned-by">
+<title>The owned-by element</title>
+
+<para>The <tag>owned-by</tag> element selects files that are owned by
+<tag class="attribute">owner</tag>.</para>
+
+<rng-pattern schema="../../build/fileset.rng"
+             name="fs.owned-by" format="table"/>
+
+<para>If the file being tested is a symbolic link and <tag
+class="attribute">follow-symlinks</tag> is true, the ownership of the file
+<emphasis>linked to</emphasis> is tested. Otherwise the owner of the link is tested.</para>
+
+</refsection>
+<refsection xml:id="cxfs.posix-group">
+<title>The posix-group element</title>
+
+<para>The <tag>posix-group</tag> element selects files that are members
+of the specified <tag class="attribute">group</tag>.</para>
+
+<rng-pattern schema="../../build/fileset.rng"
+             name="fs.posix-group" format="table"/>
+
+<para>If the file being tested is a symbolic link and <tag
+class="attribute">follow-symlinks</tag> is true, the group of the file
+<emphasis>linked to</emphasis> is tested. Otherwise the group of the link is tested.</para>
+
+<para>This selector requires a POSIX compatible filesystem. It will always
+return false in other cases, for example, on Windows.</para>
+
+</refsection>
+<refsection xml:id="cxfs.posix-permissions">
+<title>The posix-permissions element</title>
+
+<para>The <tag>posix-permissions</tag> element selects files that have
+specific permissions.</para>
+
+<rng-pattern schema="../../build/fileset.rng"
+             name="fs.posix-permissions" format="table"/>
+
+<para>Permissions can be expressed as an octal number (“755”) or using
+the r/w/- notation (“rwxr-xr-x”). In either case, the match is exact.
+The selector doesn’t support any kind of wildcard matching.</para>
+
+<para>If the file being tested is a symbolic link and <tag
+class="attribute">follow-symlinks</tag> is true, the permissions of the file
+<emphasis>linked to</emphasis> are tested. Otherwise the permissions of the link are tested.</para>
+
+<para>This selector requires a POSIX compatible filesystem. It will always
+return false in other cases, for example, on Windows.</para>
+
+</refsection>
+<refsection xml:id="cxfs.chained-mapper">
+<title>The chained-mapper element</title>
+
+<para>The <tag>chained-mapper</tag> returns the result of applying each mapper in turn.
+The initial file is the input to the first mapper, the output from the first mapper
+is the input to the second mapper, and so on.
+</para>
+
+<rng-pattern schema="../../build/fileset.rng"
+             name="fs.chained-mapper" format="table"/>
+
+</refsection>
+<refsection xml:id="cxfs.composite-mapper">
+<title>The composite-mapper element</title>
+
+<para>The <tag>composite-mapper</tag> returns the result of applying the (same) initial file
+to each mapper. This is the union of all the mapper outputs.</para>
+
+<rng-pattern schema="../../build/fileset.rng"
+             name="fs.composite-mapper" format="table"/>
+
+</refsection>
+<refsection xml:id="cxfs.cut-dirs-mapper">
+<title>The cut-dirs-mapper element</title>
+
+<para>The <tag>cut-dirs-mapper</tag> removes <tag class="attribute">dirs</tag> path
+segments from the front of the file. If the file has fewer path segments, nothing
+is returned.</para>
+
+<rng-pattern schema="../../build/fileset.rng"
+             name="fs.cut-dirs-mapper" format="table"/>
+
+</refsection>
+<refsection xml:id="cxfs.first-match-mapper">
+<title>The first-match-mapper element</title>
+
+<para>The <tag>first-match-mapper</tag> applies the original file to each mapper
+in turn, returning the results of the first mapper that succeeds.</para>
+
+<rng-pattern schema="../../build/fileset.rng"
+             name="fs.first-match-mapper" format="table"/>
+
+</refsection>
+<refsection xml:id="cxfs.flatten-mapper">
+<title>The flatten-mapper element</title>
+
+<para>The <tag>flatten-mapper</tag> returns the filename of the original file with
+all leading path segments removed.</para>
+
+<rng-pattern schema="../../build/fileset.rng"
+             name="fs.flatten-mapper" format="table"/>
+
+</refsection>
+<refsection xml:id="cxfs.glob-mapper">
+<title>The glob-mapper element</title>
+
+<para>The <tag>glob-mapper</tag> matches the original file against the
+<tag class="attribute">from</tag> glob. If it doesn’t match, nothing is returned.
+If it does match, the <tag class="attribute">to</tag> glob is used to change the
+file.</para>
+
+<rng-pattern schema="../../build/fileset.rng"
+             name="fs.glob-mapper" format="table"/>
+
+<para>The <tag class="attribute">from</tag> and <tag class="attribute">to</tag> globs much
+each contain exactly one <literal>*</literal>. The text matched by the <literal>*</literal>
+in the <tag class="attribute">from</tag> glob is used to replace the <literal>*</literal> in
+the <tag class="attribute">to</tag> glob.</para>
+
+</refsection>
+<refsection xml:id="cxfs.identity-mapper">
+<title>The identity-mapper element</title>
+
+<para>The <tag>identity-mapper</tag> returns the original file unchanged.
+</para>
+
+<rng-pattern schema="../../build/fileset.rng"
+             name="fs.identity-mapper" format="table"/>
+
+</refsection>
+<refsection xml:id="cxfs.merge-mapper">
+<title>The merge-mapper element</title>
+
+<para>The <tag>merge-mapper</tag> returns the <tag class="attribute">to</tag>
+value irrespective of the original file.
+</para>
+
+<rng-pattern schema="../../build/fileset.rng"
+             name="fs.merge-mapper" format="table"/>
+
+</refsection>
+<refsection xml:id="cxfs.package-mapper">
+<title>The package-mapper element</title>
+
+<para>The <tag>package-mapper</tag> applies the same processing as the
+<tag>regexp-matcher</tag>, then replaces all of the “/” characters with “.”.
+</para>
+
+<rng-pattern schema="../../build/fileset.rng"
+             name="fs.package-mapper" format="table"/>
+
+<para>This turns, for example, <filename>org/example/package/Class.java</filename>
+into <filename>org.example.package.Class.html</filename> assuming the
+<tag class="attribute">from</tag> value is “*.java” and the
+<tag class="attribute">two</tag> value is “*.html”.</para>
+
+</refsection>
+<refsection xml:id="cxfs.unpackage-mapper">
+<title>The unpackage-mapper element</title>
+
+<para>The <tag>unpackage-mapper</tag> applies the same processing as the
+<tag>regexp-matcher</tag>, then replaces all but the last “.” characters with “/”.
+</para>
+
+<rng-pattern schema="../../build/fileset.rng"
+             name="fs.unpackage-mapper" format="table"/>
+
+<para>This is the reverse of the <tag linkend="cxfs.package-mapper">package-mapper</tag>.
+</para>
+
+</refsection>
+<refsection xml:id="cxfs.regexp-mapper">
+<title>The regexp-mapper element</title>
+
+<para>The <tag>regexp-mapper</tag> matches the original file against the
+<tag class="attribute">from</tag> regular expression. If it doesn’t match, nothing is returned.
+If it does match, the <tag class="attribute">to</tag> expression is used to change the
+file.</para>
+
+<rng-pattern schema="../../build/fileset.rng"
+             name="fs.regexp-mapper" format="table"/>
+
+<para>Each occurrence of “\0” to “\9” is replaced with the corresponding match
+group from the <tag class="attribute">from</tag> expression (where “\0” is the whole
+string, “\1” is the first match group, etc.</para>
+
+</refsection>
+</refsection>
+
+<refsection xml:id="cxfs-default-excludes">
+<title>Default exclusions</title>
+
+<para>The default exclusions are:</para>
+
+<para>Any file or directory named
+<filename>.DSStore</filename>,
+<filename>.bzr</filename>,
+<filename>.bzrignore</filename>,
+<filename>.cvsignore</filename>,
+<filename>.git</filename>,
+<filename>.gitattributes</filename>,
+<filename>.gitignore</filename>,
+<filename>.gitmodules</filename>,
+<filename>.hg</filename>,
+<filename>.hgignore</filename>,
+<filename>.hgsub</filename>,
+<filename>.hgsubstate</filename>,
+<filename>.hgtags</filename>,
+<filename>.svn</filename>,
+<filename>CVS</filename>,
+<filename>SCCS</filename>,
+<filename>vssver.scc</filename>. If a directory name is excluded, so are
+all of its descendants.</para>
+
+<para>Any file with a name that ends with <code>~</code>.</para>
+
+<para>Any file with a name that starts with <code>.#</code> or <code>._</code>.</para>
+
+<para>Any file with a name that begins and ends with <code>#</code> or 
+begins and ends with <code>%</code>.</para>
+</refsection>
+<refsection xml:id="cxfs-globs">
+<title>Globs</title>
+<para>A glob is a file or path that may contain the wildcards “*” or “**/”.</para>
+<para>The “*” wildcard matches any number of characters except “/”.</para>
+<para>The “**/” wildcard matches any number of path segments (including none).</para>
+<para>If a glob begins with “/”, it is anchored at the root. (Otherwise, it is logically
+preceded by “**/”.)</para>
+</refsection>
+</refsection>
+</refentry>

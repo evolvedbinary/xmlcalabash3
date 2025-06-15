@@ -94,7 +94,7 @@
         <xsl:attribute name="namespace" select="$namespace"/>
       </xsl:if>
       <xsl:if test="$xml-id != ''">
-	<xsl:attribute name="xml:id" select="$xml-id"/>
+        <xsl:attribute name="xml:id" select="$xml-id"/>
       </xsl:if>
 
       <xsl:attribute name="prefix" select="$prefix"/>
@@ -102,9 +102,9 @@
 
       <xsl:copy-of select="$summary-body[self::ss:attribute]"/>
       <xsl:if test="$summary-body[not(self::ss:attribute)]">
-	<ss:content-model>
-	  <xsl:copy-of select="$summary-body[not(self::ss:attribute)]"/>
-	</ss:content-model>
+        <ss:content-model>
+          <xsl:copy-of select="$summary-body[not(self::ss:attribute)]"/>
+        </ss:content-model>
       </xsl:if>
     </ss:element-summary>
   </xsl:variable>
@@ -145,12 +145,12 @@
   <xsl:choose>
     <xsl:when test="count(*) &gt; 1">
       <ss:group type="sequence" repeat="?">
-	<xsl:apply-templates/>
+        <xsl:apply-templates/>
       </ss:group>
     </xsl:when>
     <xsl:otherwise>
       <xsl:apply-templates>
-	<xsl:with-param name="repeat" select="'?'"/>
+        <xsl:with-param name="repeat" select="'?'"/>
       </xsl:apply-templates>
     </xsl:otherwise>
   </xsl:choose>
@@ -175,7 +175,7 @@
     </xsl:when>
     <xsl:otherwise>
       <xsl:apply-templates select="$rngpat/*">
-	<xsl:with-param name="repeat" select="$repeat"/>
+        <xsl:with-param name="repeat" select="$repeat"/>
         <xsl:with-param name="avt" select="@sa:avt"/>
       </xsl:apply-templates>
     </xsl:otherwise>
@@ -267,66 +267,66 @@
   <ss:attribute name="{@name}" optional="{$repeat}" avt="{$is-avt}">
     <xsl:attribute name="type">
       <xsl:choose>
-	<xsl:when test="rng:data">
-	  <xsl:apply-templates select="rng:data"/>
-	</xsl:when>
-	<xsl:when test="rng:oneOrMore/rng:data">
-	  <xsl:apply-templates/>
+        <xsl:when test="rng:data">
+          <xsl:apply-templates select="rng:data"/>
+        </xsl:when>
+        <xsl:when test="rng:oneOrMore/rng:data">
+          <xsl:apply-templates/>
           <xsl:text>+</xsl:text>
-	</xsl:when>
-	<xsl:when test="rng:zeroOrMore/rng:data">
-	  <xsl:apply-templates/>
+        </xsl:when>
+        <xsl:when test="rng:zeroOrMore/rng:data">
+          <xsl:apply-templates/>
           <xsl:text>*</xsl:text>
-	</xsl:when>
-	<xsl:when test="rng:ref">
-	  <xsl:variable name="pattern" select="rng:ref/@name"/>
-	  <xsl:variable name="rngpat" select="$schema/rng:define[@name=$pattern]"/>
-	  <xsl:choose>
-	    <xsl:when test="$rngpat/@sa:model">
-	      <xsl:value-of select="$rngpat/@sa:model"/>
-	    </xsl:when>
-	    <xsl:otherwise>
-	      <xsl:message>
-		<xsl:text>Warning: unsupported ref in attribute: </xsl:text>
-		<xsl:value-of select="@name"/>
+        </xsl:when>
+        <xsl:when test="rng:ref">
+          <xsl:variable name="pattern" select="rng:ref/@name"/>
+          <xsl:variable name="rngpat" select="$schema/rng:define[@name=$pattern]"/>
+          <xsl:choose>
+            <xsl:when test="$rngpat/@sa:model">
+              <xsl:value-of select="$rngpat/@sa:model"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:message>
+                <xsl:text>Warning: unsupported ref in attribute: </xsl:text>
+                <xsl:value-of select="@name"/>
                 <xsl:text>: </xsl:text>
                 <xsl:value-of select="rng:ref/@name"/>
-	      </xsl:message>
-	    </xsl:otherwise>
-	  </xsl:choose>
-	</xsl:when>
-	<xsl:when test="rng:choice/rng:value">
-	  <xsl:for-each select="rng:choice/rng:value|rng:choice/rng:data">
-	    <xsl:if test="position()&gt;1">|</xsl:if>
-	    <xsl:choose>
-	      <xsl:when test="self::rng:value">
-		<xsl:value-of select="."/>
-	      </xsl:when>
-	      <xsl:otherwise>
-		<xsl:text>xs:</xsl:text>
-		<xsl:value-of select="@type"/>
-	      </xsl:otherwise>
-	    </xsl:choose>
-	  </xsl:for-each>
-	</xsl:when>
-	<xsl:when test="rng:value">
-	  <xsl:text>"</xsl:text>
-	  <xsl:value-of select="rng:value"/>
-	  <xsl:text>"</xsl:text>
-	</xsl:when>
-	<xsl:when test="rng:text or not(* except db:purpose)">
-	  <xsl:text>string</xsl:text>
-	</xsl:when>
-	<xsl:otherwise>
-	  <xsl:message>
-	    <xsl:text>Warning: unsupported content in attribute: </xsl:text>
-	    <xsl:value-of select="@name"/>
-	    <xsl:text> (</xsl:text>
-	    <xsl:value-of select="ancestor::rng:element/@name"/>
-	    <xsl:text>)</xsl:text>
+              </xsl:message>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:when>
+        <xsl:when test="rng:choice/rng:value">
+          <xsl:for-each select="rng:choice/rng:value|rng:choice/rng:data">
+            <xsl:if test="position()&gt;1">|</xsl:if>
+            <xsl:choose>
+              <xsl:when test="self::rng:value">
+                <xsl:value-of select="."/>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:text>xs:</xsl:text>
+                <xsl:value-of select="@type"/>
+              </xsl:otherwise>
+            </xsl:choose>
+          </xsl:for-each>
+        </xsl:when>
+        <xsl:when test="rng:value">
+          <xsl:text>"</xsl:text>
+          <xsl:value-of select="rng:value"/>
+          <xsl:text>"</xsl:text>
+        </xsl:when>
+        <xsl:when test="rng:text or not(* except db:purpose)">
+          <xsl:text>string</xsl:text>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:message>
+            <xsl:text>Warning: unsupported content in attribute: </xsl:text>
+            <xsl:value-of select="@name"/>
+            <xsl:text> (</xsl:text>
+            <xsl:value-of select="ancestor::rng:element/@name"/>
+            <xsl:text>)</xsl:text>
           </xsl:message>
           <xsl:message select="."/>
-	</xsl:otherwise>
+        </xsl:otherwise>
       </xsl:choose>
     </xsl:attribute>
     <xsl:sequence select="db:purpose/node()"/>
@@ -360,69 +360,69 @@
   <ss:attribute name="{$prefix}{{any-name}}" optional="{$repeat}">
     <xsl:attribute name="type">
       <xsl:choose>
-	<xsl:when test="$content/rng:data">
-	  <xsl:apply-templates select="$content"/>
-	</xsl:when>
-	<xsl:when test="$content/rng:oneOrMore/rng:data">
-	  <xsl:apply-templates select="$content"/>
+        <xsl:when test="$content/rng:data">
+          <xsl:apply-templates select="$content"/>
+        </xsl:when>
+        <xsl:when test="$content/rng:oneOrMore/rng:data">
+          <xsl:apply-templates select="$content"/>
           <xsl:text>+</xsl:text>
-	</xsl:when>
-	<xsl:when test="$content/rng:zeroOrMore/rng:data">
-	  <xsl:apply-templates select="$content"/>
+        </xsl:when>
+        <xsl:when test="$content/rng:zeroOrMore/rng:data">
+          <xsl:apply-templates select="$content"/>
           <xsl:text>*</xsl:text>
-	</xsl:when>
-	<xsl:when test="$content/rng:ref">
-	  <xsl:variable name="pattern" select="$content/rng:ref/@name"/>
-	  <xsl:variable name="rngpat" select="$schema/rng:define[@name=$pattern]"/>
-	  <xsl:choose>
-	    <xsl:when test="$rngpat/@sa:model">
-	      <xsl:value-of select="$rngpat/@sa:model"/>
-	    </xsl:when>
-	    <xsl:otherwise>
-	      <xsl:message>
-		<xsl:text>Warning: unsupported ref in attribute: </xsl:text>
-		<xsl:value-of select="@name"/>
+        </xsl:when>
+        <xsl:when test="$content/rng:ref">
+          <xsl:variable name="pattern" select="$content/rng:ref/@name"/>
+          <xsl:variable name="rngpat" select="$schema/rng:define[@name=$pattern]"/>
+          <xsl:choose>
+            <xsl:when test="$rngpat/@sa:model">
+              <xsl:value-of select="$rngpat/@sa:model"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:message>
+                <xsl:text>Warning: unsupported ref in attribute: </xsl:text>
+                <xsl:value-of select="@name"/>
                 <xsl:text>: </xsl:text>
                 <xsl:value-of select="$content/rng:ref/@name"/>
-	      </xsl:message>
-	    </xsl:otherwise>
-	  </xsl:choose>
-	</xsl:when>
-	<xsl:when test="$content/rng:choice/rng:value">
-	  <xsl:for-each select="$content/rng:choice/rng:value|$content/rng:choice/rng:data">
-	    <xsl:if test="position()&gt;1">|</xsl:if>
-	    <xsl:choose>
-	      <xsl:when test="self::rng:value">
-		<xsl:value-of select="."/>
-	      </xsl:when>
-	      <xsl:otherwise>
-		<xsl:text>xs:</xsl:text>
-		<xsl:value-of select="@type"/>
-	      </xsl:otherwise>
-	    </xsl:choose>
-	  </xsl:for-each>
-	</xsl:when>
-	<xsl:when test="$content/rng:value">
-	  <xsl:text>"</xsl:text>
-	  <xsl:value-of select="$content/rng:value"/>
-	  <xsl:text>"</xsl:text>
-	</xsl:when>
-	<xsl:when test="$content/rng:text or not($content/*)">
-	  <xsl:text>string</xsl:text>
-	</xsl:when>
-	<xsl:when test="rng:text or $nsName or not(* except (db:purpose|rng:anyName))">
-	  <xsl:text>string</xsl:text>
-	</xsl:when>
-	<xsl:otherwise>
-	  <xsl:message>
-	    <xsl:text>Warning: unsupported content in attribute: name=</xsl:text>
-	    <xsl:value-of select="@name"/>
-	    <xsl:text> (</xsl:text>
-	    <xsl:value-of select="ancestor::rng:element/@name"/>
-	    <xsl:text>)</xsl:text>
+              </xsl:message>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:when>
+        <xsl:when test="$content/rng:choice/rng:value">
+          <xsl:for-each select="$content/rng:choice/rng:value|$content/rng:choice/rng:data">
+            <xsl:if test="position()&gt;1">|</xsl:if>
+            <xsl:choose>
+              <xsl:when test="self::rng:value">
+                <xsl:value-of select="."/>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:text>xs:</xsl:text>
+                <xsl:value-of select="@type"/>
+              </xsl:otherwise>
+            </xsl:choose>
+          </xsl:for-each>
+        </xsl:when>
+        <xsl:when test="$content/rng:value">
+          <xsl:text>"</xsl:text>
+          <xsl:value-of select="$content/rng:value"/>
+          <xsl:text>"</xsl:text>
+        </xsl:when>
+        <xsl:when test="$content/rng:text or not($content/*)">
+          <xsl:text>string</xsl:text>
+        </xsl:when>
+        <xsl:when test="rng:text or $nsName or not(* except (db:purpose|rng:anyName))">
+          <xsl:text>string</xsl:text>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:message>
+            <xsl:text>Warning: unsupported content in attribute: name=</xsl:text>
+            <xsl:value-of select="@name"/>
+            <xsl:text> (</xsl:text>
+            <xsl:value-of select="ancestor::rng:element/@name"/>
+            <xsl:text>)</xsl:text>
           </xsl:message>
           <xsl:message select="$content"/>
-	</xsl:otherwise>
+        </xsl:otherwise>
       </xsl:choose>
     </xsl:attribute>
     <xsl:sequence select="db:purpose/node()"/>
@@ -452,22 +452,22 @@
     <xsl:attribute name="class">
       <xsl:text>element-syntax</xsl:text>
       <xsl:if test="@class">
-	<xsl:text> element-syntax-</xsl:text>
-	<xsl:value-of select="@class"/>
+        <xsl:text> element-syntax-</xsl:text>
+        <xsl:value-of select="@class"/>
       </xsl:if>
     </xsl:attribute>
     <code>
       <xsl:text>&lt;</xsl:text>
 
       <xsl:choose>
-	<xsl:when test="@name != ''">
+        <xsl:when test="@name != ''">
           <xsl:if test="not($suppress-prefix = 'true')">
-	    <xsl:value-of select="@prefix"/>
-	    <xsl:text>:</xsl:text>
+            <xsl:value-of select="@prefix"/>
+            <xsl:text>:</xsl:text>
           </xsl:if>
-	  <xsl:value-of select="if (contains(@name,':'))
-				then substring-after(@name,':')
-				else @name"/>
+          <xsl:value-of select="if (contains(@name,':'))
+                                then substring-after(@name,':')
+                                else @name"/>
           <xsl:if test="@namespace">
             <xsl:choose>
               <xsl:when test="$suppress-prefix = 'true'">
@@ -482,58 +482,60 @@
             <xsl:value-of select="@namespace"/>
             <xsl:text>"</xsl:text>
           </xsl:if>
-	</xsl:when>
-	<xsl:when test=".//ss:model[@name='subpipeline']">
-	  <var>
-	    <xsl:value-of select="@prefix"/>
-	    <xsl:text>:compound-step</xsl:text>
-	  </var>
-	</xsl:when>
-	<xsl:otherwise>
-	  <var>
-	    <xsl:value-of select="if (@prefix != '') then @prefix || ':' else ''"/>
-	    <xsl:text>{any-name}</xsl:text>
-	  </var>
-	</xsl:otherwise>
+        </xsl:when>
+        <xsl:when test=".//ss:model[@name='subpipeline']">
+          <var>
+            <xsl:value-of select="@prefix"/>
+            <xsl:text>:compound-step</xsl:text>
+          </var>
+        </xsl:when>
+        <xsl:otherwise>
+          <var>
+            <xsl:value-of select="if (@prefix != '') then @prefix || ':' else ''"/>
+            <xsl:text>{any-name}</xsl:text>
+          </var>
+        </xsl:otherwise>
       </xsl:choose>
 
       <xsl:apply-templates select="ss:attribute"/>
 
       <xsl:choose>
-	<xsl:when test="*[not(self::ss:attribute)]">
-	  <xsl:text>&gt;</xsl:text>
-	  <br/>
-	  <xsl:text>&#160;&#160;&#160;&#160;</xsl:text>
-	  <xsl:apply-templates select="*[not(self::ss:attribute)]"/>
-	  <xsl:text>&lt;/</xsl:text>
+        <xsl:when test="*[not(self::ss:attribute)]">
+          <xsl:text>&gt;</xsl:text>
+          <br/>
+          <xsl:text>&#160;&#160;&#160;&#160;</xsl:text>
+          <xsl:apply-templates select="*[not(self::ss:attribute)]">
+            <xsl:with-param name="indent" select="'    '" tunnel="yes"/>
+          </xsl:apply-templates>
+          <xsl:text>&lt;/</xsl:text>
 
-	  <xsl:choose>
-	    <xsl:when test="@name != ''">
-	      <xsl:value-of select="@prefix"/>
-	      <xsl:text>:</xsl:text>
-	      <xsl:value-of select="if (contains(@name,':'))
-				    then substring-after(@name,':')
-				    else @name"/>
-	    </xsl:when>
-	    <xsl:when test=".//ss:model[@name='subpipeline']">
-	      <var>
-		<xsl:value-of select="@prefix"/>
-		<xsl:text>:compound-step</xsl:text>
-	      </var>
-	    </xsl:when>
-	    <xsl:otherwise>
-	      <var>
-		<xsl:value-of select="@prefix"/>
-		<xsl:text>:atomic-step</xsl:text>
-	      </var>
-	    </xsl:otherwise>
-	  </xsl:choose>
+          <xsl:choose>
+            <xsl:when test="@name != ''">
+              <xsl:value-of select="@prefix"/>
+              <xsl:text>:</xsl:text>
+              <xsl:value-of select="if (contains(@name,':'))
+                                    then substring-after(@name,':')
+                                    else @name"/>
+            </xsl:when>
+            <xsl:when test=".//ss:model[@name='subpipeline']">
+              <var>
+                <xsl:value-of select="@prefix"/>
+                <xsl:text>:compound-step</xsl:text>
+              </var>
+            </xsl:when>
+            <xsl:otherwise>
+              <var>
+                <xsl:value-of select="@prefix"/>
+                <xsl:text>:atomic-step</xsl:text>
+              </var>
+            </xsl:otherwise>
+          </xsl:choose>
 
-	  <xsl:text>&gt;</xsl:text>
-	</xsl:when>
-	<xsl:otherwise>
-	  <xsl:text>&#160;/&gt;</xsl:text>
-	</xsl:otherwise>
+          <xsl:text>&gt;</xsl:text>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:text>&#160;/&gt;</xsl:text>
+        </xsl:otherwise>
       </xsl:choose>
     </code>
   </p>
@@ -571,7 +573,7 @@
   <xsl:choose>
     <xsl:when test="@optional = ''">
       <strong>
-	<xsl:value-of select="@name"/>
+        <xsl:value-of select="@name"/>
       </strong>
     </xsl:when>
     <xsl:otherwise>
@@ -595,7 +597,7 @@
     </xsl:when>
     <xsl:otherwise>
       <var>
-	<xsl:value-of select="@type"/>
+        <xsl:value-of select="@type"/>
       </var>
     </xsl:otherwise>
   </xsl:choose>
@@ -636,13 +638,9 @@
   <xsl:call-template name="separator"/>
 </xsl:template>
 
-<xsl:template match="ss:element" mode="table">
-  <xsl:text>&#160;&#160;</xsl:text>
-  <xsl:apply-templates select="."/>
-</xsl:template>
-
 <xsl:template match="ss:element">
   <xsl:param name="prefix" tunnel="yes"/>
+  <xsl:param name="indent" tunnel="yes"/>
 
   <!-- This is an awful, one-off hack because I'm on a train
        and this was not the bug I wanted to be working on today. -->
@@ -652,27 +650,27 @@
                         else $prefix || '.'"/>
 
   <xsl:variable name="basename" select="if (contains(@name,':'))
-			                then substring-after(@name,':')
-			                else if (@name = '{any-name}')
+                                        then substring-after(@name,':')
+                                        else if (@name = '{any-name}')
                                              then 'any-name'
                                              else @name"/>
 
   <xsl:choose>
     <xsl:when test="$idpfx = ''">
       <var>
-	<xsl:value-of select="$basename"/>
-	<xsl:value-of select="@repeat"/>
+        <xsl:value-of select="$basename"/>
+        <xsl:value-of select="@repeat"/>
       </var>
     </xsl:when>
     <xsl:when test="@name = '{any-name}'">
       <a href="#{$idpfx}{$basename}">
-	<xsl:value-of select="$basename"/>
+        <xsl:value-of select="$basename"/>
       </a>
       <xsl:value-of select="@repeat"/>
     </xsl:when>
     <xsl:otherwise>
       <a href="#{$idpfx}{$basename}">
-	<xsl:value-of select="@name"/>
+        <xsl:value-of select="@name"/>
       </a>
       <xsl:value-of select="@repeat"/>
     </xsl:otherwise>
@@ -681,24 +679,25 @@
 </xsl:template>
 
 <xsl:template name="separator">
+  <xsl:param name="indent" tunnel="yes"/>
   <xsl:choose>
     <xsl:when test="not(following-sibling::*)"/>
     <xsl:when test="parent::ss:group[@type='choice']">
       <xsl:text> | </xsl:text>
       <br/>
-      <xsl:text>&#160;&#160;&#160;&#160;</xsl:text>
+      <xsl:value-of select="$indent"/>
       <xsl:for-each select="ancestor::ss:group">&#160;</xsl:for-each>
     </xsl:when>
     <xsl:when test="parent::ss:group[@type='interleave']">
       <xsl:text> &amp; </xsl:text>
       <br/>
-      <xsl:text>&#160;&#160;&#160;&#160;</xsl:text>
+      <xsl:value-of select="$indent"/>
       <xsl:for-each select="ancestor::ss:group">&#160;</xsl:for-each>
     </xsl:when>
     <xsl:when test="parent::ss:group[@type='sequence']|parent::ss:content-model">
       <xsl:text>,</xsl:text>
       <br/>
-      <xsl:text>&#160;&#160;&#160;&#160;</xsl:text>
+      <xsl:value-of select="$indent"/>
       <xsl:for-each select="ancestor::ss:group">&#160;</xsl:for-each>
     </xsl:when>
   </xsl:choose>
@@ -713,31 +712,37 @@
       <tbody>
         <tr>
           <td class="code first">
+            <xsl:if test="not(*)">
+              <xsl:attribute name="class" select="'code first last'"/>
+            </xsl:if>
             <xsl:text>&lt;</xsl:text>
 
             <xsl:choose>
-	      <xsl:when test="@name != ''">
-	        <xsl:value-of select="@prefix"/>
-	        <xsl:text>:</xsl:text>
-	        <xsl:value-of select="if (contains(@name,':'))
-				      then substring-after(@name,':')
-				      else @name"/>
-	      </xsl:when>
-	      <xsl:when test=".//ss:model[@name='subpipeline']">
-	        <var>
-	          <xsl:value-of select="@prefix"/>
-	          <xsl:text>:compound-step</xsl:text>
-	        </var>
-	      </xsl:when>
-	      <xsl:otherwise>
-	        <var>
-	          <xsl:value-of select="@prefix"/>
-	          <xsl:text>:atomic-step</xsl:text>
-	        </var>
-	      </xsl:otherwise>
+              <xsl:when test="@name != ''">
+                <xsl:value-of select="@prefix"/>
+                <xsl:text>:</xsl:text>
+                <xsl:value-of select="if (contains(@name,':'))
+                                      then substring-after(@name,':')
+                                      else @name"/>
+              </xsl:when>
+              <xsl:when test=".//ss:model[@name='subpipeline']">
+                <var>
+                  <xsl:value-of select="@prefix"/>
+                  <xsl:text>:compound-step</xsl:text>
+                </var>
+              </xsl:when>
+              <xsl:otherwise>
+                <var>
+                  <xsl:value-of select="@prefix"/>
+                  <xsl:text>:atomic-step</xsl:text>
+                </var>
+              </xsl:otherwise>
             </xsl:choose>
 
-            <xsl:if test="empty(ss:attribute)">&gt;</xsl:if>
+            <xsl:choose>
+              <xsl:when test="empty(*)">/&gt;</xsl:when>
+              <xsl:when test="empty(ss:attribute)">&gt;</xsl:when>
+            </xsl:choose>
             
           </td>
           <td class="desc"></td>
@@ -746,68 +751,70 @@
         <xsl:apply-templates select="ss:attribute" mode="table"/>
 
         <xsl:choose>
-	  <xsl:when test="*[not(self::ss:attribute)]">
+          <xsl:when test="*[not(self::ss:attribute)]">
             <tr>
               <xsl:if test="exists(ss:attribute)">
                 <td class="code">
-	          <xsl:text>&gt;</xsl:text>
+                  <xsl:text>&gt;</xsl:text>
                 </td>
               </xsl:if>
               <td class="desc"></td>
             </tr>
-	    <xsl:apply-templates select="*[not(self::ss:attribute)]" mode="table"/>
-            <tr>
-              <td class="code last">
-	        <xsl:text>&lt;/</xsl:text>
-	        <xsl:choose>
-	          <xsl:when test="@name != ''">
-	            <xsl:value-of select="@prefix"/>
-	            <xsl:text>:</xsl:text>
-	            <xsl:value-of select="if (contains(@name,':'))
-				          then substring-after(@name,':')
-				          else @name"/>
-	          </xsl:when>
-	          <xsl:when test=".//ss:model[@name='subpipeline']">
-	            <var>
-		      <xsl:value-of select="@prefix"/>
-		      <xsl:text>:compound-step</xsl:text>
-	            </var>
-	          </xsl:when>
-	          <xsl:otherwise>
-	            <var>
-		      <xsl:value-of select="@prefix"/>
-		      <xsl:text>:atomic-step</xsl:text>
-	            </var>
-	          </xsl:otherwise>
-	        </xsl:choose>
 
-	        <xsl:text>&gt;</xsl:text>
+            <tr>
+              <td class="code">
+                <xsl:text>  </xsl:text>
+                <xsl:apply-templates select="*[not(self::ss:attribute)]">
+                  <xsl:with-param name="indent" select="'  '" tunnel="yes"/>
+                </xsl:apply-templates>
               </td>
-              <td class="desc"></td>
             </tr>
-	  </xsl:when>
-	  <xsl:otherwise>
+
             <tr>
               <td class="code last">
-	        <xsl:text>&#160;/&gt;</xsl:text>
+                <xsl:text>&lt;/</xsl:text>
+                <xsl:choose>
+                  <xsl:when test="@name != ''">
+                    <xsl:value-of select="@prefix"/>
+                    <xsl:text>:</xsl:text>
+                    <xsl:value-of select="if (contains(@name,':'))
+                                          then substring-after(@name,':')
+                                          else @name"/>
+                  </xsl:when>
+                  <xsl:when test=".//ss:model[@name='subpipeline']">
+                    <var>
+                      <xsl:value-of select="@prefix"/>
+                      <xsl:text>:compound-step</xsl:text>
+                    </var>
+                  </xsl:when>
+                  <xsl:otherwise>
+                    <var>
+                      <xsl:value-of select="@prefix"/>
+                      <xsl:text>:atomic-step</xsl:text>
+                    </var>
+                  </xsl:otherwise>
+                </xsl:choose>
+
+                <xsl:text>&gt;</xsl:text>
               </td>
               <td class="desc"></td>
             </tr>
-	  </xsl:otherwise>
+          </xsl:when>
+          <xsl:when test="ss:attribute">
+            <tr>
+              <td class="code last">
+                <xsl:text>&#160;/&gt;</xsl:text>
+              </td>
+              <td class="desc"></td>
+            </tr>
+          </xsl:when>
+          <xsl:otherwise>
+            <!-- nothing -->
+          </xsl:otherwise>
         </xsl:choose>
       </tbody>
     </table>
   </div>
-</xsl:template>
-
-<xsl:template match="ss:content-model" mode="table">
-  <tr>
-    <td class="code">
-      <xsl:apply-templates mode="table"/>
-    </td>
-    <td>
-    </td>
-  </tr>
 </xsl:template>
 
 <xsl:template match="ss:attribute" mode="table">
@@ -817,7 +824,7 @@
       <xsl:choose>
         <xsl:when test="@optional = ''">
           <strong>
-	    <xsl:value-of select="@name"/>
+            <xsl:value-of select="@name"/>
           </strong>
         </xsl:when>
         <xsl:otherwise>
@@ -841,7 +848,7 @@
         </xsl:when>
         <xsl:otherwise>
           <var>
-	    <xsl:value-of select="@type"/>
+            <xsl:value-of select="@type"/>
           </var>
         </xsl:otherwise>
       </xsl:choose>
