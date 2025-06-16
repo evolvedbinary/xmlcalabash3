@@ -1,0 +1,81 @@
+html {
+    padding: 0;
+    margin: 0;
+    background-color: #fffff8;
+    font-size: 14pt;
+    line-height: 1.25;
+}
+
+body {
+    padding: 0;
+    margin: 0;
+}
+
+article {
+    margin-left: 1rem;
+    margin-right: 1rem;
+}
+
+h1,h2,h3,h4,h5 {
+    font-family: sans-serif;
+}
+
+.nav {
+    background-color: #fff8f8;
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+.features {
+    padding-left: 1rem;
+    padding-right: 1rem;
+    font-size: 90%;
+}
+
+pre code {
+    border: none;
+    background-color: inherit;
+    padding: 0;
+    font-size: 90%;
+    line-height: 1;
+    margin: 0;
+}
+
+a, a:visited {
+    color: blue;
+}
+
+pre.xml {
+    background-color: #eeeeee;
+}
+
+table {
+    table-layout: fixed;
+    border-spacing: 0;
+    border-collapse: collapse;
+    border: 1px solid #888888;
+    border-radius: 0.25em;
+}
+
+table tbody tr:nth-child(odd) {
+    background-color: rgb(240,240,240);
+}
+
+table tbody tr:nth-child(even) {
+    background-color: rgb(235,235,235);
+}
+
+table thead {
+    background-color: #666666;
+    color: white;
+}
+
+table tr th,
+table tr td {
+    border-left: 1px solid #888888;
+    padding-left: 0.25em;
+    padding-right: 0.25em;
+}
+   

@@ -31,6 +31,9 @@
 echo "Hello, world."
 </t:file>
 
+  <t:folder path="hier"/>
+  <t:folder path="hier/one"/>
+  <t:folder path="hier/one/two"/>
   <t:folder path="hier/one/two/three"/>
   <t:file path="hier/one/a.txt"/>
   <t:file path="hier/one/b.txt"/>
