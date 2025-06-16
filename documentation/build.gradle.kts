@@ -61,16 +61,19 @@ configurations.all {
   }
 }
 
-val documentation by configurations.creating
+val transformation by configurations.creating
+val documentation by configurations.creating {
+  extendsFrom(configurations["transformation"])
+}
 val deltaxml by configurations.creating
 val transform by configurations.creating {
   extendsFrom(configurations["documentation"])
 }
 
 dependencies {
-  documentation ("net.sf.saxon:Saxon-HE:${saxonVersion}")
-  documentation ("org.docbook:schemas-docbook:5.2")
-  documentation ("org.docbook:docbook-xslTNG:${project.properties["xslTNGversion"]}")
+  transformation ("net.sf.saxon:Saxon-HE:${saxonVersion}")
+  transformation ("org.docbook:schemas-docbook:5.2")
+  transformation ("org.docbook:docbook-xslTNG:${project.properties["xslTNGversion"]}")
 
   documentation("org.apache.xmlgraphics:fop:2.9")
   documentation("org.apache.avalon.framework:avalon-framework-api:4.3.1")
@@ -627,6 +630,66 @@ tasks.register<Copy>("copyUserguideStaticResources") {
 
 tasks.register("copyUserguideResources") {
   dependsOn("copyUserguideJarResources", "copyUserguideStaticResources")
+}
+
+// ============================================================
+
+val setupTestSuites = tasks.register<Copy>("setupTestSuites") {
+  into(layout.buildDirectory.dir("test-suites"))
+  from(layout.projectDirectory.dir("src/resources"))
+}
+
+val publishTestSuites = tasks.register<JavaExec>("publishTestSuites") {
+  dependsOn(setupTestSuites)
+
+  classpath = configurations.named("transformation").get()
+  mainClass = "net.sf.saxon.Transform"
+  inputs.dir(layout.buildDirectory.file("suites"))
+  inputs.file(layout.projectDirectory.file("src/xsl/publish-indexes.xsl"))
+  outputs.file(layout.buildDirectory.file("test-suites/index.html"))
+
+  args("-it",
+       "-xsl:${layout.projectDirectory.file("src/xsl/publish-indexes.xsl").asFile}",
+       "-o:${layout.buildDirectory.file("test-suites/index.html").get().asFile}")
+}
+
+listOf("3.0-test-suite", "extra-suite", "selenium").forEach { suite ->
+  val testSuite = tasks.register<JavaExec>("setupSuite-${suite}") {
+    classpath = configurations.named("transformation").get()
+    mainClass = "net.sf.saxon.Transform"
+    inputs.file(layout.projectDirectory.file("src/xsl/test-suite.xsl"))
+    inputs.dir(layout.projectDirectory.dir("../tests/${suite}/test-suite/tests"))
+    outputs.file(layout.buildDirectory.file("suites/${suite}.xml"))
+
+    args("-it",
+         "-xsl:${layout.projectDirectory.file("src/xsl/test-suite.xsl").asFile}",
+         "-o:${layout.buildDirectory.file("suites/${suite}.xml").get().asFile}",
+         "test-suite=${suite}")
+
+    doLast {
+      copy {
+        into(layout.buildDirectory.dir("test-suites/${suite}/documents"))
+        from(layout.projectDirectory.dir("../tests/${suite}/test-suite/documents"))
+      }
+    }
+  }
+
+  setupTestSuites { dependsOn(testSuite) }
+
+  val publishSuite = tasks.register<JavaExec>("publishSuite-${suite}") {
+    dependsOn(testSuite)
+    classpath = configurations.named("transformation").get()
+    mainClass = "net.sf.saxon.Transform"
+    inputs.file(layout.projectDirectory.file("src/xsl/publish-tests.xsl"))
+    inputs.file(layout.buildDirectory.file("suites/${suite}.xml"))
+    outputs.dir(layout.buildDirectory.dir("test-suites/${suite}"))
+
+    args("-s:${layout.buildDirectory.file("suites/${suite}.xml").get().asFile}",
+         "-xsl:${layout.projectDirectory.file("src/xsl/publish-tests.xsl").asFile}",
+         "-o:${layout.buildDirectory.dir("test-suites/${suite}/index.html").get().asFile}")
+  }
+
+  publishTestSuites { dependsOn(publishSuite) }
 }
 
 // ============================================================

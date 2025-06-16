@@ -20,6 +20,9 @@
   <t:file path="compare/b/two.txt" last-modified="2025-02-02T01:01:00Z">two</t:file>
   <t:file path="compare/b/three.txt" last-modified="2025-01-01T01:01:00Z">THREE</t:file>
 
+  <t:folder path="hier"/>
+  <t:folder path="hier/one"/>
+  <t:folder path="hier/one/two"/>
   <t:folder path="hier/one/two/three"/>
   <t:file path="hier/one/a.txt"/>
   <t:file path="hier/one/b.txt"/>

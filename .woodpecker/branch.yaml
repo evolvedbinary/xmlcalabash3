@@ -38,9 +38,9 @@ steps:
       - builder-home:/home/builder
     commands:
       - ./gradlew --console=plain documentation:reference documentation:userguide
+      - ./gradlew --console=plain documentation:publishTestSuites
       - ./gradlew --console=plain xmlcalabash:apidocs dokkaHtmlMultiModule
-      - ./gradlew --console=plain userguide reference apidocs
-      - ./gradlew --console=plain release
+      - ./gradlew --console=plain apidocs release
 
   - name: publish
     image: xmlcalabash-build
@@ -64,7 +64,7 @@ steps:
       - cd build
       - git clone ssh://git@codeberg.org/xmlcalabash/www.git
 
-  - name: update the current test-report
+  - name: update the current test-suites
     image: xmlcalabash-build
     volumes:
       - builder-home:/home/builder
@@ -72,7 +72,7 @@ steps:
       - cd build/www
       - export VERSION=`cat gradle.properties|grep xmlcalabashVersion|cut -f2 -d=`
       - export SNAPSHOT=`echo $VERSION | grep SNAPSHOT`
-      - rsync -ar --delete /woodpecker/src/codeberg.org/xmlcalabash/xmlcalabash3/test-driver/build/test-report/ src/main/test-report/current/
+      - rsync -ar --delete /woodpecker/src/codeberg.org/xmlcalabash/xmlcalabash3/documentation/build/test-suites/ src/main/test-suites/
 
   - name: update the tagged test-report
     when: 
