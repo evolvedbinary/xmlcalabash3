@@ -143,7 +143,18 @@ class ProcessMatch(val stepConfig: StepConfiguration,
                     processChildren = nodeProcessor.startElement(node, allAttributes)
                     saw = 0
                 } else {
-                    addStartElement(node, allAttributes)
+                    var nsmap = node.underlyingNode.allNamespaces
+                    for (attr in allAttributes.asList()) {
+                        val prefix = attr.nodeName.prefix
+                        val namespace = attr.nodeName.namespaceUri
+                        if (!prefix.isBlank()) {
+                            if (nsmap.getURIForPrefix(prefix, false) != namespace) {
+                                nsmap = nsmap.put(prefix, namespace)
+                            }
+                        }
+                    }
+
+                    addStartElement(node, allAttributes, nsmap)
                 }
 
 

@@ -155,6 +155,10 @@ open class SaxonTreeBuilder(val processor: Processor) {
     }
 
     fun addStartElement(node: XdmNode, attrs: AttributeMap) {
+        addStartElement(node, attrs, node.underlyingNode.allNamespaces)
+    }
+
+    fun addStartElement(node: XdmNode, attrs: AttributeMap, nsmap: NamespaceMap) {
         location = BuilderLocation(node)
         val inode = node.underlyingNode
 
@@ -164,7 +168,7 @@ open class SaxonTreeBuilder(val processor: Processor) {
             throw XProcError.xdInvalidUri(inode.baseURI).exception(ex)
         }
 
-        addStartElement(NameOfNode.makeName(inode), attrs, inode.schemaType, filteredNamespaceMap(inode.allNamespaces), baseURI)
+        addStartElement(NameOfNode.makeName(inode), attrs, inode.schemaType, filteredNamespaceMap(nsmap), baseURI)
     }
 
     fun addStartElement(node: XdmNode, newName: QName, overrideBaseURI: URI, attrs: AttributeMap) {

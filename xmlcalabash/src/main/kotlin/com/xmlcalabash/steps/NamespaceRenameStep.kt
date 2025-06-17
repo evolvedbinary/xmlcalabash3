@@ -79,21 +79,22 @@ open class NamespaceRenameStep(): AbstractAtomicStep(), ProcessMatchingNodes {
             attrPrefix
         }
 
+        var newNS = NamespaceMap.emptyMap()
+
         if (toNS == NamespaceUri.NULL) {
             newPrefix = ""
-        }
-
-        if (elemPrefix == attrPrefix && hasAttr && fromNS != NamespaceUri.NULL && applyTo != "all") {
-            var count = 1
-            newPrefix = "_${count}"
-            while (nshash.contains(newPrefix)) {
-                count += 1
+        } else {
+            if (elemPrefix == attrPrefix && hasAttr && fromNS != NamespaceUri.NULL && applyTo != "all") {
+                var count = 1
                 newPrefix = "_${count}"
+                while (nshash.contains(newPrefix)) {
+                    count += 1
+                    newPrefix = "_${count}"
+                }
             }
-        }
 
-        var newNS = NamespaceMap.emptyMap()
-        newNS = newNS.put(newPrefix, toNS)
+            newNS = newNS.put(newPrefix, toNS)
+        }
 
         var startName = NameOfNode.makeName(inode)
         var startType = inode.schemaType
@@ -104,7 +105,7 @@ open class NamespaceRenameStep(): AbstractAtomicStep(), ProcessMatchingNodes {
             startType = Untyped.INSTANCE
         }
 
-        var forceAttrPrefix: String? = null
+        var forceAttrPrefix: String? = if (toNS == NamespaceUri.NULL) "" else null
         if (applyTo == "attributes" && appliesToElement) {
             forceAttrPrefix = newPrefix
             newNS = newNS.put(elemPrefix, fromNS)
