@@ -42,20 +42,6 @@ steps:
       - ./gradlew --console=plain xmlcalabash:apidocs dokkaHtmlMultiModule
       - ./gradlew --console=plain apidocs release
 
-  - name: publish
-    image: xmlcalabash-build
-    volumes:
-      - builder-home:/home/builder
-    commands:
-      - export VERSION=`cat gradle.properties|grep xmlcalabashVersion|cut -f2 -d=`
-      - export SNAPSHOT=`echo $VERSION | grep SNAPSHOT`
-      - echo "TAG $CI_COMMIT_TAG and SNAP $SNAPSHOT"
-      - if [ "$CI_COMMIT_TAG" != "" -o "$SNAPSHOT" != "" ]; then
-      -   ./gradlew --console=plain publish
-      - else
-      -   echo "Not publishing $VERSION"
-      - fi
-
   - name: checkout www.xmlcalabash.com
     image: xmlcalabash-build
     volumes:
@@ -131,6 +117,20 @@ steps:
       - rsync -var --checksum --delete userguide/current datamagician:/Volumes/Websites/xcdocs/userguide
       - rsync -var --checksum apidocs/$VERSION datamagician:/Volumes/Websites/xcdocs/apidocs
       - rsync -var --checksum --delete apidocs/current datamagician:/Volumes/Websites/xcdocs/apidocs
+
+  - name: publish
+    image: xmlcalabash-build
+    volumes:
+      - builder-home:/home/builder
+    commands:
+      - export VERSION=`cat gradle.properties|grep xmlcalabashVersion|cut -f2 -d=`
+      - export SNAPSHOT=`echo $VERSION | grep SNAPSHOT`
+      - echo "TAG $CI_COMMIT_TAG and SNAP $SNAPSHOT"
+      - if [ "$CI_COMMIT_TAG" != "" -o "$SNAPSHOT" != "" ]; then
+      -   ./gradlew --console=plain publish
+      - else
+      -   echo "Not publishing $VERSION"
+      - fi
 
   - name: publish-release
     image: woodpeckerci/plugin-release
