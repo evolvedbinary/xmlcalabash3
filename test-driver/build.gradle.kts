@@ -88,6 +88,7 @@ tasks.register<JavaExec>("test-suite") {
        "--dir:${layout.projectDirectory.dir("../tests/3.0-test-suite/test-suite/tests")}",
        "--report:${layout.buildDirectory.file("test-suite-results.xml").get().asFile}",
        "--debug:${DEBUG}",
+       "--save-results",
        "SHOST=${SHOST}", "SMTPPORT=${SMTPPORT}", "APIPORT=${APIPORT}",
        "WHOST=${WHOST}")
 }
@@ -108,6 +109,7 @@ tasks.register<JavaExec>("extra-suite") {
        "--dir:${layout.projectDirectory.dir("../tests/extra-suite/test-suite/tests")}",
        "--report:${layout.buildDirectory.file("extra-suite-results.xml").get().asFile}",
        "--debug:${DEBUG}",
+       "--save-results",
        "SHOST=${SHOST}", "SMTPPORT=${SMTPPORT}", "APIPORT=${APIPORT}",
        "WHOST=${WHOST}")
 }
@@ -128,6 +130,7 @@ tasks.register<JavaExec>("selenium") {
        "--dir:${layout.projectDirectory.dir("../tests/selenium/test-suite/tests")}",
        "--report:${layout.buildDirectory.file("selenium-results.xml").get().asFile}",
        "--debug:${DEBUG}",
+       "--save-results",
        "SHOST=${SHOST}", "SMTPPORT=${SMTPPORT}", "APIPORT=${APIPORT}",
        "WHOST=${WHOST}")
 }
@@ -193,6 +196,7 @@ tasks.register("copy-extra") {
 tasks.register("helloWorld") {
   doLast {
     println("Building with Java version ${System.getProperty("java.version")}")
+    println("DEBUG=${DEBUG}")
     testrunner.forEach { println(it) }
   }
 }

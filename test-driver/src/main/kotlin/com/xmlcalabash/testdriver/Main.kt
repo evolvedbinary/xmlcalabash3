@@ -30,6 +30,8 @@ class Main {
                     testOptions.stopOnFirstFailed = true
                 } else if (arg == "--debug") {
                     testOptions.debug = true
+                } else if (arg == "--save-results") {
+                    testOptions.saveResults = true
                 } else if (arg.startsWith("--debug:")) {
                     testOptions.debug = arg.substring(8) == "true"
                 } else if (arg.startsWith("--require-pass:")) {

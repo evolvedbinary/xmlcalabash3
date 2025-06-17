@@ -16,15 +16,54 @@
 <xsl:template name="xsl:initial-template">
   <xsl:variable name="dir" select="resolve-uri('../../../tests/' || $test-suite || '/test-suite/tests/',
                                                static-base-uri())"/>
-  <xsl:variable name="tests" select="collection($dir||'?select=*.xml;recurse=true')"/>
+  <xsl:variable name="tests" select="collection($dir||'?select=*.xml;recurse=yes')"/>
+
+  <xsl:variable name="rdir" select="resolve-uri('../../../test-driver/build/test-results/' || $test-suite || '/',
+                                               static-base-uri())"/>
+  <xsl:variable name="results" as="document-node()*">
+    <xsl:try>
+      <xsl:for-each select="collection($rdir||'?select=*.xml;recurse=yes;on-error=warning')">
+        <xsl:variable name="parts" select="tokenize(base-uri(.), '/')"/>
+        <xsl:variable name="name" select="$parts[count($parts) - 1]"/>
+        <xsl:document>
+          <t:result name="{$name}">
+            <xsl:sequence select="."/>
+          </t:result>
+        </xsl:document>
+      </xsl:for-each>
+      <xsl:catch>
+        <xsl:message select="'Failed to read results for ' || $test-suite || ' test suite'"/>
+      </xsl:catch>
+    </xsl:try>
+  </xsl:variable>
+
+  <!--
+  N: .../tests/3.0-test-suite/test-suite/tests/ab-os-info-003.xml
+  <xsl:for-each select="$tests">
+    <xsl:message select="'N:', base-uri(.)"/>
+  </xsl:for-each>
+  -->
+
+  <!-- 
+  R: .../test-driver/build/test-results/3.0-test-suite/ab-os-info-003.xml/ab-os-info-003.xml.1.xml
+  <xsl:for-each select="$results">
+    <xsl:message select="'R:', base-uri(.)"/>
+  </xsl:for-each>
+  -->
+
+  <xsl:message select="$rdir"/>
+  <xsl:message>{count($tests)} tests, {count($results)} results.</xsl:message>
+
   <t:test-suite test-suite="{$test-suite}">
     <xsl:attribute name="xml:base" select="$dir"/>
     <xsl:for-each select="$tests/t:test">
       <xsl:text>&#10;&#10;</xsl:text>
+      <xsl:variable name="name" select="tokenize(base-uri(.), '/')[last()]"/>
       <t:test>
         <xsl:attribute name="xml:base" select="substring-after(base-uri(.), $dir)"/>
-        <xsl:attribute name="name" select="tokenize(base-uri(.), '/')[last()]"/>
+        <xsl:attribute name="name" select="$name"/>
         <xsl:apply-templates select="@*,node()"/>
+        <xsl:sequence select="$results/t:result[@name = $name]"/>
       </t:test>
     </xsl:for-each>
     <xsl:text>&#10;&#10;</xsl:text>
