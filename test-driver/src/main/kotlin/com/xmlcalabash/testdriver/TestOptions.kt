@@ -14,4 +14,5 @@ class TestOptions() {
     var testDirectoryList = mutableListOf<String>()
     var consoleOutput = false
     val options = mutableMapOf<QName, XdmValue>()
+    var saveResults = false
 }

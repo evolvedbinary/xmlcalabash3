@@ -53,7 +53,7 @@
               <tr>
                 <td>{../@test-suite/string()}</td>
                 <td>
-                  <a href="{../@test-suite}/tests/{replace(@name, '.xml$', '.html')}">
+                  <a href="tests/{replace(@name, '.xml$', '.html')}">
                     <xsl:value-of select="replace(@name, '.xml$', '')"/>
                   </a>
                 </td>
@@ -140,6 +140,7 @@
         <xsl:apply-templates select="t:option"/>
         <xsl:apply-templates select="t:catalog"/>
         <xsl:apply-templates select="t:pipeline"/>
+        <xsl:apply-templates select="t:result"/>
         <xsl:apply-templates select="t:file-environment"/>
         <xsl:apply-templates select="t:schematron"/>
         <xsl:apply-templates select="t:info/t:revision-history"/>
@@ -192,6 +193,12 @@
 <xsl:template match="t:pipeline">
   <xsl:call-template name="file-contents">
     <xsl:with-param name="title" select="'The pipeline'"/>
+  </xsl:call-template>
+</xsl:template>
+
+<xsl:template match="t:result">
+  <xsl:call-template name="file-contents">
+    <xsl:with-param name="title" select="'Result'"/>
   </xsl:call-template>
 </xsl:template>
 
@@ -581,7 +588,8 @@
   <xsl:for-each select="$namespaces">
     <xsl:variable name="ns" select="."/>
     <xsl:if test="empty($inscope-namespaces[local-name(.) = local-name($ns)
-                        and namespace-uri(.) = namespace-uri($ns)])">
+                        and namespace-uri(.) = namespace-uri($ns)])
+                  and local-name(.) != 'xml'">
       <xsl:sequence select="$ns"/>
     </xsl:if>
   </xsl:for-each>

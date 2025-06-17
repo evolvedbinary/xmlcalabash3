@@ -234,6 +234,22 @@ class TestCase(val xmlCalabash: XmlCalabash, val testOptions: TestOptions, val t
 
             val result = outputReceiver.outputs["result"] ?: emptyList()
 
+            // Save the result...
+            if (testOptions.saveResults) {
+                val parts = testFile.absolutePath.split(File.separator)
+                val testfile = parts.last()
+                val suite = parts[parts.size - 4]
+                val resultsDir = File("build/test-results/${suite}/${testfile}/")
+                resultsDir.mkdirs()
+                for (index in 0 until result.size) {
+                    val resultsFile = resultsDir.resolve("${testfile}.${index+1}.xml")
+                    val printStream = PrintStream(resultsFile)
+                    printStream.println(result[index].value)
+                    printStream.close()
+                }
+
+            }
+
             if (singleTest) {
                 for (index in 0 until result.size) {
                     if (result.size > 1) {

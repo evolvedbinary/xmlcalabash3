@@ -36,6 +36,9 @@ And this.
       ]]></p:inline>
     </p:with-input>
   </cx:asciidoctor>
+
+  <p:wrap-sequence wrapper="wrapper"/>
+
 </p:declare-step>
   </t:pipeline>
   <t:schematron>
@@ -44,7 +47,8 @@ And this.
       <s:ns prefix="h" uri="http://www.w3.org/1999/xhtml"/>
       <s:pattern>
         <s:rule context="/">
-          <s:assert test="count(h:div) = 3">Wrong number of paragraphs.</s:assert>
+          <s:assert test="wrapper">No wrapper</s:assert>
+          <s:assert test="count(wrapper/h:div) = 3">Wrong number of paragraphs.</s:assert>
         </s:rule>
       </s:pattern>
     </s:schema>
