@@ -1,19 +1,14 @@
 package com.xmlcalabash.steps
 
-import com.xmlcalabash.io.MediaType
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.io.DocumentWriter
+import com.xmlcalabash.io.MediaType
 import com.xmlcalabash.namespace.Ns
 import com.xmlcalabash.namespace.NsC
 import com.xmlcalabash.runtime.XProcStepConfiguration
 import com.xmlcalabash.runtime.parameters.RuntimeStepParameters
-import com.xmlcalabash.util.MediaClassification
-import com.xmlcalabash.util.S9Api
-import com.xmlcalabash.util.SaxonErrorReporter
-import com.xmlcalabash.util.ValueUtils
-import com.xmlcalabash.util.XProcCollectionFinder
-import com.xmlcalabash.util.XsdResolver
+import com.xmlcalabash.util.*
 import net.sf.saxon.event.PipelineConfiguration
 import net.sf.saxon.event.Receiver
 import net.sf.saxon.lib.SaxonOutputKeys
@@ -22,8 +17,6 @@ import net.sf.saxon.serialize.SerializationProperties
 import java.io.ByteArrayOutputStream
 import java.net.URI
 import java.nio.charset.StandardCharsets
-import javax.xml.transform.ErrorListener
-import javax.xml.transform.TransformerException
 
 open class XQueryStep(): AbstractAtomicStep() {
     val sources = mutableListOf<XProcDocument>()
@@ -114,6 +107,8 @@ open class XQueryStep(): AbstractAtomicStep() {
         val compiler = processor.newXQueryCompiler()
         compiler.isSchemaAware = processor.isSchemaAware
         compiler.errorReporter = errorReporter
+        compiler.moduleURIResolver = stepConfig.environment.documentManager
+
         val exec = try {
             compiler.baseURI = query.baseURI
             var xquery = query.value.underlyingValue.stringValue
