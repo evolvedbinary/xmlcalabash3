@@ -80,11 +80,19 @@ class AddAttributeStep(): AbstractAtomicStep(), ProcessMatchingNodes {
                 prefix = S9Api.uniquePrefix(nsBindings.keys)
             }
 
+            nsBindings[prefix] = ns
             QName(prefix, ns.toString(), attName.localName)
         }
 
+        var nsmap = node.underlyingNode.allNamespaces
+        for ((key, value) in nsBindings) {
+            if (nsmap.getURIForPrefix(key, false) != value) {
+                nsmap = nsmap.put(key, value)
+            }
+        }
+
         attrs[instanceAttName] = attValue
-        matcher.addStartElement(node, stepConfig.typeUtils.attributeMap(attrs))
+        matcher.addStartElement(node, stepConfig.typeUtils.attributeMap(attrs), nsmap)
         return true
     }
 

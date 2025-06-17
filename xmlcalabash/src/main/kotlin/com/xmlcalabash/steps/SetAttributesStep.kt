@@ -45,12 +45,16 @@ class SetAttributesStep(): AbstractAtomicStep(), ProcessMatchingNodes {
     }
 
     override fun startElement(node: XdmNode, attributes: AttributeMap): Boolean {
+        var nsmap = node.underlyingNode.allNamespaces
         val newAttr = mutableMapOf<QName, String?>()
         newAttr.putAll(stepConfig.typeUtils.attributeMap(attributes))
         for ((name, value) in attributeSet) {
             newAttr[name] = value
+            if (name.prefix.isNotEmpty()) {
+                nsmap = nsmap.put(name.prefix, name.namespaceUri)
+            }
         }
-        matcher.addStartElement(node, stepConfig.typeUtils.attributeMap(newAttr))
+        matcher.addStartElement(node, stepConfig.typeUtils.attributeMap(newAttr), nsmap)
         return true
     }
 
