@@ -24,6 +24,12 @@ steps:
       - rm -rf /home/builder/.gradle/.tmp
       - ./gradlew --console=plain --max-workers=2 test 
 
+  - name: setup-gradle
+    volumes:
+      - builder-home:/home/builder
+    commands:
+      - cp /home/builder/.gradle/gradle.properties ./build/.gradle/
+
   - name: test-suites
     image: xmlcalabash-build
     volumes:
