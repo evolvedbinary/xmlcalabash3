@@ -319,6 +319,8 @@ class Urify(filepath: String, basedir: String?) {
             .replace("#", "%23")
             .replace("\\", "%5C")
             .replace(" ", "%20")
+            .replace("[", "%5B")
+            .replace("]", "%5D")
 
         // unreserved  = ALPHA / DIGIT / "-" / "." / "_" / "~"
         var buf = StringBuilder()
