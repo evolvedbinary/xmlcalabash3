@@ -27,6 +27,7 @@ steps:
       - ./gradlew --console=plain --max-workers=2 test 
 
   - name: setup-gradle
+    image: xmlcalabash-build
     volumes:
       - builder-home:/home/builder
     commands:
