@@ -17,6 +17,7 @@ steps:
       LIBRARY_PASSPHRASE:
         from_secret: LIBRARY_PASSPHRASE
       SMTPSERVER: sendria
+      GRADLE_USER_HOME: ./build/.gradle
     commands:
       # This build has to run as a non-root user
       - sudo chown -R builder:builder .
@@ -29,6 +30,8 @@ steps:
     image: xmlcalabash-build
     volumes:
       - builder-home:/home/builder
+    environment:
+      GRADLE_USER_HOME: ./build/.gradle
     commands:
       - ./gradlew --console=plain --max-workers=2 -PWHOST=http://apache2 -PSHOST=sendria test-driver:test-report
 
@@ -36,6 +39,8 @@ steps:
     image: xmlcalabash-build
     volumes:
       - builder-home:/home/builder
+    environment:
+      GRADLE_USER_HOME: ./build/.gradle
     commands:
       - ./gradlew --console=plain documentation:reference documentation:userguide
       - ./gradlew --console=plain documentation:publishTestSuites
@@ -122,6 +127,8 @@ steps:
     image: xmlcalabash-build
     volumes:
       - builder-home:/home/builder
+    environment:
+      GRADLE_USER_HOME: ./build/.gradle
     commands:
       - export VERSION=`cat gradle.properties|grep xmlcalabashVersion|cut -f2 -d=`
       - export SNAPSHOT=`echo $VERSION | grep SNAPSHOT`

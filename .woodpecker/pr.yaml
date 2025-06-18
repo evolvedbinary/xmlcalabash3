@@ -16,6 +16,7 @@ steps:
     environment:
       SMTPSERVER: sendria
       SKIP_EE_TESTS: true
+      GRADLE_USER_HOME: ./build/.gradle
     commands:
       # This build has to run as a non-root user
       - sudo chown -R builder:builder .
@@ -27,6 +28,8 @@ steps:
     image: xmlcalabash-build
     volumes:
       - builder-home:/home/builder
+    environment:
+      GRADLE_USER_HOME: ./build/.gradle
     commands:
       - ./gradlew --console=plain --max-workers=2 -PWHOST=http://apache2 -PSHOST=sendria test-driver:test-report
 
