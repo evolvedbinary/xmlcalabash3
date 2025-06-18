@@ -13,6 +13,32 @@ See the commits and pull requests on
 finer detail.</para>
 
 <revhistory>
+<revision xml:id="r304">
+<revnumber>3.0.4</revnumber>
+<date>2025-06-18</date>
+<revdescription>
+<itemizedlist>
+<listitem><para>Fixed <cbissue number="77"/>. Escape “[” and “]” in URIs.
+This is the simplest fix for the bug where a file named
+<filename>[Content_Types].xml</filename> in a zip file causes <tag>p:archive-manifest</tag>
+to fail. The <code>java.net.URI</code> class won’t make a URI that contains square brackets.
+There are other reserved characters it doesn’t care about, so I’m not sure if
+there’s a better, proper solution.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="74"/>. Make sure the module URI resolver is configured
+for the <tag>p:xquery</tag> step.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="71"/>. Make sure that namespace bindings are setup correctly.
+Several steps were capable of producing apparently valid XDM results that did
+not serialize correctly because the namespace bindings were not up-to-date.
+</para></listitem>
+<listitem><para>Test suites are now published automatically at
+<link xlink:href="https://www.xmlcalabash.com/test-suites/"/>. This provides
+some examples of usage, especially for extension steps.
+</para></listitem>
+</itemizedlist>
+</revdescription>
+</revision>
 <revision xml:id="r303">
 <revnumber>3.0.3</revnumber>
 <date>2025-06-15</date>
