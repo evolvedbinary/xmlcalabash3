@@ -23,7 +23,6 @@ plugins {
   id("com.github.gmazzo.buildconfig") version "5.5.0"
   id("org.jetbrains.dokka") version "1.9.20"
   id("maven-publish")
-  id("signing")
 }
 
 val xmlbuild = the<XmlCalabashBuildExtension>()
@@ -129,28 +128,7 @@ tasks.register("apidocs") {
   }
 }
 
-tasks.register("helloWorld") {
-  doLast {
-    println("${project.findProperty("sonatypeUsername").toString()}")
-    println("${project.findProperty("sonatypePassword").toString()}")
-  }
-}
-
 publishing {
-  repositories {
-    maven {
-      credentials {
-        username = project.findProperty("sonatypeUsername").toString()
-        password = project.findProperty("sonatypePassword").toString()
-      }
-      url = if (xmlbuild.version.get().contains("SNAPSHOT")) {
-        uri("https://central.sonatype.com/repository/maven-snapshots/")
-      } else {
-        uri("https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/")
-      }
-    }
-  }
-
   publications {
     create<MavenPublication>("mavenXmlCalabash") {
       pom {
@@ -170,7 +148,7 @@ publishing {
         licenses {
           license {
             name = "MIT License"
-            url = "http://www.opensource.org/licenses/mit-license.php"
+            url = "https://opensource.org/api/license/mit"
             distribution = "repo"
           }
         }
@@ -188,8 +166,10 @@ publishing {
       artifact(javadocJar.get())
     }
   }
-}
 
-signing {
-  sign(publishing.publications["mavenXmlCalabash"])
+  repositories {
+    maven {
+      url = layout.buildDirectory.dir("maven-release").get().asFile.toURI()
+    }
+  }
 }

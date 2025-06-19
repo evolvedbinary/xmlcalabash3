@@ -52,7 +52,7 @@ steps:
       - ./gradlew --console=plain documentation:reference documentation:userguide
       - ./gradlew --console=plain documentation:publishTestSuites
       - ./gradlew --console=plain xmlcalabash:apidocs dokkaHtmlMultiModule
-      - ./gradlew --console=plain apidocs release
+      - ./gradlew --console=plain apidocs release publish
 
   - name: checkout www.xmlcalabash.com
     image: xmlcalabash-build
@@ -141,7 +141,8 @@ steps:
       - export SNAPSHOT=`echo $VERSION | grep SNAPSHOT`
       - echo "TAG $CI_COMMIT_TAG and SNAP $SNAPSHOT"
       - if [ "$CI_COMMIT_TAG" != "" -o "$SNAPSHOT" != "" ]; then
-      -   ./gradlew --console=plain publish
+      -   cd publish/xmlcalabash && ./gradlew --console=plain jreleaserdeploy
+      -   cd publish/polyglot && ./gradlew --console=plain jreleaserdeploy
       - else
       -   echo "Not publishing $VERSION"
       - fi
