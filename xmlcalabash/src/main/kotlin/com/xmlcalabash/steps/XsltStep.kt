@@ -42,7 +42,6 @@ open class XsltStep(): AbstractAtomicStep() {
     var initialMode: QName? = null
     var templateName: QName? = null
     var outputBaseUri: URI? = null
-    var version: String? = null
 
     var goesBang: XProcError? = null
     var terminationError: XProcError? = null
@@ -81,7 +80,7 @@ open class XsltStep(): AbstractAtomicStep() {
         initialMode = qnameBinding(Ns.initialMode)
         templateName = qnameBinding(Ns.templateName)
         outputBaseUri = uriBinding(Ns.outputBaseUri)
-        version = stringBinding(Ns.version)
+        var version = stringBinding(Ns.version)
 
         val gcValue = options[Ns.globalContextItem]!!.value
         if (gcValue != XdmEmptySequence.getInstance()) {
@@ -113,7 +112,6 @@ open class XsltStep(): AbstractAtomicStep() {
         initialMode = null
         templateName = null
         outputBaseUri = null
-        version = null
         goesBang = null
         terminationError = null
         forceEmptyGlobalContextItem = false
@@ -128,7 +126,7 @@ open class XsltStep(): AbstractAtomicStep() {
         if (globalContextItem == null && sources.size == 1 && !forceEmptyGlobalContextItem) {
             globalContextItem = sources[0]
         }
-        runXsltProcessor(sources.firstOrNull())
+        runXsltProcessor(sources.firstOrNull(), 3)
     }
 
     private fun xslt20() {
@@ -159,10 +157,10 @@ open class XsltStep(): AbstractAtomicStep() {
             }
         }
 
-        runXsltProcessor(sources.firstOrNull())
+        runXsltProcessor(sources.firstOrNull(), 2)
     }
 
-    private fun runXsltProcessor(document: XProcDocument?) {
+    private fun runXsltProcessor(document: XProcDocument?, version: Int) {
         val processor = stepConfig.processor
         val config = processor.underlyingConfiguration
 
@@ -248,8 +246,10 @@ open class XsltStep(): AbstractAtomicStep() {
 
         val inputSelection = if (document != null) {
             var sel: XdmValue = XdmEmptySequence.getInstance()
-            for (doc in sources) {
-                sel = sel.append(doc.value)
+            for ((index, doc) in sources.withIndex()) {
+                if (version == 3 || index == 0) {
+                    sel = sel.append(doc.value)
+                }
             }
             sel
         } else {
@@ -330,7 +330,7 @@ open class XsltStep(): AbstractAtomicStep() {
             transformer.setGlobalContextItem(globalContextItem!!.value as XdmItem)
         }
 
-        if (version != "3.0" && document != null && document.value != XdmEmptySequence.getInstance()) {
+        if (version != 3 && document != null && document.value != XdmEmptySequence.getInstance()) {
             transformer.setGlobalContextItem(document.value as XdmItem)
         }
 
@@ -506,7 +506,7 @@ open class XsltStep(): AbstractAtomicStep() {
     }
 
     private fun xslt10() {
-        throw stepConfig.exception(XProcError.xcVersionNotAvailable(version ?: "null"))
+        throw stepConfig.exception(XProcError.xcVersionNotAvailable("1.0"))
     }
 
     override fun toString(): String = "p:xslt"
