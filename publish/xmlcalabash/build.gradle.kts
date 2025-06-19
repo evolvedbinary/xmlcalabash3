@@ -1,3 +1,4 @@
+import org.gradle.api.GradleException
 import org.jreleaser.gradle.plugin.JReleaserExtension
 import org.jreleaser.model.Active
 import org.jreleaser.model.api.deploy.maven.MavenCentralMavenDeployer
@@ -14,14 +15,15 @@ repositories {
 val releaseName = project.name
 val releaseGroup = "com.xmlcalabash"
 val releaseArtifact = "xmlcalabash"
-val releaseVersion = "3.0.5-SNAPSHOT"
 val releaseDescription = "An XProc 3.0 processor"
 val releaseUrl = "https://codeberg.org/xmlcalabash/xmlcalabash3"
 val releaseScm = "scm:git@codeberg.org:xmlcalabash/xmlcalabash3.git"
 
+val releaseVersion = project.findProperty("releaseVersion")?.toString()
+    ?: throw GradleException("No release version provided")
+
 configure<JReleaserExtension> {
   gitRootSearch = true
-  dryrun = false
   project {
     group = releaseGroup
     version = releaseVersion
