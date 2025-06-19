@@ -19,7 +19,6 @@ plugins {
   id("org.graalvm.buildtools.native") version "0.10.2"
   id("org.jetbrains.dokka") version "1.9.20"
   id("maven-publish")
-  id("signing")
 }
 
 val xmlcalabash by configurations.creating {}
@@ -156,20 +155,6 @@ tasks.register<Zip>("release") {
 }
 
 publishing {
-  repositories {
-    maven {
-      credentials {
-        username = project.findProperty("sonatypeUsername").toString()
-        password = project.findProperty("sonatypePassword").toString()
-      }
-      url = if (xmlbuild.version.get().contains("SNAPSHOT")) {
-        uri("https://central.sonatype.com/repository/maven-snapshots/")
-      } else {
-        uri("https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/")
-      }
-    }
-  }
-
   publications {
     create<MavenPublication>("mavenPolyglot") {
       pom {
@@ -189,7 +174,7 @@ publishing {
         licenses {
           license {
             name = "MIT License"
-            url = "http://www.opensource.org/licenses/mit-license.php"
+            url = "https://opensource.org/api/license/mit"
             distribution = "repo"
           }
         }
@@ -207,8 +192,10 @@ publishing {
       artifact(javadocJar.get())
     }
   }
-}
 
-signing {
-  sign(publishing.publications["mavenPolyglot"])
+  repositories {
+    maven {
+      url = layout.buildDirectory.dir("maven-release").get().asFile.toURI()
+    }
+  }
 }

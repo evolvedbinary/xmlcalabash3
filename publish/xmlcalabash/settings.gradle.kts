@@ -4,12 +4,3 @@ plugins {
 }
 
 rootProject.name = "xmlcalabash"
-
-include("xmlcalabash")
-include("app")
-include("test-driver")
-include("documentation")
-include("template:java")
-include("template:kotlin")
-include("ext:polyglot")
-
