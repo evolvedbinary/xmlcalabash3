@@ -216,8 +216,8 @@ class Urify(filepath: String, basedir: String?) {
             false
         }
 
+        var fileuri: Boolean? = null
         if (filesep != "/") {
-            var fileuri: Boolean? = null
             if (osMatch != null) {
                 val scheme = osMatch.groupValues[1]
                 if (scheme == "file" || (isWindows && scheme.length == 1)) {
@@ -268,7 +268,11 @@ class Urify(filepath: String, basedir: String?) {
             _scheme = null
             _explicit = false
             _driveLetter = null
-            _path = UriUtils.normalizePath(filepath)
+            _path = if (fileuri != false) {
+                UriUtils.normalizePath(filepath)
+            } else {
+                filepath
+            }
             _absolute = _path!!.startsWith("/")
         } else if (faMatch != null) {
             val fpauthority = faMatch.groupValues[2]

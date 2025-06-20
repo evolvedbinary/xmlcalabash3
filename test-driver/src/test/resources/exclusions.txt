@@ -1,7 +1,5 @@
 ab-p-archive-067 because multiple archives are supported for create
 
-nw-urify-windows-bs-002 because https://github.com/xproc/3.0-test-suite/issues/841
-
 ab-os-exec-005 on Windows because it’s platform dependent
 ab-os-exec-006 on Windows because it’s platform dependent
 ab-os-exec-007 on Windows because it’s platform dependent
