@@ -79,7 +79,7 @@ steps:
     commands:
       - cd build/www
       - mkdir -p src/main/test-report/current
-      - rsync -ar --delete src/main/test-report/current/ src/main/test-report/current/
+      - rsync -ar --delete /woodpecker/src/codeberg.org/xmlcalabash/xmlcalabash3/test-driver/build/test-report/ src/main/test-report/current/
 
   - name: update the tagged test-report
     when: 
@@ -90,7 +90,7 @@ steps:
     commands:
       - cd build/www
       - mkdir -p src/main/test-report/$CI_COMMIT_TAG
-      - rsync -ar --delete src/main/test-report/current/ src/main/test-report/$CI_COMMIT_TAG/
+      - rsync -ar --delete /woodpecker/src/codeberg.org/xmlcalabash/xmlcalabash3/test-driver/build/test-report/ src/main/test-report/$CI_COMMIT_TAG/
 
   - name: update www.xmlcalabash.com
     image: xmlcalabash-build
