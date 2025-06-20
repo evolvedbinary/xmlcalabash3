@@ -72,9 +72,18 @@ steps:
       - export SNAPSHOT=`echo $VERSION | grep SNAPSHOT`
       - rsync -ar --delete /woodpecker/src/codeberg.org/xmlcalabash/xmlcalabash3/documentation/build/test-suites/ src/main/test-suites/
 
+  - name: update the current test-report
+    image: xmlcalabash-build
+    volumes:
+      - builder-home:/home/builder
+    commands:
+      - cd build/www
+      - mkdir -p src/main/test-report/current
+      - rsync -ar --delete src/main/test-report/current/ src/main/test-report/current/
+
   - name: update the tagged test-report
     when: 
-      - evaluate: '$CI_COMMIT_TAG != "" && not ($CI_COMMIT_TAG contains "SNAPSHOT")'
+      - event: tag
     image: xmlcalabash-build
     volumes:
       - builder-home:/home/builder
