@@ -13,6 +13,17 @@ See the commits and pull requests on
 finer detail.</para>
 
 <revhistory>
+<revision xml:id="r306">
+<revnumber>3.0.6</revnumber>
+<date>2025-06-22</date>
+<revdescription>
+<itemizedlist>
+<listitem><para>Fixed <cbissue number="97"/>. Make sure the base URI is propagated
+into XSLT result documents.
+</para></listitem>
+</itemizedlist>
+</revdescription>
+</revision>
 <revision xml:id="r305">
 <revnumber>3.0.5</revnumber>
 <date>2025-06-22</date>
