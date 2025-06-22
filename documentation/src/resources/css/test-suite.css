@@ -20,12 +20,19 @@ h1,h2,h3,h4,h5 {
     font-family: sans-serif;
 }
 
-.nav {
-    background-color: #fff8f8;
+nav {
+    background-color: #666666;
+    color: white;
     padding-top: 0.25rem;
     padding-bottom: 0.25rem;
     padding-left: 1rem;
     padding-right: 1rem;
+    display: flex;
+    justify-content: space-between;
+}
+
+nav a, nav a:visited {
+    color: white;
 }
 
 .features {
@@ -51,7 +58,7 @@ pre.xml {
     background-color: #eeeeee;
 }
 
-table {
+table.shaded {
     table-layout: fixed;
     border-spacing: 0;
     border-collapse: collapse;
@@ -59,21 +66,21 @@ table {
     border-radius: 0.25em;
 }
 
-table tbody tr:nth-child(odd) {
+table.shaded tbody tr:nth-child(odd) {
     background-color: rgb(240,240,240);
 }
 
-table tbody tr:nth-child(even) {
+table.shaded tbody tr:nth-child(even) {
     background-color: rgb(235,235,235);
 }
 
-table thead {
+table.shaded thead {
     background-color: #666666;
     color: white;
 }
 
-table tr th,
-table tr td {
+table.shaded tr th,
+table.shaded tr td {
     border-left: 1px solid #888888;
     padding-left: 0.25em;
     padding-right: 0.25em;

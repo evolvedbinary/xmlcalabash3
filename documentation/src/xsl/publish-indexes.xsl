@@ -27,6 +27,17 @@
   <xsl:variable name="cx-elements"
                 select="distinct-values($tests/t:test-suite/t:test/t:pipeline//cx:* ! node-name(.))"/>
 
+  <xsl:variable name="suite"
+                select="doc('../../../test-driver/build/test-suite-results.xml')/*"/>
+  <xsl:variable name="dt" select="xs:dateTime($suite/@timestamp)"/>
+  <xsl:variable name="prop" as="map(xs:string,xs:string)">
+    <xsl:map>
+      <xsl:for-each select="$suite/properties/property">
+        <xsl:map-entry key="@name/string()" select="@value/string()"/>
+      </xsl:for-each>
+    </xsl:map>
+  </xsl:variable>
+
   <html>
     <head>
       <title>Test suite indexes</title>
@@ -34,12 +45,48 @@
       <link rel="stylesheet" href="css/pygments.css"/>
     </head>
     <body>
+      <nav>
+        <span></span>
+        <span>
+          <xsl:text> XML Calabash </xsl:text>
+          <span class="version" title="{$prop?buildId}">{$prop?version}</span>
+          <xsl:text> on </xsl:text>
+          <time datetime="{$suite/@timestamp/string()}">
+            <xsl:value-of select='format-dateTime($dt, "[D01] [MNn,*-3] [Y0001]")'/>
+            <xsl:text> at </xsl:text>
+            <xsl:value-of select='format-dateTime($dt, "[H01]:[m01]")'/>
+          </time>
+        </span>
+      </nav>
       <article>
-        <h1>Test suites</h1>
+        <h1>XML Calabash test suites</h1>
+        <p>The XML Calabash build process runs several additional test suites.</p>
         <dl>
           <xsl:for-each select="$tests/t:test-suite">
             <xsl:sort select="@test-suite"/>
-            <dt><a href="{@test-suite}/index.html">{@test-suite/string()}</a></dt>
+            <dt>
+              <xsl:choose>
+                <xsl:when test="@test-suite = '3.0-test-suite'">
+                  <a href="{@test-suite}/index.html">The XProc 3.0 test suite</a>
+                </xsl:when>
+                <xsl:when test="@test-suite = 'extra-suite'">
+                  <a href="{@test-suite}/index.html">The XML Calabash “extra” test suite</a>
+                </xsl:when>
+                <xsl:when test="@test-suite = 'selenium'">
+                  <a href="{@test-suite}/index.html">The XML Calabash Selenium test suite</a>
+                </xsl:when>
+                <xsl:otherwise>
+                  <a href="{@test-suite}/index.html">{@test-suite/string()}</a>
+                </xsl:otherwise>
+              </xsl:choose>
+            </dt>
+            <dd>
+              <p>
+                <xsl:text>{count(t:test)} tests, </xsl:text>
+                <xsl:text>{count(t:test[@expected='pass'])} expected to pass, </xsl:text>
+                <xsl:text>{count(t:test[not(@expected='pass')])} expected to catch errors.</xsl:text>
+              </p>
+            </dd>
           </xsl:for-each>
         </dl>
 
@@ -128,6 +175,18 @@
             </tbody>
           </table>
         </div>
+
+        <p>
+          <xsl:text>Results from </xsl:text>
+          <time datetime="{$suite/@timestamp/string()}">
+            <xsl:value-of select='format-dateTime($dt, "[D01] [MNn,*-3] [Y0001]")'/>
+            <xsl:text> at </xsl:text>
+            <xsl:value-of select='format-dateTime($dt, "[H01]:[m01]")'/>
+          </time>
+          <xsl:text> with XML Calabash version </xsl:text>
+          <span class="version" title="{$prop?buildId}">{$prop?version}</span>
+          <xsl:text> running with Saxon {$prop?saxonVersion}.</xsl:text>
+        </p>
       </article>
     </body>
   </html>
@@ -188,20 +247,27 @@
         <link rel="stylesheet" href="css/pygments.css"/>
       </head>
       <body>
-        <div class="nav">
+        <nav>
           <a href="index.html">Test suites</a>
-        </div>
+        </nav>
         <article>
           <h1>
             <xsl:text>Tests that use </xsl:text>
             <xsl:sequence select="concat($prefix, ':', local-name-from-QName($name))"/>
           </h1>
-          <table>
+          <table class="shaded">
+          <colgroup>
+            <col/>
+            <col/>
+            <col/>
+            <col style="width:50%"/>
+          </colgroup>
             <thead>
               <tr>
                 <th>Test suite</th>
                 <th>Test</th>
                 <th>Expected result</th>
+                <th>Description</th>
               </tr>
             </thead>
             <tbody>
@@ -215,7 +281,8 @@
                       <xsl:value-of select="replace(@name, '.xml$', '')"/>
                     </a>
                   </td>
-                  <td>{@expected/string()}</td>
+                  <td>{if (@expected = 'pass') then 'pass' else 'catch failure'}</td>
+                  <td><xsl:value-of select="t:description/*[1]"/></td>
                 </tr>
               </xsl:for-each>
             </tbody>
@@ -314,7 +381,7 @@
 
 <xsl:function name="f:feature-filename" as="xs:string">
   <xsl:param name="name" as="xs:string"/>
-  <xsl:sequence select="'feature-' || replace($name, ':', '-') => replace('/', '-') || '.html'"/>
+  <xsl:sequence select="'feature-' || replace($name, ':', '-') =&gt; replace('/', '-') || '.html'"/>
 </xsl:function>
 
 </xsl:stylesheet>

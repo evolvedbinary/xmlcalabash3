@@ -32,18 +32,43 @@
       <link rel="stylesheet" href="../css/test-suite.css"/>
     </head>
     <body>
-      <div class="nav">
-        <a href="../index.html">Test suites</a>
-      </div>
+      <nav>
+        <span>
+          <a href="../index.html">Test suites</a>
+        </span>
+        <span></span>
+      </nav>
       <article>
-        <h1>{@test-suite/string()}</h1>
+        <h1>
+          <xsl:choose>
+            <xsl:when test="@test-suite = '3.0-test-suite'">The XProc 3.0 test suite</xsl:when>
+            <xsl:when test="@test-suite = 'extra-suite'">The XML Calabash “extra” test suite</xsl:when>
+            <xsl:when test="@test-suite = 'selenium'">The XML Calabash Selenium test suite</xsl:when>
+            <xsl:otherwise>
+              <xsl:text>{@test-suite/string()}</xsl:text>
+            </xsl:otherwise>
+          </xsl:choose>
+        </h1>
 
-        <table>
+        <p>
+          <xsl:text>{count(t:test)} tests, </xsl:text>
+          <xsl:text>{count(t:test[@expected='pass'])} expected to pass, </xsl:text>
+          <xsl:text>{count(t:test[not(@expected='pass')])} expected to catch errors.</xsl:text>
+        </p>
+
+        <table class="shaded">
+          <colgroup>
+            <col/>
+            <col/>
+            <col/>
+            <col style="width:50%"/>
+          </colgroup>
           <thead>
             <tr>
               <th>Test suite</th>
               <th>Test</th>
               <th>Expected result</th>
+              <th>Description</th>
             </tr>
           </thead>
           <tbody>
@@ -57,7 +82,8 @@
                     <xsl:value-of select="replace(@name, '.xml$', '')"/>
                   </a>
                 </td>
-                <td>{@expected/string()}</td>
+                <td>{if (@expected = 'pass') then 'pass' else 'catch failure'}</td>
+                <td><xsl:value-of select="t:description/*[1]"/></td>
               </tr>
             </xsl:for-each>
           </tbody>
@@ -84,11 +110,14 @@
       <link rel="stylesheet" href="../../css/pygments.css"/>
     </head>
     <body>
-      <div class="nav">
-        <a href="../../index.html">Test index</a>
-        <xsl:text> | </xsl:text>
-        <a href="../index.html">Test suite</a>
-      </div>
+      <nav>
+        <span>
+          <a href="../../index.html">Test index</a>
+          <xsl:text> | </xsl:text>
+          <a href="../index.html">Test suite</a>
+        </span>
+        <span></span>
+      </nav>
 
       <xsl:if test="@features">
         <div class="features">
@@ -160,7 +189,7 @@
 <xsl:template match="t:option[empty(preceding-sibling::t:option)]" priority="10">
   <div class="options">
     <h2>Options</h2>
-    <table>
+    <table class="shaded">
       <thead>
         <tr><th>Name</th><th>Initializer</th></tr>
       </thead>
@@ -257,7 +286,7 @@
 <xsl:template match="t:file-environment" mode="table">
   <xsl:variable name="env" select="."/>
 
-  <table class="fileenv">
+  <table class="fileenv shaded">
     <thead>
       <tr>
         <th>Directory</th>
