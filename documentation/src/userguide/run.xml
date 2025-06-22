@@ -24,8 +24,9 @@ both the XML Calabash jar file and all of the necessary dependencies.
 One feature of the second form is that it allows you to change or update the dependencies.
 </para>
 
-<para>In the fullness of time, XML Calabash will be available through Maven which has
-extensive features for managing dependencies. In the short term, it’s just a bit messy.</para>
+<para>XML Calabash is also available
+<link xlink:href="https://central.sonatype.com/artifact/com.xmlcalabash/xmlcalabash">from Maven</link>
+with the coordinates <code>com.xmlcalabash:xmlcalabash:<?version?></code>.</para>
 
 <tip xml:id="upgrading-saxon">
 <title>Upgrading Saxon</title>

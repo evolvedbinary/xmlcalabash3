@@ -9,10 +9,29 @@
 
 <para>This section documents the significant changes made in each release.
 See the commits and pull requests on
-<link xlink:href="https://github.com/xmlcalabash/xmlcalabash3/">the repository</link> for
+<link xlink:href="https://codeberg.org/xmlcalabash/xmlcalabash3/">the repository</link> for
 finer detail.</para>
 
 <revhistory>
+<revision xml:id="r305">
+<revnumber>3.0.5</revnumber>
+<date>2025-06-22</date>
+<revdescription>
+<itemizedlist>
+<listitem><para>Fixed <cbissue number="85"/>. Use only the first input as the
+context item when processing a sequence with XSLT 2.0.</para></listitem>
+<listitem><para>Fixed <function>p:urify()</function> so that it passes
+<link xlink:href="https://www.xmlcalabash.com/test-suites/3.0-test-suite/tests/nw-urify-non-windows-bs-002.html"
+>nw-urify-non-windows-bs-002</link>. I had at one time
+<link xlink:href="https://github.com/xproc/3.0-test-suite/issues/841">argued</link> for a
+change in behavior, but I gave up.
+</para></listitem>
+<listitem><para>There were a bunch of build-related changes trying to get CI
+to do the right thing and publish releases with JReleaser.
+</para></listitem>
+</itemizedlist>
+</revdescription>
+</revision>
 <revision xml:id="r304">
 <revnumber>3.0.4</revnumber>
 <date>2025-06-18</date>
