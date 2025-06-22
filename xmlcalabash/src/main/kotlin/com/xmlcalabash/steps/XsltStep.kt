@@ -373,10 +373,11 @@ open class XsltStep(): AbstractAtomicStep() {
                 }
 
                 if (seq.size == 1 && seq.first() is XdmNode) {
-                    val result = seq.first() as XdmNode
+                    var result = seq.first() as XdmNode
                     val props = DocumentProperties()
                     if (result.baseURI != null) {
                         props[Ns.baseUri] = result.baseURI
+                        result = S9Api.adjustBaseUri(result, result.baseURI)
                     }
                     val doc = if (ValueUtils.contentClassification(result) == MediaType.TEXT) {
                         XProcDocument.ofText(result, stepConfig, MediaType.TEXT, props)
@@ -392,8 +393,9 @@ open class XsltStep(): AbstractAtomicStep() {
                 }
             }
             is XdmDestination -> {
-                val tree = (primaryDestination as XdmDestination).xdmNode
+                var tree = (primaryDestination as XdmDestination).xdmNode
                 if (tree.baseURI != null) {
+                    tree = S9Api.adjustBaseUri(tree, tree.baseURI);
                     val props = DocumentProperties()
                     props[Ns.baseUri] = tree.baseURI
                     props[Ns.contentType] =  serializationContentType(primaryOutputProperties, ValueUtils.contentClassification(tree) ?: MediaType.XML)
