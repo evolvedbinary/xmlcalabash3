@@ -37,20 +37,6 @@
     </xsl:try>
   </xsl:variable>
 
-  <!--
-  N: .../tests/3.0-test-suite/test-suite/tests/ab-os-info-003.xml
-  <xsl:for-each select="$tests">
-    <xsl:message select="'N:', base-uri(.)"/>
-  </xsl:for-each>
-  -->
-
-  <!-- 
-  R: .../test-driver/build/test-results/3.0-test-suite/ab-os-info-003.xml/ab-os-info-003.xml.1.xml
-  <xsl:for-each select="$results">
-    <xsl:message select="'R:', base-uri(.)"/>
-  </xsl:for-each>
-  -->
-
   <xsl:message select="$rdir"/>
   <xsl:message>{count($tests)} tests, {count($results)} results.</xsl:message>
 
