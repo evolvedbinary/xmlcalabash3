@@ -1,4 +1,6 @@
 import java.io.PrintStream
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import com.xmlcalabash.build.XmlCalabashBuildExtension
 
 plugins {
@@ -34,9 +36,14 @@ dependencies {
 }
 
 java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
-    }
+  sourceCompatibility = JavaVersion.VERSION_17
+  targetCompatibility = JavaVersion.VERSION_17
+}
+
+kotlin {
+  compilerOptions {
+    jvmTarget.set(JvmTarget.JVM_17)
+  }
 }
 
 val xmlbuild = the<XmlCalabashBuildExtension>()
