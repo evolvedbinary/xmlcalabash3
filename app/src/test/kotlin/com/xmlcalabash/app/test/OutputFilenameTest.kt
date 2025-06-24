@@ -42,14 +42,14 @@ class OutputFilenameTest {
 
     @Test
     fun testBothLiteralPercent() {
-        val outfn = OutputFilename("test%%%02X.xml")
+        val outfn = OutputFilename("test%%%02X%%.xml")
         Assertions.assertTrue(outfn.isSequential())
-        Assertions.assertEquals("test%01.xml", outfn.nextFile().name)
+        Assertions.assertEquals("test%01%.xml", outfn.nextFile().name)
         for (index in 2 .. 8) {
             outfn.nextFile()
         }
-        Assertions.assertEquals("test%09.xml", outfn.nextFile().name)
-        Assertions.assertEquals("test%0A.xml", outfn.nextFile().name)
+        Assertions.assertEquals("test%09%.xml", outfn.nextFile().name)
+        Assertions.assertEquals("test%0A%.xml", outfn.nextFile().name)
     }
 
     @Test

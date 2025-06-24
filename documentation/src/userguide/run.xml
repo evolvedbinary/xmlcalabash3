@@ -171,8 +171,16 @@ type or subtype, or if it’s recognized as a “+xml” or “+json” content 
   <term><option>--output:<replaceable>port</replaceable>=<replaceable>filespec</replaceable></option>, identifies
   an output</term>
 <listitem>
+<para>This option determines how the output to <replaceable>port</replaceable> is stored. If
+<replaceable>port</replaceable> is omitted, the primary output port is assumed.</para>
+
 <para>In the simplest case, at most one document appears on the output <replaceable>port</replaceable>
-and <replaceable>filespec</replaceable> is just a filename. The <replaceable>filespec</replaceable> can
+and <replaceable>filespec</replaceable> is just a filename: for example,
+<code>--output:result=saved.xml</code> to save the output from the “result” port into a file
+named “<filename>saved.xml</filename>”. If the filename is not an absolute path,
+it is made absolute relative to the current working directory.</para>
+
+<para>The <replaceable>filespec</replaceable> can
 also be a template.
 The output documents are numbered, starting at 1. Within the <replaceable>filespec</replaceable>,
 the string “<literal>%d</literal>” will be replaced by the document number.
