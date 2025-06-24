@@ -1,7 +1,10 @@
 package com.xmlcalabash.app
 
 import com.xmlcalabash.exceptions.XProcError
+import com.xmlcalabash.util.UriUtils
+import com.xmlcalabash.util.Urify
 import java.io.File
+import java.net.URI
 
 /**
  * Describe how output filenames should be constructed.
@@ -96,6 +99,14 @@ class OutputFilename(val pattern: String) {
 
             currentFilename = sb.toString()
         }
+
+        // This more than slightly ugly. We're going to pass the string through urify, so
+        // any % that remains has to be re-encoded so it can be re-decoded. :-(
+        val uri = URI(Urify.urify(currentFilename.replace("%", "%25")))
+        if (uri.scheme != "file") {
+            throw XProcError.xiUnwritableOutputFile(currentFilename).exception()
+        }
+        currentFilename = UriUtils.normalizePath(uri.path).replace("%25", "%")
 
         nextId++
         val file = File(currentFilename)
