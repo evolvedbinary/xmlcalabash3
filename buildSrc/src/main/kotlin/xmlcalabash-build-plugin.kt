@@ -145,9 +145,17 @@ class XmlCalabashBuildPlugin : Plugin<Project> {
     extension.vendorUri.set("https://xmlcalabash.com/")
     extension.buildTime.set(DateTimeFormatter.ISO_INSTANT.format(buildTime))
     extension.buildDate.set(DateTimeFormatter.ofPattern("yyyy-MM-dd").format(buildTime))
-    extension.buildDateId.set(String.format("%02x%x.%02x%02x%02x",
-                                            buildTime.year % 100,
-                                            buildTime.monthValue,
-                                            buildTime.dayOfMonth, buildTime.hour, buildTime.minute))
+
+    if (project.findProperty("com.xmlcalabash.onlyDailyBuildId").toString() == "true") {
+      extension.buildDateId.set(String.format("%02x%x.%02xHHMM",
+                                              buildTime.year % 100,
+                                              buildTime.monthValue,
+                                              buildTime.dayOfMonth))
+    } else {
+      extension.buildDateId.set(String.format("%02x%x.%02x%02x%02x",
+                                              buildTime.year % 100,
+                                              buildTime.monthValue,
+                                              buildTime.dayOfMonth, buildTime.hour, buildTime.minute))
+    }
   }
 }
