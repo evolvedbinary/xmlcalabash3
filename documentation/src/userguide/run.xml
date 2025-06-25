@@ -585,7 +585,7 @@ override any defaults declared in the pipeline. There must be a pipeline option
 setting the value in a map. In this case, the name before the “::” is the name
 of the actual parameter and the name after the “::” is the name of a key in that
 map. (With the additional special case that if the name <emphasis>begins
-with</emphasis> “::”, then the option name is take to be default option name,
+with</emphasis> “::”, then the option name is taken to be the default option name,
 currently <code>parameters</code>.) This is intended to be somewhat reminiscent
 of XPath axes.</para>
 
