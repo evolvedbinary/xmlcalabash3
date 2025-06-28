@@ -13,6 +13,17 @@ See the commits and pull requests on
 finer detail.</para>
 
 <revhistory>
+<revision xml:id="r308">
+<revnumber>3.0.8</revnumber>
+<date>2025-06-28</date>
+<revdescription>
+<itemizedlist>
+<listitem><para>Fixed <cbissue number="110"/>, Java 11 should be sufficient
+again. I switched back to the previous method of selecting a toolchain for the
+build. This seems to work, though I can’t really explain why. </para></listitem>
+</itemizedlist>
+</revdescription>
+</revision>
 <revision xml:id="r307">
 <revnumber>3.0.7</revnumber>
 <date>2025-06-28</date>
