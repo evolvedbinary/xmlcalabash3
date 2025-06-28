@@ -92,6 +92,10 @@ class XmlCalabashCli private constructor() {
             commandLine.tryNamespaces?.let { builder.setTryNamespaces(it) }
             commandLine.useLocationHints?.let { builder.setUseLocationHints(it) }
 
+            for (extension in commandLine.extensions) {
+                builder.enableExtension(extension)
+            }
+
             if (builder.getLicensed() != commandLine.licensed) {
                 builder.setLicensed(builder.getLicensed() && commandLine.licensed)
             }
@@ -631,6 +635,11 @@ class XmlCalabashCli private constructor() {
             println("VENDOR_URI=${XmlCalabashBuildConfig.VENDOR_URI}")
             println("THREADS=${maxThreads}")
             println("MAX_THREADS=${totThreads}")
+
+            for (ext in xmlCalabash.config.extensions) {
+                println("${ext}=true")
+            }
+
             for (name in deplist) {
                 val version = XmlCalabashBuildConfig.DEPENDENCIES[name]!!
                 println("${name}=${version}")
@@ -645,11 +654,22 @@ class XmlCalabashCli private constructor() {
                 stepConfig.messagePrinter.println(" using at most ${maxThreads} of ${totThreads} available threads")
             }
 
+            if (xmlCalabash.config.extensions.isNotEmpty()) {
+                val sb = StringBuilder()
+                for ((index, ext) in xmlCalabash.config.extensions.withIndex()) {
+                    if (index > 0) {
+                        sb.append(", ")
+                    }
+                    sb.append(ext)
+                }
+                stepConfig.messagePrinter.println("Extensions enabled: ${sb}.")
+            }
+
             if (edition != proc.saxonEdition) {
                 if (xmlCalabash.config.licensed) {
-                    println("(You appear to have ${edition}; perhaps a license wasn't found?)")
+                    stepConfig.messagePrinter.println("(You appear to have ${edition}; perhaps a license wasn't found?)")
                 } else {
-                    println("(You appear to have ${edition} but the license is explicitly disabled.)")
+                    stepConfig.messagePrinter.println("(You appear to have ${edition} but the license is explicitly disabled.)")
                 }
             }
         }

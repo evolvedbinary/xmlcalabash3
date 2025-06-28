@@ -13,10 +13,7 @@ import com.xmlcalabash.spi.Configurer
 import com.xmlcalabash.spi.ConfigurerServiceProvider
 import com.xmlcalabash.spi.PagedMediaManager
 import com.xmlcalabash.spi.PagedMediaServiceProvider
-import com.xmlcalabash.util.AssertionsLevel
-import com.xmlcalabash.util.DefaultMessagePrinter
-import com.xmlcalabash.util.DefaultMessageReporter
-import com.xmlcalabash.util.Verbosity
+import com.xmlcalabash.util.*
 import com.xmlcalabash.util.spi.StandardPagedMediaProvider
 import net.sf.saxon.Configuration
 import net.sf.saxon.s9api.QName
@@ -488,6 +485,13 @@ class XmlCalabashBuilder {
         return this
     }
 
+    fun getExtensions() = config._extensions
+    fun enableExtension(name: ExtensionName): XmlCalabashBuilder {
+        logger.debug { "enableExtension ${name}" }
+        config._extensions.add(name)
+        return this
+    }
+
     fun build(): XmlCalabash {
         val config = commonBuild()
 
@@ -597,6 +601,7 @@ class XmlCalabashBuilder {
         internal var _visualizerProperties = mutableMapOf<String,String>()
         internal val _xmlCatalogs = mutableListOf<URI>()
         internal val _xmlSchemaDocuments = mutableListOf<URI>()
+        internal val _extensions = mutableSetOf<ExtensionName>()
 
         override val saxonConfiguration: SaxonConfiguration
             get() { return _saxonConfiguration }
@@ -701,6 +706,8 @@ class XmlCalabashBuilder {
             get() = _xmlCatalogs
         override val xmlSchemaDocuments: List<URI>
             get() = _xmlSchemaDocuments
+        override val extensions: Set<ExtensionName>
+            get() = _extensions
 
         internal fun copy(): BuiltConfiguration {
             val config = BuiltConfiguration()
@@ -742,6 +749,7 @@ class XmlCalabashBuilder {
             config._visualizerProperties.putAll(_visualizerProperties)
             config._xmlCatalogs.addAll(_xmlCatalogs)
             config._xmlSchemaDocuments.addAll(_xmlSchemaDocuments)
+            config._extensions.addAll(_extensions)
 
             val xmlconfig = config.documentManager.resolver.configuration
             val catlist = mutableListOf<String>()

@@ -83,8 +83,9 @@ given, the <command>run</command> command is assumed.</para>
   <arg rep="norepeat" linkend="cli-trace-documents">--trace-documents:<replaceable>output-directory</replaceable></arg>
   <sbr/>
   <arg rep="norepeat" linkend="cli-assertions">--assertions:<replaceable>level</replaceable></arg>
-  <arg rep="norepeat" linkend="cli-stacktrace">--stacktrace</arg>
+  <arg rep="repeat" linkend="cli-extension">--extension:<replaceable>name</replaceable></arg>
   <sbr/>
+  <arg rep="norepeat" linkend="cli-stacktrace">--stacktrace</arg>
   <arg rep="norepeat" linkend="cli-licensed">--licensed</arg>
   <arg rep="norepeat" linkend="cli-debug">--debug</arg>
   <arg rep="norepeat" linkend="cli-debugger">--debugger</arg>
@@ -523,6 +524,13 @@ during <link linkend="implicit-validation">implicit validation</link>.</para>
 during <link linkend="implicit-validation">implicit validation</link>.</para>
 </listitem>
 </varlistentry>
+<varlistentry xml:id="cli-extension">
+  <term><option>--extension:<replaceable>name</replaceable></option></term>
+<listitem>
+<para>This option enables the extension named <replaceable>name</replaceable>.
+</para>
+</listitem>
+</varlistentry>
 <varlistentry xml:id="cli-help">
   <term><option>--help</option></term>
 <listitem>
@@ -747,6 +755,7 @@ a synonym for “<literal>info version</literal>”.</para>
   <arg choice="plain">info</arg>
   <arg choice="plain">version</arg>
   <arg rep="norepeat" linkend="cli-verbosity">--verbosity:<replaceable>verbosity</replaceable></arg>
+  <arg rep="norepeat" linkend="cli-debug">--debug</arg>
 </cmdsynopsis>
 
 <para>Displays the XML Calabash version and the version of Saxon:</para>
@@ -778,6 +787,9 @@ MAX_THREADS=12
 the processor <emphasis>expected</emphasis>. The versions actually used are controlled by what appears on 
 the classpath at runtime.</para>
 </important>
+
+<para>Any enabled extensions are also identified by the version command.</para>
+
 </section>
 <section xml:id="run-info-mimetypes">
 <title>The <literal>info mimtypes</literal> command</title>

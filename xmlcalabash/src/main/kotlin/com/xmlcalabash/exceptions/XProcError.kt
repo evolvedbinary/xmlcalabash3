@@ -484,6 +484,7 @@ open class XProcError protected constructor(val code: QName, val variant: Int, v
         fun xiUnsupportedValidationMode(mode: String) = internal(52, mode)
         fun xiConfigurationCatalogElementMustBeEmpty() = internal(53)
         fun xiConfigurationXmlSchemaElementMustBeEmpty() = internal(54)
+        fun xiUnrecognizedExtension(name: String) = internal(55, name)
 
         fun xiCliInvalidValue(option: String, value: String) = internal(200, option, value)
         fun xiCliValueRequired(option: String) = internal(202, option)

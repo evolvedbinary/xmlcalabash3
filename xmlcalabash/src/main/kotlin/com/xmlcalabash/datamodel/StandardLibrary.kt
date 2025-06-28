@@ -1002,9 +1002,9 @@ class StandardLibrary private constructor(builder: PipelineBuilder, private val 
         output.contentTypes = MediaType.parseList("xml html")
 
         var option = decl.option(QName("from"))
-        option.asType = stepConfig.typeUtils.parseSequenceType("xs:anyURI?")
+        option.asType = stepConfig.typeUtils.parseSequenceType("xs:string?")
         option = decl.option(QName("to"))
-        option.asType = stepConfig.typeUtils.parseSequenceType("xs:anyURI?")
+        option.asType = stepConfig.typeUtils.parseSequenceType("xs:string?")
         option = decl.option(QName("apply-to"))
         option.select = XProcExpression.select(stepConfig, "'all'")
         option.values = listOf(XdmAtomicValue("all"), XdmAtomicValue("elements"), XdmAtomicValue("attributes"))

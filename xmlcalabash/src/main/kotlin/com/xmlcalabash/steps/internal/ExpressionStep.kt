@@ -8,20 +8,15 @@ import com.xmlcalabash.documents.LazyDocumentValue
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.namespace.Ns
-import com.xmlcalabash.namespace.Ns.port
 import com.xmlcalabash.namespace.NsCx
 import com.xmlcalabash.namespace.NsFn
 import com.xmlcalabash.namespace.NsP
 import com.xmlcalabash.runtime.parameters.ExpressionStepParameters
 import com.xmlcalabash.steps.AbstractAtomicStep
-import net.sf.saxon.expr.parser.RoleDiagnostic
-import net.sf.saxon.s9api.SaxonApiException
-import net.sf.saxon.s9api.XdmArray
-import net.sf.saxon.s9api.XdmMap
-import net.sf.saxon.s9api.XdmNode
-import net.sf.saxon.s9api.XdmValue
+import com.xmlcalabash.util.UriUtils
+import net.sf.saxon.s9api.*
+import net.sf.saxon.type.BuiltInAtomicType
 import org.apache.logging.log4j.kotlin.logger
-import java.util.function.Supplier
 
 open class ExpressionStep(val params: ExpressionStepParameters): AbstractAtomicStep() {
     val contextItems = mutableListOf<XProcDocument>()
@@ -92,7 +87,12 @@ open class ExpressionStep(val params: ExpressionStepParameters): AbstractAtomicS
 
         val lazy: () -> LazyDocumentValue = {
             try {
-                val value = expression.evaluate(stepConfig)
+                var value = expression.evaluate(stepConfig)
+                if (value != XdmEmptySequence.getInstance()
+                    && expression.asType.underlyingSequenceType.primaryType == BuiltInAtomicType.ANY_URI && stepConfig.baseUri != null) {
+                    value= XdmAtomicValue(UriUtils.resolve(stepConfig.baseUri!!, value.underlyingValue.stringValue))
+                }
+
                 var properties: DocumentProperties = DocumentProperties()
                 when (value) {
                     is XdmNode -> {

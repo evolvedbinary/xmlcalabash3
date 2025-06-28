@@ -1,11 +1,12 @@
 package com.xmlcalabash.runtime.steps
 
-import com.xmlcalabash.io.MediaType
 import com.xmlcalabash.documents.DocumentProperties
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
+import com.xmlcalabash.io.MediaType
 import com.xmlcalabash.runtime.XProcStepConfiguration
 import com.xmlcalabash.runtime.model.CompoundStepModel
+import com.xmlcalabash.util.UriUtils
 
 class PipelineStep(config: XProcStepConfiguration, compound: CompoundStepModel): GroupStep(config,compound) {
     override fun runStep(parent: CompoundStep) {
@@ -22,7 +23,10 @@ class PipelineStep(config: XProcStepConfiguration, compound: CompoundStepModel):
 
             if (step.externalName in staticOptions) {
                 val details = staticOptions[step.externalName]!!
-                val value = details.staticValue.evaluate(details.stepConfig)
+                var value = details.staticValue.evaluate(details.stepConfig)
+
+                value = UriUtils.patchUriValue(stepConfig, value, details.asType)
+
                 val document = XProcDocument.ofValue(value, details.stepConfig, MediaType.OCTET_STREAM, DocumentProperties())
                 step.externalValue = document
             } else if (step.externalName in head.options) {

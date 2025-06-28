@@ -15,6 +15,7 @@ cc.xmlCalabash =
         attribute use-location-hints { xsd:boolean }?,
         attribute validation-mode { "strict" | "lax" }?,
         (cc.catalog
+        | cc.extension
         | cc.graphviz
         | cc.inline
         | cc.mimetype
@@ -54,6 +55,12 @@ cc.threading =
 cc.inline =
     element cc:inline {
         attribute trim-whitespace { xsd:boolean },
+        empty
+    }
+
+cc.extension =
+    element cc:extension {
+        attribute name { text },
         empty
     }
 

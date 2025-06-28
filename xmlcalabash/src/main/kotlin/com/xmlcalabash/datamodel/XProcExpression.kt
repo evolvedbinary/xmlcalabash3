@@ -5,6 +5,7 @@ import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.parsers.XPathExpressionDetails
 import com.xmlcalabash.parsers.xpath31.XPathExpressionParser
+import com.xmlcalabash.util.UriUtils
 import com.xmlcalabash.util.ValueTemplate
 import com.xmlcalabash.util.ValueTemplateParser
 import net.sf.saxon.s9api.*
@@ -216,10 +217,15 @@ abstract class XProcExpression(val stepConfig: StepConfiguration, val asType: Se
             variableBindings[name] = value
         }
     }
+
     fun setStaticBinding(name: QName, value: XProcExpression) {
         if (variableRefs.contains(name)) {
             staticVariableBindings[name] = value
         }
+    }
+
+    protected fun patchUriValue(config: StepConfiguration, value: XdmValue): XdmValue {
+        return UriUtils.patchUriValue(config, value, asType)
     }
 
     protected fun setupExecutionContext(stepConfig: StepConfiguration, selector: XPathSelector) {

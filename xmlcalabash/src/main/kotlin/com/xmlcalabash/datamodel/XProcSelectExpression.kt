@@ -72,7 +72,7 @@ class XProcSelectExpression private constructor(stepConfig: StepConfiguration, v
 
         setupExecutionContext(stepConfig, selector)
 
-        val result = try {
+        var result = try {
             selector.evaluate()
         } catch (ex: Throwable) {
             throw ex
@@ -83,6 +83,8 @@ class XProcSelectExpression private constructor(stepConfig: StepConfiguration, v
         }
 
         if (asType !== SequenceType.ANY || values.isNotEmpty()) {
+            result = patchUriValue(this.stepConfig, result)
+
             try {
                 return stepConfig.typeUtils.checkType(null, result, asType, values)
             } catch (ex: XProcException) {

@@ -93,6 +93,9 @@ class TestCase(val xmlCalabash: XmlCalabash, val testOptions: TestOptions, val t
             UNSUPPORTED_FEATURES.add("xquery-function-import")
             UNSUPPORTED_FEATURES.add("psvi-support")
         }
+        if (ExtensionName.EAGER_URI_RESOLUTION !in xmlCalabash.config.extensions) {
+            UNSUPPORTED_FEATURES.add("eager-uri-resolution")
+        }
 
         loaded = true
         val builder = xmlCalabash.saxonConfiguration.processor.newDocumentBuilder()
