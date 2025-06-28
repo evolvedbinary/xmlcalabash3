@@ -137,6 +137,21 @@ resolution.</para>
 </variablelist>
 </section>
 
+<section xml:id="cc.extension">
+<info>
+<?db filename="cc-extension"?>
+<title>cc:extension</title>
+</info>
+
+<para>Enables the named extension.</para>
+
+<rng-pattern schema="../../build/xml-calabash.rng"
+             name="cc.extension"/>
+
+<para>Only one extension name is recognized: <literal>eager-uri-resolution</literal>.
+See <link linkend="eager-uri-resolution">Eager URI resolution</link>.</para>
+</section>
+
 <section xml:id="cc.graphviz">
 <info>
 <?db filename="cc-graphviz"?>

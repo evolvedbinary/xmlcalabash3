@@ -3,7 +3,11 @@ package com.xmlcalabash.datamodel
 import com.xmlcalabash.config.StepConfiguration
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.util.ValueTemplate
-import net.sf.saxon.s9api.*
+import net.sf.saxon.s9api.SequenceType
+import net.sf.saxon.s9api.XdmAtomicValue
+import net.sf.saxon.s9api.XdmNode
+import net.sf.saxon.s9api.XdmValue
+import net.sf.saxon.type.BuiltInAtomicType
 import net.sf.saxon.type.StringConverter.StringToUntypedAtomic
 
 class XProcAvtExpression private constructor(stepConfig: StepConfiguration, val avt: ValueTemplate, asType: SequenceType, values: List<XdmAtomicValue>): XProcExpression(stepConfig, asType, false, values) {
@@ -59,6 +63,11 @@ class XProcAvtExpression private constructor(stepConfig: StepConfiguration, val 
 
                 sb.append(result.underlyingValue.stringValue)
             }
+        }
+
+        if (asType.underlyingSequenceType.primaryType == BuiltInAtomicType.ANY_URI && config.baseUri != null) {
+            val value = patchUriValue(this.stepConfig, XdmAtomicValue(sb.toString()))
+            return config.typeUtils.checkType(null, value, asType, values)
         }
 
         if (asType !== SequenceType.ANY || values.isNotEmpty()) {

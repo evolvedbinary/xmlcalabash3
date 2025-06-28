@@ -186,4 +186,165 @@ want to provide mappings for other extensions you use.</para>
 
 </section>
 </section>
+
+<section xml:id="extensions">
+<title>Extension features</title>
+
+<para>XML Calabash supports several extensions, features that are in addition to
+or different from the XProc specification:</para>
+
+<variablelist>
+<varlistentry><term>Implicit validation</term>
+<listitem>
+<para>Automatically performs XML Schema validation on the primary input ports.
+See <xref linkend="implicit-validation"/>.
+</para>
+</listitem>
+</varlistentry>
+<varlistentry><term>Pipeline assertions</term>
+<listitem>
+<para>Schematron assertions can be applied automatically to step inputs and outputs.
+See <xref linkend="assertions"/>.
+</para>
+</listitem>
+</varlistentry>
+<varlistentry><term>Eager URI resolution</term>
+<listitem>
+<para>There is (or was at the time of this release) an open issue about precisely
+how and when <type>xs:anyURI</type> typed values should be resolved. There
+is an
+<link xlink:href="https://codeberg.org/xmlcalabash/xmlcalabash3/issues/105">issue</link> about it, 
+and a
+<link xlink:href="https://lists.w3.org/Archives/Public/xproc-dev/2025Jun/0007.html">discussion thread</link>
+about it on the
+<link xlink:href="https://lists.w3.org/Archives/Public/xproc-dev/">xproc-dev</link> mailing list.
+See below.
+</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<section xml:id="eager-uri-resolution">
+<title>Eager URI resolution</title>
+
+<para>The status quo is that relative URI values (that is, values with an explicit type
+of <type>xs:anyURI</type>) are resolved “late”, at the point of use,
+not at the point of definition. The canonical example is this:</para>
+
+<para>There is a library in <filename>file:///path/to/location/lib/lib.xpl</filename>:</para>
+
+<programlisting language="xml"><![CDATA[
+<p:declare-step xmlns:p="http://www.w3.org/ns/xproc"
+                xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+                xmlns:s="http://example.com/ns/steps"
+                name="main" version="3.1" type="s:libidentity"
+                exclude-inline-prefixes="s">
+  <p:output port="result"/>
+  <p:option name="file" as="xs:anyURI"/>
+
+  <p:load>
+    <p:with-option name="href" select="$file"/>
+  </p:load>
+
+</p:declare-step>]]></programlisting>
+
+<para>The pipeline <filename>file:///path/to/location/pipe.xpl</filename>
+imports this library and uses it:</para>
+
+<programlisting language="xml"><![CDATA[<p:declare-step xmlns:p="http://www.w3.org/ns/xproc"
+                xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+                xmlns:s="http://example.com/ns/steps"
+                name="main" version="3.1"
+                exclude-inline-prefixes="s">
+  <p:import href="lib/lib.xpl"/>
+  <p:output port="result"/>
+
+  <s:libidentity file="document.xml"/> 
+</p:declare-step>]]></programlisting>
+
+<para>If you run this pipeline with the status quo interpretation, the relative URI
+<uri>document.xml</uri> is passed to <code>s:libidentity</code>. The relative URI is
+made absolute by the <tag>p:load</tag> step against the base URI of the 
+<tag>p:with-option</tag> element, resulting in an attempt to load
+<filename>file:///path/to/location/lib/document.xml</filename>.</para>
+
+<para>Not withstanding the fact that all known implementations work this way,
+the specification seems to say that it is incorrect. In
+<link xlink:href="https://spec.xproc.org/3.1/xproc/#xml-base-attribute">§14.3</link>,
+we find:</para>
+
+<blockquote>
+<para>If a relative URI appears in an option of type <type>xs:anyURI</type>, the
+base URI against which it must be made absolute is the base URI of the
+<tag>p:option</tag> element. If the option value is specified using a syntactic
+shortcut, the base URI of the step element on which the shortcut attribute
+appears must be used. In general, whenever a relative URI appears in an
+<type>xs:anyURI</type>, its base URI is the base URI of the nearest ancestor
+element.</para>
+</blockquote>
+
+<para>If you run the pipeline above with this interpretation, the relative URI
+<uri>document.xml</uri> is made absolute against the <code>s:libidentity</code> step
+on which it occurs. The absolute URI is passed
+to the <tag>p:load</tag> step resulting in an attempt to load
+<filename>file:///path/to/location/document.xml</filename>.</para>
+
+<para>If the “eager-uri-resolution” feature is enabled
+(<link linkend="cli-extension">on the command line</link> or
+<link linkend="cc.extension">in a configuration file</link>),
+XML Calabash attempts to implement this behavior:</para>
+
+<blockquote>
+<para>If an expression has a type derived from <type>xs:anyURI</type>, if its
+value is not the empty sequence, and if there is an in-scope base URI at the point where
+the expression is defined, the result of evaluating the expression will immediately be made
+absolute with respect to that base URI.</para>
+</blockquote>
+
+<para>With this implementation (and a tweak to <tag>p:namespace-rename</tag>
+described below), all of the test suite tests still pass. This isn’t surprising,
+because there are no tests that explicitly attempt to test this behavior and
+almost all options of type <type>xs:anyURI</type> are explicilty defined to
+behave this way in the specifications.</para>
+
+<para>Nevertheless, it has a couple of consequences:</para>
+
+<orderedlist>
+<listitem>
+<para>It is no longer possible to pass around relative URIs in options or variables with the
+type <type>xs:anyURI</type>. Use <type>xs:string</type> if you wish to pass around relative
+URIs.</para>
+</listitem>
+<listitem>
+<para>The <option>from</option> and <option>to</option> options on <tag>p:namespace-rename</tag>
+are defined as <type>xs:string</type> instead of <type>xs:anyURI</type>. (This isn’t, in any practical
+way, a user-visible change.)</para>
+</listitem>
+</orderedlist>
+
+<para>It’s difficult to assess the consequences of this change. For most users,
+it will only effect a small percentage of pipelines:</para>
+
+<orderedlist>
+<listitem>
+<para>The pipeline must make use of a user defined step.</para>
+</listitem>
+<listitem>
+<para>It must have an option explicitly declared as the type <type>xs:anyURI</type>.</para>
+</listitem>
+<listitem>
+<para>When the user defined step is called, a relative URI must be passed as the value of the option.</para>
+</listitem>
+<listitem>
+<para>And the base URI of the calling step and the called step must be different.</para>
+</listitem>
+</orderedlist>
+
+<para>I would be very much like to hear from users about any pipelines that they
+have where enabling the “eager-uri-resolution” feature changes the behavior of
+the pipeline.
+</para>
+
+</section>
+</section>
 </chapter>

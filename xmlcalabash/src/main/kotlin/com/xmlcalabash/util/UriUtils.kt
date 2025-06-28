@@ -1,9 +1,15 @@
 package com.xmlcalabash.util
 
+import com.xmlcalabash.config.StepConfiguration
+import com.xmlcalabash.exceptions.XProcError
+import net.sf.saxon.s9api.SequenceType
+import net.sf.saxon.s9api.XdmAtomicValue
+import net.sf.saxon.s9api.XdmEmptySequence
+import net.sf.saxon.s9api.XdmValue
+import net.sf.saxon.type.BuiltInAtomicType
 import java.net.URI
 import java.nio.charset.StandardCharsets
 import java.nio.file.Paths
-import java.util.Stack
 
 class UriUtils {
     companion object {
@@ -86,6 +92,29 @@ class UriUtils {
                 return path.substring(1).replace('\\', '/')
             } else {
                 return path.replace('\\', '/')
+            }
+        }
+
+        fun patchUriValue(config: StepConfiguration, value: XdmValue, asType: SequenceType): XdmValue {
+            if (value == XdmEmptySequence.getInstance() || asType.underlyingSequenceType.primaryType != BuiltInAtomicType.ANY_URI) {
+                return value
+            }
+
+            if (config.baseUri == null || ExtensionName.EAGER_URI_RESOLUTION !in config.xmlCalabashConfig.extensions) {
+                return value
+            }
+
+            try {
+                val absolute = UriUtils.resolve(config.baseUri!!, value.underlyingValue.stringValue)
+
+                if (value.underlyingValue.stringValue != absolute.toString()) {
+                    config.debug { "Made ${value.underlyingValue.stringValue} absolute: ${absolute}" }
+                    return XdmAtomicValue(absolute!!)
+                }
+
+                return value
+            } catch (ex: Exception) {
+                throw config.exception(XProcError.xdInvalidUri(value.underlyingValue.stringValue), ex)
             }
         }
 

@@ -1,7 +1,6 @@
 package com.xmlcalabash.datamodel
 
 import com.xmlcalabash.config.StepConfiguration
-import com.xmlcalabash.runtime.XProcStepConfiguration
 import net.sf.saxon.ma.arrays.ArrayItem
 import net.sf.saxon.ma.map.MapItem
 import net.sf.saxon.s9api.SequenceType
@@ -19,7 +18,7 @@ class XProcConstantExpression private constructor(stepConfig: StepConfiguration,
     }
 
     init {
-        _staticValue = value
+        _staticValue = patchUriValue(stepConfig, value)
     }
 
     override fun cast(asType: SequenceType, values: List<XdmAtomicValue>): XProcExpression {

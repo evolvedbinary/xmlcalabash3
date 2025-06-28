@@ -1672,6 +1672,12 @@ Unsupported validation mode: “$1”.
 cxerr:XI0053
 The cc:catalog element must be empty.
 
+cxerr:XI0054
+The cc:xml-schema element must be empty.
+
+cxerr:XI0055
+The extension name “$1” is not recognized.
+
 cxerr:XI0200
 Invalid option value “$2” for $1.
 

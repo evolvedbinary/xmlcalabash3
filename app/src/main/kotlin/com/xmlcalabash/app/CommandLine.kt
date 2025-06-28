@@ -5,12 +5,11 @@ import com.xmlcalabash.exceptions.XProcException
 import com.xmlcalabash.io.MediaType
 import com.xmlcalabash.namespace.*
 import com.xmlcalabash.util.AssertionsLevel
+import com.xmlcalabash.util.ExtensionName
 import com.xmlcalabash.util.UriUtils
 import com.xmlcalabash.util.Verbosity
 import net.sf.saxon.om.NamespaceUri
-import net.sf.saxon.s9api.QName
 import net.sf.saxon.s9api.ValidationMode
-import net.sf.saxon.s9api.XdmAtomicValue
 import java.io.File
 import java.net.URI
 
@@ -87,6 +86,7 @@ class CommandLine private constructor(val args: Array<out String>) {
     private var _nogo = false
     private var _mimetypeExtension: String? = null
     private var _serialization = mutableMapOf<String,MutableMap<String, String>>()
+    private var _extensions = mutableSetOf<ExtensionName>()
 
     /** The command.
      *
@@ -262,6 +262,9 @@ class CommandLine private constructor(val args: Array<out String>) {
     val mimetypeExtension: String?
         get() = _mimetypeExtension
 
+    val extensions: Set<ExtensionName>
+        get() = _extensions
+
     private val arguments = listOf(
         ArgumentDescription("--input", listOf("-i"), ArgumentType.STRING) { it -> parseInput(it) },
         ArgumentDescription("--output", listOf("-o"), ArgumentType.STRING) { it -> parseOutput(it) },
@@ -285,6 +288,7 @@ class CommandLine private constructor(val args: Array<out String>) {
         ArgumentDescription("--nogo", listOf(), ArgumentType.BOOLEAN, "true") { it -> _nogo = it == "true" },
         ArgumentDescription("--trace-documents", listOf("--trace-docs"), ArgumentType.DIRECTORY) { it -> _traceDocuments = File(it) },
         ArgumentDescription("--stacktrace", listOf("--stack-trace"), ArgumentType.BOOLEAN, "true") { it -> _stacktrace = it == "true" },
+        ArgumentDescription("--extension", listOf("-X"), ArgumentType.STRING) { it -> parseExtensionName(it) },
         ArgumentDescription("--verbosity", listOf("-V"),
             ArgumentType.STRING, "info", listOf("trace", "debug", "progress", "info", "warn", "error")) { it ->
             _verbosity = when(it) {
@@ -552,6 +556,13 @@ class CommandLine private constructor(val args: Array<out String>) {
             "strict" -> _validationMode = ValidationMode.STRICT
             "lax" -> _validationMode = ValidationMode.LAX
             else -> throw XProcError.xiCliInvalidValue("--validation-mode", arg).exception()
+        }
+    }
+
+    private fun parseExtensionName(arg: String) {
+        when (arg) {
+            "eager-uri-resolution" -> _extensions.add(ExtensionName.EAGER_URI_RESOLUTION)
+            else -> throw XProcError.xiCliInvalidValue("--extension-name", arg).exception()
         }
     }
 

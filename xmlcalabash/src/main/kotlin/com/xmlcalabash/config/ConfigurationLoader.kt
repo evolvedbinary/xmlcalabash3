@@ -4,7 +4,10 @@ import com.xmlcalabash.XmlCalabashBuilder
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.io.MediaType
 import com.xmlcalabash.namespace.Ns
-import com.xmlcalabash.util.*
+import com.xmlcalabash.util.ExtensionName
+import com.xmlcalabash.util.S9Api
+import com.xmlcalabash.util.UriUtils
+import com.xmlcalabash.util.Verbosity
 import net.sf.saxon.lib.FeatureIndex
 import net.sf.saxon.om.NamespaceUri
 import net.sf.saxon.s9api.*
@@ -35,6 +38,7 @@ class ConfigurationLoader(val builder: XmlCalabashBuilder) {
         private val ccMessageReporter = QName(ns, "cc:message-reporter")
         private val ccXmlSchema = QName(ns, "cc:xml-schema")
         private val ccCatalog = QName(ns, "cc:catalog")
+        private val ccExtension = QName(ns, "cc:extension")
 
         private val _count = QName("count")
         private val _cssFormatter = QName("css-formatter")
@@ -170,6 +174,7 @@ class ConfigurationLoader(val builder: XmlCalabashBuilder) {
                         ccVisualizer -> parseVisualizer(child)
                         ccXmlSchema -> parseXmlSchema(child)
                         ccCatalog -> parseCatalog(child)
+                        ccExtension -> parseExtension(child)
                         else -> {
                             if (child.nodeName.namespaceUri == ns) {
                                 throw XProcError.xiUnrecognizedConfigurationProperty(child.nodeName).exception()
@@ -379,6 +384,15 @@ class ConfigurationLoader(val builder: XmlCalabashBuilder) {
         builder.addXmlCatalog( UriUtils.resolve(node.baseURI, node.getAttributeValue(Ns.href))!!)
         if (node.children().firstOrNull() != null) {
             throw XProcError.xiConfigurationCatalogElementMustBeEmpty().exception()
+        }
+    }
+
+    private fun parseExtension(node: XdmNode) {
+        checkAttributes(node, listOf(Ns.name))
+        val name = node.getAttributeValue(Ns.name)!!
+        when (name) {
+            "eager-uri-resolution" -> builder.enableExtension(ExtensionName.EAGER_URI_RESOLUTION)
+            else -> throw XProcError.xiUnrecognizedExtension(name).exception()
         }
     }
 

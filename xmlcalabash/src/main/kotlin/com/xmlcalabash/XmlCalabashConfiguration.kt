@@ -6,15 +6,14 @@ import com.xmlcalabash.exceptions.ErrorExplanation
 import com.xmlcalabash.io.DocumentManager
 import com.xmlcalabash.io.MediaType
 import com.xmlcalabash.io.MessagePrinter
-import com.xmlcalabash.spi.Configurer
 import com.xmlcalabash.spi.PagedMediaManager
 import com.xmlcalabash.util.AssertionsLevel
+import com.xmlcalabash.util.ExtensionName
 import com.xmlcalabash.util.Verbosity
 import net.sf.saxon.s9api.QName
 import net.sf.saxon.s9api.ValidationMode
 import java.io.File
 import java.net.URI
-import javax.activation.MimetypesFileTypeMap
 
 interface XmlCalabashConfiguration {
     val saxonConfiguration: SaxonConfiguration
@@ -55,4 +54,5 @@ interface XmlCalabashConfiguration {
     val visualizerProperties: Map<String,String>
     val xmlCatalogs: List<URI>
     val xmlSchemaDocuments: List<URI>
+    val extensions: Set<ExtensionName>
 }
