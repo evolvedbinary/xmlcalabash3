@@ -75,7 +75,9 @@ tasks.withType<DokkaTaskPartial>().configureEach {
 fun distClasspath(): List<File> {
   val libs = mutableListOf<File>()
   configurations["distributionClasspath"].forEach {
-    if (it.isFile() && !it.getName().startsWith("Saxon-EE")) {
+    // Test is !isDirectory rather than isFile() because
+    // the xmlcalabash.jar file may not exist yet...but it will!
+    if (!it.isDirectory() && !it.getName().startsWith("Saxon-EE")) {
       libs.add(it)
     }
   }
