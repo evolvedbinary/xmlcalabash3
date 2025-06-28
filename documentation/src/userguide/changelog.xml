@@ -13,6 +13,24 @@ See the commits and pull requests on
 finer detail.</para>
 
 <revhistory>
+<revision xml:id="r307">
+<revnumber>3.0.7</revnumber>
+<date>2025-06-28</date>
+<revdescription>
+<itemizedlist>
+<listitem><para>Related to <cbissue number="105"/>, added the
+<link xlink:href="https://docs.xmlcalabash.com/userguide/current/installation.html#extensions"
+>eager-uri-resolution</link> feature.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="101"/>. Make sure <code>--output</code>
+filenames are parsed correctly.
+Output filenames are now explicitly made absolute against the current working
+directory. If a URI is given as the filename, it must be a <code>file:</code> URI. Attempted
+to clarify the documentation.
+</para></listitem>
+</itemizedlist>
+</revdescription>
+</revision>
 <revision xml:id="r306">
 <revnumber>3.0.6</revnumber>
 <date>2025-06-22</date>
