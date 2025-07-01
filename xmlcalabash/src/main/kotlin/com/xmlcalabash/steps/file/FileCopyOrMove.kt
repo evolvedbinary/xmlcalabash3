@@ -12,7 +12,15 @@ import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 
 abstract class FileCopyOrMove(stepType: QName): FileStep(stepType) {
+    lateinit var operation: String
+
     protected fun copyOrMove() {
+        if (stepType == NsP.fileCopy) {
+            operation = "copy"
+        } else {
+            operation = "move"
+        }
+
         val href = try {
             uriBinding(Ns.href)!!
         } catch (ex: Exception) {
@@ -104,6 +112,10 @@ abstract class FileCopyOrMove(stepType: QName): FileStep(stepType) {
         val targetPath = target.toPath()
         val sourcePath = source.toPath()
 
+        if (sourcePath == targetPath) {
+            throw stepConfig.exception(XProcError.xcCannotCopySameURI(operation, source.toURI(), target.toURI()))
+        }
+
         if (target.exists() && !overwrite) {
             return true
         }
@@ -117,7 +129,7 @@ abstract class FileCopyOrMove(stepType: QName): FileStep(stepType) {
             target.deleteRecursively()
             Files.copy(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING)
         } catch (ex: IOException) {
-            maybeThrow(XProcError.xcCannotCopy(source.toURI(), target.toURI()), source.toURI(), target.toURI())
+            maybeThrow(XProcError.xcCannotCopy(operation, source.toURI(), target.toURI()), source.toURI(), target.toURI())
             return false
         }
 

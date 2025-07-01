@@ -850,9 +850,13 @@ It is a dynamic error if the URI scheme is not supported or the step cannot
 store to the specified location.
 
 XC0050/2
-Cannot copy “$1” to “$2”.
+Cannot $1 “$2” to “$3”.
 It is a dynamic error if the URI scheme is not supported or the step cannot
 store to the specified location.
+
+XC0050/3
+Cannot $1 “$2” to “$3”.
+It is a dynamic error if the href and target URIs identify the same file.
 
 XC0054/1
 Schematron validation failed: “$1”.
