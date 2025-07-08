@@ -1,15 +1,8 @@
 # XML Calabash version @@VERSION@@
 
-This is an alpha release. A lot of things work. Some things don’t.
-YMMV. Please report any problems as issues:
-https://github.com/xmlcalabash/xmlcalabash3/issues
+This release is believed to be fully conformant with XProc 3.1.
 
-Do not put this in production.
+For a list of any outstanding issues, or to report any issues you find,
+please see https://github.com/xmlcalabash/xmlcalabash3/issues
 
-Example:
-
-```
-java -jar xmlcalabash-app-@@VERSION@@.jar helloWorld.xpl
-```
-
-
+For more documentation, please see https://docs.xmlcalabash.com/

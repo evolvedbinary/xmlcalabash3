@@ -7,13 +7,12 @@
   <title>Installation</title>
 </info>
 
-<para>XML Calabash version <?version version?> is still very much an alpha
-release. While it’s still in alpha/beta, it’s not being published anywhere except on
+<para>XML Calabash version <?version version?> is available from
 the
 <link xlink:href="https://codeberg.org/xmlcalabash/xmlcalabash3/releases">releases
-page</link>. That release is the command line application. In the future,
-library releases will be published as well.
-</para>
+page</link> and via Maven Central using the coordinates:</para>
+
+<screen>com.xmlcalabash:xmlcalabash:<?version version?></screen>
 
 <para>Download the latest release and unzip it on your filesystem. That will
 create a <filename class="directory">xmlcalabash-<?version?>/</filename>
