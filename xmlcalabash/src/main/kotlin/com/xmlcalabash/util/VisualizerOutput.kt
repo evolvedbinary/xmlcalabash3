@@ -9,12 +9,7 @@ import com.xmlcalabash.namespace.NsDescription
 import com.xmlcalabash.runtime.XProcDescription
 import net.sf.saxon.lib.ResourceRequest
 import net.sf.saxon.lib.ResourceResolver
-import net.sf.saxon.s9api.QName
-import net.sf.saxon.s9api.XdmAtomicValue
-import net.sf.saxon.s9api.XdmDestination
-import net.sf.saxon.s9api.XdmNode
-import net.sf.saxon.s9api.XsltExecutable
-import org.apache.logging.log4j.kotlin.logger
+import net.sf.saxon.s9api.*
 import org.xml.sax.InputSource
 import java.io.BufferedReader
 import java.io.File
@@ -35,13 +30,14 @@ class VisualizerOutput(val xmlCalabash: XmlCalabash, val description: XProcDescr
 
     private var cleanupPerformed = false
     private val debug = xmlCalabash.config.debug
+    private val logging = xmlCalabash.config.messageReporter
 
     fun xml() {
         try {
             cleanupOutputDirectory()
             writeNode("${outputDirectory}pipeline.xml", description.xml())
         } catch (ex: Exception) {
-            logger.warn("SVG generation failed: ${ex.message}")
+            logging.warn { Report(Verbosity.WARN, "SVG generation failed: ${ex.message}") }
         }
     }
 
@@ -64,13 +60,14 @@ class VisualizerOutput(val xmlCalabash: XmlCalabash, val description: XProcDescr
         }
 
         writer.write()
+        stream.close()
     }
 
     fun svg() {
         try {
             do_svg()
         } catch (ex: Exception) {
-            logger.warn("SVG generation failed: ${ex.message}")
+            logging.warn { Report(Verbosity.WARN, "SVG generation failed: ${ex.message}") }
         }
     }
 
@@ -149,10 +146,10 @@ class VisualizerOutput(val xmlCalabash: XmlCalabash, val description: XProcDescr
     }
 
     private fun graphvizIndex() {
-        var styleStream = VisualizerOutput::class.java.getResourceAsStream(graphvizIndex)
+        val styleStream = VisualizerOutput::class.java.getResourceAsStream(graphvizIndex)
         val styleSource = SAXSource(InputSource(styleStream))
 
-        var xsltCompiler = description.stepConfig.processor.newXsltCompiler()
+        val xsltCompiler = description.stepConfig.processor.newXsltCompiler()
         xsltCompiler.isSchemaAware = description.stepConfig.processor.isSchemaAware
         xsltCompiler.resourceResolver = VisualizerResourceResolver()
         val xsltExec = xsltCompiler.compile(styleSource)
@@ -194,24 +191,24 @@ class VisualizerOutput(val xmlCalabash: XmlCalabash, val description: XProcDescr
             val errorReader = BufferedReader(InputStreamReader(process.errorStream))
             var line = errorReader.readLine()
             while (line != null) {
-                logger.debug("ERR: $line")
+                logging.debug { Report(Verbosity.DEBUG, "ERR: $line") }
                 line = errorReader.readLine()
             }
 
             val outputReader = BufferedReader(InputStreamReader(process.inputStream))
             line = outputReader.readLine()
             while (line != null) {
-                logger.debug("OUT: $line")
+                logging.debug { Report(Verbosity.DEBUG, "OUT: $line") }
                 line = outputReader.readLine()
             }
 
-            logger.warn { "Graph generation failed for $basename" }
+            logging.warn { Report(Verbosity.WARN, "Graph generation failed for $basename") }
         }
 
-        var styleStream = VisualizerOutput::class.java.getResourceAsStream(graphvizSvg)
+        val styleStream = VisualizerOutput::class.java.getResourceAsStream(graphvizSvg)
         val styleSource = SAXSource(InputSource(styleStream))
 
-        var xsltCompiler = description.stepConfig.processor.newXsltCompiler()
+        val xsltCompiler = description.stepConfig.processor.newXsltCompiler()
         xsltCompiler.isSchemaAware = description.stepConfig.processor.isSchemaAware
         xsltCompiler.resourceResolver = VisualizerResourceResolver()
         val xsltExec = xsltCompiler.compile(styleSource)
@@ -289,7 +286,7 @@ class VisualizerOutput(val xmlCalabash: XmlCalabash, val description: XProcDescr
             }
 
             val resource = "/com/xmlcalabash/${style}"
-            var styleStream = VisualizerOutput::class.java.getResourceAsStream(resource)
+            val styleStream = VisualizerOutput::class.java.getResourceAsStream(resource)
             return SAXSource(InputSource(styleStream))
         }
     }
