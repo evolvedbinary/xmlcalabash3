@@ -8,25 +8,33 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator.Feature
 import com.xmlcalabash.documents.XProcBinaryDocument
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
-import com.xmlcalabash.util.TypeUtils
 import com.xmlcalabash.namespace.Ns
 import com.xmlcalabash.namespace.NsCx
 import com.xmlcalabash.util.MediaClassification
 import com.xmlcalabash.util.SaxonTreeBuilder
-import net.sf.saxon.s9api.QName
-import net.sf.saxon.s9api.Serializer
-import net.sf.saxon.s9api.XdmAtomicValue
-import net.sf.saxon.s9api.XdmEmptySequence
-import net.sf.saxon.s9api.XdmValue
+import com.xmlcalabash.util.TypeUtils
+import net.sf.saxon.event.SequenceCopier
+import net.sf.saxon.lib.SerializerFactory
+import net.sf.saxon.om.StructuredQName
+import net.sf.saxon.query.QueryResult
+import net.sf.saxon.s9api.*
+import net.sf.saxon.serialize.CharacterMap
+import net.sf.saxon.serialize.CharacterMapIndex
+import net.sf.saxon.serialize.SerializationProperties
 import net.sf.saxon.value.QNameValue
+import net.sf.saxon.z.IntHashMap
 import java.io.ByteArrayOutputStream
 import java.io.OutputStream
 import java.nio.charset.StandardCharsets
-import kotlin.collections.iterator
+import javax.xml.transform.stream.StreamResult
 
 class DocumentWriter(val doc: XProcDocument,
                      val stream: OutputStream,
                      externalSerialization: Map<QName, XdmValue> = emptyMap()): Marshaller(doc.context) {
+    companion object {
+        val cmapName = QName(NsCx.namespace, "cx:character-map-name")
+        val cmapStructuredName = StructuredQName("cx", NsCx.namespace.toString(), "character-map-name")
+    }
     private val _params = mutableMapOf<QName, XdmValue>()
     val inType = doc.contentType?.classification() ?: MediaClassification.BINARY
     val serializationParameters: Map<QName, XdmValue>
@@ -94,7 +102,7 @@ class DocumentWriter(val doc: XProcDocument,
 
         val serializer = docContext.processor.newSerializer(stream)
         setSerializationProperties(serializer)
-        serializer.serializeXdmValue(doc.value)
+        serializeValue(serializer, doc.value)
     }
 
     private fun writeJson() {
@@ -120,7 +128,7 @@ class DocumentWriter(val doc: XProcDocument,
         if (method == Ns.json || method == Ns.adaptive) {
             val serializer = docContext.processor.newSerializer(stream)
             setSerializationProperties(serializer)
-            serializer.serializeXdmValue(doc.value)
+            serializeValue(serializer, doc.value)
             return
         }
 
@@ -161,7 +169,7 @@ class DocumentWriter(val doc: XProcDocument,
         val serializer = docContext.processor.newSerializer(stream)
         _params[Ns.method] = XdmAtomicValue("text")
         setSerializationProperties(serializer)
-        serializer.serializeXdmValue(builder.result)
+        serializeValue(serializer, builder.result)
     }
 
     private fun writeText() {
@@ -172,7 +180,7 @@ class DocumentWriter(val doc: XProcDocument,
         val serializer = docContext.processor.newSerializer(stream)
         _params[Ns.method] = XdmAtomicValue("text")
         setSerializationProperties(serializer)
-        serializer.serializeXdmValue(doc.value)
+        serializeValue(serializer, doc.value)
     }
 
     private fun writeOther() {
@@ -183,7 +191,29 @@ class DocumentWriter(val doc: XProcDocument,
         }
     }
 
+    private fun serializeValue(serializer: Serializer, value: XdmValue) {
+        if (_params.containsKey(Ns.useCharacterMaps) && value is XdmNode) {
+            // This is the most bizarre, around-the-houses thing imaginable because Saxon's
+            // serializer.serializeNode() ignores character maps. This sort of brute forces
+            // our way down a code path that doesn't ignore them.
+            val sresult = StreamResult(stream)
+            val sf: SerializerFactory = docContext.processor.underlyingConfiguration.serializerFactory
+            val tr = sf.getReceiver(sresult, serializer.serializationProperties)
+            SequenceCopier.copySequence(value.underlyingValue.iterate(), tr)
+            stream.flush()
+        } else {
+            serializer.serializeXdmValue(value)
+        }
+    }
+
     private fun setSerializationProperties(serializer: Serializer) {
+        // I have to thread a strange needle here where the character map can't be represented
+        // as a map in the call to the serializer.
+        val cmapIndex = makeCharacterMapIndex()
+        if (!cmapIndex.isEmpty()) {
+            serializer.setCharacterMap(cmapIndex)
+        }
+
         try {
             for ((name, value) in _params) {
                 if (value.underlyingValue is QNameValue) {
@@ -199,5 +229,25 @@ class DocumentWriter(val doc: XProcDocument,
         } catch (ex: Exception) {
             throw XProcError.xdInvalidSerializationProperty().exception(ex)
         }
+    }
+
+    private fun makeCharacterMapIndex(): CharacterMapIndex {
+        // I have to thread a strange needle here where the character map can't be represented
+        // as a map in the call to the serializer.
+        val useCharacterMaps = _params.remove(Ns.useCharacterMaps)
+        val cmapIndex = CharacterMapIndex()
+        if (useCharacterMaps != null) {
+            val xdmMap = useCharacterMaps as XdmMap
+            val hashmap = IntHashMap<String>()
+            for (key in xdmMap.keySet()) {
+                val cp = key.underlyingValue.stringValue.codePointAt(0)
+                val value = xdmMap.get(key).underlyingValue.stringValue
+                hashmap.put(cp, value)
+            }
+            val cmap = CharacterMap(cmapStructuredName, hashmap)
+            cmapIndex.putCharacterMap(cmapStructuredName, cmap)
+            _params[Ns.useCharacterMaps] = XdmAtomicValue(cmapName)
+        }
+        return cmapIndex
     }
 }

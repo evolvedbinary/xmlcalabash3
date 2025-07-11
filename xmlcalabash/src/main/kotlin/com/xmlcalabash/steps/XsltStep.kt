@@ -1,9 +1,9 @@
 package com.xmlcalabash.steps
 
-import com.xmlcalabash.io.MediaType
 import com.xmlcalabash.documents.DocumentProperties
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
+import com.xmlcalabash.io.MediaType
 import com.xmlcalabash.namespace.Ns
 import com.xmlcalabash.namespace.NsCx
 import com.xmlcalabash.namespace.NsFn
@@ -20,7 +20,9 @@ import net.sf.saxon.functions.ResolveURI
 import net.sf.saxon.lib.ResultDocumentResolver
 import net.sf.saxon.lib.SaxonOutputKeys
 import net.sf.saxon.om.NodeInfo
+import net.sf.saxon.om.StructuredQName
 import net.sf.saxon.s9api.*
+import net.sf.saxon.serialize.CharacterMapIndex
 import net.sf.saxon.serialize.SerializationProperties
 import net.sf.saxon.trans.XPathException
 import net.sf.saxon.tree.wrapper.RebasedDocument
@@ -49,6 +51,7 @@ open class XsltStep(): AbstractAtomicStep() {
 
     private var primaryDestination: Destination? = null
     private var primaryOutputProperties = mutableMapOf<QName, XdmValue>()
+    private var characterMaps: CharacterMapIndex? = null
 
     override fun setup(stepConfig: XProcStepConfiguration, receiver: com.xmlcalabash.runtime.api.Receiver, stepParams: RuntimeStepParameters) {
         super.setup(stepConfig, receiver, stepParams)
@@ -277,7 +280,11 @@ open class XsltStep(): AbstractAtomicStep() {
         val documentResolver = MyResultDocumentResolver(processor.underlyingConfiguration)
         transformer.underlyingController.setResultDocumentResolver(documentResolver)
 
-        primaryOutputProperties.putAll(S9Api.serializationPropertyMap(transformer.underlyingController.executable.primarySerializationProperties))
+        val texec = transformer.underlyingController.executable
+
+        primaryOutputProperties.putAll(S9Api.serializationPropertyMap(texec.primarySerializationProperties))
+        characterMaps = texec.characterMapIndex
+
         var buildTree = false
         if (primaryOutputProperties.contains(BUILD_TREE)) {
             buildTree = ValueUtils.isTrue(primaryOutputProperties.get(BUILD_TREE))
@@ -363,6 +370,33 @@ open class XsltStep(): AbstractAtomicStep() {
             }
         }
 
+        val props = DocumentProperties()
+        if (primaryOutputProperties.isNotEmpty()) {
+            if (primaryOutputProperties.containsKey(Ns.useCharacterMaps)) {
+                var characterMap = XdmMap()
+                val mapNames = primaryOutputProperties[Ns.useCharacterMaps] ?: XdmEmptySequence.getInstance()
+                for (index in 0 until mapNames.size()) {
+                    // Why does the value returned have a leading space?
+                    val clarkName = mapNames.itemAt(index).stringValue.trim()
+                    val name =  StructuredQName.fromClarkName(clarkName)
+                    val cmap = characterMaps!!.getCharacterMap(name)
+                    if (cmap != null) {
+                        for (codepoint in cmap.map.keySet()) {
+                            val str = cmap.map.get(codepoint)
+                            val chars = Character.toChars(codepoint)
+                            if (chars.size != 1) {
+                                throw IllegalArgumentException("Codepoint is not a single character: ${codepoint}")
+                            }
+                            characterMap = characterMap.put(XdmAtomicValue("${chars[0]}"), XdmAtomicValue(str))
+                        }
+                    }
+                }
+                props.setSerialization(serializationProperties(primaryOutputProperties, characterMap))
+            } else {
+                props.setSerialization(serializationProperties(primaryOutputProperties))
+            }
+        }
+
         when (primaryDestination) {
             is RawDestination -> {
                 val seq = mutableListOf<XdmValue>()
@@ -374,7 +408,6 @@ open class XsltStep(): AbstractAtomicStep() {
 
                 if (seq.size == 1 && seq.first() is XdmNode) {
                     var result = seq.first() as XdmNode
-                    val props = DocumentProperties()
                     if (result.baseURI != null) {
                         props[Ns.baseUri] = result.baseURI
                         result = S9Api.adjustBaseUri(result, result.baseURI)
@@ -387,7 +420,7 @@ open class XsltStep(): AbstractAtomicStep() {
                     receiver.output("result", doc)
                 } else {
                     for (item in seq) {
-                        val doc = XProcDocument.ofValue(item, stepConfig, MediaType.JSON, DocumentProperties())
+                        val doc = XProcDocument.ofValue(item, stepConfig, MediaType.JSON, props)
                         receiver.output("result", doc)
                     }
                 }
@@ -396,12 +429,8 @@ open class XsltStep(): AbstractAtomicStep() {
                 var tree = (primaryDestination as XdmDestination).xdmNode
                 if (tree.baseURI != null) {
                     tree = S9Api.adjustBaseUri(tree, tree.baseURI);
-                    val props = DocumentProperties()
                     props[Ns.baseUri] = tree.baseURI
                     props[Ns.contentType] =  serializationContentType(primaryOutputProperties, ValueUtils.contentClassification(tree) ?: MediaType.XML)
-                    if (primaryOutputProperties.isNotEmpty()) {
-                        props[Ns.serialization] = serializationProperties(primaryOutputProperties)
-                    }
                     val doc = XProcDocument.ofXml(tree, stepConfig, props)
                     receiver.output("result", doc)
                 } else {
@@ -477,7 +506,7 @@ open class XsltStep(): AbstractAtomicStep() {
         }
     }
 
-    private fun serializationProperties(props: Map<QName,XdmValue>): XdmMap {
+    private fun serializationProperties(props: Map<QName,XdmValue>, characterMap: XdmMap? = null): XdmMap {
         var serprop = XdmMap()
         for ((name, value) in primaryOutputProperties) {
             val strval = value.underlyingValue.stringValue
@@ -487,6 +516,9 @@ open class XsltStep(): AbstractAtomicStep() {
             } else {
                 serprop = serprop.put(XdmAtomicValue(name), value)
             }
+        }
+        if (characterMap != null && !characterMap.isEmpty()) {
+            serprop = serprop.put(XdmAtomicValue(Ns.useCharacterMaps), characterMap)
         }
         return serprop
     }
