@@ -41,14 +41,15 @@ class FileOutputReceiver(xmlCalabash: XmlCalabash,
 
                 logger.debug { "Writing $port to ${outfile.absolutePath}" }
 
+                var append = false
                 if (wroteTo.contains(port)) {
                     if (!output.isSequential()) {
-                        logger.warn { "Overwriting ${outfile.absolutePath}"}
+                        append = true
                     }
                 }
                 wroteTo.add(port)
 
-                FileOutputStream(outfile)
+                FileOutputStream(outfile, append)
             }
 
             val contentType = document.contentType
