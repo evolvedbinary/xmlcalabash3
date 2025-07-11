@@ -14,6 +14,14 @@ class OutputFilenameTest {
     }
 
     @Test
+    fun testSimplePatternedNoLeadingZeros() {
+        val outfn = OutputFilename("test%2d.xml")
+        Assertions.assertTrue(outfn.isSequential())
+        Assertions.assertEquals("test 1.xml", outfn.nextFile().name)
+        Assertions.assertEquals("test 2.xml", outfn.nextFile().name)
+    }
+
+    @Test
     fun testSimplePatterned() {
         val outfn = OutputFilename("test%02d.xml")
         Assertions.assertTrue(outfn.isSequential())

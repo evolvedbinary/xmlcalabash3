@@ -186,9 +186,13 @@ also be a template.
 The output documents are numbered, starting at 1. Within the <replaceable>filespec</replaceable>,
 the string “<literal>%d</literal>” will be replaced by the document number.
 (The string “<literal>%h</literal>” will be replaced by the document number in hexadecimal and
-“<literal>%o</literal>” will be replaced by the document number in octal, for no good reason.)
-Zeros can be added to pad the value, “<literal>%00d</literal>” will produce a document number
-that is at least two digits long, padded on the left with 0’s if there are fewer than 10 documents.
+“<literal>%o</literal>” will be replaced by the document number in octal.)
+A width can be specified between the <literal>%</literal> and the format
+specifier. For example, “<literal>%02d</literal>” will produce a document number
+that is at least two digits long, padded on the left with 0’s if there are fewer
+than 10 documents. (If the leading <literal>0</literal> is omitted, the field
+will be padded with spaces; <literal>%17h</literal> specifies a width of 17 hexadecimal digits,
+padded on the left with spaces.)
 For completeness, a literal “%” can be added to the filename with “<literal>%%</literal>”
 in the <replaceable>filespec</replaceable>.</para>
 <para>If the <replaceable>filespec</replaceable> does not contain a number template, then all
