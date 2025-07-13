@@ -13,6 +13,46 @@ See the commits and pull requests on
 finer detail.</para>
 
 <revhistory>
+<revision xml:id="r309">
+<revnumber>3.0.9</revnumber>
+<date>2025-07-13</date>
+<revdescription>
+<itemizedlist>
+<listitem><para>Fixed <cbissue number="130"/>. Make sure that trace output is
+saved even if the pipeline fails.</para></listitem>
+<listitem><para>Fixed <cbissue number="129"/>. Clarify the error messages for 
+<code>err:XD0006</code> and <code>err:XD0007</code> so that the user can distinguish
+between “no documents” and “more than one document”.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="127"/>. Support XML grammars on <tag>p:invisible-xml</tag>.
+At the moment, this only works with the NineML implementation of Invisible XML.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="123"/>. Correct the documentation for output filespecs.
+Apparently, I implemented them using the rules of “<code>String.format</code>” and documented them as
+if I’d used the rules of “<code>fn:format-number</code>”. Hilarity ensued. I also changed the
+implementation so that multiple outputs to a single file are concatenated together as the
+documentation indicates. Previously, each new document overwrote the previous.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="122"/>. Previously, no attempt was made to
+preserve character maps from XSLT steps and there was no mechanism for setting character
+maps at the XProc level. Character maps are now supported using the same direct mapping format
+as the <code>fn:serialize</code> function. They’re also saved as part of the serialization properties
+on output ports, for example from <tag>p:xslt</tag>. Finally, there are a couple of 
+<link xlink:href="https://saxonica.plan.io/issues/6860">bugs in Saxon</link>
+and XML Calabash now works around those.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="120"/>. Make sure the <code>.dot</code>
+files are explicitly closed so that they are readable on Windows. Also corrected
+errors in the way logging was handled by the visualizer class.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="118"/>. Removed the “this is alpha software” 
+admonitions from the documentation. That’s only a little bit terrifying.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="116"/>. Attempting to copy or move a file onto itself is an error.
+</para></listitem>
+</itemizedlist>
+</revdescription>
+</revision>
 <revision xml:id="r308">
 <revnumber>3.0.8</revnumber>
 <date>2025-06-28</date>
