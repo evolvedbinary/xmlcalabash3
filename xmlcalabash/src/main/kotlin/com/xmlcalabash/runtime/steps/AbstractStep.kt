@@ -134,12 +134,15 @@ abstract class AbstractStep(val stepConfig: XProcStepConfiguration, step: StepMo
         runtimeParent = parent
         stepConfig.saxonConfig.newExecutionContext(this)
 
+        var traceStarted = false
         try {
+            traceStarted = false
             prepare()
 
             for (monitor in stepConfig.environment.monitors) {
                 monitor.startStep(this)
             }
+            traceStarted = true
 
             if (stepTimeout.toMillis() > 0) {
                 val service = Executors.newSingleThreadExecutor()
@@ -161,6 +164,9 @@ abstract class AbstractStep(val stepConfig: XProcStepConfiguration, step: StepMo
             }
         } catch (ex: Exception) {
             for (monitor in stepConfig.environment.monitors) {
+                if (!traceStarted) {
+                    monitor.startStep(this)
+                }
                 monitor.abortStep(this, ex)
             }
 

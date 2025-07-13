@@ -47,8 +47,8 @@ open class StandardTraceListener: TraceListener {
         }
     }
 
-    override fun getResource(duration: Long, uri: URI, href: URI?, resolved: Boolean, cached: Boolean) {
-        val detail = GetResourceDetail(System.currentTimeMillis(), duration, uri, href, resolved, cached)
+    override fun getResource(ms: Long, uri: URI, href: URI?, resolved: Boolean, cached: Boolean) {
+        val detail = GetResourceDetail(System.currentTimeMillis(), ms, uri, href, resolved, cached)
         synchronized(_trace) {
             _trace.add(detail)
         }
@@ -63,7 +63,7 @@ open class StandardTraceListener: TraceListener {
         return document
     }
 
-    override fun summary(stepConfig: XProcStepConfiguration): XdmNode {
+    override fun summary(config: XProcStepConfiguration): XdmNode {
         val _startTime = QName("start-time")
         val _durationMs = QName("duration-ms")
         val _uri = QName("uri")
@@ -75,14 +75,14 @@ open class StandardTraceListener: TraceListener {
         nsMap = nsMap.put("p", NsP.namespace)
         nsMap = nsMap.put("cx", NsCx.namespace)
 
-        val builder = SaxonTreeBuilder(stepConfig)
+        val builder = SaxonTreeBuilder(config)
         builder.startDocument(null)
         builder.addStartElement(NsTrace.trace, EmptyAttributeMap.getInstance(), nsMap)
 
         val utc = ZoneId.of("UTC")
 
         for (thread in threads) {
-            builder.addStartElement(NsTrace.thread, stepConfig.typeUtils.attributeMap(mapOf(Ns.id to "${thread}")), nsMap)
+            builder.addStartElement(NsTrace.thread, config.typeUtils.attributeMap(mapOf(Ns.id to "${thread}")), nsMap)
             val threadTrace = trace.filter { it.threadId == thread }
             for ((index, detail) in threadTrace.withIndex()) {
                 when (detail) {
@@ -92,7 +92,7 @@ open class StandardTraceListener: TraceListener {
                         val instant = Instant.ofEpochMilli(detail.startTime)
                         val dt = instant.atZone(utc).toOffsetDateTime()
 
-                        var localNsMap = if (detail.type.namespaceUri in listOf(NsP.namespace, NsCx.namespace)) {
+                        val localNsMap = if (detail.type.namespaceUri in listOf(NsP.namespace, NsCx.namespace)) {
                             nsMap
                         } else {
                             nsMap.put(detail.type.prefix, detail.type.namespaceUri)
@@ -117,13 +117,13 @@ open class StandardTraceListener: TraceListener {
                             attributes[Ns.error] = reason
                         }
 
-                        builder.addStartElement(NsTrace.step, stepConfig.typeUtils.attributeMap(attributes), localNsMap)
+                        builder.addStartElement(NsTrace.step, config.typeUtils.attributeMap(attributes), localNsMap)
                     }
                     is StepStopDetail -> {
                         builder.addEndElement()
                     }
                     is DocumentDetail -> {
-                        documentSummary(stepConfig, builder, detail)
+                        documentSummary(config, builder, detail)
                     }
                     is GetResourceDetail -> {
                         val instant = Instant.ofEpochMilli(detail.startTime)
@@ -143,7 +143,7 @@ open class StandardTraceListener: TraceListener {
                         if (detail.cached) {
                             attributes[_cached] = "${detail.cached}"
                         }
-                        builder.addStartElement(NsTrace.resource, stepConfig.typeUtils.attributeMap(attributes))
+                        builder.addStartElement(NsTrace.resource, config.typeUtils.attributeMap(attributes))
                         builder.addEndElement()
                     }
                     else -> {

@@ -138,19 +138,19 @@ class XProcPipeline internal constructor(val runtime: XProcRuntime, pipeline: Co
                 throw IllegalStateException("Execution context is not empty")
             }
             config.saxonConfig.restoreExecutionContext(executionContext)
-        }
 
-        val trace = config.xmlCalabashConfig.trace
-        if (trace != null && traceListener != null) {
-            trace.parentFile.mkdirs()
-            val doc = XProcDocument.ofXml(traceListener!!.summary(config), config)
-            val fos = FileOutputStream(trace)
-            val writer = DocumentWriter(doc, fos)
-            writer[Ns.method] = "xml"
-            writer[Ns.omitXmlDeclaration] = true
-            writer[Ns.indent] = true
-            writer.write()
-            fos.close()
+            val trace = config.xmlCalabashConfig.trace
+            if (trace != null && traceListener != null) {
+                trace.parentFile.mkdirs()
+                val doc = XProcDocument.ofXml(traceListener!!.summary(config), config)
+                val fos = FileOutputStream(trace)
+                val writer = DocumentWriter(doc, fos)
+                writer[Ns.method] = "xml"
+                writer[Ns.omitXmlDeclaration] = true
+                writer[Ns.indent] = true
+                writer.write()
+                fos.close()
+            }
         }
     }
 
