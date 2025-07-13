@@ -70,6 +70,9 @@ abstract class AbstractStep(val stepConfig: XProcStepConfiguration, step: StepMo
 
         val count = (inputCount[port] ?: 0) + 1
         if (!flange.sequence && count != 1) {
+            if (count == 0) {
+                return XProcError.xdInputRequiredOnPort(port)
+            }
             return XProcError.xdInputSequenceForbidden(port)
         }
 
@@ -94,6 +97,9 @@ abstract class AbstractStep(val stepConfig: XProcStepConfiguration, step: StepMo
 
         val count = inputCount[port] ?: 0
         if (!flange.sequence && count != 1) {
+            if (count == 0) {
+                return XProcError.xdInputRequiredOnPort(port)
+            }
             return XProcError.xdInputSequenceForbidden(port)
         }
 
@@ -111,7 +117,13 @@ abstract class AbstractStep(val stepConfig: XProcStepConfiguration, step: StepMo
         if (!flange.sequence && count != 1) {
             if (type == NsCx.select) {
                 // This is really an error on the input we're feeding into
+                if (count == 0) {
+                    throw stepConfig.exception(XProcError.xdInputRequiredOnPort(port))
+                }
                 throw stepConfig.exception(XProcError.xdInputSequenceForbidden(port))
+            }
+            if (count == 0) {
+                throw stepConfig.exception(XProcError.xdOutputRequiredOnPort(port))
             }
             throw stepConfig.exception(XProcError.xdOutputSequenceForbidden(port))
         }

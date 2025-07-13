@@ -77,7 +77,11 @@ class CompoundStepFoot(config: XProcStepConfiguration, val parent: CompoundStep,
 
     override fun run() {
         for ((port, flange) in params.inputs) {
-            if (!flange.sequence && !alwaysAllowSequences && (outputCount[port]?:0) != 1) {
+            val count = outputCount[port] ?: 0
+            if (!flange.sequence && !alwaysAllowSequences && count != 1) {
+                if (count == 0) {
+                    throw stepConfig.exception(XProcError.xdOutputRequiredOnPort(port))
+                }
                 throw stepConfig.exception(XProcError.xdOutputSequenceForbidden(port))
             }
         }

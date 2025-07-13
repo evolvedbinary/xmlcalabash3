@@ -211,7 +211,7 @@ open class AtomicStep(config: XProcStepConfiguration, atomic: AtomicBuiltinStepM
             if ((inputCount[portName] ?: 0) == 0) {
                 val flange = params.inputs[portName]
                 if (flange != null && !flange.sequence) {
-                    throw stepConfig.exception(XProcError.xdInputSequenceForbidden(portName))
+                    throw stepConfig.exception(XProcError.xdInputRequiredOnPort(portName))
                 }
             }
         }
