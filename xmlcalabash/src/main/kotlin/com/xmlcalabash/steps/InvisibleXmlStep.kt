@@ -8,6 +8,7 @@ import com.xmlcalabash.namespace.NsP
 import com.xmlcalabash.util.InvisibleXmlImpl
 import com.xmlcalabash.util.MediaClassification
 import net.sf.saxon.s9api.QName
+import net.sf.saxon.s9api.XdmNode
 
 class InvisibleXmlStep(): AbstractAtomicStep() {
     private lateinit var extensionAttr: Map<QName, String>
@@ -45,8 +46,19 @@ class InvisibleXmlStep(): AbstractAtomicStep() {
             if (grammarCtc == MediaClassification.TEXT) {
                 theGrammar.value.underlyingValue.stringValue
             } else {
-                throw IllegalArgumentException("Only text .ixml documents are supported")
+                null
             }
+        }
+
+        val grammarXml = if (grammar.isEmpty() || grammarText != null) {
+            null
+        } else {
+            val theGrammar = grammar.first()
+            val grammarCtc = (theGrammar.contentType ?: MediaType.XML).classification()
+            if (grammarCtc != MediaClassification.XML) {
+                throw IllegalArgumentException("Grammar must be text or XML")
+            }
+            theGrammar.value as XdmNode
         }
 
         val sourceCtc = (source.contentType ?: MediaType.TEXT).classification()
@@ -57,7 +69,11 @@ class InvisibleXmlStep(): AbstractAtomicStep() {
         }
 
         val impl = InvisibleXmlImpl(stepConfig, implementation)
-        val xml = impl.parse(grammarText, input, failOnError, parameters)
+        val xml = if (grammarXml != null) {
+            impl.parse(grammarXml, input, failOnError, parameters)
+        } else {
+            impl.parse(grammarText, input, failOnError, parameters)
+        }
         receiver.output("result", xml)
     }
 

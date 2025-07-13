@@ -10,6 +10,7 @@ import com.xmlcalabash.runtime.XProcStepConfiguration
 import de.bottlecaps.markup.Blitz
 import de.bottlecaps.markup.BlitzException
 import net.sf.saxon.s9api.QName
+import net.sf.saxon.s9api.XdmNode
 import net.sf.saxon.s9api.XdmValue
 import org.nineml.coffeefilter.InvisibleXml
 import java.io.ByteArrayInputStream
@@ -18,6 +19,11 @@ class InvisibleXmlMarkupBlitz(stepConfig: XProcStepConfiguration): InvisibleXmlI
     companion object {
         private var invisibleXml: String? = null
     }
+
+    override fun parse(grammar: XdmNode, input: String, failOnError: Boolean, parameters: Map<QName, XdmValue>): XProcDocument {
+        throw stepConfig.exception(XProcError.xdStepFailed("Cannot process XML grammars with Markup Blitz"))
+    }
+
     override fun parse(grammar: String?, input: String, failOnError: Boolean, parameters: Map<QName, XdmValue>): XProcDocument {
         val ixmlGrammar = if (grammar == null) {
             if (invisibleXml == null) {
