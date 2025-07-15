@@ -153,6 +153,7 @@ resources, XML Calabash defines a pragmatically more useful default.</para>
 <row><entry>.trig</entry><entry>application/trig</entry></row>
 <row><entry>.trix</entry><entry>application/trix+xml</entry></row>
 <row><entry>.ttl</entry><entry>text/turtle</entry></row>
+<row><entry>.xspec</entry><entry>application/xml</entry></row>
 <row><entry>.xml</entry><entry>application/xml</entry></row>
 <row><entry>.xpl</entry><entry>application/xproc+xml</entry></row>
 <row><entry>.xq</entry><entry>application/xquery</entry></row>
