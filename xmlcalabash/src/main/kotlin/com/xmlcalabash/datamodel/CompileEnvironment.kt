@@ -88,6 +88,7 @@ open class CompileEnvironment(override val episode: String, override val xmlCala
         "trix" to "application/trix+xml", // I invented this one; I didn't find a spec
         "ttl" to "text/turtle",
         "txt" to "text/plain",
+        "xspec" to "application/xml",
         "xml" to "application/xml",
         "xpl" to "application/xproc+xml",
         "xq" to "application/xquery",
