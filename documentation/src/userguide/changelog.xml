@@ -13,6 +13,23 @@ See the commits and pull requests on
 finer detail.</para>
 
 <revhistory>
+<revision xml:id="r3010">
+<revnumber>3.0.10</revnumber>
+<date>2025-07-16</date>
+<revdescription>
+<itemizedlist>
+<listitem><para>Fixed <cbissue number="138"/> and <cbissue number="139"/>.
+Data models constructed for non-XML inputs were accidentally using the base URI
+of the static context as their base URI instead of their actual base URI.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="135"/>. Added a default MIME type mapping for the
+<filename class="extension">.xspec</filename> extension.
+</para></listitem>
+<listitem><para>Migrated to Saxon 12.8 and updated to the latest XProc 3.0 test suite.
+</para></listitem>
+</itemizedlist>
+</revdescription>
+</revision>
 <revision xml:id="r309">
 <revnumber>3.0.9</revnumber>
 <date>2025-07-13</date>
