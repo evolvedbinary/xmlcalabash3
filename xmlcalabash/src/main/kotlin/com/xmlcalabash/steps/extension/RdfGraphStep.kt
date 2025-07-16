@@ -32,7 +32,7 @@ class RdfGraphStep(): AbstractRdfStep() {
         val baos = ByteArrayOutputStream()
         writer.output(baos)
 
-        receiver.output("result", XProcBinaryDocument(baos.toByteArray(), stepConfig))
+        receiver.output("result", XProcBinaryDocument(baos.toByteArray(), doc.baseURI, stepConfig))
     }
 
     override fun toString(): String = "cx:rdf-graph"

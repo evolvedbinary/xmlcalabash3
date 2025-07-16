@@ -271,12 +271,19 @@ open class XProcDocument internal constructor() {
     }
 
     open fun with(baseUri: URI?): XProcDocument {
-        if (baseUri == null) {
+        if (properties[Ns.baseUri] == baseUri) {
             return this
         }
         val newProps = DocumentProperties(_properties)
-        newProps[Ns.baseUri] = baseUri
-        return XProcDocument(value, context, newProps)
+        newProps.remove(Ns.baseUri)
+        baseUri?.let { newProps[Ns.baseUri] = it }
+
+        val builder = SaxonTreeBuilder(context.processor)
+        builder.startDocument(baseUri)
+        builder.addSubtree(value)
+        builder.endDocument()
+
+        return XProcDocument(builder.result, context, newProps)
     }
 
     open fun with(properties: DocumentProperties): XProcDocument {

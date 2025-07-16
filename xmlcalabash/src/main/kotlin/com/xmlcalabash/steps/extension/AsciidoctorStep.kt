@@ -150,7 +150,7 @@ class AsciidoctorStep(): AbstractAtomicStep() {
         tempAsciidoctor.toFile().delete()
         pdfFile.delete()
 
-        receiver.output("result", XProcBinaryDocument(pdfBytes, text.context).with(MediaType.PDF, true))
+        receiver.output("result", XProcBinaryDocument(pdfBytes, text.baseURI, text.context).with(MediaType.PDF, true))
     }
 
     private fun options(): Options {
