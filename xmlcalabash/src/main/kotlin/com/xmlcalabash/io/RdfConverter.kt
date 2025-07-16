@@ -149,7 +149,7 @@ class RdfConverter(): ContentTypeConverter {
         }
 
         if (convertTo == MediaType.RDFTHRIFT) {
-            return XProcBinaryDocument(baos.toByteArray(), stepConfig)
+            return XProcBinaryDocument(baos.toByteArray(), doc.baseURI, stepConfig)
         }
 
         if (convertTo.classification() in listOf(MediaClassification.XML, MediaClassification.JSON)) {

@@ -9,17 +9,24 @@ import net.sf.saxon.s9api.XdmNode
 import net.sf.saxon.s9api.XdmValue
 import java.net.URI
 
-class XProcBinaryDocument(val binaryValue: ByteArray, context: DocumentContext): XProcDocument() {
+class XProcBinaryDocument(val binaryValue: ByteArray, baseURI: URI?, context: DocumentContext): XProcDocument() {
     init {
         _context = context
         val builder = SaxonTreeBuilder(context.processor)
-        builder.startDocument(context.baseUri)
+        builder.startDocument(baseURI)
         builder.endDocument()
         _value = builder.result
     }
 
-    constructor(binaryValue: ByteArray, context: DocumentContext, initialProperties: DocumentProperties): this(binaryValue, context) {
+    constructor(binaryValue: ByteArray, context: DocumentContext, initialProperties: DocumentProperties): this(binaryValue, initialProperties.baseURI, context) {
         _properties.setAll(initialProperties)
+    }
+
+    override fun with(baseUri: URI?): XProcDocument {
+        val newprops = DocumentProperties(properties)
+        newprops.remove(Ns.baseUri)
+        newprops.set(Ns.baseUri, baseUri)
+        return XProcBinaryDocument(binaryValue, context, newprops)
     }
 
     override fun with(newValue: ByteArray): XProcDocument {

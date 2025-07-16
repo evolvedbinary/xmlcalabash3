@@ -374,7 +374,7 @@ class DocumentLoader(val stepConfig: StepConfiguration,
 
     private fun loadText(stream: InputStream, charset: Charset?): XProcDocument {
         val builder = SaxonTreeBuilder(stepConfig.processor)
-        builder.startDocument(stepConfig.baseUri)
+        builder.startDocument(absURI)
         builder.addText(loadTextData(stream, charset))
         builder.endDocument()
         return XProcDocument.ofXml(builder.result, stepConfig, properties)
@@ -388,7 +388,8 @@ class DocumentLoader(val stepConfig: StepConfiguration,
             baos.write(buf, 0, len)
             len = stream.read(buf)
         }
-        return XProcDocument.ofBinary(baos.toByteArray(), stepConfig, properties)
+        val doc = XProcDocument.ofBinary(baos.toByteArray(), stepConfig, properties)
+        return doc
     }
 
     private fun loadTextData(stream: InputStream, inputCharset: Charset?): String {
