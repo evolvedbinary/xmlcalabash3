@@ -53,6 +53,10 @@ pre.language-none {
     padding: 0.5em;
 }
 
+.sidebar .screen {
+    color: black;
+}
+
 .cmdsynopsis-wrap {
     border: 1px solid var(--tableaux-border-color);
     padding-left: 0.5em;

@@ -1,25 +1,21 @@
 package com.xmlcalabash.util
 
 import com.xmlcalabash.io.MessagePrinter
-import org.apache.logging.log4j.kotlin.logger
+import java.io.FileDescriptor
+import java.io.FileOutputStream
 import java.io.PrintStream
+import java.nio.charset.Charset
 
-class DefaultMessagePrinter(encoding: String) : MessagePrinter {
-    private var _encoding: String = encoding
-    private var _printStream: PrintStream = System.err
-    private val stream: PrintStream
-        get() = _printStream
+class DefaultMessagePrinter() : MessagePrinter {
+    override val encoding = Charset.defaultCharset().name()
+
+    // You would think that the very nature of a default character set was that it would be...the
+    // default. But no. If you don't do this trick where you create a print stream from the
+    // stderr file descriptor with the right "default" encoding, then you get...UTF-8 always, maybe?
+    // Hard to tell. But this seems to work.
+    private val stream = PrintStream(FileOutputStream(FileDescriptor.err), true, encoding)
+
     private val mustSanitize = !encoding.lowercase().startsWith("utf")
-
-    override val encoding: String = _encoding
-
-    override fun setEncoding(encoding: String) {
-        _encoding = encoding
-    }
-
-    override fun setPrintStream(stream: PrintStream) {
-        _printStream = stream
-    }
 
     override fun print(message: String) {
         if (mustSanitize) {

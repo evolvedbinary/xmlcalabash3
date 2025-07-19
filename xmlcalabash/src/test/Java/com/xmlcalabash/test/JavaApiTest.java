@@ -295,21 +295,9 @@ public class JavaApiTest {
 
 
     private static class MyMessagePrinter implements MessagePrinter {
-        private String _encoding = "UTF-8";
-
         @Override
         public @NotNull String getEncoding() {
-            return _encoding;
-        }
-
-        @Override
-        public void setEncoding(@NotNull String encoding) {
-            _encoding = encoding;
-        }
-
-        @Override
-        public void setPrintStream(@NotNull PrintStream stream) {
-            // nop
+            return "UTF-8";
         }
 
         @Override

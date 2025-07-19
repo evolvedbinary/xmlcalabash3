@@ -23,9 +23,6 @@ a <filename class="directory">lib/</filename> directory containing
 nesssary to run all of the steps, including the extension steps.
 </para>
 
-<section xml:id="system-configuration">
-<title>System configuration</title>
-
 <para>All
 <link xlink:href="https://en.wikipedia.org/wiki/Java_virtual_machine">JVM</link>
 applications are sensitive to some aspects of your system configuration. For
@@ -185,6 +182,68 @@ XML Schema documents, you can provide that mapping as well. You will also
 want to provide mappings for other extensions you use.</para>
 
 </section>
+<section xml:id="console-encoding">
+<title>The console encoding</title>
+
+<para>XML Calabash often runs as a program started on the command line. This can
+be in your standard terminal or it can be a terminal window provided by your
+editing environment. It’s also possible for another application to run XML
+Calabash on your behalf and present its output in some other manner. XML
+Calabash has a limited ability to determine how it was started or precisely how
+its output will be presented. For convenience, we’ll discuss output to “your
+terminal” but these issues apply equally to an output window in your XML editor
+or something else.</para>
+
+<para>Internally, XML Calabash operates mostly on “Java strings” which are
+Unicode<footnote><para>This section is intentionally vague about which Unicode
+encoding, UTF-8 or some flavor of UTF-16 or UTF-32. If your terminal is
+using Unicode, it’ll probably handle those details for you.</para></footnote>.
+Your terminal has a particular <link
+xlink:href="https://en.wikipedia.org/wiki/Character_encoding">character
+encoding</link>. If that encoding isn’t Unicode, then a mapping has to be
+applied that reduces the repertoire of characters in Unicode down to the
+repertoire in your terminal’s encoding, usually be replacing any character not in your
+encoding’s repertoire with “?”.</para>
+
+<para>If the encoding that XML Calabash thinks you’re using doesn’t match the
+encoding you’re actually using, the result will be garbled output for any
+characters that are outside your encoding’s repertoire or that don’t match the
+characters in your repertoire.</para>
+
+<para>XML Calabash assumes that the output encoding is the default character
+encoding determined by the Java. If you’re running with Java 18 or later, that’s
+UTF-8 by default. If you’re running with an earlier version of Java, it may be
+something else. On Windows, it’s likely to be
+<link xlink:href="https://en.wikipedia.org/wiki/Windows-1252">Windows-1252</link>.</para>
+
+<para>You can set the default encoding with the <code>file.encoding</code> system
+property. For example, running Java like this:</para>
+
+<screen>java -Dfile.encoding=us-ascii …</screen>
+
+<para>Will tell Java that the default encoding is US-ASCII.</para>
+
+<para>The important thing is that the encoding you tell Java, and the encoding
+you’re actually using, are the same.</para>
+
+<sidebar>
+<para>On Windows, you can tell Powershell to use UTF-8 by running this command:</para>
+<screen>[Console]::OutputEncoding = [System.Text.Encoding]::UTF8</screen>
+<para>Alternatively, you can use <code>file.encoding</code> to make sure that
+Java knows what encoding you’re actually using.</para>
+</sidebar>
+
+<para>The “<filename>helloWorld.xpl</filename>” pipeline included in the
+distribution prints a message on the console. That message includes several
+Unicode characters. If you’re using Unicode, you should see
+<literal>“😻”</literal> in the output. If you’re using some other encoding, you
+should see <literal>"?"</literal>. If you see something else, it’s very likely
+that there is a mismatch between what Java thinks your encoding is and what it
+actually is.
+</para>
+
+<para>How you fix that depends on the details of the environment you’re using.</para>
+
 </section>
 
 <section xml:id="extensions">

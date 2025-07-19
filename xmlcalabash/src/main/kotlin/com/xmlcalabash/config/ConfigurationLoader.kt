@@ -138,24 +138,6 @@ class ConfigurationLoader(val builder: XmlCalabashBuilder) {
         builder.setTryNamespaces(booleanAttribute(root.getAttributeValue(Ns.tryNamespaces), "try-namespaces"))
         builder.setUseLocationHints(booleanAttribute(root.getAttributeValue(Ns.useLocationHints), "use-location-hints"))
 
-        // If this is Windows, assume the console output is in Windows CP 1252
-        if (System.getProperty("os.name")?.lowercase()?.startsWith("windows") == true) {
-            builder.setConsoleEncoding("windows-1252")
-        }
-
-        if (root.getAttributeValue(_console_output_encoding) != null) {
-            val encoding = root.getAttributeValue(_console_output_encoding)
-            try {
-                if (Charset.isSupported(encoding)) {
-                    builder.setConsoleEncoding(encoding)
-                } else {
-                    logger.warn { "Console encoding is not supported: ${encoding}" }
-                }
-            } catch (_: IOException) {
-                logger.warn { "Console encoding is not supported: ${encoding}" }
-            }
-        }
-
         for (child in root.axisIterator(Axis.CHILD)) {
             when (child.nodeKind) {
                 XdmNodeKind.ELEMENT -> {

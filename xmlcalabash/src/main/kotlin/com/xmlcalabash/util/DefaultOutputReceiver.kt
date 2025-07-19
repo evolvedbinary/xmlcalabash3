@@ -13,6 +13,7 @@ import net.sf.saxon.s9api.XdmAtomicValue
 import net.sf.saxon.s9api.XdmValue
 import net.sf.saxon.type.StringConverter
 import org.apache.logging.log4j.kotlin.logger
+import java.nio.charset.Charset
 
 open class DefaultOutputReceiver(val xmlCalabash: XmlCalabash,
                                  val processor: Processor,
@@ -69,16 +70,15 @@ open class DefaultOutputReceiver(val xmlCalabash: XmlCalabash,
 
         if (decorate) {
             println(header)
+            writer[Ns.indent] = true
         }
 
-        if (decorate && contentType != null) {
-            if (contentType.classification() in listOf(MediaClassification.XML, MediaClassification.XHTML, MediaClassification.HTML)) {
-                writer[Ns.encoding] = xmlCalabash.config.consoleEncoding
-                if (xmlCalabash.config.consoleEncoding.lowercase() == "utf-8") {
-                    writer[Ns.omitXmlDeclaration] = true
-                }
+        if (contentType != null && contentType.classification() in listOf(MediaClassification.XML, MediaClassification.XHTML, MediaClassification.HTML)) {
+            val encoding = Charset.defaultCharset().name()
+            writer[Ns.encoding] = encoding
+            if (encoding.lowercase() == "utf-8") {
+                writer[Ns.omitXmlDeclaration] = true
             }
-            writer[Ns.indent] = true
         }
 
         writer.write()

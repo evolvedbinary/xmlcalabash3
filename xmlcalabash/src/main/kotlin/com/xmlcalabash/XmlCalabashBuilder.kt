@@ -41,15 +41,6 @@ import java.nio.charset.Charset
  */
 
 class XmlCalabashBuilder {
-    companion object {
-        val OS = System.getProperty("os.name") ?: "unknown"
-        val DEFAULT_CONSOLE_ENCODING = if (OS.startsWith("Windows")) {
-            "windows-1252"
-        } else {
-            "utf-8"
-        }
-    }
-
     private var saxonConfiguration: SaxonConfiguration? = null
     private val config = BuiltConfiguration()
 
@@ -79,23 +70,6 @@ class XmlCalabashBuilder {
     fun setAssertions(level: AssertionsLevel): XmlCalabashBuilder {
         logger.debug { "setAssertions: ${level}" }
         config._assertions = level
-        return this
-    }
-
-    fun getConsoleEncoding() = config._consoleEncoding
-    fun setConsoleEncoding(encoding: String): XmlCalabashBuilder {
-        try {
-            if (Charset.isSupported(encoding)) {
-                config._consoleEncoding = encoding
-                config._messagePrinter?.setEncoding(config.consoleEncoding)
-                logger.debug { "setConsoleEncoding ${encoding}" }
-            } else {
-                logger.warn { "Console encoding is not supported: ${encoding}, using ${config.consoleEncoding}" }
-            }
-        } catch (_: IOException) {
-            logger.warn { "Console encoding is not supported: ${encoding}, using ${config.consoleEncoding}" }
-        }
-
         return this
     }
 
@@ -179,7 +153,6 @@ class XmlCalabashBuilder {
     fun getMessagePrinter() = config._messagePrinter
     fun setMessagePrinter(printer: MessagePrinter): XmlCalabashBuilder {
         logger.debug { "setMessagePrinter ${printer}" }
-        printer.setEncoding(config.consoleEncoding)
         config._messagePrinter = printer
         if (config._messageReporter != null) {
             config.messageReporter.setMessagePrinter(printer)
@@ -568,7 +541,6 @@ class XmlCalabashBuilder {
         internal var _documentManager: DocumentManager? = null
 
         internal var _assertions = AssertionsLevel.IGNORE
-        internal var _consoleEncoding = DEFAULT_CONSOLE_ENCODING
         internal var _debug = false
         internal var _debugger = false
         internal var _eagerEvaluation = false
@@ -609,7 +581,7 @@ class XmlCalabashBuilder {
         override val messagePrinter: MessagePrinter
             get() {
                 if (_messagePrinter == null) {
-                    _messagePrinter = DefaultMessagePrinter(consoleEncoding)
+                    _messagePrinter = DefaultMessagePrinter()
                 }
                 return _messagePrinter!!
             }
@@ -642,8 +614,6 @@ class XmlCalabashBuilder {
 
         override val assertions: AssertionsLevel
             get() = _assertions
-        override val consoleEncoding
-            get() = _consoleEncoding
         override val debug: Boolean
             get() = _debug
         override val debugger: Boolean
@@ -717,7 +687,6 @@ class XmlCalabashBuilder {
             config._documentManager = documentManager
             config._errorExplanation = errorExplanation
             config._assertions = _assertions
-            config._consoleEncoding = _consoleEncoding
             config._debug = _debug
             config._debugger = _debugger
             config._eagerEvaluation = _eagerEvaluation
