@@ -18,7 +18,6 @@ import java.net.URI
 interface XmlCalabashConfiguration {
     val saxonConfiguration: SaxonConfiguration
     val assertions: AssertionsLevel
-    val consoleEncoding: String
     val debug: Boolean
     val debugger: Boolean
     val documentManager: DocumentManager

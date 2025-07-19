@@ -10,7 +10,6 @@ cc.xmlCalabash =
         attribute licensed { xsd:boolean }?,
         attribute verbosity { "trace" | "debug" | "progress" | "info" | "warn" | "error" }?,
         attribute piped-io { xsd:boolean }?,
-        attribute console-output-encoding { xsd:string }?,
         attribute try-namespaces { xsd:boolean }?,
         attribute use-location-hints { xsd:boolean }?,
         attribute validation-mode { "strict" | "lax" }?,

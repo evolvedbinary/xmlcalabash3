@@ -210,14 +210,6 @@ class ApiTest {
         override val encoding: String
             get() = _encoding
 
-        override fun setEncoding(encoding: String) {
-            _encoding = encoding
-        }
-
-        override fun setPrintStream(stream: PrintStream) {
-            // nop
-        }
-
         override fun print(message: String) {
             // nop
         }
