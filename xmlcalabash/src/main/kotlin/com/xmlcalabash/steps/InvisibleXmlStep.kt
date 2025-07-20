@@ -61,12 +61,7 @@ class InvisibleXmlStep(): AbstractAtomicStep() {
             theGrammar.value as XdmNode
         }
 
-        val sourceCtc = (source.contentType ?: MediaType.TEXT).classification()
-        val input = if (sourceCtc == MediaClassification.TEXT) {
-            source.value.underlyingValue.stringValue
-        } else {
-            throw IllegalArgumentException("Only text source documents are supported")
-        }
+        val input = source.value.underlyingValue.stringValue
 
         val impl = InvisibleXmlImpl(stepConfig, implementation)
         val xml = if (grammarXml != null) {
