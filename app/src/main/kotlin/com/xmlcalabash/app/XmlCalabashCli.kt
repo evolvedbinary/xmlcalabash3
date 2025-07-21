@@ -81,6 +81,12 @@ class XmlCalabashCli private constructor() {
             if (commandLine.verbosity != null) {
                 builder.setVerbosity(commandLine.verbosity!!)
             }
+
+            commandLine.debug?.let { builder.setDebug(it) }
+            if (builder.getDebug() && builder.getVerbosity() < Verbosity.DEBUG) {
+                builder.setVerbosity(Verbosity.DEBUG)
+            }
+
             cliReporter.threshold = builder.getVerbosity()
 
             cliExplain.showStacktrace = commandLine.stacktrace
@@ -100,7 +106,6 @@ class XmlCalabashCli private constructor() {
                 builder.setLicensed(builder.getLicensed() && commandLine.licensed)
             }
 
-            commandLine.debug?.let { builder.setDebug(it) }
             commandLine.debugger?.let { builder.setDebugger(it) }
             when (commandLine.visualizer) {
                 null -> {

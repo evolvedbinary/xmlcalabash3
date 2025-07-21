@@ -457,13 +457,22 @@ Saxon EE are on the classpath.</para>
 <varlistentry xml:id="cli-debug">
   <term><option>--debug</option></term>
 <listitem>
-<para>If debugging is enabled, the verbosity is set to at least the
-<literal>debug</literal> level <emphasis>and</emphasis> the backend logging
-framework’s “log level” is set to the verbosity.</para>
-<para>This produces a lot of messages, typically on the standard error
-output. XML Calabash uses <link xlink:href="https://www.slf4j.org/">SLF4J</link>
-and <link xlink:href="https://logback.qos.ch/">Logback</link> for logging.
-You can configure it in the usual ways.</para>
+<para>The <option>--debug</option> option, the <option>--verbosity</option>
+option, and the configuration of the underlying logging framework are
+interrelated in ways that aren’t entirely ideal. Originally, the <option>--debug</option> option
+dynamically changed the underlying logger configuration, but that isn’t completely
+portable across logging frameworks, so it doesn’t try to do that anymore.</para>
+<para>If you specify <option>--debug</option> the verbosity level will be
+set to at least “debug” and some small details of operation change, for example,
+the intermediate files used to generate graphs are kept rather than deleted.
+Basically, it’s not much different than <option>--verbosity:debug</option>.
+</para>
+<para>Lots more information is available through logging framework, see
+<xref linkend="logging"/> for a more detailed discussion. In particular, if you’re
+trying to understand what the processor is doing,
+<link linkend="logback">configuring</link> the logging back end to emit
+or save “debug” level messages will reveal a lot of detail.
+</para>
 </listitem>
 </varlistentry>
 
