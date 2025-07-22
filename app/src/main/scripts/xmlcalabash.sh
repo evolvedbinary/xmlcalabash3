@@ -32,9 +32,22 @@ for ((idx = 0; idx < ${#jarsArray[@]}; idx++)); do
     CP="$CP:${jarsArray[$idx]}"
 done
 
+argsArray=()
+propsArray=()
+for arg in "$@"; do
+    case $arg in
+        -D*)
+            propsArray+=( $arg )
+            ;;
+        *)
+            argsArray+=( $arg )
+            ;;
+    esac
+done
+
 if [ -z "$JAVA_HOME" ]; then
     # I hope java is on the PATH
-    java -cp "$CP" com.xmlcalabash.app.Main "$@"
+    java "${propsArray[@]}" -cp "$CP" com.xmlcalabash.app.Main "${argsArray[@]}"
 else
-    "$JAVA_HOME/bin/java" -cp "$CP" com.xmlcalabash.app.Main "$@"
+    "$JAVA_HOME/bin/java" "${propsArray[@]}" -cp "$CP" com.xmlcalabash.app.Main "${argsArray[@]}"
 fi
