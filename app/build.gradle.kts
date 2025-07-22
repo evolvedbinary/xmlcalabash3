@@ -122,9 +122,17 @@ val copyScripts = tasks.register<Copy>("copyScripts") {
   }
 }
 
+val copyLib = tasks.register<Copy>("copyLib") {
+  dependsOn(copyScripts)
+  inputs.dir(layout.projectDirectory.file("src/main/lib"))
+  from(layout.projectDirectory.dir("src/main/lib"))
+  into(layout.buildDirectory.dir("stage/lib"))
+}
+
 tasks.register("stage-release") {
   inputs.files(xmlcalabashJar)
   inputs.files(copyScripts)
+  inputs.files(copyLib)
   dependsOn("jar")
 
   doLast {

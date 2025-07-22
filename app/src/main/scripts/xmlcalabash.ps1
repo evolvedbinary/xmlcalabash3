@@ -27,10 +27,23 @@ ForEach-Object {
   $cp = "${cp}${cpdelim}${PSScriptroot}${slash}lib${slash}$_"
 }
 
-# 2. Fix the argument parsing. The way arguments are parsed when
-#    passed to another program breaks strings at ":". That's
-#    inconvenient, so try to fix it. FYI:
-#    https://github.com/PowerShell/PowerShell/issues/23819
+# 2. Find arguments that begin -D and assume they're Java properties. (Users
+#    will have to quote them if they contain spaces or colons, see item 3.)
+
+$Param = ""
+$JavaProp = foreach ($Item in $args)
+{
+   if ($Item.StartsWith("-D"))
+   {
+      $Item
+   }
+}
+
+# 3. Fix the argument parsing. The way arguments are parsed by PowerShell when
+#    passed to another program breaks strings at ":". That's inconvenient, so
+#    try to fix it. FYI: https://github.com/PowerShell/PowerShell/issues/23819
+#    Also disregard any argument that begins -D because that's a Java property
+#    setting.
 
 $Param = ""
 $NewArgs = foreach ($Item in $args)
@@ -39,6 +52,11 @@ $NewArgs = foreach ($Item in $args)
    {
       $Param = $Item
       continue
+   }
+
+   if ($Item.StartsWith("-D"))
+   {
+	continue
    }
 
    if ($Param -ne "")
@@ -52,7 +70,7 @@ $NewArgs = foreach ($Item in $args)
    }
 }
 
-# 3. Sort out where the java executable lives; assume it's either in
+# 4. Sort out where the java executable lives; assume it's either in
 #    $env:JAVA_HOME\bin\java.exe or is on the classpath.
 
 $java = "java"
@@ -63,4 +81,4 @@ if ($env:JAVA_HOME -ne "")
 
 # 4. Run XML Calabash
 
-& $java -cp "$cp" com.xmlcalabash.app.Main $NewArgs
+& $java $JavaProp -cp "$cp" com.xmlcalabash.app.Main $NewArgs
