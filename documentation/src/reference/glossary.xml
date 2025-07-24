@@ -1,7 +1,17 @@
 <glossary xmlns:db="http://docbook.org/ns/docbook"
           xmlns="http://docbook.org/ns/docbook"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
           xml:id="glossary">
 <title>Glossary</title>
+
+<glossentry>
+<glossterm>compound step</glossterm>
+<glossdef>
+<para>A <firstterm>compound step</firstterm>, as distinct from an atomic step, is one who’s
+implementation is determined by the <glossterm>subpipeline</glossterm> it contains.
+</para>
+</glossdef>
+</glossentry>
 
 <glossentry>
 <glossterm>dynamic error</glossterm>
@@ -32,18 +42,36 @@ performed.</para>
 </glossdef>
 </glossentry>
 
+
 <glossentry>
 <glossterm>selection pattern</glossterm>
 <glossdef>
-<para>FIXME: TBD</para>
+<para>From the
+<link xlink:href="https://www.w3.org/TR/xslt-30/#dt-selection-pattern">XSLT 3.0 specification</link>,
+“a selection pattern uses a subset of the syntax for path expressions, and is
+defined to match a node if the corresponding path expression would select the
+node. Selection patterns may also be formed by combining other patterns using
+union, intersection, and difference operators.”
+</para>
 </glossdef>
 </glossentry>
 
+
+<glossentry>
+<glossterm>subpipeline</glossterm>
+<glossdef>
+<para>The steps and variables, and the connections between them, that make
+up the body of a compound step or pipeline.</para>
+</glossdef>
+</glossentry>
+
+<!--
 <glossentry>
 <glossterm>document properties</glossterm>
 <glossdef>
 <para>FIXME: TBD</para>
 </glossdef>
 </glossentry>
+-->
 
 </glossary>
