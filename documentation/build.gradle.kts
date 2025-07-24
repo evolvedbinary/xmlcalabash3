@@ -92,7 +92,7 @@ var haveDeltaXml = false
 fileTree("dir" to layout.projectDirectory.dir("lib"),
          "include" to "*.jar").filter { it.isFile() }.files.forEach { fn ->
   if (fn.toString().indexOf("/deltaxml") > 0) {
-    haveDeltaXml = true
+    haveDeltaXml = false
   }
 }
 
