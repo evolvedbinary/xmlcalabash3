@@ -1,0 +1,487 @@
+<chapter xmlns="http://docbook.org/ns/docbook"
+         xmlns:h="http://www.w3.org/1999/xhtml"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         xml:id="language-reference" version="5.2">
+<info>
+  <title>Language reference</title>
+</info>
+
+<para>XProc is a data flow programming language described with an XML
+vocabulary. This chapter provides an overview of the features of the language.
+At a high level, XProc allows you to combine steps, units of computation, in a
+variety of ways to achieve your goal. The <tag>p:for-each</tag> step, for
+example, will iterate over a set of documents and the <tag>p:xslt</tag> step will
+perform XSLT transformations.</para>
+
+<para>Broadly speaking, the features are:</para>
+
+<itemizedlist>
+<listitem><para>Structures for declaring pipelines,
+</para></listitem>
+<listitem><para>structures for connecting steps to inputs,
+</para></listitem>
+<listitem><para>compound steps,
+</para></listitem>
+<listitem><para>atomic steps,
+</para></listitem>
+<listitem><para>options,
+</para></listitem>
+<listitem><para>variables,
+</para></listitem>
+<listitem><para>and extra information
+</para></listitem>
+</itemizedlist>
+
+<para>The following sections give a brief overview of the elements in the XProc
+vocabulary.</para>
+
+<note>
+<title>Note from the author</title>
+<para>This section is something of a work-in-progress. At the moment, it’s
+neither a comprehensive description of every aspect of the vocabulary, nor is it
+tutorial in nature. But it’s useful to have every element in the vocabulary
+present in the reference.
+<link xlink:href="https://codeberg.org/xmlcalabash/xmlcalabash3/issues">Suggestions</link>
+for improvements are welcome.</para>
+</note>
+
+<section xml:id="lang-declare-pipelines">
+<title>Declaring pipelines</title>
+
+<para>The most common pipeline declaration specifies the inputs, outputs, and
+options that the step accepts then the steps which implement the pipeline.
+Pipelines may also import libraries and functions, and declare steps.</para>
+
+<rng-pattern schema="../../src/resources/rng/core31.rng"
+             ns="https://xmlcalabash.com/ns/configuration"
+             prefix="p" xml:id="p.declare-step" format="table"
+             name="DeclarePipelineStep"/>
+
+<para>A simpler form of declaration specifies the inputs, outputs, and options
+that the step accepts, but relies on the implementation having been provided
+through some other means. The XML Calabash extension steps, or extension
+steps that you write in a JVM language yourself, follow this pattern.</para>
+
+<rng-pattern schema="../../src/resources/rng/core31.rng"
+             ns="https://xmlcalabash.com/ns/configuration"
+             prefix="p" format="table"
+             name="DeclareAtomicStep"/>
+
+<section>
+<title>Pipeline inputs</title>
+
+<para>The <tag>p:input</tag> element describes a step input.</para>
+
+<rng-pattern schema="../../src/resources/rng/core31.rng"
+             ns="https://xmlcalabash.com/ns/configuration"
+             prefix="p" xml:id="p.input" format="table"
+             name="Input"/>
+
+</section>
+
+<section>
+<title>Pipeline outputs</title>
+
+<para>The <tag>p:output</tag> element describes a step output. There
+are three slightly different forms, depending on where the output is being
+declared. The pipeline and compound step forms are the same except that
+on a pipeline, serialization parameters may also be declared.</para>
+
+<rng-pattern schema="../../src/resources/rng/core31.rng"
+             ns="https://xmlcalabash.com/ns/configuration"
+             prefix="p" format="table"
+             name="PipelineOutputDeclaration"/>
+
+<para>On a compound step, no serialization can occur, so it would be pointless to
+specify them.</para>
+
+<rng-pattern schema="../../src/resources/rng/core31.rng"
+             ns="https://xmlcalabash.com/ns/configuration"
+             prefix="p" xml:id="p.output" format="table"
+             name="CompoundOutputDeclaration"/>
+
+<para>On the declaration of an atomic step, you also cannot provide any
+connections.</para>
+
+<rng-pattern schema="../../src/resources/rng/core31.rng"
+             ns="https://xmlcalabash.com/ns/configuration"
+             prefix="p" format="table"
+             name="AtomicOutputDeclaration"/>
+
+</section>
+
+<section xml:id="lang-options">
+<title>Pipeline options</title>
+
+<para>Options are declared with the <tag>p:option</tag> element.</para>
+
+<rng-pattern schema="../../src/resources/rng/core31.rng"
+             ns="https://xmlcalabash.com/ns/configuration"
+             prefix="p" xml:id="p.option" format="table"
+             name="Option"/>
+
+<para>Options can be declared static:</para>
+
+<rng-pattern schema="../../src/resources/rng/core31.rng"
+             ns="https://xmlcalabash.com/ns/configuration"
+             format="table"
+             name="StaticOption"/>
+
+<para>Options inside a <tag>p:library</tag> must be declared static.</para>
+
+<para>It must be possible to evaluate a static option without reference to any pipeline
+input documents. It is evaluated “at compile time”. You may not shadow a static option
+with another option or <tag>p:variable</tag>.</para>
+
+</section>
+<section>
+<title>Declaring libraries of steps</title>
+
+<para>Several steps (and static options) can be bundled together in a library.</para>
+
+<rng-pattern schema="../../src/resources/rng/core31.rng"
+             ns="https://xmlcalabash.com/ns/configuration"
+             prefix="p" xml:id="p.library" format="table"
+             name="Library"/>
+</section>
+
+<section>
+<title>Importing libraries and function libraries</title>
+
+<para>A library (or a single step) can be imported.</para>
+
+<rng-pattern schema="../../src/resources/rng/core31.rng"
+             ns="https://xmlcalabash.com/ns/configuration"
+             prefix="p" xml:id="p.import" format="table"
+             name="Import"/>
+
+<para>XML Calabash can also import functions defined in XSLT or XQuery.</para>
+
+<rng-pattern schema="../../src/resources/rng/core31.rng"
+             ns="https://xmlcalabash.com/ns/configuration"
+             prefix="p" xml:id="p.import-functions" format="table"
+             name="ImportFunctions"/>
+</section>
+</section>
+
+<section xml:id="lang-connecting-steps">
+<title>Connecting steps to inputs</title>
+
+<para>Atomic and compound steps use <tag>p:with-input</tag> to describe how
+their inputs are connected.</para>
+
+<rng-pattern schema="../../src/resources/rng/core31.rng"
+             ns="https://xmlcalabash.com/ns/configuration"
+             prefix="p" xml:id="p.with-input" format="table"
+             name="WithInput"/>
+
+<para>The <tag>p:document</tag> elmement (or the <tag class="attribute">href</tag> attribute
+on <tag>p:with-input</tag>) connects an input to document identified with a URI.</para>
+
+<rng-pattern schema="../../src/resources/rng/core31.rng"
+             ns="https://xmlcalabash.com/ns/configuration"
+             prefix="p" xml:id="p.document" format="table"
+             name="Document"/>
+
+<para>The <tag>p:inline</tag> element connects an input to a document placed
+into the pipeline directly. The <tag>p:inline</tag> element can be omitted in
+the simple case of a single XML document.</para>
+
+<rng-pattern schema="../../src/resources/rng/core31.rng"
+             ns="https://xmlcalabash.com/ns/configuration"
+             prefix="p" xml:id="p.inline" format="table"
+             name="Inline"/>
+
+<para>The <tag>p:pipe</tag> elmement (or the <tag class="attribute">pipe</tag> attribute
+on <tag>p:with-input</tag>) connects an input to the output from some other step.
+If <tag class="attribute">step</tag> is omitted, the step associated with the default
+readable port is assumed. If <tag class="attribute">port</tag> is omitted, the primary output
+port of the step is assumed. (Consequently, <code>&lt;p:pipe/&gt;</code> is a connection
+to the default readable port.) It’s an error to attempt to refer to the default readable
+port if there isn’t one.</para>
+
+<rng-pattern schema="../../src/resources/rng/core31.rng"
+             ns="https://xmlcalabash.com/ns/configuration"
+             prefix="p" xml:id="p.pipe" format="table"
+             name="Pipe"/>
+
+<para>The <tag>p:empty</tag> element explicitly binds the input to an empty sequence
+of documents.</para>
+
+<rng-pattern schema="../../src/resources/rng/core31.rng"
+             ns="https://xmlcalabash.com/ns/configuration"
+             prefix="p" xml:id="p.empty" format="table"
+             name="Empty"/>
+
+<para>Analagous to how inputs are provided with <tag>p:with-input</tag>, option values
+are provided with <tag>p:with-option</tag>. Options can also be specified as attributes
+on the step itself, in which case their value is taken to be an attribute value template.</para>
+
+<rng-pattern schema="../../src/resources/rng/core31.rng"
+             ns="https://xmlcalabash.com/ns/configuration"
+             prefix="p" xml:id="p.with-option" format="table"
+             name="WithOption"/>
+
+</section>
+
+<section xml:id="lang-compound-steps">
+<title>Compound steps</title>
+
+<para>The XProc specification defines several compound steps, steps that contain subpipelines.
+XML Calabash also implements a couple of additional compound steps. (Pipelines that use extension
+compound steps are probably not, strictly speaking, conformant with the specification.)</para>
+
+<section>
+<title>Looping over inputs (p:for-each)</title>
+
+<para>The <tag>p:for-each</tag> step loops over sequence of documents, processing each
+with its subpipeline.</para>
+
+<rng-pattern schema="../../src/resources/rng/core31.rng"
+             ns="https://xmlcalabash.com/ns/configuration"
+             prefix="p" xml:id="p.for-each" format="table"
+             name="ForEach"/>
+
+<tip>
+<para>Unlike XPath, if a <tag class="attribute">select</tag> expression is used
+on the <tag>p:with-input</tag> the nodes selected from the original document(s) 
+<emphasis>are not</emphasis> what the loop iterates over. Instead, a whole new document
+is constructed for each selection and that document is processed.</para>
+<para>This means, for example, that “<code>@name</code>” can’t be used to test
+an attribute on the loop input. You need to use “<code>/*/@name</code>” or something
+similar instead.</para>
+</tip>
+
+<para>In principle, a <tag>p:for-each</tag> can process its inputs in parallel.
+XML Calabash does not do so at this time.</para>
+
+</section>
+<section>
+<title>Changing internal structures (p:viewport)</title>
+
+<para>The <tag>p:viewport</tag> step replaces sections of a document with the result
+of processing (a document containing) those sections using the subpipeline.</para>
+
+<rng-pattern schema="../../src/resources/rng/core31.rng"
+             ns="https://xmlcalabash.com/ns/configuration"
+             prefix="p" xml:id="p.viewport" format="table"
+             name="Viewport"/>
+
+</section>
+
+<section>
+<title>Choosing among alternatives (p:choose)</title>
+
+<para>The <tag>p:choose</tag> step allows you to select processing among a number
+of alternatives. At most one alternative will be used: either the first <tag>p:when</tag>
+(in document order) for which the test expression is true or the <tag>p:otherwise</tag>.
+</para>
+
+<rng-pattern schema="../../src/resources/rng/core31.rng"
+             ns="https://xmlcalabash.com/ns/configuration"
+             prefix="p" xml:id="p.choose" format="table"
+             name="Choose"/>
+
+<para>Each alternative is a <tag>p:when</tag> which contains the subpipeline to run
+if this alternative is selected.</para>
+
+<rng-pattern schema="../../src/resources/rng/core31.rng"
+             ns="https://xmlcalabash.com/ns/configuration"
+             prefix="p" xml:id="p.when" format="table"
+             name="When"/>
+
+<para>The <tag>p:otherwise</tag> contains the subpipeline to run
+if no other alternative is selected.</para>
+
+<rng-pattern schema="../../src/resources/rng/core31.rng"
+             ns="https://xmlcalabash.com/ns/configuration"
+             prefix="p" xml:id="p.otherwise" format="table"
+             name="Otherwise"/>
+</section>
+
+<section>
+<title>Simple conditionals (p:if)</title>
+
+<para>The <tag>p:if</tag> is a simplified form of <tag>p:choose</tag>. If the
+test expression is true, then the subpipeline is run and that determines the output
+from the step. If the expression is false, <tag>p:if</tag> operates as an identity step,
+passing it’s input through unchanged.</para>
+
+<rng-pattern schema="../../src/resources/rng/core31.rng"
+             ns="https://xmlcalabash.com/ns/configuration"
+             prefix="p" xml:id="p.if" format="table"
+             name="If"/>
+
+</section>
+
+<section>
+<title>Grouping (p:group)</title>
+
+<para>The <tag>p:group</tag> step is just a wrapper around a subpipeline.</para>
+
+<rng-pattern schema="../../src/resources/rng/core31.rng"
+             ns="https://xmlcalabash.com/ns/configuration"
+             prefix="p" xml:id="p.group" format="table"
+             name="Group"/>
+
+</section>
+
+<section>
+<title>Exception handling (p:try)</title>
+
+<para>The <tag>p:try</tag> step allows a pipeline author to catch errors
+and recover from them. The subpipline is run. If no errors occur, the result
+of the step is the result of that subpipeline. If an error does occur, each
+<tag>p:catch</tag> is tested in turn and the result of the step is the result
+of teh first matching <tag>p:catch</tag>.</para>
+
+<rng-pattern schema="../../src/resources/rng/core31.rng"
+             ns="https://xmlcalabash.com/ns/configuration"
+             prefix="p" xml:id="p.try" format="table"
+             name="Try"/>
+
+<para>A <tag>p:catch</tag> matches an error if the error code is in its
+<tag class="attribute">code</tag> list, or if it does not have a 
+<tag class="attribute">code</tag> attribute at all.</para>
+
+<para>If there are no matching catches, the <tag>p:try</tag> step fails with the
+error (which may be caught and handled by some <tag>p:try</tag> among its
+ancestors, if it has any.)</para>
+
+<rng-pattern schema="../../src/resources/rng/core31.rng"
+             ns="https://xmlcalabash.com/ns/configuration"
+             prefix="p" xml:id="p.catch" format="table"
+             name="Catch"/>
+
+<para>Irrespective of whether the subpipeline succeeds or fails and whether or not
+a catch is invoked (and whether or not it succeeds or fails), the <tag>p:finally</tag>
+subpipeline will be run.</para>
+
+<rng-pattern schema="../../src/resources/rng/core31.rng"
+             ns="https://xmlcalabash.com/ns/configuration"
+             prefix="p" xml:id="p.finally" format="table"
+             name="Finally"/>
+
+<para>It is very uncommon for this to be useful. One plausible use case is for
+the finally step to clean up any side effects that might have been introduced by
+the subpipeline or the catch expressions, for example, deleting a temporary file
+or closing a database connection.</para>
+
+</section>
+
+<section xml:id="cx-until">
+<title>Loop until a condition is true (cx:until)</title>
+
+<para>This is an extension
+<glossterm>compound step</glossterm> that processes single documents,
+applying its <glossterm>subpipeline</glossterm> until the
+<tag class="attribute">test</tag> expression is true.</para>
+
+<rng-pattern schema="../../src/resources/rng/xmlcalabash.rng"
+             ns="https://xmlcalabash.com/ns/configuration"
+             prefix="cx" xml:id="cx.until" format="table"
+             name="Until"/>
+
+<para>The result of the <tag>cx:until</tag> step is first document for which
+the test expression is true.</para>
+
+<para>It is a dynamic error (<code>err:XD0001</code>) if the source is not a
+single document.</para>
+
+<para>The subpipeline is always run at least once.</para>
+
+<para>The <tag class="attribute">test</tag> attribute specifies an
+XPath expression. The result of the subpipeline is provided as the context item.
+The <emphasis>previous</emphasis> result is provided in the variable
+<varname>cx:previous</varname>.</para>
+
+</section>
+
+<section xml:id="cx-while">
+<title>Loop while a condition is true (cx:while)</title>
+
+<para>This is an extension
+<glossterm>compound step</glossterm> that processes single documents,
+applying its <glossterm>subpipeline</glossterm> while the
+<tag class="attribute">test</tag> expression is true.</para>
+
+<rng-pattern schema="../../src/resources/rng/xmlcalabash.rng"
+             ns="https://xmlcalabash.com/ns/configuration"
+             prefix="cx" xml:id="cx.while" format="table"
+             name="While"/>
+
+<para>The result of the <tag>cx:while</tag> step is first document for which
+the test expression did not have an effective boolean value of true.
+</para>
+
+<para>It is a
+dynamic error (<code>err:XD0001</code>) if the source is not a single
+document.</para>
+
+<para>The <tag class="attribute">test</tag> attribute specifies an
+XPath expression. The document is provided as the context item. If the
+expression is false, the loop is not run (or run again).</para>
+
+</section>
+</section>
+
+<section xml:id="lang-atomic-steps">
+<title>Atomic steps</title>
+
+<para>A great many pipelines that you write will be like shell scripts or “main”
+functions in other programming languages: they run, they do a thing, and they
+end. But in fact, with a little extra markup, every pipeline that you declare
+can <emphasis>also</emphasis> be reused an atomic step elsewhere. In this way,
+there are an unbounded number of atomic steps: there are all of the standard
+ones (summarized in <xref linkend="standard-steps"/>), there are all of the
+extension steps that ship with XML Calabash (summarized in <xref linkend="extension-steps"/>),
+and then there are all the steps that you write.</para>
+
+</section>
+
+<section xml:id="lang-variables">
+<title>Variables</title>
+
+<para>A subpipeline may use <tag>p:variable</tag> to hold the result of a
+computation.</para>
+
+<rng-pattern schema="../../src/resources/rng/core31.rng"
+             ns="https://xmlcalabash.com/ns/configuration"
+             prefix="p" xml:id="p.variable" format="table"
+             name="Variable"/>
+
+<para>Expressions which occur later in the subpipeline may refer to the variable.
+</para>
+
+</section>
+
+<section xml:id="lang-extra">
+<title>Extra information</title>
+
+<para>Documenation can be placed anywhere in the pipeline with the <tag>p:documentation</tag>
+element. It’s ignored by the processor.</para>
+
+<rng-pattern schema="../../src/resources/rng/core31.rng"
+             ns="https://xmlcalabash.com/ns/configuration"
+             prefix="p" xml:id="p.documentation" format="table"
+             name="Documentation"/>
+
+<note>
+<para>A <tag>p:documentation</tag> element inside a <tag>p:inline</tag> isn’t treated specially,
+it will occur in the inlined document.</para>
+</note>
+
+<para>The <tag>p:pipeinfo</tag> element is intended for additional information that
+a particular processor might use. XML Calabash uses them for
+<link xlink:href="https://docs.xmlcalabash.com/userguide/current/assertions.html">assertions</link>,
+for example.</para>
+
+<rng-pattern schema="../../src/resources/rng/core31.rng"
+             ns="https://xmlcalabash.com/ns/configuration"
+             prefix="p" xml:id="p.pipeinfo" format="table"
+             name="PipeInfo"/>
+
+</section>
+
+</chapter>

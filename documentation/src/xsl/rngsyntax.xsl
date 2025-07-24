@@ -668,6 +668,13 @@
       </a>
       <xsl:value-of select="@repeat"/>
     </xsl:when>
+    <!-- special case required for cx:while and cx:until -->
+    <xsl:when test="$idpfx = 'cx.' and $basename = ('with-input', 'output')">
+      <a href="#p.{$basename}">
+        <xsl:value-of select="$basename"/>
+      </a>
+      <xsl:value-of select="@repeat"/>
+    </xsl:when>
     <xsl:otherwise>
       <a href="#{$idpfx}{$basename}">
         <xsl:value-of select="@name"/>

@@ -1,22 +1,11 @@
 package com.xmlcalabash.runtime.steps
 
-import com.xmlcalabash.io.MediaType
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.namespace.Ns
 import com.xmlcalabash.runtime.XProcStepConfiguration
 import com.xmlcalabash.runtime.model.CompoundStepModel
-import com.xmlcalabash.util.MediaClassification
-import com.xmlcalabash.util.S9Api
-import com.xmlcalabash.util.XmlViewportComposer
-import net.sf.saxon.ma.map.MapItem
-import net.sf.saxon.s9api.QName
 import net.sf.saxon.s9api.XdmItem
-import net.sf.saxon.s9api.XdmMap
-import net.sf.saxon.s9api.XdmNode
-import net.sf.saxon.s9api.XdmValue
-import net.sf.saxon.value.QNameValue
-import net.sf.saxon.value.StringValue
 
 open class WhileStep(config: XProcStepConfiguration, compound: CompoundStepModel): CompoundStep(config, compound) {
     init {
