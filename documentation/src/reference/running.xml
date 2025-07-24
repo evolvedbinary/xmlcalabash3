@@ -7,16 +7,6 @@
   <title>Running example</title>
 </info>
 
-<para>Most of the examples in this reference use the same input document:
-<uri>default-input.xml</uri>.
-To avoid repeating it in every example, it is summarized here.</para>
-
-<programlisting language="xml"
-><xi:include href="../examples/xml/default-input.xml" parse="text"/></programlisting>
-
-<para>Where the content of <uri>default-ch2.xml</uri> is:</para>
-
-<programlisting language="xml"
-><xi:include href="../examples/xml/default-ch2.xml" parse="text"/></programlisting>
+<para>…</para>
 
 </chapter>

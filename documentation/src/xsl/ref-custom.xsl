@@ -321,12 +321,13 @@
       <xsl:when test="exists($target) and $target = ancestor::*">
         <xsl:sequence select="$formatted/node()"/>
       </xsl:when>
-
+<!--
       <xsl:when test="$tagname = ('p:document', 'p:with-input')">
         <a href="https://spec.xproc.org/master/head/xproc/#p.{substring-after($tagname, 'p:')}">
           <xsl:sequence select="$formatted/node()"/>
         </a>
       </xsl:when>
+-->
       <xsl:when test="$tagname = 'xsl:message'">
         <a href="https://www.w3.org/TR/xslt-30/#element-message">
           <xsl:sequence select="$formatted/node()"/>
@@ -347,6 +348,26 @@
 
       <xsl:when test="starts-with($tagname, 'c:')">
         <xsl:sequence select="$formatted/node()"/>
+      </xsl:when>
+
+      <xsl:when test="starts-with($tagname, 'p:')">
+        <xsl:variable name="target"
+                      select="(key('id', 'p.'||substring-after($tagname, 'p:')),
+                               key('id', 'p-'||substring-after($tagname, 'p:')))[1]"/>
+        <xsl:choose>
+          <xsl:when test="empty($target)">
+            <xsl:message select="'Link to non-existent ID: ' || $tagname"/>
+            <xsl:sequence select="'[???' || $tagname || '???]'"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:call-template name="tp:link">
+              <xsl:with-param name="href" select="f:href(., $target)"/>
+              <xsl:with-param name="content" as="node()*">
+                <xsl:sequence select="$formatted/node()"/>
+              </xsl:with-param>
+            </xsl:call-template>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:when>
 
       <xsl:when test="exists($target)">

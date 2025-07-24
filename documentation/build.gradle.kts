@@ -277,6 +277,7 @@ val reference = tasks.register<SaxonXsltTask>("reference") {
 
   inputs.file(layout.buildDirectory.file("version.json"))
   inputs.dir(layout.projectDirectory.dir("src/xsl"))
+  inputs.dir(layout.projectDirectory.dir("src/resources/rng"))
   inputs.file(layout.buildDirectory.file("archive-manifest.rng"))
   outputs.files(fileTree("dir" to layout.buildDirectory.dir("reference/current"),
                          "include" to "*.html"))
