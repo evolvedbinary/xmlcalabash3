@@ -13,6 +13,57 @@ See the commits and pull requests on
 finer detail.</para>
 
 <revhistory>
+<revision xml:id="r3011">
+<revnumber>3.0.11</revnumber>
+<date>2025-07-25</date>
+<revdescription>
+<itemizedlist>
+<listitem><para>Fixed <cbissue number="155"/>. Added a language reference
+chapter that includes at least a brief summary of all the XProc elements.
+This also improves the documentation for the XML Calabash extension steps,
+<tag>cx:until</tag> and <tag>cx:while</tag>.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="148"/>. The <port>source</port> input on
+<tag>p:invisible-xml</tag> is now unconditionally treated as a string.
+Note that there’s another wrinkle here, the <code>select</code> expression
+“<code>something/string()</code>” is an <code>application/json</code> document
+containing a single string atomic value. The expression
+“<code>something/text()</code>” is a text/plain document containing a single
+text node. That’s a sharper edge than we might like.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="144"/>. Use the JVM default charset
+encoding for console output.
+The <code>console-output-encoding</code> configuration option has been removed
+and XML Calabash now tries harder to use the JVM’s default charset for console
+output. The <filename>helloWorld.xpl</filename> sample
+pipeline has been extended to print some Unicode characters and the installation
+chapter has been extended to describe encoding issues in more detail.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="9"/>. Improved the PowerShell script so
+that it attempts provide command line arguments in a more useful format. (Left
+to its own devices, PowerShell splits arguments on “:” which is inconvenient for
+XML Calabash.) Also added support for checking the <code>$env:JAVA_HOME</code> environment
+variable in PowerShell.
+</para></listitem>
+<listitem><para>Attempted to make it easier to get debug information.
+Added an example <filename>logback-debug.xml</filename> file to the
+<filename class="directory">lib</filename> directory in the distribution.
+This configuration prints debug messages to the console and saves them in a file named
+<filename>xmlcalabash.log</filename>. The included scripts for running XML Calabash
+have also been improved so that arguments of the
+form “-D…” are recognized as Java property settings and added to the command line
+in the right place. (Note that on Windows, you have to quote any property
+setting that includes a “.”, for example
+<code>'-Dlogback.configurationFile=lib/logback-debug.xml'</code>)
+</para></listitem>
+<listitem><para>Improved the <option>--debug</option> option and the documentation
+for the option. They’re now better aligned.
+</para></listitem>
+<listitem><para>Various small documentation and documentation build fixes.
+</para></listitem>
+</itemizedlist>
+</revdescription>
+</revision>
 <revision xml:id="r3010">
 <revnumber>3.0.10</revnumber>
 <date>2025-07-16</date>
