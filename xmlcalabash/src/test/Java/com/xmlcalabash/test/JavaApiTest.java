@@ -5,6 +5,7 @@ import com.xmlcalabash.XmlCalabashBuilder;
 import com.xmlcalabash.api.MessageReporter;
 import com.xmlcalabash.config.ConfigurationLoader;
 import com.xmlcalabash.datamodel.DeclareStepInstruction;
+import com.xmlcalabash.documents.DocumentProperties;
 import com.xmlcalabash.documents.XProcDocument;
 import com.xmlcalabash.exceptions.XProcException;
 import com.xmlcalabash.io.DocumentManager;
@@ -13,6 +14,7 @@ import com.xmlcalabash.io.MessagePrinter;
 import com.xmlcalabash.parsers.xpl.XplParser;
 import com.xmlcalabash.runtime.XProcPipeline;
 import com.xmlcalabash.runtime.XProcRuntime;
+import com.xmlcalabash.runtime.api.RuntimePort;
 import com.xmlcalabash.spi.Configurer;
 import com.xmlcalabash.util.BufferingReceiver;
 import com.xmlcalabash.util.Report;
@@ -31,14 +33,19 @@ import net.sf.saxon.value.BooleanValue;
 import net.sf.saxon.value.SequenceType;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.xml.sax.InputSource;
 import org.xmlresolver.XMLResolver;
+import org.xmlresolver.XMLResolverConfiguration;
 
 import javax.xml.transform.sax.SAXSource;
 import java.io.*;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.fail;
@@ -293,6 +300,81 @@ public class JavaApiTest {
         Assertions.assertEquals("<doc extension-function=\"true\"/>", result.toString());
     }
 
+    @Test
+    public void otherContentTypes() {
+        XmlCalabash xmlCalabash = setupXmlCalabash();
+
+        XplParser parser = xmlCalabash.newXProcParser();
+        DeclareStepInstruction declareStep = parser.parse( parseInput("inputtypes.xpl"));
+        XProcRuntime runtime = declareStep.runtime();
+        XProcPipeline pipeline = runtime.executable();
+
+        BufferingReceiver receiver = new BufferingReceiver();
+        pipeline.setReceiver(receiver);
+
+        try {
+            URI cwd = UriUtils.Companion.cwdAsUri();
+            RuntimePort sourcePort = pipeline.getInputManifold().get("source");
+            if (sourcePort.getContentTypes().contains(MediaType.Companion.getJSON())) {
+                XPathCompiler compiler = declareStep.getStepConfig().newXPathCompiler();
+                XPathExecutable exec = compiler.compile("array { map { \"a\": 1 } }");
+                XPathSelector selector = exec.load();
+                XdmValue value = selector.evaluate();
+                XProcDocument jsonDoc = XProcDocument.Companion.ofJson(value, declareStep.getStepConfig());
+                pipeline.input("source", jsonDoc);
+            } else if (sourcePort.getContentTypes().contains(MediaType.Companion.getTEXT())) {
+                XProcDocument textDoc = xmlCalabash.getDocumentManager().load(cwd.resolve("src/test/resources/content.txt"),
+                        declareStep.getStepConfig(), new DocumentProperties(), new HashMap<>());
+                pipeline.input("source", textDoc);
+            } else {
+                fail();
+            }
+        } catch (Exception ex) {
+            fail();
+        }
+
+        pipeline.run();
+
+        XdmValue result = receiver.getOutputs().get("result").get(0).getValue();
+        System.out.println(result.toString());
+    }
+
+    @Disabled
+    public void userSpecifiedCatalogLoad() {
+        // This test uses some local resources. It's disabled by default.
+        String issueTestPath = "../issues/mircea-250725/";
+
+        URI cwd = UriUtils.Companion.cwdAsUri();
+
+        List<String> catalogFiles = new ArrayList<String>();
+        catalogFiles.add(cwd.resolve(issueTestPath + "catalog.xml").toString());
+
+        XMLResolver resolver = new XMLResolver(new XMLResolverConfiguration(catalogFiles));
+        DocumentManager manager = new DocumentManager(resolver);
+
+        XmlCalabashBuilder builder = new XmlCalabashBuilder();
+        builder.setDocumentManager(manager);
+
+        XmlCalabash xmlCalabash = builder.build();
+        processor = xmlCalabash.getSaxonConfiguration().getProcessor();
+
+        XplParser parser = xmlCalabash.newXProcParser();
+
+        URI xpl = cwd.resolve(issueTestPath + "/load/load.xproc");
+        //URI xpl = cwd.resolve(issueTestPath + "/cast/txtToXML.xproc");
+
+        DeclareStepInstruction declareStep = parser.parse(xpl);
+        XProcRuntime runtime = declareStep.runtime();
+        XProcPipeline pipeline = runtime.executable();
+
+        BufferingReceiver receiver = new BufferingReceiver();
+        pipeline.setReceiver(receiver);
+
+        pipeline.run();
+
+        XdmValue result = receiver.getOutputs().get("result").get(0).getValue();
+        System.out.println(result.toString());
+    }
 
     private static class MyMessagePrinter implements MessagePrinter {
         @Override
