@@ -1943,9 +1943,11 @@
           <optional>
             <ref name="WithInput"/>
           </optional>
+          <optional>
+            <ref name="Output"/>
+          </optional>
           <zeroOrMore>
             <choice>
-              <ref name="Output"/>
               <ref name="Documentation"/>
               <ref name="PipeInfo"/>
             </choice>
@@ -1973,9 +1975,11 @@
           <optional>
             <ref name="WithInput"/>
           </optional>
+          <optional>
+            <ref name="Output"/>
+          </optional>
           <zeroOrMore>
             <choice>
-              <ref name="Output"/>
               <ref name="Documentation"/>
               <ref name="PipeInfo"/>
             </choice>

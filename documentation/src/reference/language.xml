@@ -46,6 +46,11 @@ present in the reference.
 for improvements are welcome.</para>
 </note>
 
+<para>In the summaries that follow, <code>{any-name}*</code> generally means
+any number of additional <emphasis>namespace qualified</emphasis> names. These are
+roughly extension attributes and are ignored unless the processor uses them for
+some implementation-defined purpose.</para>
+
 <section xml:id="lang-declare-pipelines">
 <title>Declaring pipelines</title>
 
@@ -58,6 +63,24 @@ Pipelines may also import libraries and functions, and declare steps.</para>
              prefix="p" xml:id="p.declare-step" format="table"
              name="DeclarePipelineStep"/>
 
+<para>The example pipeline in <xref linkend="lang-example-compound-decl"/> shows a
+typical compound step declaration. In brief: it iterates over the files in a
+directory replacing selected copyright elements. We’ll look at several of its
+features in more detail below.</para>
+
+<note>
+<para>The example pipelines and some input documents to demonstrate how
+they work are available from
+<link xlink:href="https://codeberg.org/xmlcalabash/xmlcalabash3/src/branch/main/documentation/src/reference/examples">an examples directory</link>
+in the repository.</para>
+</note>
+
+<example xml:id="lang-example-compound-decl">
+<title>A compound step declaration</title>
+<programlisting language="xml"
+><xi:include href="examples/declare-step.xpl" parse="text"/></programlisting>
+</example>
+
 <para>A simpler form of declaration specifies the inputs, outputs, and options
 that the step accepts, but relies on the implementation having been provided
 through some other means. The XML Calabash extension steps, or extension
@@ -68,6 +91,30 @@ steps that you write in a JVM language yourself, follow this pattern.</para>
              prefix="p" format="table"
              name="DeclareAtomicStep"/>
 
+<para>An example atomic declaration is shown in <xref linkend="lang-example-atomic-decl"/>.
+This is the declaration for the extension step <tag>cx:fileset</tag>.</para>
+
+<example xml:id="lang-example-atomic-decl">
+<title>A compound step declaration</title>
+<programlisting language="xml"><![CDATA[<p:declare-step type="cx:fileset" version="3.1"
+                xmlns:cx="http://xmlcalabash.com/ns/extensions"
+                xmlns:p="http://www.w3.org/ns/xproc"
+                xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <p:input port="source" content-types="xml" sequence="true">
+    <p:empty/>
+  </p:input>
+  <p:output port="result" content-types="xml" sequence="true"/>
+  <p:option name="path" as="xs:string" required="true"/>
+  <p:option name="default-excludes" as="xs:boolean" select="true()"/>
+  <p:option name="case-sensitive" as="xs:boolean" select="true()"/>
+  <p:option name="error-on-missing-dir" as="xs:boolean" select="true()"/>
+  <p:option name="follow-symlinks" as="xs:boolean" select="true()"/>
+  <p:option name="includes" as="xs:string?"/>
+  <p:option name="excludes" as="xs:string?"/>
+  <p:option name="detailed" as="xs:boolean" select="false()"/>
+</p:declare-step>]]></programlisting>
+</example>
+
 <section>
 <title>Pipeline inputs</title>
 
@@ -77,6 +124,17 @@ steps that you write in a JVM language yourself, follow this pattern.</para>
              ns="https://xmlcalabash.com/ns/configuration"
              prefix="p" xml:id="p.input" format="table"
              name="Input"/>
+
+<para>The input in <xref linkend="lang-example-input"/> has the port name “copyright” and
+accepts only XML documents. If it’s the only input, it will be primary. The input
+doesn’t specify <code>sequence="true"</code>, so a single document is required.</para>
+
+<example xml:id="lang-example-input">
+<title>A pipeline input</title>
+<programlisting language="xml"
+><xi:include href="examples/declare-step.xpl"
+             parse="text" fragid="search=/p:input/,/p:output/;before;strip"/></programlisting>
+</example>
 
 </section>
 
@@ -92,6 +150,16 @@ on a pipeline, serialization parameters may also be declared.</para>
              ns="https://xmlcalabash.com/ns/configuration"
              prefix="p" format="table"
              name="PipelineOutputDeclaration"/>
+
+<para>The output in <xref linkend="lang-example-output"/> has the port name “result”.
+The pipeline result must be a single text document.</para>
+
+<example xml:id="lang-example-output">
+<title>A pipeline output</title>
+<programlisting language="xml"
+><xi:include href="examples/declare-step.xpl"
+             parse="text" fragid="search=/p:output/,/p:output/;strip"/></programlisting>
+</example>
 
 <para>On a compound step, no serialization can occur, so it would be pointless to
 specify them.</para>
@@ -109,6 +177,14 @@ connections.</para>
              prefix="p" format="table"
              name="AtomicOutputDeclaration"/>
 
+<para>The output on the <tag>cx:fileset</tag> declaration indicates that
+the step can produce a sequence of XML documents.</para>
+
+<example xml:id="lang-example-atomic-output">
+<title>An atomic step output</title>
+<programlisting language="xml"
+><![CDATA[<p:output port="result" content-types="xml" sequence="true"/>]]></programlisting>
+</example>
 </section>
 
 <section xml:id="lang-options">
@@ -120,6 +196,20 @@ connections.</para>
              ns="https://xmlcalabash.com/ns/configuration"
              prefix="p" xml:id="p.option" format="table"
              name="Option"/>
+
+<para>The compound step declaration above declares three options.</para>
+
+<example xml:id="lang-example-options">
+<title>Pipeline options</title>
+<programlisting language="xml"
+><xi:include href="examples/declare-step.xpl"
+             parse="text" fragid="search=/p:option/,3/p:option/;strip"/></programlisting>
+</example>
+
+<para>The <code>path</code> and <code>output-path</code> options are required and must be
+a string and a URI, respectively (there’s no practical reason to make them different types
+in this case, it’s just to make the example more interesting).
+The <code>recurse</code> option is not required and will default to “false”.</para>
 
 <para>Options can be declared static:</para>
 
@@ -144,6 +234,10 @@ with another option or <tag>p:variable</tag>.</para>
              ns="https://xmlcalabash.com/ns/configuration"
              prefix="p" xml:id="p.library" format="table"
              name="Library"/>
+
+<para>A collection of step declarations and (static) options can be put inside
+a <tag>p:library</tag> so that they can all be imported together.</para>
+
 </section>
 
 <section>
@@ -156,12 +250,54 @@ with another option or <tag>p:variable</tag>.</para>
              prefix="p" xml:id="p.import" format="table"
              name="Import"/>
 
+<para>XML Calabash provides URIs for importing its extension steps. For example,
+<uri>https://xmlcalabash.com/ext/library/fileset.xpl</uri> for the
+<tag>cx:fileset</tag> extension step. Generally speaking, the specified URI is
+retrieved and parsed for its declarations. The library URIs that XML Calabash
+provides for its extension steps are resolved internally, without any internet
+access.</para>
+
 <para>XML Calabash can also import functions defined in XSLT or XQuery.</para>
 
 <rng-pattern schema="../../src/resources/rng/core31.rng"
              ns="https://xmlcalabash.com/ns/configuration"
              prefix="p" xml:id="p.import-functions" format="table"
              name="ImportFunctions"/>
+
+<para>The stylesheet in <xref linkend="lang-example-import-functions"/> defines
+two functions, <function>f:is-leap-day</function> with no arguments and
+<function>f:is-leap-day</function> with a single date argument.</para>
+
+<example xml:id="lang-example-import-functions">
+<title>A function library in XSLT</title>
+<programlisting language="xml"
+><xi:include href="examples/is-leap-day.xsl" parse="text"/></programlisting>
+</example>
+
+<para>After the library has been imported, the functions that it defines can be
+used in XPath expressions in the pipeline. The pipeline in
+<xref linkend="lang-example-leap-day"/> outputs a single document that
+answers the questions, “is today a leap day and is 29 February 2028 a leap day?”</para>
+
+<example xml:id="lang-example-leap-day">
+<title>Using the function library</title>
+<programlisting language="xml"
+><xi:include href="examples/leap-day.xpl" parse="text"/></programlisting>
+</example>
+
+<para>If you have Saxon EE and you run the pipeline, the output will be something
+like:</para>
+
+<screen language="xml"><![CDATA[<leap-days>
+   <today date="2025-07-26">false</today>
+   <other date="2028-02-29">true</other>
+</leap-days>]]></screen>
+
+<para>Note that the <tag>p:output</tag> element in the pipeline uses the serialization
+options to pretty-print the output and the <tag>p:with-input</tag> uses
+<tag class="attribute">exclude-inline-prefixes</tag> to avoid having the namespace
+declaration for “f” on the output.</para>
+
 </section>
 </section>
 
@@ -176,6 +312,19 @@ their inputs are connected.</para>
              prefix="p" xml:id="p.with-input" format="table"
              name="WithInput"/>
 
+<para>The input on the <tag>p:for-each</tag> step in the example above does
+not have any explicit bindings:</para>
+
+<programlisting language="xml"
+><xi:include href="examples/declare-step.xpl"
+             parse="text" fragid="search=/p:with-input/,/p:with-input/;strip"/></programlisting>
+
+<para>That means it connects to the “default readable port”, usually the primary output of the
+preceding step.</para>
+
+<section xml:id="lang-document">
+<title>Document inputs</title>
+
 <para>The <tag>p:document</tag> elmement (or the <tag class="attribute">href</tag> attribute
 on <tag>p:with-input</tag>) connects an input to document identified with a URI.</para>
 
@@ -183,6 +332,14 @@ on <tag>p:with-input</tag>) connects an input to document identified with a URI.
              ns="https://xmlcalabash.com/ns/configuration"
              prefix="p" xml:id="p.document" format="table"
              name="Document"/>
+
+<para>The document properties will be applied to the result. The parameters me be used
+during document access.</para>
+
+</section>
+
+<section xml:id="lang-inline">
+<title>Inline inputs</title>
 
 <para>The <tag>p:inline</tag> element connects an input to a document placed
 into the pipeline directly. The <tag>p:inline</tag> element can be omitted in
@@ -192,6 +349,18 @@ the simple case of a single XML document.</para>
              ns="https://xmlcalabash.com/ns/configuration"
              prefix="p" xml:id="p.inline" format="table"
              name="Inline"/>
+
+<para>The <tag>p:inline</tag> element specifies that it is text. Attribute
+value templates in the body are used to evaluate expressions.</para>
+
+<programlisting language="xml"
+><xi:include href="examples/declare-step.xpl"
+             parse="text" fragid="search=/p:inline/,/p:inline/strip"/></programlisting>
+
+</section>
+
+<section xml:id="lang-pipe">
+<title>Pipe inputs</title>
 
 <para>The <tag>p:pipe</tag> elmement (or the <tag class="attribute">pipe</tag> attribute
 on <tag>p:with-input</tag>) connects an input to the output from some other step.
@@ -206,6 +375,25 @@ port if there isn’t one.</para>
              prefix="p" xml:id="p.pipe" format="table"
              name="Pipe"/>
 
+<para>The <tag>p:identity</tag> step in the viewport users a <tag class="attribute">pipe</tag>
+attribute to make a <link linkend="lang-pipe">pipe binding</link>:</para>
+
+<programlisting language="xml"
+><xi:include href="examples/declare-step.xpl"
+             parse="text" fragid="search=2/p:with-input/,/p:with-input/;strip"/></programlisting>
+
+<para>The variable declaration for <code>$total</code> uses the <tag>p:pipe</tag> step to
+make a pipe binding. In the context of a variable, this establishes the context item used
+when evaluating the expression.</para>
+
+<programlisting language="xml"
+><xi:include href="examples/declare-step.xpl"
+             parse="text" fragid="search=/p:pipe/,/p:pipe/;strip"/></programlisting>
+
+</section>
+<section xml:id="lang-empty">
+<title>Empty inputs</title>
+
 <para>The <tag>p:empty</tag> element explicitly binds the input to an empty sequence
 of documents.</para>
 
@@ -213,6 +401,11 @@ of documents.</para>
              ns="https://xmlcalabash.com/ns/configuration"
              prefix="p" xml:id="p.empty" format="table"
              name="Empty"/>
+</section>
+</section>
+
+<section xml:id="lang-with-option">
+<title>Connecting option values to steps</title>
 
 <para>Analagous to how inputs are provided with <tag>p:with-input</tag>, option values
 are provided with <tag>p:with-option</tag>. Options can also be specified as attributes
@@ -222,6 +415,23 @@ on the step itself, in which case their value is taken to be an attribute value 
              ns="https://xmlcalabash.com/ns/configuration"
              prefix="p" xml:id="p.with-option" format="table"
              name="WithOption"/>
+
+<para>The <code>$max-depth</code> option is set on the <tag>p:directory-list</tag>
+using <tag>p:with-option</tag>:</para>
+
+<programlisting language="xml"
+><xi:include href="examples/declare-step.xpl"
+             parse="text" fragid="search=/p:with-option/,/p:directory-list/;before;strip"/></programlisting>
+
+<para>Options can also be specified directly on the step, such as
+<code>$path</code> on the <tag>p:directory-list</tag> step. In this case, the
+value is an attribute value template.</para>
+
+<programlisting language="xml"
+><xi:include href="examples/declare-step.xpl"
+             parse="text" fragid="search=/p:directory-list/,/p:with-option/;before;strip"/></programlisting>
+
+<para>The <code>$include-filter</code> is also set in this way.</para>
 
 </section>
 
@@ -253,6 +463,20 @@ an attribute on the loop input. You need to use “<code>/*/@name</code>” or s
 similar instead.</para>
 </tip>
 
+<para>The <tag>p:for-each</tag> in <xref linkend="lang-example-for-each"/> loops over the
+<tag>c:file</tag> elements from the <tag>p:directory-list</tag> step, but each
+one will be in its own document.</para>
+
+<example xml:id="lang-example-for-each">
+<title>Looping with for-each</title>
+<programlisting language="xml"
+><xi:include href="examples/declare-step.xpl"
+             parse="text" fragid="search=/p:for-each/,/p:with-input/;strip"/>…
+<xi:include href="examples/declare-step.xpl"
+             parse="text" fragid="search=#/p:for-each#,#/p:for-each#;strip"/>
+</programlisting>
+</example>
+
 <para>In principle, a <tag>p:for-each</tag> can process its inputs in parallel.
 XML Calabash does not do so at this time.</para>
 
@@ -268,6 +492,18 @@ of processing (a document containing) those sections using the subpipeline.</par
              prefix="p" xml:id="p.viewport" format="table"
              name="Viewport"/>
 
+<para>The <tag>p:viewport</tag> in <xref linkend="lang-example-viewport"/> matches
+each <tag>copyright</tag> element where the holder is “Someone Random” and replaces
+that element with the result of its subpipeline, in this case, with the contents
+of the document on the <port>copyright</port> input port.</para>
+
+<example xml:id="lang-example-viewport">
+<title>Matching with viewport</title>
+<programlisting language="xml"
+><xi:include href="examples/declare-step.xpl"
+             parse="text" fragid="search=/p:viewport/,#/p:viewport#;strip"/>
+</programlisting>
+</example>
 </section>
 
 <section>
@@ -283,6 +519,16 @@ of alternatives. At most one alternative will be used: either the first <tag>p:w
              prefix="p" xml:id="p.choose" format="table"
              name="Choose"/>
 
+<para>The example pipeline in <xref linkend="lang-example-choose"/> uses
+<tag>p:choose</tag> to select which stylesheet to use when formatting a document
+based on the document status.</para>
+
+<example xml:id="lang-example-choose">
+<title>An example choice</title>
+<programlisting language="xml"
+><xi:include href="examples/choose.xpl" parse="text"/></programlisting>
+</example>
+
 <para>Each alternative is a <tag>p:when</tag> which contains the subpipeline to run
 if this alternative is selected.</para>
 
@@ -291,6 +537,21 @@ if this alternative is selected.</para>
              prefix="p" xml:id="p.when" format="table"
              name="When"/>
 
+<para>The first <tag>p:when</tag> selects documents with a status of “draft”:</para>
+
+<programlisting language="xml"
+><xi:include href="examples/choose.xpl"
+             parse="text" fragid="search=/p:when/,#/p:when#;strip"/></programlisting>
+
+<para>The second <tag>p:when</tag> selects documents with a status of “final”.
+This example includes an explicit binding for the input that will be used to set
+the context item for the test expression. It’s unnecessary as it’s the same as the default
+readable port in this case.</para>
+
+<programlisting language="xml"
+><xi:include href="examples/choose.xpl"
+             parse="text" fragid="search=2/&lt;p:when/,#/p:when#;strip"/></programlisting>
+
 <para>The <tag>p:otherwise</tag> contains the subpipeline to run
 if no other alternative is selected.</para>
 
@@ -298,6 +559,14 @@ if no other alternative is selected.</para>
              ns="https://xmlcalabash.com/ns/configuration"
              prefix="p" xml:id="p.otherwise" format="table"
              name="Otherwise"/>
+
+<para>The <tag>p:otherwise</tag> in this example raises an error if the status is neither
+draft nor final:</para>
+
+<programlisting language="xml"
+><xi:include href="examples/choose.xpl"
+             parse="text" fragid="search=/p:otherwise/,#/p:otherwise#;strip"/></programlisting>
+
 </section>
 
 <section>
@@ -312,6 +581,20 @@ passing it’s input through unchanged.</para>
              ns="https://xmlcalabash.com/ns/configuration"
              prefix="p" xml:id="p.if" format="table"
              name="If"/>
+
+<para>The <tag>p:if</tag> in <xref linkend="lang-example-if"/> deletes the
+<tag class="attribute">count</tag> attribute if it has the value “0”.</para>
+
+<example xml:id="lang-example-if">
+<title>Using an if instruction</title>
+<programlisting language="xml"
+><xi:include href="examples/while.xpl"
+             parse="text" fragid="search=/p:if/,#/p:if#;strip"/>
+</programlisting>
+</example>
+
+<para>If the attribute has any other value (or isn’t present), the document
+passes through as if it was an <tag>p:identity</tag> step.</para>
 
 </section>
 
@@ -334,12 +617,23 @@ passing it’s input through unchanged.</para>
 and recover from them. The subpipline is run. If no errors occur, the result
 of the step is the result of that subpipeline. If an error does occur, each
 <tag>p:catch</tag> is tested in turn and the result of the step is the result
-of teh first matching <tag>p:catch</tag>.</para>
+of the first matching <tag>p:catch</tag>.</para>
 
 <rng-pattern schema="../../src/resources/rng/core31.rng"
              ns="https://xmlcalabash.com/ns/configuration"
              prefix="p" xml:id="p.try" format="table"
              name="Try"/>
+
+<para>The example for <tag>p:choose</tag> raises an error if the status is
+neither “draft” nor “final”. We can use <tag>p:try</tag> to recover from that error
+and treat any such document as if it had draft status, as shown in
+<xref linkend="lang-example-try"/>.</para>
+
+<example xml:id="lang-example-try">
+<title>An example try/catch</title>
+<programlisting language="xml"
+><xi:include href="examples/trycatch.xpl" parse="text"/></programlisting>
+</example>
 
 <para>A <tag>p:catch</tag> matches an error if the error code is in its
 <tag class="attribute">code</tag> list, or if it does not have a 
@@ -353,6 +647,10 @@ ancestors, if it has any.)</para>
              ns="https://xmlcalabash.com/ns/configuration"
              prefix="p" xml:id="p.catch" format="table"
              name="Catch"/>
+
+<para>Note that the default readable port inside the <tag>p:catch</tag> is the
+error document produced by the failed pipeline. You have to make an explicit binding
+if you want something else.</para>
 
 <para>Irrespective of whether the subpipeline succeeds or fails and whether or not
 a catch is invoked (and whether or not it succeeds or fails), the <tag>p:finally</tag>
@@ -383,18 +681,39 @@ applying its <glossterm>subpipeline</glossterm> until the
              prefix="cx" xml:id="cx.until" format="table"
              name="Until"/>
 
-<para>The result of the <tag>cx:until</tag> step is first document for which
-the test expression is true.</para>
+<para>The <tag class="attribute">test</tag> attribute specifies an XPath
+expression. The subpipeline is always run at least once and the condition is
+only tested at the end of the loop.
+The result of the subpipeline is provided as the context item.
+The <emphasis>previous</emphasis> result is provided in the variable
+<varname>cx:previous</varname>.</para>
+
+<para>The pipeline <xref linkend="lang-example-until"/> demonstrates a horribly
+inefficient way to add explicit numbers to a list.</para>
+
+<example xml:id="lang-example-until">
+<title>Looping until a condition is true</title>
+<programlisting language="xml"
+><xi:include href="examples/until.xpl" parse="text"/>
+</programlisting>
+</example>
+
+<para>The first time through the loop, the first item is replaced. The next
+time through, the next item is replaced, etc. Looping stops when nothing changes
+in the document (that is, when all the items have been replaced).</para>
+
+<para>The result of the <tag>cx:until</tag> step is first document for which the
+test expression is true. In this case, the result is:
+</para>
+
+<programlisting language="xml"><![CDATA[<list>
+   <li number="1"/>
+   <li number="2"/>
+   <li number="3"/>
+</list>]]></programlisting>
 
 <para>It is a dynamic error (<code>err:XD0001</code>) if the source is not a
 single document.</para>
-
-<para>The subpipeline is always run at least once.</para>
-
-<para>The <tag class="attribute">test</tag> attribute specifies an
-XPath expression. The result of the subpipeline is provided as the context item.
-The <emphasis>previous</emphasis> result is provided in the variable
-<varname>cx:previous</varname>.</para>
 
 </section>
 
@@ -411,9 +730,26 @@ applying its <glossterm>subpipeline</glossterm> while the
              prefix="cx" xml:id="cx.while" format="table"
              name="While"/>
 
+<para>The somewhat contrived example in <xref linkend="lang-example-while"/> loops
+over the document adding a new first child until the count reaches zero.</para>
+
+<example xml:id="lang-example-while">
+<title>Looping while a condition is true</title>
+<programlisting language="xml"
+><xi:include href="examples/while.xpl" parse="text"/>
+</programlisting>
+</example>
+
 <para>The result of the <tag>cx:while</tag> step is first document for which
-the test expression did not have an effective boolean value of true.
+the test expression did not have an effective boolean value of true. In this
+case, the result is:
 </para>
+
+<programlisting language="xml"><![CDATA[<doc>
+   <insertion for="1"/>
+   <insertion for="2"/>
+   <insertion for="3"/>
+</doc>]]></programlisting>
 
 <para>It is a
 dynamic error (<code>err:XD0001</code>) if the source is not a single
@@ -467,11 +803,6 @@ element. It’s ignored by the processor.</para>
              prefix="p" xml:id="p.documentation" format="table"
              name="Documentation"/>
 
-<note>
-<para>A <tag>p:documentation</tag> element inside a <tag>p:inline</tag> isn’t treated specially,
-it will occur in the inlined document.</para>
-</note>
-
 <para>The <tag>p:pipeinfo</tag> element is intended for additional information that
 a particular processor might use. XML Calabash uses them for
 <link xlink:href="https://docs.xmlcalabash.com/userguide/current/assertions.html">assertions</link>,
@@ -481,6 +812,12 @@ for example.</para>
              ns="https://xmlcalabash.com/ns/configuration"
              prefix="p" xml:id="p.pipeinfo" format="table"
              name="PipeInfo"/>
+
+<note>
+<para>The <tag>p:documentation</tag> and <tag>p:pipeinfo</tag> elements have no special
+signifigance inside a <tag>p:inline</tag>; in that context, they’re just inline
+elements.</para>
+</note>
 
 </section>
 
