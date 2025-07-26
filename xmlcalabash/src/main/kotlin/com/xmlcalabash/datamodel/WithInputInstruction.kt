@@ -1,6 +1,7 @@
 package com.xmlcalabash.datamodel
 
 import com.xmlcalabash.exceptions.XProcError
+import com.xmlcalabash.namespace.NsCx
 import com.xmlcalabash.namespace.NsP
 import com.xmlcalabash.namespace.NsS
 import com.xmlcalabash.util.S9Api
@@ -20,7 +21,7 @@ open class WithInputInstruction(parent: XProcInstruction, stepConfig: Instructio
 
         var connectDrp = !connected && primary == true
         if (!connectDrp && !connected && parent != null) {
-            connectDrp = parent!!.instructionType in listOf(NsP.forEach, NsP.viewport)
+            connectDrp = parent!!.instructionType in listOf(NsP.forEach, NsP.viewport, NsCx.`while`, NsCx.until)
         }
 
         if (!connected && connectDrp) {
