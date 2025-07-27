@@ -78,7 +78,7 @@ by the <tag>cx:railroad</tag> step to make railroad diagrams.</para>
 <link xlink:href="https://github.com/pegjs/pegjs/tree/master/docs/grammar">PEG.js</link>.
 </para></listitem>
 <listitem><para><literal>w3c</literal>,
-<link xlink:href="https://www.w3.org/TR/xquery-31/#EBNFNotation">W3C EBNF</link> (for notational completness).
+<link xlink:href="https://www.w3.org/TR/xquery-31/#EBNFNotation">W3C EBNF</link> (for notational completeness).
 </para></listitem>
 <listitem><para><literal>xtext</literal>,
 <link xlink:href="https://eclipse.dev/Xtext/documentation/301_grammarlanguage.html">Xtext</link>.

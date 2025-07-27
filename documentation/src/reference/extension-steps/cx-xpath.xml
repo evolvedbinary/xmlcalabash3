@@ -8,7 +8,7 @@
 <?db filename="cx-xpath"?>
 <refnamediv>
   <refname>cx:xpath</refname>
-  <refpurpose>Evalute XPath expressions</refpurpose>
+  <refpurpose>Evaluate XPath expressions</refpurpose>
 </refnamediv>
 
 <refsynopsisdiv>

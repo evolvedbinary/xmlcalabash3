@@ -251,7 +251,7 @@ If the <tag class="attribute">if</tag> attribute is false or the
              name="fs.contains" format="table"/>
 
 <para>If <tag class="attribute">ignore-whitespace</tag> is true, all white space is
-stripped from the search text and the file before making the comparision.</para>
+stripped from the search text and the file before making the comparison.</para>
 
 </refsection>
 <refsection xml:id="cxfs.content-type">
@@ -278,7 +278,7 @@ the constraints specified.</para>
 the specified <tag class="attribute">date-time</tag>. If it’s “after”, it must be after. If
 it’s “equal” (the default), it must be equal.</para>
 
-<para>For the purposes of comparision, the last modified time is equal to the specified date
+<para>For the purposes of comparison, the last modified time is equal to the specified date
 time if it’s within <tag class="attribute">granularity</tag> milliseconds of the specified
 <tag class="attribute">date-time</tag>. On Windows, the default granularity is 2 seconds, on 
 other systems, it’s 0.</para>
@@ -293,7 +293,7 @@ other systems, it’s 0.</para>
 <rng-pattern schema="../../build/fileset.rng"
              name="fs.depend" format="table"/>
 
-<para>For the purposes of comparision, two files are considered to have the same
+<para>For the purposes of comparison, two files are considered to have the same
 last modified time if they are within <tag class="attribute">granularity</tag>
 milliseconds of each other. On Windows, the default granularity is 2 seconds, on
 other systems, it’s 0.</para>
@@ -327,7 +327,7 @@ If <tag class="attribute">max</tag> is unspecified, it defaults to ∞.</para>
 <para>The default value for <tag class="attribute">ignore-file-times</tag> is true;
 the default value for <tag class="attribute">ignore-contents</tag> is false.</para>
 
-<para>For the purposes of comparision, two files are considered to have the same
+<para>For the purposes of comparison, two files are considered to have the same
 last modified time if they are within <tag class="attribute">granularity</tag>
 milliseconds of each other. On Windows, the default granularity is 2 seconds, on
 other systems, it’s 0.</para>

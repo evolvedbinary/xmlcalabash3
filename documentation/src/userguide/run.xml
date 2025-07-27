@@ -287,7 +287,7 @@ and <phrase linkend="cli-serial">serialization parameters</phrase>.
 <listitem>
 <para>Attempts to load and execute the class named <replaceable>class-name</replaceable>, which
 must be available on the class path and must implement the <classname>net.sf.saxon.lib.Initializer</classname>
-interface. (This is analagous to the <literal>-init:</literal> option on the Saxon command line
+interface. (This is analogous to the <literal>-init:</literal> option on the Saxon command line
 API.)
 </para>
 </listitem>
@@ -388,7 +388,7 @@ the documents produced during execution are recorded. (Defaults to false.)</para
 
 <para>Options can be specified on the command line as <literal>key=value</literal> pairs
 after the name. The name and any options are separated by a question mark (<literal>?</literal>).
-Key-value pairs are separted by semicolons (<literal>;</literal>).
+Key-value pairs are separated by semicolons (<literal>;</literal>).
 For example: <literal>--visualizer=detail?steps=true;documents=true</literal>.</para>
 
 </listitem>
@@ -805,7 +805,7 @@ the classpath at runtime.</para>
 
 </section>
 <section xml:id="run-info-mimetypes">
-<title>The <literal>info mimtypes</literal> command</title>
+<title>The <literal>info mimetypes</literal> command</title>
 
 <cmdsynopsis>
   <command>xmlcalabash</command>
@@ -837,7 +837,7 @@ Use the 'info mimetype &lt;ext&gt;' command to query the content type of a parti
 
 </section>
 <section xml:id="run-info-mimetype">
-<title>The <literal>info mimtype</literal> command</title>
+<title>The <literal>info mimetype</literal> command</title>
 
 <cmdsynopsis>
   <command>xmlcalabash</command>

@@ -39,7 +39,7 @@
     <listitem>
       <para>Returns the default
       <link xlink:href="https://docs.oracle.com/javase/8/docs/api/java/util/Locale.html">JVM locale</link>.
-      Underscores in the JVM locale are replaced by hyphens for compatiblity with XML language
+      Underscores in the JVM locale are replaced by hyphens for compatibility with XML language
       identifiers.</para>
     </listitem>
   </varlistentry>

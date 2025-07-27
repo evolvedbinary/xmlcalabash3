@@ -95,7 +95,7 @@ resulting pipeline will run correctly, as we can see from its graph:</para>
 
 <para>Even though the store and load steps are in separate thread groups, the
 dependency link assures that the store step will always run first. It’s also
-reduced almost all parallism in the graph, making threading largely
+reduced almost all parallelism in the graph, making threading largely
 inconsequential.</para>
 
 <para>The pipeline in <xref linkend="thread.ex.good"/> shows a pipeline that

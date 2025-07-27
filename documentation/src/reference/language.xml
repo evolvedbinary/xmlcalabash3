@@ -325,7 +325,7 @@ preceding step.</para>
 <section xml:id="lang-document">
 <title>Document inputs</title>
 
-<para>The <tag>p:document</tag> elmement (or the <tag class="attribute">href</tag> attribute
+<para>The <tag>p:document</tag> element (or the <tag class="attribute">href</tag> attribute
 on <tag>p:with-input</tag>) connects an input to document identified with a URI.</para>
 
 <rng-pattern schema="../../src/resources/rng/core31.rng"
@@ -362,7 +362,7 @@ value templates in the body are used to evaluate expressions.</para>
 <section xml:id="lang-pipe">
 <title>Pipe inputs</title>
 
-<para>The <tag>p:pipe</tag> elmement (or the <tag class="attribute">pipe</tag> attribute
+<para>The <tag>p:pipe</tag> element (or the <tag class="attribute">pipe</tag> attribute
 on <tag>p:with-input</tag>) connects an input to the output from some other step.
 If <tag class="attribute">step</tag> is omitted, the step associated with the default
 readable port is assumed. If <tag class="attribute">port</tag> is omitted, the primary output
@@ -407,7 +407,7 @@ of documents.</para>
 <section xml:id="lang-with-option">
 <title>Connecting option values to steps</title>
 
-<para>Analagous to how inputs are provided with <tag>p:with-input</tag>, option values
+<para>Analogous to how inputs are provided with <tag>p:with-input</tag>, option values
 are provided with <tag>p:with-option</tag>. Options can also be specified as attributes
 on the step itself, in which case their value is taken to be an attribute value template.</para>
 
@@ -614,7 +614,7 @@ passes through as if it was an <tag>p:identity</tag> step.</para>
 <title>Exception handling (p:try)</title>
 
 <para>The <tag>p:try</tag> step allows a pipeline author to catch errors
-and recover from them. The subpipline is run. If no errors occur, the result
+and recover from them. The subpipeline is run. If no errors occur, the result
 of the step is the result of that subpipeline. If an error does occur, each
 <tag>p:catch</tag> is tested in turn and the result of the step is the result
 of the first matching <tag>p:catch</tag>.</para>
@@ -795,7 +795,7 @@ computation.</para>
 <section xml:id="lang-extra">
 <title>Extra information</title>
 
-<para>Documenation can be placed anywhere in the pipeline with the <tag>p:documentation</tag>
+<para>Documentation can be placed anywhere in the pipeline with the <tag>p:documentation</tag>
 element. It’s ignored by the processor.</para>
 
 <rng-pattern schema="../../src/resources/rng/core31.rng"
