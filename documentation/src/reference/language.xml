@@ -95,7 +95,7 @@ steps that you write in a JVM language yourself, follow this pattern.</para>
 This is the declaration for the extension step <tag>cx:fileset</tag>.</para>
 
 <example xml:id="lang-example-atomic-decl">
-<title>A compound step declaration</title>
+<title>An atomic step declaration</title>
 <programlisting language="xml"><![CDATA[<p:declare-step type="cx:fileset" version="3.1"
                 xmlns:cx="http://xmlcalabash.com/ns/extensions"
                 xmlns:p="http://www.w3.org/ns/xproc"
