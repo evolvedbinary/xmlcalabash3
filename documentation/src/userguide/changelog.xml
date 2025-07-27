@@ -13,6 +13,22 @@ See the commits and pull requests on
 finer detail.</para>
 
 <revhistory>
+<revision xml:id="r3012">
+<revnumber>3.0.12</revnumber>
+<date>2025-07-27</date>
+<revdescription>
+<itemizedlist>
+<listitem><para>Fixed <cbissue number="163"/> by making sure that the
+default readable port is applied correctly to the <tag>cx:until</tag>
+and <tag>cx:while</tag> steps.
+</para></listitem>
+<listitem><para>Added examples to the
+<link xlink:href="https://docs.xmlcalabash.com/reference/current/language-reference.html">language
+reference</link>.
+</para></listitem>
+</itemizedlist>
+</revdescription>
+</revision>
 <revision xml:id="r3011">
 <revnumber>3.0.11</revnumber>
 <date>2025-07-25</date>
