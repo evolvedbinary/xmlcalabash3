@@ -202,7 +202,7 @@ executable. Making SVG diagrams of pipelines or graphs requires Graphviz.</para>
 As written, the document that is provided on the <port>source</port> port consists
 of: 
 a newline, six spaces, the <code>&lt;document/&gt;</code> element, a newline and
-four spaces. Sometimes that’s annoying. It’s posssible to rewrite the example so that
+four spaces. Sometimes that’s annoying. It’s possible to rewrite the example so that
 there’s no insignificant whitespace, but that makes the pipeline harder to read.</para>
 
 <para>If <tag class="attribute">trim-whitespace</tag> is <literal>true</literal>, leading
@@ -435,7 +435,7 @@ default serialization properties for documents with the corresponding content ty
                   method="html" html-version="5"/>]]></programlisting>
 
 <para>Will serialize <literal>text/html</literal> documents using HTML 5 serialization by default.
-The serialization properties on a document take precendence over these defaults.
+The serialization properties on a document take precedence over these defaults.
 </para>
 
 </section>
@@ -486,7 +486,7 @@ runs.</para>
 <term><tag class="attribute">buffer-size</tag> (integer)</term>
 <listitem>
 <para>Sets the number of messages buffered. These can be retrieved in a pipeline
-with <tag>cx:pipeline-messagers</tag>. If the value is negative, there is no limit on
+with <tag>cx:pipeline-messages</tag>. If the value is negative, there is no limit on
 the number of messages buffered. The default value is 32.</para>
 </listitem>
 </varlistentry>
@@ -555,8 +555,8 @@ the documents produced during execution are recorded. (Defaults to false.)</para
 <varlistentry><term><tag class="attribute">count</tag> (integer)</term>
 <listitem>
 <para>The size of the thread pool. If unspecified, the processor will use the
-maximum number of threads possible (one per processor). Specifing a value larger
-than the number of processors won’t increase the numbrer of threads, at most one
+maximum number of threads possible (one per processor). Specifying a value larger
+than the number of processors won’t increase the number of threads, at most one
 thread per processor will be allocated.</para>
 </listitem>
 </varlistentry>

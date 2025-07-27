@@ -236,7 +236,7 @@ errors on the step <replaceable>id</replaceable>. If a
 <replaceable>code</replaceable> is provided, the debugger will only stop if the
 error code matches <replaceable>code</replaceable>. If only a
 <replaceable>code</replaceable> is provided, the debugger will stop at any step
-when that error occurs. Errors precolate up the stack until a <tag>p:try</tag>
+when that error occurs. Errors percolate up the stack until a <tag>p:try</tag>
 is encountered or the pipeline terminates. It is possible to catch the same
 error on several consecutive steps as you go “up” the stack.</para>
 
@@ -606,7 +606,7 @@ id2               ... p:identity id2</computeroutput>
 <prompt>> </prompt></screen>
 
 <para>The initial stack is just the one step, the main pipeline waiting to be run.
-Stepping forward once takes us the head of the compound step. Stepping foward again
+Stepping forward once takes us the head of the compound step. Stepping forward again
 takes us to the <tag>p:document</tag> step. (Note that the order in which steps are run
 depends on the connections between them, they are not displayed in any particular order
 by the model or <command>subpipeline</command> commands.)</para>

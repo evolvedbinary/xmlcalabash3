@@ -134,7 +134,7 @@ Here is the earlier assertions pipeline rewritten in this way:</para>
 <programlisting language='xml'
 ><xi:include href="../examples/xpl/assertions-2.xpl" parse="text"/></programlisting>
 
-<para>As a convience for the case where you want to reuse schemas where
+<para>As a convenience for the case where you want to reuse schemas where
 you have an input or output element, you can put the 
 <tag class="attribute">cx:assertions</tag> attribute directly on the input or
 output element. In this case, the assertions must be a list of strings.</para>

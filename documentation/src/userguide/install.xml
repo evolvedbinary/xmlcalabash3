@@ -20,7 +20,7 @@ directory containing: <filename>README.md</filename>,
 <filename>xmlcalabash-<?version?>.jar</filename>, and
 a <filename class="directory">lib/</filename> directory containing
 <emphasis>lots</emphasis> of jar files. The application ships with all of the dependencies
-nesssary to run all of the steps, including the extension steps.
+necessary to run all of the steps, including the extension steps.
 </para>
 
 <para>All
@@ -227,7 +227,7 @@ property. For example, running Java like this:</para>
 you’re actually using, are the same.</para>
 
 <sidebar>
-<para>On Windows, you can tell Powershell to use UTF-8 by running this command:</para>
+<para>On Windows, you can tell PowerShell to use UTF-8 by running this command:</para>
 <screen>[Console]::OutputEncoding = [System.Text.Encoding]::UTF8</screen>
 <para>Alternatively, you can use <code>file.encoding</code> to make sure that
 Java knows what encoding you’re actually using.</para>
@@ -363,7 +363,7 @@ absolute with respect to that base URI.</para>
 <para>With this implementation (and a tweak to <tag>p:namespace-rename</tag>
 described below), all of the test suite tests still pass. This isn’t surprising,
 because there are no tests that explicitly attempt to test this behavior and
-almost all options of type <type>xs:anyURI</type> are explicilty defined to
+almost all options of type <type>xs:anyURI</type> are explicitly defined to
 behave this way in the specifications.</para>
 
 <para>Nevertheless, it has a couple of consequences:</para>

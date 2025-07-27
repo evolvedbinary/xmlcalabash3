@@ -15,7 +15,7 @@ the example pipeline in <xref linkend="debugger-xpl"/>.</para>
 
 <sidebar>
 <title>Unnecessary complexity</title>
-<para>The example pipeline in this chapter is straightfoward, but unnecessarily complicated in
+<para>The example pipeline in this chapter is straightforward, but unnecessarily complicated in
 order to highlight some of the differences between pipelines and graphs. An
 equivalent and more concise version is:</para>
 <programlisting language='xml'
@@ -158,7 +158,7 @@ and graphs are styled with a default stylesheet. The default stylesheet:</para>
 </para></listitem>
 <listitem><para>Puts pipeline inputs and outputs in “house” shapes with fewer borders.
 </para></listitem>
-<listitem><para>Gives the head and foot elements a paralellogram shape with fewer table borders.
+<listitem><para>Gives the head and foot elements a parallelogram shape with fewer table borders.
 </para></listitem>
 <listitem><para>Labels variable and option atomic steps appropriately and adds the variable
 name as a detail. If a default expression is provided, that’s also added as a detail.
@@ -416,7 +416,7 @@ used for this graph.</para>
 
 <note>
 <para>The HTML elements in this summary are explicitly in the HTML namespace.
-GraphViz doesn’t really understand XML; you must not specify the namespace declaration
+Graphviz doesn’t really understand XML; you must not specify the namespace declaration
 on these elements, nor may you use an explicit prefix.</para>
 <para>The attributes in the description are the attributes that the Graphviz documentation
 claims are supported.</para>

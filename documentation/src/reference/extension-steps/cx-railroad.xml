@@ -39,7 +39,7 @@
 <para>Railroad diagrams are a way to visually represent grammars. See
 <xref linkend="ex.railroad.diagrams"/>.</para>
 
-<para>The Railroad Daigram Generator produces a single XHTML page containing all
+<para>The Railroad Diagram Generator produces a single XHTML page containing all
 of the diagrams; this appears on the <port>html</port> port. The
 <tag>cx:railroad</tag> step also extracts each individual SVG diagram;
 these appear on the <port>result</port> port.</para>

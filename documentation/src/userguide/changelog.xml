@@ -883,7 +883,7 @@ Documentation T.B.D. (See <ghissue number="336"/>.)
 of primary inputs.
 </para></listitem>
 <listitem><para>Updated Apache FOP support;
-XML Calabash is now using FOP 2.10. Added image/png, image/tiff, application/X-fop-areatrea,
+XML Calabash is now using FOP 2.10. Added image/png, image/tiff, application/X-fop-areatree,
 and application/vnd.hp-PCL as output formats. Allow image/svg+xml as an output
 format, but note that it requires a build of FOP with the sandbox enabled.
 </para></listitem>
@@ -910,7 +910,7 @@ distribution.
 output when the steps are run.
 </para></listitem>
 <listitem><para>Fixed <ghissue number="302"/> by making IDs explicit so that
-GraphViz doesn’t output duplicates in the SVG. Cleaned up the graph output in a
+Graphviz doesn’t output duplicates in the SVG. Cleaned up the graph output in a
 few small ways.
 </para></listitem>
 <listitem><para>Fixed <ghissue number="301"/>. Added <tag>cx:ebnf-convert</tag>,
@@ -1108,7 +1108,7 @@ and <tag>cx:plantuml</tag>). These are published separately.</para>
 </listitem>
 <listitem><para>Added a <tag>cx:railroad</tag> step, published separately.</para>
 </listitem>
-<listitem><para>Improved error messages in serveral places. Improved the documentation
+<listitem><para>Improved error messages in several places. Improved the documentation
 of errors in reference pages.</para>
 </listitem>
 <listitem><para>Ignore serialization properties when they are explicitly set
@@ -1354,7 +1354,7 @@ bindings are still possible. The pretty printing associated with console output
 is disabled.</para>
 </listitem>
 <listitem>
-<para>Added a (somewhat crude) Powershell script to the distribution to run XML
+<para>Added a (somewhat crude) PowerShell script to the distribution to run XML
 Calabash on Windows.</para>
 </listitem>
 </itemizedlist>
@@ -1430,7 +1430,7 @@ move forward. Java 17 seems like a reasonable compromise between 11 (2018) and
 <listitem>
 <para>Fixed
 <link xlink:href="https://github.com/xmlcalabash/xmlcalabash3/issues/131">issue #131</link>.
-Clarified documentation of the CSS and XSL formatters teps. Fixed broken links
+Clarified documentation of the CSS and XSL formatters steps. Fixed broken links
 between the user guide and the reference.
 </para>
 </listitem>
@@ -1927,7 +1927,7 @@ constraint that includes no inclusive members or if
 <listitem>
 <para>Fixed
 <link xlink:href="https://github.com/xmlcalabash/xmlcalabash3/issues/31">issue #31</link>
-by amking some documentation improvements, including documenting the additional
+by making some documentation improvements, including documenting the additional
 properties accepted by <function>p:system-property</function> in the
 <citetitle xlink:href="https://docs.xmlcalabash.com/reference/current/">Reference Guide</citetitle>.</para>
 </listitem>

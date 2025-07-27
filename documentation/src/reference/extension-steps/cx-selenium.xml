@@ -411,7 +411,7 @@ put the name in a quoted string.
 <listitem><para>The result of evaluating the XPath expression. Unlike the XPath
 expression in a <phrase linkend="selenium-find">find</phrase> statement, which is
 evaluated by Selenium and must be an XPath 1.0 expression, this expression is evaluated by
-the step and is an XPth 3.0 expression.
+the step and is an XPath 3.0 expression.
 </para>
 <screen>set $narrow to xpath "$width lt 600".</screen>
 </listitem>

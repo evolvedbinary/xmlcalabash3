@@ -8,7 +8,7 @@
 <?db filename="cx-polyglot"?>
 <refnamediv>
   <refname>cx:polyglot</refname>
-  <refpurpose>Evalute steps implemented in other programming languages</refpurpose>
+  <refpurpose>Evaluate steps implemented in other programming languages</refpurpose>
 </refnamediv>
 
 <refsynopsisdiv>
