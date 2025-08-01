@@ -26,6 +26,7 @@ class DetailTraceListener(environment: XProcEnvironment, val path: Path): Standa
         // Hack. There are duplicates in the defaultContentTypes map...
         extensionMap[MediaType.XML] = "xml"
         extensionMap[MediaType.TEXT] = "txt"
+        extensionMap[MediaType.HTML] = "html"
         extensionMap[MediaType.GZIP] = "gz"
         extensionMap[MediaType.XQUERY] = "xqy"
         extensionMap[MediaType.XSLT] = "xsl"
@@ -37,7 +38,7 @@ class DetailTraceListener(environment: XProcEnvironment, val path: Path): Standa
 
         if (document.id !in savedDocuments) {
             val prefix = "${from.first.id}."
-            val suffix = extensionMap[document.contentType] ?: ".bin"
+            val suffix = "." + (extensionMap[document.contentType] ?: "bin")
             val tempFile = Files.createTempFile(path, prefix, suffix).toFile()
             savedDocuments[document.id] = tempFile.absolutePath
 
