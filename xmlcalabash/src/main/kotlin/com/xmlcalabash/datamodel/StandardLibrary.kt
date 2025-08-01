@@ -440,7 +440,7 @@ class StandardLibrary private constructor(builder: PipelineBuilder, private val 
         val decl = library.declareAtomicStep()
         decl._type = stepConfig.typeUtils.parseQName("p:css-formatter")
 
-        var input = decl.input("source", primary=false, sequence=false)
+        var input = decl.input("source", primary=true, sequence=false)
         input.contentTypes = MediaType.parseList("xml html")
         input = decl.input("stylesheet", primary=false, sequence=true)
         input.contentTypes = MediaType.parseList("text")

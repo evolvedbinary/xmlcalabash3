@@ -98,9 +98,7 @@ class CssAH(): AbstractAH(), CssProcessor {
         val outputFormat = formatMap[contentType]
             ?: throw stepConfig.exception(XProcError.xcUnsupportedContentType(contentType))
 
-        if (primarySS == null) {
-            stepConfig.error { "No CSS stylesheet provided for p:css-formatter" }
-        } else {
+        if (primarySS != null) {
             ah.setStylesheetURI(primarySS)
         }
 
