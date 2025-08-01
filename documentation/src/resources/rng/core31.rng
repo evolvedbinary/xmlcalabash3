@@ -78,7 +78,7 @@
   <define name="sequence.attr">
     <attribute name="sequence">
       <data type="boolean"/>
-      <db:purpose>Accept a sequence of documents?</db:purpose>
+      <db:purpose>Accept a (possibly empty) sequence of documents?</db:purpose>
     </attribute>
   </define>
   <define name="primary.attr">
@@ -158,7 +158,7 @@
   <define name="exclude-inline-prefixes.attr">
     <attribute name="exclude-inline-prefixes">
       <text/>
-      <db:purpose>A list of in-scope namespace prefixes</db:purpose>
+      <db:purpose>A space-separated list of namespace prefixes</db:purpose>
     </attribute>
   </define>
   <!--
@@ -420,7 +420,9 @@
         <ref name="content-type.attr"/>
       </optional>
       <optional>
-        <attribute name="namespace"/>
+        <attribute name="namespace">
+          <db:purpose>The namespace(s) to import</db:purpose>
+        </attribute>
       </optional>
       <zeroOrMore>
         <choice>
