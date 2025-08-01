@@ -148,7 +148,7 @@
       <p:option name="limit" as="xs:integer" select="0"/>
    </p:declare-step>
    <p:declare-step type="p:css-formatter" xml:id="css-formatter">
-      <p:input port="source" content-types="xml html"/>
+      <p:input port="source" primary="true" content-types="xml html"/>
       <p:input port="stylesheet" content-types="text" sequence="true">
          <p:empty/>
       </p:input>
