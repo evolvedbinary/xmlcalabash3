@@ -6,6 +6,7 @@ command = base-uri
           | define 
           | down
           | eval
+          | store
           | exit
           | help
           | inputs
@@ -61,6 +62,10 @@ frames = ["0"-"9"]+ .
 -eval = eval-command, rs, expr .
 -eval-command = name-eval, s, (-"eval" | -"show" | -"echo") .
 name-eval>name = +"eval" .
+
+-store = store-command, rs, uri, rs, expr .
+-store-command = name-store, s, (-"store" | -"write" | -"save") .
+name-store>name = +"store" .
 
 -exit = name-exit, s, (-"exit" | -"x" | -"quit" | -"q") .
 name-exit>name = +"exit" .

@@ -100,6 +100,13 @@ The debugger accepts the following commands:
   The pipeline resumes, stopping at the start of the next step
   or the next breakpoint, whichever comes first.
 
+* store (write, save): Evaluate an XPath expression and save the result to a file.
+
+  Syntax: store "URI" EXPR.
+
+  The result of evaluating the expression is saved in the file identified
+  by URI. The adaptive serializer is used.
+
 * subpipeline (sub): show the subpipeline.
 
   Syntax: subpipeline
