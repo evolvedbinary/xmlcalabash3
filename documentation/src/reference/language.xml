@@ -55,8 +55,9 @@ some implementation-defined purpose.</para>
 <title>Declaring pipelines</title>
 
 <para>The most common pipeline declaration specifies the inputs, outputs, and
-options that the step accepts then the steps which implement the pipeline.
-Pipelines may also import libraries and functions, and declare steps.</para>
+options that the step accepts, followed by the steps that implement the
+pipeline. Pipelines may also import libraries and functions, and may declare
+steps.</para>
 
 <rng-pattern schema="../../src/resources/rng/core31.rng"
              ns="https://xmlcalabash.com/ns/configuration"
@@ -67,6 +68,94 @@ Pipelines may also import libraries and functions, and declare steps.</para>
 typical compound step declaration. In brief: it iterates over the files in a
 directory replacing selected copyright elements. We’ll look at several of its
 features in more detail below.</para>
+
+<variablelist>
+<title>Notes on the attributes of p:declare-step</title>
+<varlistentry>
+<term><tag class="attribute">name</tag></term>
+<listitem>
+<para>The step <emphasis>name</emphasis> is only used by the subpipeline
+in the declaration. It’s how a step in the subpipeline can refer, for example
+with <tag>p:pipe</tag>, to one of the step’s inputs.</para>
+
+<programlisting language="xml"><![CDATA[<p:declare-step name="main">
+  <p:input port="source"/>
+  …
+  <p:identity>
+    <p:with-input>
+      <p:pipe step="main" port="source"/>
+    </p:with-input>
+  </p:identity>
+  …
+</p:declare-step>]]></programlisting>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><tag class="attribute">type</tag></term>
+<listitem>
+<para>The step <emphasis>type</emphasis> is how you reuse a step. If you declare
+a step with the type <code>ex:my-step</code>, then you can subsequently use
+it as an atomic step: <code>&lt;ex:my-step&gt;</code> in other steps, even
+recursively.</para>
+
+<programlisting language="xml"><![CDATA[<p:declare-step name="main" xmlns:ex="http://example.com/ns">
+  <p:input port="source"/>
+
+  <p:declare-step type="ex:my-step">
+    <p:input port="source"/>
+    …
+  </p:declare-step>
+  …
+  <ex:my-step>
+    <p:with-input pipe="source@main"/>
+  </ex:my-step>
+  …
+</p:declare-step>]]></programlisting>
+
+
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><tag class="attribute">psvi-required</tag></term>
+<listitem>
+<para>If this is true, you’re telling the processor that XML Schema validated inputs
+are required. This will require Saxon EE.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><tag class="attribute">xpath-version</tag></term>
+<listitem>
+<para>This specifies the XPath version. The only version that you can use today is
+“3.1”, but in the future, it might be possible to specify other versions.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><tag class="attribute">exclude-inline-prefixes</tag></term>
+<listitem>
+<para>When you put XML in a <tag>p:inline</tag> element, all of the in-scope namespaces
+will apply to those elements. You can use <tag class="attribute">exclude-inline-prefixes</tag>
+to exclude some of them. The value of the attribute must be a space-separated list of
+in-scope namespace prefixes. It’s an error to refer to a prefix that doesn’t have an in-scope
+declaration. The tokens <code>#default</code> and <code>#all</code> may also be used to exclude
+the default namespace and all namespaces, respectively.
+</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><tag class="attribute">version</tag></term>
+<listitem>
+<para>The XProc version of the step. Only 3.0 or 3.1 are accepted and they’re equivalent.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><tag class="attribute">visibility</tag></term>
+<listitem>
+<para>The visibility of a step only makes sense when it occurs in a <tag>p:library</tag>.
+Inside a <tag>p:library</tag> a “private” step is not visible to pipelines that import the
+library. It can only be used by other steps declared in the library.</para>
+</listitem>
+</varlistentry>
+</variablelist>
 
 <note>
 <para>The example pipelines and some input documents to demonstrate how
@@ -129,6 +218,66 @@ This is the declaration for the extension step <tag>cx:fileset</tag>.</para>
 accepts only XML documents. If it’s the only input, it will be primary. The input
 doesn’t specify <code>sequence="true"</code>, so a single document is required.</para>
 
+<variablelist>
+<title>Notes on the attributes of p:input (and p:output)</title>
+<varlistentry>
+<term><tag class="attribute">port</tag></term>
+<listitem>
+<para>The port name is how you refer to an input or output port. Its name must be unique.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><tag class="attribute">sequence</tag></term>
+<listitem>
+<para>If a sequence is allowed, any number of documents can be used on that port.
+If not, exactly one document must be used.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><tag class="attribute">primary</tag></term>
+<listitem>
+<para>If a port is primary, that’s where implicit connections are made. If there’s only
+one input or output port, it will be primary be default. If there’s more than one, none are
+primary unless indicated explicitly. At most one input port and one output port may be declared
+primary.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><tag class="attribute">select</tag></term>
+<listitem>
+<para>A select expression on an input matches the selected nodes and creates an
+input document for each. Matching, for example, <code>//chapter</code> will make
+the input a sequence of documents, one for each chapter element that appears 
+on the original input.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><tag class="attribute">content-types</tag></term>
+<listitem>
+<para>If a list of content types is provided, only documents that are of those types are
+allowed. Note that XProc allows
+<link xlink:href="https://spec.xproc.org/3.1/xproc/#specified-content-types">both positive
+and negative content types</link>.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><tag class="attribute">href</tag></term>
+<listitem>
+<para>Shortcut for a single <tag>p:document</tag> binding.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><tag class="attribute">exclude-inline-prefixes</tag></term>
+<listitem>
+<para>You can use <tag class="attribute">exclude-inline-prefixes</tag>
+to exclude some namespaces from a <tag>p:inline</tag>,
+as noted about the attributes of <tag>p:declare-step</tag>.
+If the <tag class="attribute">exclude-inline-prefixes</tag> element occurs multiple times among
+the ancestors of an inline, the effect is the union of all such prefixes.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
 <example xml:id="lang-example-input">
 <title>A pipeline input</title>
 <programlisting language="xml"
@@ -153,6 +302,11 @@ on a pipeline, serialization parameters may also be declared.</para>
 
 <para>The output in <xref linkend="lang-example-output"/> has the port name “result”.
 The pipeline result must be a single text document.</para>
+
+<para>The notes about the attributes on <tag>p:input</tag> apply to <tag>p:output</tag>.
+In addition, <tag>p:output</tag> has a <tag class="attribute">pipe</tag> attribute that
+is a shortcut for <tag>p:pipe</tag> bindings. On a <tag>p:declare-step</tag> it
+may also have a map of serialization parameters.</para>
 
 <example xml:id="lang-example-output">
 <title>A pipeline output</title>
@@ -197,7 +351,62 @@ the step can produce a sequence of XML documents.</para>
              prefix="p" xml:id="p.option" format="table"
              name="Option"/>
 
-<para>The compound step declaration above declares three options.</para>
+<para>Options can be required or have a default value and they can be typed.</para>
+
+<variablelist>
+<title>Notes on the attributes of p:option</title>
+<varlistentry>
+<term><tag class="attribute">name</tag></term>
+<listitem><para>The option name. Options cannot shadow earlier options, they must have
+unique names. Non-static options can be shadowed in the subpipeline by <tag>p:variable</tag>s.
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><tag class="attribute">as</tag></term>
+<listitem><para>The type of the option, for example “<code>xs:integer</code>” or
+“<code>map(xs:string, xs:dateTime)</code>”.
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><tag class="attribute">values</tag></term>
+<listitem><para>A list of atomic values. This forms an enumeration and 
+the option must be one of these values.
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><tag class="attribute">static</tag></term>
+<listitem><para>Is the option evaluated at compile time? Static options can
+be used in <tag xlink:href="https://spec.xproc.org/3.1/xproc/#use-when">use-when</tag> expressions
+for conditional element exclusion.
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><tag class="attribute">required</tag></term>
+<listitem><para>If an attribute is required, the caller must provide a value for it.
+If it isn’t required, and no value is provided, the default value is taken from
+the select attribute. (If there’s no select attribute, the default value is the empty
+sequence.)
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><tag class="attribute">select</tag></term>
+<listitem><para>Provides a default value for the option. Option default values can refer
+to preceding options, but not to the step inputs.
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><tag class="attribute">visibility</tag></term>
+<listitem>
+<para>The visibility of an option only makes sense when it occurs in a <tag>p:library</tag>.
+Inside a <tag>p:library</tag> a “private” option is not visible to pipelines that import the
+library. It can only be used by other options and steps declared in the library.
+</para></listitem>
+</varlistentry>
+</variablelist>
+
+<para>The compound step declaration in
+<xref linkend="lang-example-compound-decl"/>
+declares three options:</para>
 
 <example xml:id="lang-example-options">
 <title>Pipeline options</title>
@@ -238,6 +447,10 @@ with another option or <tag>p:variable</tag>.</para>
 <para>A collection of step declarations and (static) options can be put inside
 a <tag>p:library</tag> so that they can all be imported together.</para>
 
+<para>The notes about the attributes on <tag>p:declare-step</tag> apply to
+<tag>p:library</tag>.
+</para>
+
 </section>
 
 <section>
@@ -250,12 +463,14 @@ a <tag>p:library</tag> so that they can all be imported together.</para>
              prefix="p" xml:id="p.import" format="table"
              name="Import"/>
 
+<para>The document URI must identify a pipeline or library document.</para>
+
 <para>XML Calabash provides URIs for importing its extension steps. For example,
 <uri>https://xmlcalabash.com/ext/library/fileset.xpl</uri> for the
 <tag>cx:fileset</tag> extension step. Generally speaking, the specified URI is
 retrieved and parsed for its declarations. The library URIs that XML Calabash
-provides for its extension steps are resolved internally, without any internet
-access.</para>
+provides for its extension steps are resolved internally, without accessing the
+internet.</para>
 
 <para>XML Calabash can also import functions defined in XSLT or XQuery.</para>
 
@@ -263,6 +478,29 @@ access.</para>
              ns="https://xmlcalabash.com/ns/configuration"
              prefix="p" xml:id="p.import-functions" format="table"
              name="ImportFunctions"/>
+
+<para>Importing functions allows them to be used in expressions in the pipeline.</para>
+
+<variablelist>
+<title>Notes on the attributes of p:import-functions</title>
+<varlistentry>
+<term><tag class="attribute">href</tag></term>
+<listitem><para>The document URI must identify a library of functions.
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><tag class="attribute">content-type</tag></term>
+<listitem><para>If a content-type is provided, it informs the processor what
+is expected from the imported library.
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><tag class="attribute">namespace</tag></term>
+<listitem><para>A whitespace-separated list of namespace URIs. If provided, only
+functions declared in one of those namespaces will be imported.
+</para></listitem>
+</varlistentry>
+</variablelist>
 
 <para>The stylesheet in <xref linkend="lang-example-import-functions"/> defines
 two functions, <function>f:is-leap-day</function> with no arguments and
@@ -312,6 +550,9 @@ their inputs are connected.</para>
              prefix="p" xml:id="p.with-input" format="table"
              name="WithInput"/>
 
+<para>The notes about the attributes on <tag>p:input</tag> apply to <tag>p:with-input</tag>.
+</para>
+
 <para>The input on the <tag>p:for-each</tag> step in the example above does
 not have any explicit bindings:</para>
 
@@ -336,21 +577,77 @@ on <tag>p:with-input</tag>) connects an input to document identified with a URI.
 <para>The document properties will be applied to the result. The parameters me be used
 during document access.</para>
 
+<variablelist>
+<title>Notes on the attributes of p:document</title>
+<varlistentry>
+<term><tag class="attribute">href</tag></term>
+<listitem><para>The document will be retrieved from this URI.
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><tag class="attribute">content-type</tag></term>
+<listitem><para>Identifies the (required) content type of the document, for example
+<code>application/json</code> or <code>text/plain</code>. If not specified, the content
+type is inferred from the URI.
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><tag class="attribute">document-properties</tag></term>
+<listitem><para>Document properties are name/value pairs associated with the document.
+Unqualified property names, like <code>base-uri</code> are defined by the XProc specification.
+You can add arbitrary namespace qualified properties.
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><tag class="attribute">parameters</tag></term>
+<listitem><para>The <tag>p:document</tag> instruction is defined in terms of the
+<tag>p:load</tag> step. The parameters passed to it can be used by the load step to aid in
+retrieving the document. For example, a username and password might be passed as parameters.
+</para></listitem>
+</varlistentry>
+</variablelist>
 </section>
 
 <section xml:id="lang-inline">
 <title>Inline inputs</title>
 
 <para>The <tag>p:inline</tag> element connects an input to a document placed
-into the pipeline directly. The <tag>p:inline</tag> element can be omitted in
-the simple case of a single XML document.</para>
+into the pipeline directly.</para>
 
 <rng-pattern schema="../../src/resources/rng/core31.rng"
              ns="https://xmlcalabash.com/ns/configuration"
              prefix="p" xml:id="p.inline" format="table"
              name="Inline"/>
 
-<para>The <tag>p:inline</tag> element specifies that it is text. Attribute
+<para>The <tag>p:inline</tag> element can be omitted in the simple case of a
+single XML document.</para>
+
+<variablelist>
+<title>Notes on the attributes of p:document</title>
+<varlistentry>
+<term><tag class="attribute">content-type</tag></term>
+<listitem><para>Identifies the (required) content type of the content, for example
+<code>application/json</code> or <code>text/plain</code>. If not specified, the content
+type is assumed to be XML.
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><tag class="attribute">document-properties</tag></term>
+<listitem><para>Document properties are name/value pairs associated with the document.
+Unqualified property names, like <code>base-uri</code> are defined by the XProc specification.
+You can add arbitrary namespace qualified properties.
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><tag class="attribute">encoding</tag></term>
+<listitem><para>The only supported value for encoding is <code>base64</code>. This encoding
+allows an inline to be in a different character set than the XML or to contain non-XML
+characters.
+</para></listitem>
+</varlistentry>
+</variablelist>
+
+<para>This <tag>p:inline</tag> element specifies that it is text. Attribute
 value templates in the body are used to evaluate expressions.</para>
 
 <programlisting language="xml"
@@ -407,31 +704,86 @@ of documents.</para>
 <section xml:id="lang-with-option">
 <title>Connecting option values to steps</title>
 
-<para>Analogous to how inputs are provided with <tag>p:with-input</tag>, option values
-are provided with <tag>p:with-option</tag>. Options can also be specified as attributes
-on the step itself, in which case their value is taken to be an attribute value template.</para>
+<para>In much the same way as inputs are provided using <tag>p:with-input</tag>, option values
+are provided using <tag>p:with-option</tag>.</para>
 
 <rng-pattern schema="../../src/resources/rng/core31.rng"
              ns="https://xmlcalabash.com/ns/configuration"
              prefix="p" xml:id="p.with-option" format="table"
              name="WithOption"/>
 
-<para>The <code>$max-depth</code> option is set on the <tag>p:directory-list</tag>
-using <tag>p:with-option</tag>:</para>
-
-<programlisting language="xml"
-><xi:include href="examples/declare-step.xpl"
-             parse="text" fragid="search=/p:with-option/,/p:directory-list/;before;strip"/></programlisting>
-
-<para>Options can also be specified directly on the step, such as
-<code>$path</code> on the <tag>p:directory-list</tag> step. In this case, the
-value is an attribute value template.</para>
+<para>Options can also be specified as attributes
+on the step itself, in which case the attribute name is the option name and its
+value is interprted as an attribute value template. For example,
+in <xref linkend="lang-example-compound-decl"/>, the <code>$path</code> and
+<code>$include-filter</code> options are set this way:
+</para>
 
 <programlisting language="xml"
 ><xi:include href="examples/declare-step.xpl"
              parse="text" fragid="search=/p:directory-list/,/p:with-option/;before;strip"/></programlisting>
 
-<para>The <code>$include-filter</code> is also set in this way.</para>
+<variablelist>
+<title>Notes on the attributes of p:with-option</title>
+<varlistentry>
+<term><tag class="attribute">name</tag></term>
+<listitem><para>The option name. This must be the name of an option declared
+for the step on which it is used.
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><tag class="attribute">as</tag></term>
+<listitem><para>The type of the option, for example “<code>xs:integer</code>” or
+“<code>map(xs:string, xs:dateTime)</code>”.
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><tag class="attribute">select</tag></term>
+<listitem><para>The select expression is evaluated to provide a value for
+the option.
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><tag class="attribute">collection</tag></term>
+<listitem><para>If the collection attribute is true, all of the documents that appear on
+the context binding are placed in the default collection for the expression. An expression can
+only refer to the context item if it is a single value, but by using the default collection,
+an option can handle a sequence of values.
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><tag class="attribute">href</tag></term>
+<listitem>
+<para>Shortcut for a single <tag>p:document</tag> binding.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><tag class="attribute">pipe</tag></term>
+<listitem>
+<para>Shortcut for one or more <tag>p:pipe</tag> bindings.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><tag class="attribute">exclude-inline-prefixes</tag></term>
+<listitem>
+<para>When you put XML in a <tag>p:inline</tag> element, all of the in-scope namespaces
+will apply to those elements. You can use <tag class="attribute">exclude-inline-prefixes</tag>
+to exclude some of them. The value of the attribute must be a space-separated list of
+in-scope namespace prefixes. It’s an error to refer to a prefix that doesn’t have an in-scope
+declaration. The tokens <code>#default</code> and <code>#all</code> may also be used to exclude
+the default namespace and all namespaces, respectively.
+</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<para>In <xref linkend="lang-example-compound-decl"/>,
+the <code>$max-depth</code> option is set on the <tag>p:directory-list</tag>
+using <tag>p:with-option</tag>:</para>
+
+<programlisting language="xml"
+><xi:include href="examples/declare-step.xpl"
+             parse="text" fragid="search=/p:with-option/,/p:directory-list/;before;strip"/></programlisting>
 
 </section>
 
@@ -504,6 +856,13 @@ of the document on the <port>copyright</port> input port.</para>
              parse="text" fragid="search=/p:viewport/,#/p:viewport#;strip"/>
 </programlisting>
 </example>
+
+<tip>
+<para>Like <tag class="attribute">select</tag> on <tag>p:for-each</tag>, the elements
+matched by <tag>p:viewport</tag> are available to the subpipeline as
+new documents.</para>
+</tip>
+
 </section>
 
 <section>
@@ -536,6 +895,38 @@ if this alternative is selected.</para>
              ns="https://xmlcalabash.com/ns/configuration"
              prefix="p" xml:id="p.when" format="table"
              name="When"/>
+
+<para>The first (and only the first) <tag>p:when</tag> where the test expression evaluates
+to true is used.</para>
+
+<variablelist>
+<title>Notes on the attributes of p:when</title>
+<varlistentry>
+<term><tag class="attribute">name</tag></term>
+<listitem>
+<para>The step <emphasis>name</emphasis> is only used by the subpipeline
+in the <tag>p:when</tag>. It’s how a step in the subpipeline can refer, for example
+with <tag>p:pipe</tag>, to the context input.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><tag class="attribute">test</tag></term>
+<listitem>
+<para>The test expression. This <tag>p:when</tag> is selected if it is the first
+<tag>p:when</tag>, in document order, where the expression evaluates to true.
+It’s an error if the expression refers to the context item if there is not exactly
+one context item provided by the <tag>p:with-input</tag>.</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term><tag class="attribute">collection</tag></term>
+<listitem><para>If the collection attribute is true, all of the documents that appear on
+the context binding are placed in the default collection for the expression. An expression can
+only refer to the context item if it is a single value, but by using the default collection,
+an option can handle a sequence of values.
+</para></listitem>
+</varlistentry>
+</variablelist>
 
 <para>The first <tag>p:when</tag> selects documents with a status of “draft”:</para>
 
@@ -575,12 +966,15 @@ draft nor final:</para>
 <para>The <tag>p:if</tag> is a simplified form of <tag>p:choose</tag>. If the
 test expression is true, then the subpipeline is run and that determines the output
 from the step. If the expression is false, <tag>p:if</tag> operates as an identity step,
-passing it’s input through unchanged.</para>
+passing its input through unchanged.</para>
 
 <rng-pattern schema="../../src/resources/rng/core31.rng"
              ns="https://xmlcalabash.com/ns/configuration"
              prefix="p" xml:id="p.if" format="table"
              name="If"/>
+
+<para>The notes about the attributes on <tag>p:when</tag> apply to <tag>p:if</tag>.
+</para>
 
 <para>The <tag>p:if</tag> in <xref linkend="lang-example-if"/> deletes the
 <tag class="attribute">count</tag> attribute if it has the value “0”.</para>
@@ -786,6 +1180,9 @@ computation.</para>
              ns="https://xmlcalabash.com/ns/configuration"
              prefix="p" xml:id="p.variable" format="table"
              name="Variable"/>
+
+<para>The notes about the attributes on <tag>p:with-option</tag> apply to <tag>p:variable</tag>.
+</para>
 
 <para>Expressions which occur later in the subpipeline may refer to the variable.
 </para>
