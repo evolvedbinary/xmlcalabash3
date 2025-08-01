@@ -11,6 +11,7 @@ import com.xmlcalabash.runtime.LazyValue
 import com.xmlcalabash.runtime.XProcRuntime
 import com.xmlcalabash.runtime.steps.*
 import com.xmlcalabash.steps.AbstractAtomicStep
+import com.xmlcalabash.util.UriUtils
 import net.sf.saxon.om.NamespaceUri
 import net.sf.saxon.s9api.*
 import net.sf.saxon.value.BooleanValue
@@ -23,6 +24,7 @@ import org.nineml.coffeefilter.InvisibleXml
 import org.nineml.coffeefilter.InvisibleXmlParser
 import org.nineml.coffeefilter.ParserOptions
 import org.nineml.coffeefilter.trees.DataTreeBuilder
+import java.io.File
 import java.net.URI
 import java.net.URISyntaxException
 import java.nio.charset.StandardCharsets
@@ -200,6 +202,7 @@ class CliDebugger(val runtime: XProcRuntime): Monitor {
                     "define" -> doDefine(command)
                     "down" -> doDown(command)
                     "eval" -> doEval(command)
+                    "store" -> doStore(command)
                     "exit" -> doExit()
                     "help" -> doHelp(command)
                     "inputs" -> doInputs()
@@ -317,6 +320,20 @@ class CliDebugger(val runtime: XProcRuntime): Monitor {
         prettyPrint(value)
     }
 
+    private fun doStore(command: Map<String,String>) {
+        val uri = UriUtils.cwdAsUri().resolve(command["uri"]!!)
+        if (uri.scheme != "file") {
+            println("Error: can only save to file: URIs")
+            return
+        }
+
+        val value = evalExpression(command["expr"]!!)
+        val serializer = curFrame.step.stepConfig.processor.newSerializer(File(uri.path))
+        serializer.setOutputProperty(Serializer.Property.METHOD, "adaptive")
+        serializer.serializeXdmValue(value);
+        println("Stored result to ${uri.path}")
+    }
+
     private fun prettyPrint(value: XdmValue) {
         if (value !is XdmMap && value !is XdmArray) {
             printer.println("${value}")
@@ -412,7 +429,7 @@ class CliDebugger(val runtime: XProcRuntime): Monitor {
         val cx_inputs = QName(NsCx.namespace, "${curFrame.cx}:input")
 
         // Make the namespaces and variables uniform
-        var inscopeNs = combinedNamespaces()
+        val inscopeNs = combinedNamespaces()
         val variables = combinedVariables()
 
         try {

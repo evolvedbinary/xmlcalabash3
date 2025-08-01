@@ -79,10 +79,13 @@ may be a stack of open steps. Moving around in the stack changes the context.</p
 <simpara><command linkend="dbg-show">show</command>, show the result of evaluating an expression.</simpara>
 </listitem>
 <listitem>
-<simpara><command linkend="dbg-stack"></command>, show the stack.</simpara>
+<simpara><command linkend="dbg-stack">stack</command>, show the stack.</simpara>
 </listitem>
 <listitem>
-<simpara><command linkend="dbg-step"></command>, run the current step.</simpara>
+<simpara><command linkend="dbg-step">step</command>, run the current step.</simpara>
+</listitem>
+<listitem>
+<simpara><command linkend="dbg-store">store</command>, save the result of evaluating an expression.</simpara>
 </listitem>
 <listitem>
 <simpara><command linkend="dbg-subpipeline">subpipeline</command>, show the subpipeline steps.</simpara>
@@ -518,6 +521,21 @@ already run, so changing them can have no effect.</para>
 
 <para>The command <command>s</command> is a synonym for
 <command>step</command>.</para>
+</section>
+
+<section xml:id="dbg-store">
+<title>store</title>
+
+<para>Store the results of evaluating an expression.</para>
+
+<cmdsynopsis>
+<command>store</command>
+<arg choice="plain">"<replaceable>uri</replaceable>"</arg>
+<arg choice="plain"><replaceable>expression</replaceable></arg>
+</cmdsynopsis>
+
+<para>The commands <command>save</command> and <command>write</command> are synonyms for
+<command>store</command>.</para>
 </section>
 
 <section xml:id="dbg-subpipeline">
