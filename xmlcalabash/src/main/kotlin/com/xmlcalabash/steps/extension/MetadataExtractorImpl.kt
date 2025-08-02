@@ -15,6 +15,8 @@ import net.sf.saxon.om.NamespaceUri
 import net.sf.saxon.s9api.QName
 import net.sf.saxon.s9api.XdmNode
 import net.sf.saxon.s9api.XdmValue
+import org.apache.pdfbox.Loader
+import org.apache.pdfbox.io.RandomAccessReadBuffer
 import org.apache.pdfbox.pdmodel.PDDocument
 import org.apache.pdfbox.pdmodel.encryption.InvalidPasswordException
 import org.apache.xmpbox.type.*
@@ -101,7 +103,7 @@ class MetadataExtractorImpl(private val stepConfig: XProcStepConfiguration, priv
         }
 
         val pdf = try {
-            PDDocument.load((document as XProcBinaryDocument).binaryValue, password)
+            Loader.loadPDF((document as XProcBinaryDocument).binaryValue, password)
         } catch (ex: Exception) {
             when (ex) {
                 is InvalidPasswordException -> throw ex
