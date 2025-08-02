@@ -203,7 +203,10 @@ The following configuration options are supported:</para>
 <literal>image/png</literal>,
 <literal>image/svg+xml</literal><footnote><para>SVG output is not supported
 by the standard release of FOP, it’s a
-<link xlink:href="https://xmlgraphics.apache.org/fop/${dep_fop}/output.html#sandbox">sandbox</link>
+<!-- It didn't seem worth the effort that would be necessary to arrange for the
+     version in this URI to be constructed dynamically from the FOP dependency.
+     It'll have to be updated by hand periodically. -->
+<link xlink:href="https://xmlgraphics.apache.org/fop/2.11/output.html#sandbox">sandbox</link>
 feature. To use it, follow the Apache FOP instructions for building an FOP release
 with the sandbox enabled and put that on your class path.</para></footnote>,
 <literal>image/text</literal>, and
