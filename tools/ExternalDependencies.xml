@@ -1,0 +1,341 @@
+<dependencies>
+  <!-- This file is used to track the dependencies of XML Calabash and to
+       construct the buildSrc/src/main/kotlin/ExternalDependencies.kt source.
+       Process this file with external-dependencies.xsl to generate the .kt
+       file.
+       -->
+  <repository uri="https://repository.jboss.org/nexus/service/rest/repository/browse/thirdparty-releases">
+    <group id="com.sun.media">
+      <artifact id="jai-codec" version="1.1.3"/>
+    </group>
+    <group id="javax.media">
+      <artifact id="jai-core" version="1.1.3"/>
+    </group>
+  </repository>
+  <repository uri="https://central.sonatype.com/" search="https://central.sonatype.com/artifact">
+    <group id="ch.qos.logback">
+      <artifact id="logback-classic" version="1.5.13"/>
+    </group>
+    <group id="com.drewnoakes">
+      <artifact id="metadata-extractor" version="2.19.0"/>
+    </group>
+    <group id="com.fasterxml.jackson.dataformat">
+      <artifact id="jackson-dataformat-csv" version="2.18.2"/>
+      <artifact id="jackson-dataformat-toml" version="2.18.2"/>
+      <artifact id="jackson-dataformat-yaml" version="2.18.2"/>
+    </group>
+    <group id="com.github.f4b6a3">
+      <artifact id="uuid-creator" version="6.0.0"/>
+    </group>
+    <group id="com.github.java-json-tools">
+      <artifact id="json-patch" version="1.13"/>
+    </group>
+    <group id="com.jayway.jsonpath">
+      <artifact id="json-path" version="2.9.0"/>
+    </group>
+    <group id="com.networknt">
+      <artifact id="json-schema-validator" version="1.5.4"/>
+    </group>
+    <group id="com.nwalsh">
+      <artifact id="sinclude" version="5.4.1"/>
+    </group>
+    <group id="com.princexml">
+      <artifact id="prince-java-wrapper" version="1.3.0"/>
+    </group>
+    <group id="com.sun.mail">
+      <artifact id="javax.mail" version="1.6.2"/>
+    </group>
+    <group id="com.vladsch.flexmark">
+      <artifact id="flexmark-all" version="0.64.8"/>
+    </group>
+    <group id="commons-codec">
+      <artifact id="commons-codec" version="1.17.0"/>
+    </group>
+    <group id="de.bottlecaps">
+      <artifact id="markup-blitz" version="1.6"/>
+    </group>
+    <group id="de.bottlecaps.ebnf-convert">
+      <artifact id="ebnf-convert-lib" version="0.70"/>
+    </group>
+    <group id="de.bottlecaps.rr">
+      <artifact id="rr-lib" version="2.1"/>
+    </group>
+    <group id="de.rototor.jeuclid">
+      <artifact id="jeuclid-core" version="3.1.14"/>
+    </group>
+    <group id="javax.activation">
+      <artifact id="activation" version="1.1.1"/>
+    </group>
+    <group id="javax.mail">
+      <artifact id="javax.mail-api" version="1.6.2"/>
+    </group>
+    <group id="javax.xml.bind">
+      <artifact id="jaxb-api" version="2.3.1"/>
+    </group>
+    <group id="net.minidev">
+      <artifact id="json-smart" version="2.5.1"/>
+    </group>
+    <group id="net.sourceforge.plantuml">
+      <artifact id="plantuml" version="1.2025.2"/>
+    </group>
+    <group id="nu.validator">
+      <artifact id="htmlparser" version="1.4.16"/>
+    </group>
+    <group id="org.apache.avalon.framework">
+      <artifact id="avalon-framework-api" version="4.3.1"/>
+      <artifact id="avalon-framework-impl" version="4.3.1"/>
+    </group>
+    <group id="org.apache.commons">
+      <artifact id="commons-compress" version="1.27.1"/>
+    </group>
+    <group id="org.apache.httpcomponents.client5">
+      <artifact id="httpclient5" version="5.3.1"/>
+    </group>
+    <group id="org.apache.jena">
+      <artifact id="jena-arq" version="5.3.0"/>
+      <artifact id="jena-core" version="5.3.0"/>
+      <artifact id="jena-iri" version="5.3.0"/>
+      <artifact id="jena" version="5.3.0"/>
+    </group>
+    <group id="org.apache.logging.log4j">
+      <artifact id="log4j-to-slf4j" version="2.23.1"/>
+    </group>
+    <group id="org.apache.pdfbox">
+      <artifact id="pdfbox" version="2.0.32"/>
+      <artifact id="xmpbox" version="2.0.32"/>
+    </group>
+    <group id="org.apache.xmlgraphics">
+      <artifact id="fop" version="2.10"/>
+    </group>
+    <group id="org.asciidoctor">
+      <artifact id="asciidoctorj-pdf" version="2.3.19"/>
+      <artifact id="asciidoctorj" version="3.0.0"/>
+    </group>
+    <group id="org.brotli">
+      <artifact id="dec" version="0.1.2"/>
+    </group>
+    <group id="org.graalvm.polyglot">
+      <artifact id="js" version="23.1.5"/>
+      <artifact id="polyglot" version="23.1.5"/>
+      <artifact id="python" version="23.1.5"/>
+    </group>
+    <group id="org.jetbrains.kotlin">
+      <artifact id="kotlin-reflect" version="2.1.20"/>
+      <artifact id="kotlin-stdlib" version="2.1.20"/>
+    </group>
+    <group id="org.jetbrains.kotlinx">
+      <artifact id="kotlinx-coroutines-core" version="1.10.2"/>
+    </group>
+    <group id="org.jline">
+      <artifact id="jline-reader" version="3.28.0"/>
+      <artifact id="jline-terminal-jni" version="3.28.0"/>
+      <artifact id="jline-terminal" version="3.28.0"/>
+    </group>
+    <group id="org.nineml">
+      <artifact id="coffeefilter" version="3.2.9"/>
+      <artifact id="coffeegrinder" version="3.2.9"/>
+    </group>
+    <group id="org.relaxng">
+      <artifact id="jing" version="20241231"/>
+      <artifact id="trang" version="20241231"/>
+    </group>
+    <group id="org.seleniumhq.selenium">
+      <artifact id="selenium-java" version="4.28.1"/>
+    </group>
+    <group id="org.semarglproject">
+      <artifact id="semargl-core" version="0.7"/>
+      <artifact id="semargl-rdfa" version="0.7"/>
+    </group>
+    <group id="org.slf4j">
+      <artifact id="slf4j-api" version="2.0.16"/>
+    </group>
+    <group id="org.tukaani">
+      <artifact id="xz" version="1.10"/>
+    </group>
+    <group id="org.w3c">
+      <artifact id="epubcheck" version="5.0.1"/>
+    </group>
+    <group id="org.xmlresolver">
+      <artifact id="xmlresolver" version="6.0.17"/>
+    </group>
+    <group id="org.xmlunit">
+      <artifact id="xmlunit-core" version="2.10.0"/>
+    </group>
+  </repository>
+
+  <kotlin>package com.xmlcalabash.build
+
+import org.gradle.api.GradleException
+
+object ExternalDependencies {
+    val steps = mapOf&lt;String,List&lt;String&gt;&gt;(
+<depends-on>
+    <xmlcalabash>
+      <artifact ref="kotlin-stdlib"/>
+      <artifact ref="kotlinx-coroutines-core"/>
+      <artifact ref="kotlin-reflect"/>
+      <text-line/>
+      <artifact ref="jackson-dataformat-csv"/>
+      <artifact ref="jackson-dataformat-toml"/>
+      <artifact ref="jackson-dataformat-yaml"/>
+      <artifact ref="uuid-creator"/>
+      <artifact ref="json-schema-validator"/>
+      <artifact ref="sinclude"/>
+      <artifact ref="flexmark-all"/>
+      <artifact ref="commons-codec"/>
+      <artifact ref="activation"/><text> // For mimetype mapping</text>
+      <artifact ref="htmlparser"/>
+      <artifact ref="commons-compress"/>
+      <artifact ref="httpclient5"/>
+      <artifact ref="dec"/>
+      <artifact ref="jline-reader"/>
+      <artifact ref="jline-terminal-jni"/>
+      <artifact ref="jline-terminal"/>
+      <artifact ref="coffeefilter"/>
+      <artifact ref="coffeegrinder"/>
+      <artifact ref="jing"/>
+      <artifact ref="xz"/>
+      <artifact ref="xmlresolver"/>
+      <text-line/>
+      <text-line>// I was using log4j but httpclient5 uses slf4j.</text-line>
+      <text-line>// Could I get httpclient5 to use log4j? Maybe. ¯\_(ツ)_/¯</text-line>
+      <text-line>// But I got tired of trying to figure it out so I did this instead.</text-line>
+      <artifact ref="slf4j-api"/>
+      <artifact ref="logback-classic"/>
+      <artifact ref="log4j-to-slf4j"/>
+    </xmlcalabash>
+    <asciidoctor>
+      <artifact ref="asciidoctorj"/>
+      <artifact ref="asciidoctorj-pdf"/>
+    </asciidoctor>
+    <diagramming>
+      <artifact ref="plantuml"/><text> // plantuml includes ditaa</text>
+      <artifact ref="jeuclid-core"/>
+    </diagramming>
+    <plantuml>
+      <artifact ref="plantuml"/>
+    </plantuml>
+    <ditaa>
+      <artifact ref="plantuml"/>
+    </ditaa>
+    <mathml-to-svg>
+      <artifact ref="jeuclid-core"/>
+    </mathml-to-svg>
+    <ebnf-convert>
+      <artifact ref="ebnf-convert-lib"/>
+    </ebnf-convert>
+    <epubcheck>
+      <artifact ref="epubcheck"/>
+      <artifact ref="activation"/>
+    </epubcheck>
+    <find>
+      <artifact ref="json-path"/>
+      <artifact ref="json-smart"/>
+    </find>
+    <jsonpath>
+      <artifact ref="json-path"/>
+      <artifact ref="json-smart"/>
+    </jsonpath>
+    <json-diff>
+      <artifact ref="json-patch"/>
+    </json-diff>
+    <json-patch>
+      <artifact ref="json-patch"/>
+    </json-patch>
+    <markup-blitz>
+      <artifact ref="markup-blitz"/>
+    </markup-blitz>
+    <metadata-extractor>
+      <artifact ref="metadata-extractor"/>
+      <artifact ref="pdfbox"/> <text> // pdfbox dep for parsing XML in pdfbox</text>
+      <artifact ref="xmpbox"/>
+      <artifact ref="jaxb-api"/>
+    </metadata-extractor>
+    <paged-media-fop>
+      <artifact ref="fop"/>
+      <artifact ref="avalon-framework-api"/>
+      <artifact ref="avalon-framework-impl"/>
+      <artifact ref="jai-core"/>
+      <artifact ref="jai-codec"/>
+    </paged-media-fop>
+    <paged-media-prince>
+      <artifact ref="prince-java-wrapper"/>
+    </paged-media-prince>
+    <polyglot>
+      <artifact ref="polyglot"/>
+      <artifact ref="js"/>
+      <artifact ref="python"/>
+    </polyglot>
+    <railroad>
+      <artifact ref="rr-lib"/>
+      <artifact ref="ebnf-convert-lib"/>
+    </railroad>
+    <rdf>
+      <artifact ref="activation"/><text> // For mimetype mapping</text>
+      <artifact ref="jena"/>
+      <artifact ref="jena-arq"/>
+      <artifact ref="jena-core"/>
+      <artifact ref="jena-iri"/>
+      <artifact ref="semargl-core"/>
+      <artifact ref="semargl-rdfa"/>
+    </rdf>
+    <selenium>
+      <artifact ref="coffeegrinder"/>
+      <artifact ref="coffeefilter"/>
+      <artifact ref="selenium-java"/>
+    </selenium>
+    <send-mail>
+      <artifact ref="activation"/>
+      <artifact ref="javax.mail-api"/>
+      <artifact ref="javax.mail"/>
+    </send-mail>
+    <trang>
+      <artifact ref="trang"/>
+    </trang>
+    <unique-id>
+      <artifact ref="uuid-creator"/>
+    </unique-id>
+    <xmlunit>
+      <artifact ref="xmlunit-core"/>
+    </xmlunit>
+  </depends-on>))
+
+  fun of(keys: List&lt;String&gt;): List&lt;String&gt; {
+    val unifiedDeps = mutableSetOf&lt;String&gt;()
+    val versionCheck = mutableMapOf&lt;String,String&gt;()
+    for (key in keys) {
+      val deps = steps[key] ?: throw GradleException("No dependencies for ${key}")
+      for (dep in deps) {
+        unifiedDeps.add(dep)
+        val colon = dep.lastIndexOf(":")
+        val version = dep.substring(colon+1)
+        val library = dep.substring(0, colon)
+        if (library in versionCheck) {
+          if (versionCheck[library] != version) {
+            throw GradleException("Library version mismatch: ${dep} (also ${versionCheck[library]})")
+          }
+        }
+        versionCheck[library] = version
+      }
+    }
+    return unifiedDeps.toList()
+  }
+
+  fun version(pkg: String): String {
+    for ((_, deps) in steps) {
+      for (dep in deps) {
+        val colon = dep.lastIndexOf(":")
+        val version = dep.substring(colon+1)
+        val library = dep.substring(0, colon)
+        if (pkg == library) {
+          return version
+        }
+      }
+    }
+
+    throw GradleException("No version for ${pkg} in ${this}")
+  }
+}
+</kotlin>
+
+</dependencies>
