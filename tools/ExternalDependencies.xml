@@ -14,18 +14,18 @@
   </repository>
   <repository uri="https://central.sonatype.com/" search="https://central.sonatype.com/artifact">
     <group id="ch.qos.logback">
-      <artifact id="logback-classic" version="1.5.13"/>
+      <artifact id="logback-classic" version="1.5.18"/>
     </group>
     <group id="com.drewnoakes">
       <artifact id="metadata-extractor" version="2.19.0"/>
     </group>
     <group id="com.fasterxml.jackson.dataformat">
-      <artifact id="jackson-dataformat-csv" version="2.18.2"/>
-      <artifact id="jackson-dataformat-toml" version="2.18.2"/>
-      <artifact id="jackson-dataformat-yaml" version="2.18.2"/>
+      <artifact id="jackson-dataformat-csv" version="2.19.2"/>
+      <artifact id="jackson-dataformat-toml" version="2.19.2"/>
+      <artifact id="jackson-dataformat-yaml" version="2.19.2"/>
     </group>
     <group id="com.github.f4b6a3">
-      <artifact id="uuid-creator" version="6.0.0"/>
+      <artifact id="uuid-creator" version="6.1.1"/>
     </group>
     <group id="com.github.java-json-tools">
       <artifact id="json-patch" version="1.13"/>
@@ -34,13 +34,13 @@
       <artifact id="json-path" version="2.9.0"/>
     </group>
     <group id="com.networknt">
-      <artifact id="json-schema-validator" version="1.5.4"/>
+      <artifact id="json-schema-validator" version="1.5.8"/>
     </group>
     <group id="com.nwalsh">
       <artifact id="sinclude" version="5.4.1"/>
     </group>
     <group id="com.princexml">
-      <artifact id="prince-java-wrapper" version="1.3.0"/>
+      <artifact id="prince-java-wrapper" version="1.5.0"/>
     </group>
     <group id="com.sun.mail">
       <artifact id="javax.mail" version="1.6.2"/>
@@ -49,16 +49,16 @@
       <artifact id="flexmark-all" version="0.64.8"/>
     </group>
     <group id="commons-codec">
-      <artifact id="commons-codec" version="1.17.0"/>
+      <artifact id="commons-codec" version="1.19.0"/>
     </group>
     <group id="de.bottlecaps">
-      <artifact id="markup-blitz" version="1.6"/>
+      <artifact id="markup-blitz" version="1.9"/>
     </group>
     <group id="de.bottlecaps.ebnf-convert">
-      <artifact id="ebnf-convert-lib" version="0.70"/>
+      <artifact id="ebnf-convert-lib" version="0.72"/>
     </group>
     <group id="de.bottlecaps.rr">
-      <artifact id="rr-lib" version="2.1"/>
+      <artifact id="rr-lib" version="2.5"/>
     </group>
     <group id="de.rototor.jeuclid">
       <artifact id="jeuclid-core" version="3.1.14"/>
@@ -73,10 +73,10 @@
       <artifact id="jaxb-api" version="2.3.1"/>
     </group>
     <group id="net.minidev">
-      <artifact id="json-smart" version="2.5.1"/>
+      <artifact id="json-smart" version="2.5.2"/>
     </group>
     <group id="net.sourceforge.plantuml">
-      <artifact id="plantuml" version="1.2025.2"/>
+      <artifact id="plantuml" version="1.2025.4"/>
     </group>
     <group id="nu.validator">
       <artifact id="htmlparser" version="1.4.16"/>
@@ -86,26 +86,27 @@
       <artifact id="avalon-framework-impl" version="4.3.1"/>
     </group>
     <group id="org.apache.commons">
-      <artifact id="commons-compress" version="1.27.1"/>
+      <artifact id="commons-compress" version="1.28.0"/>
     </group>
     <group id="org.apache.httpcomponents.client5">
-      <artifact id="httpclient5" version="5.3.1"/>
+      <artifact id="httpclient5" version="5.5"/>
     </group>
     <group id="org.apache.jena">
-      <artifact id="jena-arq" version="5.3.0"/>
-      <artifact id="jena-core" version="5.3.0"/>
-      <artifact id="jena-iri" version="5.3.0"/>
-      <artifact id="jena" version="5.3.0"/>
+      <artifact id="jena-arq" version="5.5.0"/>
+      <artifact id="jena-core" version="5.5.0"/>
+      <artifact id="jena-iri" version="5.5.0"/>
+      <artifact id="jena" version="5.5.0"/>
     </group>
     <group id="org.apache.logging.log4j">
-      <artifact id="log4j-to-slf4j" version="2.23.1"/>
+      <artifact id="log4j-to-slf4j" version="2.25.1"/>
     </group>
     <group id="org.apache.pdfbox">
-      <artifact id="pdfbox" version="2.0.32"/>
-      <artifact id="xmpbox" version="2.0.32"/>
+      <artifact id="pdfbox" version="3.0.5"/>
+      <artifact id="pdfbox-io" version="3.0.5"/>
+      <artifact id="xmpbox" version="3.0.5"/>
     </group>
     <group id="org.apache.xmlgraphics">
-      <artifact id="fop" version="2.10"/>
+      <artifact id="fop" version="2.11"/>
     </group>
     <group id="org.asciidoctor">
       <artifact id="asciidoctorj-pdf" version="2.3.19"/>
@@ -127,9 +128,9 @@
       <artifact id="kotlinx-coroutines-core" version="1.10.2"/>
     </group>
     <group id="org.jline">
-      <artifact id="jline-reader" version="3.28.0"/>
-      <artifact id="jline-terminal-jni" version="3.28.0"/>
-      <artifact id="jline-terminal" version="3.28.0"/>
+      <artifact id="jline-reader" version="3.30.4"/>
+      <artifact id="jline-terminal-jni" version="3.30.4"/>
+      <artifact id="jline-terminal" version="3.30.4"/>
     </group>
     <group id="org.nineml">
       <artifact id="coffeefilter" version="3.2.9"/>
@@ -140,26 +141,26 @@
       <artifact id="trang" version="20241231"/>
     </group>
     <group id="org.seleniumhq.selenium">
-      <artifact id="selenium-java" version="4.28.1"/>
+      <artifact id="selenium-java" version="4.34.0"/>
     </group>
     <group id="org.semarglproject">
       <artifact id="semargl-core" version="0.7"/>
       <artifact id="semargl-rdfa" version="0.7"/>
     </group>
     <group id="org.slf4j">
-      <artifact id="slf4j-api" version="2.0.16"/>
+      <artifact id="slf4j-api" version="2.0.17"/>
     </group>
     <group id="org.tukaani">
       <artifact id="xz" version="1.10"/>
     </group>
     <group id="org.w3c">
-      <artifact id="epubcheck" version="5.0.1"/>
+      <artifact id="epubcheck" version="5.2.1"/>
     </group>
     <group id="org.xmlresolver">
-      <artifact id="xmlresolver" version="6.0.17"/>
+      <artifact id="xmlresolver" version="6.0.19"/>
     </group>
     <group id="org.xmlunit">
-      <artifact id="xmlunit-core" version="2.10.0"/>
+      <artifact id="xmlunit-core" version="2.10.3"/>
     </group>
   </repository>
 
@@ -248,6 +249,7 @@ object ExternalDependencies {
     <metadata-extractor>
       <artifact ref="metadata-extractor"/>
       <artifact ref="pdfbox"/> <text> // pdfbox dep for parsing XML in pdfbox</text>
+      <artifact ref="pdfbox-io"/>
       <artifact ref="xmpbox"/>
       <artifact ref="jaxb-api"/>
     </metadata-extractor>

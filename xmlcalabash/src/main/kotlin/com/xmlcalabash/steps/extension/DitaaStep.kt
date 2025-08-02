@@ -71,14 +71,14 @@ class DitaaStep(): AbstractAtomicStep() {
                 grid.addToMarkupTags(pOptions.customShapes.keys)
             }
 
-            val lines = ArrayList<StringBuffer>()
+            val lines = ArrayList<StringBuilder>()
             for (line in (source.value as XdmNode).underlyingValue.stringValue.trim().split("\n")) {
-                lines.add(StringBuffer(line))
+                lines.add(StringBuilder(line))
             }
 
             grid.initialiseWithLines(lines, pOptions)
 
-            val diagram = Diagram(grid, cOptions, pOptions)
+            val diagram = Diagram(grid, cOptions)
             val image = BitmapRenderer().renderToImage(diagram, cOptions.renderingOptions)
             val baos = ByteArrayOutputStream()
 

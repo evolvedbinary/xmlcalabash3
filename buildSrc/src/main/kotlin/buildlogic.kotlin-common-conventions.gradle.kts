@@ -35,6 +35,9 @@ configurations.all {
     if (requested.group == "org.xmlresolver") {
       useVersion(ExternalDependencies.version("org.xmlresolver:xmlresolver"))
     }
+    if (requested.group == "net.sourceforge.plantuml") {
+      useVersion(ExternalDependencies.version("net.sourceforge.plantuml:plantuml"))
+    }
   }
 }
 
