@@ -13,6 +13,61 @@ See the commits and pull requests on
 finer detail.</para>
 
 <revhistory>
+<revision xml:id="r3013">
+<revnumber>3.0.13</revnumber>
+<date>2025-08-03</date>
+<revdescription>
+<itemizedlist>
+<listitem><para>Fixed <cbissue number="175"/>. Output filenames had incorrectly formatted
+extensions in the detailed trace listener.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="171"/> and <cbissue number="172"/>. Made
+a couple of small changes to the <tag>p:css-formatter</tag> step.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="170"/>. Added a <code>store</code> command to the 
+interactive debugger.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="169"/>. Attempted to improve the documentation
+in the
+<link xlink:href="https://docs.xmlcalabash.com/reference/current/language-reference.html">language
+reference</link>. More improvements can surely be made.
+</para></listitem>
+<listitem><para>Updated Schematron implementation to
+<link xlink:href="https://codeberg.org/schxslt/schxslt2">SchXslt2</link> version 1.4.4. 
+</para></listitem>
+<listitem><para>Updated dependencies and the way dependencies are managed. Updates:
+</para>
+<itemizedlist>
+<listitem><para><code>ch.qos.logback:logback-classic</code> from 1.5.13 to 1.5.18</para></listitem>
+<listitem><para><code>com.fasterxml.jackson.*</code> from 2.18.2 to 2.19.2</para></listitem>
+<listitem><para><code>com.github.f4b6a3:uuid-creator</code> from 6.0.0 to 6.1.1</para></listitem>
+<listitem><para><code>com.networknt:json-schema-validator</code> from 1.5.4 to 1.5.8</para></listitem>
+<listitem><para><code>com.princexml:prince-java-wrapper</code> from 1.3.0 to 1.5.0</para></listitem>
+<listitem><para><code>commons-codec:commons-codec</code> from 1.17.0 to 1.19.0</para></listitem>
+<listitem><para><code>de.bottlecaps.ebnf-convert:ebnf-convert-lib</code> from 0.70 to 0.72</para></listitem>
+<listitem><para><code>de.bottlecaps.rr:rr-lib</code> from 2.1 to 2.5</para></listitem>
+<listitem><para><code>net.minidev:json-smart</code> from 2.5.1 to 2.5.2</para></listitem>
+<listitem><para><code>net.sourceforge.plantuml:plantuml</code> from 1.2025.2 to 1.2025.4</para></listitem>
+<listitem><para><code>org.apache.commons:commons-compress</code> from 1.27.1 to 1.28.0</para></listitem>
+<listitem><para><code>org.apache.httpcomponents.client5:httpclient5</code> from 5.3.1 to 5.5</para></listitem>
+<listitem><para><code>org.apache.jena:*</code> from 5.3.0 to 5.5.0</para></listitem>
+<listitem><para><code>org.apache.logging.log4j:log4j-to-slf4j</code> from 2.23.1 to 2.25.1</para></listitem>
+<listitem><para><code>org.apache.pdfbox:*</code> from 2.0.32 to 3.0.5</para></listitem>
+<listitem><para><code>org.apache.xmlgraphics:fop</code> from 2.10 to 2.11</para></listitem>
+<listitem><para><code>org.jline:*</code> from 3.28.0 to 3.30.4</para></listitem>
+<listitem><para><code>org.seleniumhq.selenium:selenium-java</code> from 4.28.1 to 4.34.0</para></listitem>
+<listitem><para><code>org.slf4j:slf4j-api</code> from 2.0.16 to 2.0.17</para></listitem>
+<listitem><para><code>org.w3c:epubcheck</code> from 5.0.1 to 5.2.1</para></listitem>
+<listitem><para><code>org.xmlresolver:xmlresolver</code> from 6.0.17 to 6.0.19</para></listitem>
+<listitem><para><code>org.xmlunit:xmlunit-core</code> from 2.10.0 to 2.10.3</para></listitem>
+</itemizedlist>
+</listitem>
+<listitem><para>Call this the “Balisage 2025” release. Hopefully, I won’t decide anything else
+needs fixing before my talk next week. It’s a “.13” release, but you’re not superstitious, right?
+</para></listitem>
+</itemizedlist>
+</revdescription>
+</revision>
 <revision xml:id="r3012">
 <revnumber>3.0.12</revnumber>
 <date>2025-07-27</date>
