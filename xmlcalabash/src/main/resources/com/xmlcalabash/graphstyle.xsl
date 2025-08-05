@@ -184,7 +184,9 @@
       <xsl:otherwise>
         <g:detail>
           <td>
-            <xsl:if test="not(starts-with(@type, 'cx:'))">
+            <xsl:if test="not(@etype = ('Q{http://xmlcalabash.com/ns/extensions}empty',
+                                        'Q{http://xmlcalabash.com/ns/extensions}document',
+                                        'Q{http://xmlcalabash.com/ns/extensions}inline'))">
               <xsl:attribute name="bgcolor" select="$light-orange"/>
             </xsl:if>
             <xsl:choose>

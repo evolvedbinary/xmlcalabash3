@@ -431,7 +431,10 @@ class PipelineVisualization private constructor(val instruction: XProcInstructio
                 NsCx.foot -> NsDescription.g("foot", gPrefix)
                 else -> {
                     attr["name"] = name
+                    // We're not being really careful about the namespace bindings for the type QName
+                    // so we also provide the EQName for comparisons in the stylesheet.
                     attr["type"] = "${type}"
+                    attr["etype"] = "Q{${type.namespaceUri}}${type.localName}"
                     NsDescription.g("atomic-step", gPrefix)
                 }
             }
