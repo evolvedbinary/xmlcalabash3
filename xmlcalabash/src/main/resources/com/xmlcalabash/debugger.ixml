@@ -48,7 +48,7 @@ name-catch>name = +"catch" .
 
 code = [L | P | Nd]+ .
 
--define = define-command, rs, -'$', varname, s, -':'?, -'=', expr .
+-define = define-command, rs, -'$', s, varname, s, -':'?, -'=', expr .
 -define-command = name-define, s, (-"define" | -"def") .
 name-define>name = +"define" .
 
@@ -103,7 +103,7 @@ name-options>name = +"options" .
 -run = name-run, s, (-"run" | -"r") .
 name-run>name = +"run" .
 
--set = set-command, rs, -'$', varname, s, -':'?, -'=', expr .
+-set = set-command, rs, -'$', s, varname, s, -':'?, -'=', expr .
 -set-command = name-set, s, -"set" .
 name-set>name = +"set" .
 
