@@ -148,7 +148,7 @@ an appropriate license if you want to use licensed features (like XML Schema val
 </listitem>
 </varlistentry>
 <varlistentry>
-<term>JLine, version <?dep org.jline:jline-reader?></term>
+<term>JLine, version <?dep org.jline:jline?></term>
 <listitem>
 <para>For the debugger command line.
 </para>

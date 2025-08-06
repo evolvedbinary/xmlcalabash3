@@ -449,7 +449,7 @@ synonym for <command>run</command>.</para>
 <section xml:id="dbg-set">
 <title>set</title>
 
-<para>Set the value of a step option of local variable.</para>
+<para>Set the value of an option or local variable</para>
 
 <cmdsynopsis>
   <command>set</command>
@@ -458,7 +458,7 @@ synonym for <command>run</command>.</para>
   <arg choice="plain"><replaceable>expression</replaceable></arg>
 </cmdsynopsis>
 
-<para>Changes the value of the stop option or local variable named
+<para>Changes the value of the step option or local variable named
 <varname>$varname</varname> to the value that results from
 evaluating the expression. (If an error occurs evaluating the expression, the
 empty sequence will be assigned.)</para>

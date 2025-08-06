@@ -15,10 +15,14 @@ import com.xmlcalabash.util.UriUtils
 import net.sf.saxon.om.NamespaceUri
 import net.sf.saxon.s9api.*
 import net.sf.saxon.value.BooleanValue
+import org.jline.builtins.Completers
+import org.jline.builtins.Completers.TreeCompleter.node
+import org.jline.reader.Completer
 import org.jline.reader.EndOfFileException
 import org.jline.reader.LineReader
 import org.jline.reader.LineReaderBuilder
 import org.jline.reader.UserInterruptException
+import org.jline.terminal.Terminal
 import org.jline.terminal.TerminalBuilder
 import org.nineml.coffeefilter.InvisibleXml
 import org.nineml.coffeefilter.InvisibleXmlParser
@@ -31,10 +35,10 @@ import java.nio.charset.StandardCharsets
 import java.util.*
 
 class CliDebugger(val runtime: XProcRuntime): Monitor {
-    val terminal = TerminalBuilder.terminal()
-    var reader: LineReader? = null
+    val terminal: Terminal = TerminalBuilder.terminal()
     val prompt = "> "
     val printer = runtime.environment.messagePrinter
+    var aborted = false
 
     var parser: InvisibleXmlParser? = null
     val stacks = mutableMapOf<Long, Stack<StackFrame>>()
@@ -56,6 +60,10 @@ class CliDebugger(val runtime: XProcRuntime): Monitor {
     val stepList = mutableListOf<String>()
 
     override fun startStep(step: AbstractStep) {
+        if (aborted) {
+            return
+        }
+
         if (parser == null) {
             init()
         }
@@ -65,6 +73,7 @@ class CliDebugger(val runtime: XProcRuntime): Monitor {
         curFrame = StackFrame(step)
         stack.push(curFrame)
         frameNumber = stack.size - 1
+        aborted = false
 
         var stopHere = stepping
         if (!stopHere) {
@@ -91,6 +100,10 @@ class CliDebugger(val runtime: XProcRuntime): Monitor {
     }
 
     override fun endStep(step: AbstractStep) {
+        if (aborted) {
+            return
+        }
+
         frameNumber = stack.size - 1
 
         if (stopOnEnd) {
@@ -102,6 +115,10 @@ class CliDebugger(val runtime: XProcRuntime): Monitor {
     }
 
     override fun abortStep(step: AbstractStep, ex: Exception) {
+        if (aborted) {
+            return
+        }
+
         frameNumber = stack.size - 1
 
         val code = if (ex is XProcException) {
@@ -152,12 +169,16 @@ class CliDebugger(val runtime: XProcRuntime): Monitor {
     }
 
     private fun cli(step: AbstractStep, start: Boolean) {
-        if (reader == null) {
-            reader = LineReaderBuilder.builder()
-                .terminal(terminal)
-                .build()
+        val runnableNames = if (curFrame.step is CompoundStep) {
+            (curFrame.step as CompoundStep).runnables.map { it.id }
+        } else {
+            emptyList()
         }
 
+        val reader = LineReaderBuilder.builder()
+            .terminal(terminal)
+            .completer(makeCompleter(runnableNames))
+            .build()
 
         if (start) {
             printer.println("Debugger at ${step.id}")
@@ -169,76 +190,78 @@ class CliDebugger(val runtime: XProcRuntime): Monitor {
             printer.println("xmlns:${curFrame.cx} = ${NsCx.namespace}")
         }
 
-        try {
-            while (true) {
-                val line = reader!!.readLine(prompt).trim()
-                if (line == "") {
-                    continue
-                }
-
-                val doc = parser!!.parse(line)
-                if (!doc.succeeded()) {
-                    printer.println("Syntax error: ${line}")
-                    continue
-                }
-
-                val opts = ParserOptions()
-                opts.assertValidXmlNames = false
-                opts.assertValidXmlCharacters = false
-                val walker = doc.result.getArborist()
-                val dataBuilder = DataTreeBuilder(opts)
-                walker.getTree(doc.getAdapter(dataBuilder))
-                val dtree = dataBuilder.tree
-
-                val command = parseJson(dtree.asJSON())
-                when (command["name"]) {
-                    null -> {
-                        printer.println("Parse failed: ${line}")
-                        continue
-                    }
-                    "base-uri" -> doBaseUri(command)
-                    "breakpoint" -> doBreakpoint(command)
-                    "catch" -> doCatchpoint(command)
-                    "define" -> doDefine(command)
-                    "down" -> doDown(command)
-                    "eval" -> doEval(command)
-                    "store" -> doStore(command)
-                    "exit" -> doExit()
-                    "help" -> doHelp(command)
-                    "inputs" -> doInputs()
-                    "models" -> doModels(command)
-                    "namespace" -> doNamespace(command)
-                    "next" -> {
-                        doNext(command)
-                        if (breakNext != null) {
-                            return
-                        }
-                    }
-                    "options" -> doOptions()
-                    "run" -> {
-                        doRun(command)
-                        return
-                    }
-                    "set" -> doSet(command)
-                    "stack" -> doStack(command)
-                    "step" -> {
-                        doStep(command)
-                        return
-                    }
-                    "subpipeline" -> doSubpipeline(command)
-                    "up" -> doUp(command)
-                    else -> {
-                        printer.println("Unexpected command: ${command["name"]}")
-                        continue
-                    }
+        while (true) {
+            var line = ""
+            try {
+                line = reader!!.readLine(prompt).trim()
+            } catch (ex: Exception) {
+                when (ex) {
+                    is EndOfFileException -> doExit() // Ctl-D is the only way to cause this?
+                    is UserInterruptException -> doExit()
+                    is IllegalArgumentException -> Unit
+                    is XProcException -> throw ex
+                    else -> throw XProcError.xiImpossible("Unexpected exception from jline: ${ex}").exception(ex)
                 }
             }
-        } catch (ex: Exception) {
-            when (ex) {
-                is EndOfFileException -> Unit
-                is UserInterruptException -> doExit()
-                is XProcException -> throw ex
-                else -> throw XProcError.xiImpossible("Unexpected exception from jline: ${ex}").exception(ex)
+            if (line == "") {
+                continue
+            }
+
+            val doc = parser!!.parse(line)
+            if (!doc.succeeded()) {
+                printer.println("Syntax error: ${line}")
+                continue
+            }
+
+            val opts = ParserOptions()
+            opts.assertValidXmlNames = false
+            opts.assertValidXmlCharacters = false
+            val walker = doc.result.getArborist()
+            val dataBuilder = DataTreeBuilder(opts)
+            walker.getTree(doc.getAdapter(dataBuilder))
+            val dtree = dataBuilder.tree
+
+            val command = parseJson(dtree.asJSON())
+            when (command["name"]) {
+                null -> {
+                    printer.println("Parse failed: ${line}")
+                    continue
+                }
+                "base-uri" -> doBaseUri(command)
+                "breakpoint" -> doBreakpoint(command)
+                "catch" -> doCatchpoint(command)
+                "define" -> doDefine(command)
+                "down" -> doDown(command)
+                "eval" -> doEval(command)
+                "store" -> doStore(command)
+                "exit" -> doExit()
+                "help" -> doHelp(command)
+                "inputs" -> doInputs()
+                "models" -> doModels(command)
+                "namespace" -> doNamespace(command)
+                "next" -> {
+                    doNext(command)
+                    if (breakNext != null) {
+                        return
+                    }
+                }
+                "options" -> doOptions()
+                "run" -> {
+                    doRun(command)
+                    return
+                }
+                "set" -> doSet(command)
+                "stack" -> doStack(command)
+                "step" -> {
+                    doStep(command)
+                    return
+                }
+                "subpipeline" -> doSubpipeline(command)
+                "up" -> doUp(command)
+                else -> {
+                    printer.println("Unexpected command: ${command["name"]}")
+                    continue
+                }
             }
         }
     }
@@ -915,6 +938,7 @@ class CliDebugger(val runtime: XProcRuntime): Monitor {
     }
 
     fun doExit() {
+        aborted = true
         throw XProcError.xiAbortDebugger().exception()
     }
 
@@ -966,6 +990,54 @@ class CliDebugger(val runtime: XProcRuntime): Monitor {
                 }
             }
         }
+    }
+
+    private fun makeCompleter(stepNames: List<String>): Completer {
+        val common = mutableListOf<Completers.TreeCompleter.Node>()
+        common.add(node("base-uri"))
+        common.add(node("define", node("$", node("="))))
+        common.add(node("down"))
+        common.add(node("exit"))
+        common.add(node("help", node("base-uri", "breakpoint", "catch", "define", "down",
+            "exit", "help", "inputs", "models", "namespace", "next", "options",
+            "run", "set", "show", "stack", "step", "store", "subpipeline", "up")))
+        common.add(node("inputs"))
+        common.add(node("model"))
+        common.add(node("namespace"))
+        common.add(node("next"))
+        common.add(node("options"))
+        common.add(node("run"))
+        common.add(node("set", node("$", node("="))))
+        common.add(node("show"))
+        common.add(node("stack"))
+        common.add(node("step", node("to", node("end"))))
+        common.add(node("store"))
+        common.add(node("subpipeline"))
+        common.add(node("up"))
+
+        val completer = if (stepNames.isEmpty()) {
+            Completers.TreeCompleter(
+                *common.toTypedArray(),
+                node("catch",
+                    node("error")),
+                node("breakpoint",
+                    node("on"),
+                    node("clear"))
+            )
+        } else {
+            Completers.TreeCompleter(
+                *common.toTypedArray(),
+                node("catch",
+                    node("on", node(*stepNames.toTypedArray(), node("error")))),
+                node("breakpoint",
+                    node("on", node(*stepNames.toTypedArray(),
+                        node("at", node("input", "output", node("when"))),
+                        node("when"))),
+                    node("clear"))
+            )
+        }
+
+        return completer
     }
 
     open inner class Breakpoint(val id: String, val expr: String) {

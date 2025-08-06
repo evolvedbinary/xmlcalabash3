@@ -128,9 +128,8 @@
       <artifact id="kotlinx-coroutines-core" version="1.10.2"/>
     </group>
     <group id="org.jline">
-      <artifact id="jline-reader" version="3.30.4"/>
-      <artifact id="jline-terminal-jni" version="3.30.4"/>
-      <artifact id="jline-terminal" version="3.30.4"/>
+      <artifact id="jline" version="3.30.4"/>
+      <artifact id="jline-terminal-jansi" version="3.30.4"/>
     </group>
     <group id="org.nineml">
       <artifact id="coffeefilter" version="3.2.9"/>
@@ -189,9 +188,8 @@ object ExternalDependencies {
       <artifact ref="commons-compress"/>
       <artifact ref="httpclient5"/>
       <artifact ref="dec"/>
-      <artifact ref="jline-reader"/>
-      <artifact ref="jline-terminal-jni"/>
-      <artifact ref="jline-terminal"/>
+      <artifact ref="jline"/>
+      <artifact ref="jline-terminal-jansi"/>
       <artifact ref="coffeefilter"/>
       <artifact ref="coffeegrinder"/>
       <artifact ref="jing"/>
