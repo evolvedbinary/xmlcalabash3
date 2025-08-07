@@ -22,6 +22,7 @@ import org.jline.reader.EndOfFileException
 import org.jline.reader.LineReader
 import org.jline.reader.LineReaderBuilder
 import org.jline.reader.UserInterruptException
+import org.jline.reader.impl.history.DefaultHistory
 import org.jline.terminal.Terminal
 import org.jline.terminal.TerminalBuilder
 import org.nineml.coffeefilter.InvisibleXml
@@ -36,6 +37,7 @@ import java.util.*
 
 class CliDebugger(val runtime: XProcRuntime): Monitor {
     val terminal: Terminal = TerminalBuilder.terminal()
+    val history = DefaultHistory()
     val prompt = "> "
     val printer = runtime.environment.messagePrinter
     var aborted = false
@@ -177,6 +179,7 @@ class CliDebugger(val runtime: XProcRuntime): Monitor {
 
         val reader = LineReaderBuilder.builder()
             .terminal(terminal)
+            .history(history)
             .completer(makeCompleter(runnableNames))
             .build()
 
