@@ -13,7 +13,7 @@ object ExternalDependencies {
             "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.19.2",
             "com.github.f4b6a3:uuid-creator:6.1.1",
             "com.networknt:json-schema-validator:1.5.8",
-            "com.nwalsh:sinclude:5.4.1",
+            "com.nwalsh:sinclude:5.5.0",
             "com.vladsch.flexmark:flexmark-all:0.64.8",
             "commons-codec:commons-codec:1.19.0",
             "javax.activation:activation:1.1.1", // For mimetype mapping

@@ -37,7 +37,7 @@
       <artifact id="json-schema-validator" version="1.5.8"/>
     </group>
     <group id="com.nwalsh">
-      <artifact id="sinclude" version="5.4.1"/>
+      <artifact id="sinclude" version="5.5.0"/>
     </group>
     <group id="com.princexml">
       <artifact id="prince-java-wrapper" version="1.5.0"/>
