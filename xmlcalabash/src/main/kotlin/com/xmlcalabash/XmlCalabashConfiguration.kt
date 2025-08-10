@@ -35,6 +35,8 @@ interface XmlCalabashConfiguration {
     val pagedMediaCssProcessors: List<URI>
     val pagedMediaManagers: List<PagedMediaManager>
     val pagedMediaXslProcessors: List<URI>
+    val configuredXQueryProcessors: Map<URI, Map<QName, String>>
+    val defaultXQueryProcessor: URI
     val pipe: Boolean
     val proxies: Map<String, String>
     val saxonConfigurationFile: File?

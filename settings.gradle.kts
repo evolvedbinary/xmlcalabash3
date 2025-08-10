@@ -12,4 +12,5 @@ include("documentation")
 include("template:java")
 include("template:kotlin")
 include("ext:polyglot")
+include("ext:basex")
 

@@ -4,7 +4,7 @@ import java.util.ServiceLoader
 
 class DocumentResolverServiceProvider {
     companion object {
-        private val DEFAULT_PROVIDER = "com.xmlcalabash.util.spi.StandardDocumentResolver"
+        private const val DEFAULT_PROVIDER = "com.xmlcalabash.util.spi.StandardDocumentResolver"
 
         fun providers(): List<DocumentResolverProvider> {
             val services = mutableListOf<DocumentResolverProvider>()

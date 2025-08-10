@@ -15,9 +15,7 @@ import org.apache.logging.log4j.kotlin.logger
 import org.xml.sax.InputSource
 import java.io.File
 import java.io.FileInputStream
-import java.io.IOException
 import java.net.URI
-import java.nio.charset.Charset
 import javax.xml.transform.sax.SAXSource
 
 class ConfigurationLoader(val builder: XmlCalabashBuilder) {
@@ -39,6 +37,8 @@ class ConfigurationLoader(val builder: XmlCalabashBuilder) {
         private val ccXmlSchema = QName(ns, "cc:xml-schema")
         private val ccCatalog = QName(ns, "cc:catalog")
         private val ccExtension = QName(ns, "cc:extension")
+        private val ccXQueryProcessor = QName(ns, "cc:xquery-processor")
+        val ccFallback = QName(ns, "cc:fallback")
 
         private val _count = QName("count")
         private val _cssFormatter = QName("css-formatter")
@@ -61,6 +61,7 @@ class ConfigurationLoader(val builder: XmlCalabashBuilder) {
         private val _verbosity = QName("verbosity")
         private val _xslFormatter = QName("xsl-formatter")
         private val _bufferSize = QName("buffer-size")
+        private val _defaultXQueryProcessor = QName("default-xquery-processor")
     }
 
     private lateinit var configFile: String
@@ -99,7 +100,7 @@ class ConfigurationLoader(val builder: XmlCalabashBuilder) {
         checkAttributes(root, listOf(), listOf(
             _console_output_encoding, _licensed, _piped_io, _saxonConfiguration,
             Ns.tryNamespaces, Ns.useLocationHints, Ns.validationMode,
-            _verbosity, Ns.version, _mpt))
+            _verbosity, Ns.version, _mpt, _defaultXQueryProcessor))
 
         if ((root.getAttributeValue(Ns.version) ?: "1.0") != "1.0") {
             throw XProcError.xiInvalidConfigurationAttributeValue(root.nodeName, Ns.version, root.getAttributeValue(Ns.version)!!).exception()
@@ -138,6 +139,8 @@ class ConfigurationLoader(val builder: XmlCalabashBuilder) {
         builder.setTryNamespaces(booleanAttribute(root.getAttributeValue(Ns.tryNamespaces), "try-namespaces"))
         builder.setUseLocationHints(booleanAttribute(root.getAttributeValue(Ns.useLocationHints), "use-location-hints"))
 
+        root.getAttributeValue(_defaultXQueryProcessor)?.let { builder.setDefaultXQueryProcessor(URI(it)) }
+
         for (child in root.axisIterator(Axis.CHILD)) {
             when (child.nodeKind) {
                 XdmNodeKind.ELEMENT -> {
@@ -157,6 +160,7 @@ class ConfigurationLoader(val builder: XmlCalabashBuilder) {
                         ccXmlSchema -> parseXmlSchema(child)
                         ccCatalog -> parseCatalog(child)
                         ccExtension -> parseExtension(child)
+                        ccXQueryProcessor -> parseXQueryImplementation(child)
                         else -> {
                             if (child.nodeName.namespaceUri == ns) {
                                 throw XProcError.xiUnrecognizedConfigurationProperty(child.nodeName).exception()
@@ -376,6 +380,31 @@ class ConfigurationLoader(val builder: XmlCalabashBuilder) {
             "eager-uri-resolution" -> builder.enableExtension(ExtensionName.EAGER_URI_RESOLUTION)
             else -> throw XProcError.xiUnrecognizedExtension(name).exception()
         }
+    }
+
+    private fun parseXQueryImplementation(node: XdmNode) {
+        val name =
+            node.getAttributeValue(Ns.name)
+                ?: throw XProcError.xiMissingConfigurationAttribute(node.nodeName, Ns.name).exception()
+
+        val impl = node.baseURI.resolve(name)
+
+        val properties = mutableMapOf<QName,String>()
+        for (attr in node.axisIterator(Axis.ATTRIBUTE)) {
+            if (attr.nodeName != Ns.name) {
+                if (attr.nodeName.namespaceUri == ns) {
+                    if (attr.nodeName == ccFallback) {
+                        properties[attr.nodeName] = attr.stringValue
+                    } else {
+                        throw XProcError.xiUnrecognizedConfigurationAttribute(node.nodeName, attr.nodeName).exception()
+                    }
+                } else {
+                    properties[attr.nodeName] = attr.stringValue
+                }
+            }
+        }
+
+        builder.configureXQueryProcessor(impl, properties)
     }
 
     private fun checkAttributes(node: XdmNode, attributes: List<QName>, optionalAttributes: List<QName> = listOf()) {

@@ -104,6 +104,13 @@ This can also be specified
 The command-line setting takes precedence.</para>
 </listitem>
 </varlistentry>
+<varlistentry><term><tag class="attribute">default-xquery-processor</tag> (URI)</term>
+<listitem>
+<para>Identifies the default XQuery processor. If unspecified, the default is
+<uri>https://saxonica.com/</uri>, the Saxonica processor. Other processors can be specified,
+but they must also be implemented and added to the classpath.</para>
+</listitem>
+</varlistentry>
 </variablelist>
 
 <para>For simplicity, the content model of <tag>cc:xml-calabash</tag> allows every element to
@@ -590,6 +597,31 @@ the <tag>cc:xml-schema</tag> element. The RELAX NG grammar for configuration
 files will allow any element as a child of <tag>cc:xml-schema</tag>, but in practice
 only <tag>xsd:schema</tag> elements are allowed.
 </para>
+</section>
+
+<section xml:id="cc.xquery-processor">
+<info>
+<?db filename="cc-query-processor"?>
+<title>cc:xquery-processor</title>
+</info>
+
+<para>Configures an XQuery processor.</para>
+
+<rng-pattern schema="../../build/xml-calabash.rng"
+             name="cc.xqueryProcessor"/>
+
+<para>The <tag class="attribute">name</tag> attribute must identify the processor.
+The name of the default processor is <uri>https://saxonica.com/</uri>. The
+<uri>https://basex.org/</uri> processor can also be configured. (And in due course,
+support for eXist-db is also planned.)</para>
+
+<para>Any attributes other than the name attribute are passed to the processor.
+This may allow the configuration file to provide credentials for accessing a
+remote server, for example. The special attribute
+<tag class="attribute">cc:fallback</tag> identifies the URI of the processor to use if
+this processor is unavailable. If not specified, no fallback is provided and attempts
+to use XQuery will fail.</para>
+
 </section>
 
 <section xml:id="cc.any-name">
