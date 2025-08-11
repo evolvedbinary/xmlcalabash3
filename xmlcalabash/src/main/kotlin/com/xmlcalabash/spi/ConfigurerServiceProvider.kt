@@ -4,7 +4,7 @@ import java.util.*
 
 class ConfigurerServiceProvider {
     companion object {
-        private val DEFAULT_PROVIDER = "com.xmlcalabash.util.spi.StandardConfigurer"
+        private const val DEFAULT_PROVIDER = "com.xmlcalabash.util.spi.StandardConfigurer"
 
         fun providers(): List<ConfigurerProvider> {
             val services = mutableListOf<ConfigurerProvider>()

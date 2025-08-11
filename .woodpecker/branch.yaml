@@ -166,6 +166,7 @@ steps:
       files:
         - 'app/build/distributions/*.zip'
         - 'ext/polyglot/build/distributions/*.zip'
+        - 'ext/basex/build/distributions/*.zip'
       api_key:
         from_secret: ACCESS_TOKEN
 

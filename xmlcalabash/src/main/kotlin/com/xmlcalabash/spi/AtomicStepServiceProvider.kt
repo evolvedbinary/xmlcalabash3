@@ -4,7 +4,7 @@ import java.util.ServiceLoader
 
 class AtomicStepServiceProvider {
     companion object {
-        private val DEFAULT_PROVIDER = "com.xmlcalabash.util.spi.StandardStepProvider"
+        private const val DEFAULT_PROVIDER = "com.xmlcalabash.util.spi.StandardStepProvider"
 
         fun providers(): List<AtomicStepProvider> {
             val services = mutableListOf<AtomicStepProvider>()

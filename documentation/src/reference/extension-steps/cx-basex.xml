@@ -1,0 +1,77 @@
+<refentry xmlns:p="http://www.w3.org/ns/xproc"
+          xmlns:e="http://www.w3.org/1999/XSL/Spec/ElementSyntax"
+          xmlns:cxerr="http://xmlcalabash.com/ns/error"
+          xmlns:xi="http://www.w3.org/2001/XInclude"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          xmlns="http://docbook.org/ns/docbook"
+          xml:id="cx-basex">
+<?db filename="cx-basex"?>
+<refnamediv>
+  <refname>cx:basex</refname>
+  <refpurpose>Evaluate Xquery expressions</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv>
+<refsection role="introduction">
+<title>Introduction</title>
+<para>This step applies an Xquery expression to the sequence of documents
+provided on the <port>source</port> port.
+</para>
+</refsection>
+
+<refsection role="step-declaration">
+<title>Step declaration</title>
+<xi:include href="../../../../ext/basex/src/main/resources/com/xmlcalabash/ext/basex.xpl"
+            xpointer="xpath(/*/*[@type='cx:basex'])"/>
+<?import basex.xpl?>
+</refsection>
+</refsynopsisdiv>
+
+<refsection>
+<title>Description</title>
+
+<para>This step is modeled on the <tag>p:xquery</tag> step, but specifically uses
+the <link xlink:href="https://basex.org/">BaseX</link> implementation. If values
+are given for <option>host</option>, <option>port</option>, <option>username</option>,
+and <option>password</option>, they override any values given in the
+<link xlink:href="https://docs.xmlcalabash.com/userguide/current/configuration.html#cc.xquery-processor">configuration
+file</link>.
+The BaseX step can also be nominated as the default processor for <tag>p:xquery</tag>
+by setting the
+<link xlink:href="https://docs.xmlcalabash.com/userguide/current/configuration.html#cc.xml-calabash">default
+XQuery processor</link>.
+</para>
+
+<para>The BaseX implementation of XQuery (whether it’s accessed with the <tag>cx:basex</tag>
+step or through the <tag>p:xquery</tag> step) operates in one of two modes:
+<link linkend="basex-local">local</link> or <link linkend="basex-remote">remote</link>.</para>
+
+</refsection>
+
+<refsection xml:id="basex-local">
+<title>BaseX local mode</title>
+<para>In local mode, you must not specify host, port, username or password.</para>
+<para>The documents that appear on the <port>source</port> port are used to construct
+an in-memory BaseX database and that database is queried.
+The results of that query form the results of the step.
+</para>
+
+<para>In this configuration, the default context is always the entire default collection.
+This differs from the semantics of <tag>p:xquery</tag> in order to be compatible
+with BaseX.
+</para>
+</refsection>
+
+<refsection xml:id="basex-remote">
+<title>BaseX remote mode</title>
+
+<para>In remote mode, you must specify host, port, username and password.
+There must be no documents on the <port>source</port> port.
+</para>
+
+<para>The coordinates provided are used to connect to a BaseX database. If that connection
+succeeds, the query is sent to the database and results returned form the results of
+the step.</para>
+
+</refsection>
+</refentry>

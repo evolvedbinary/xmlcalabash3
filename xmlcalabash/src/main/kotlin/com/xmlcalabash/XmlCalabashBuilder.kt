@@ -21,9 +21,7 @@ import net.sf.saxon.s9api.ValidationMode
 import org.apache.logging.log4j.kotlin.logger
 import org.xmlresolver.ResolverFeature
 import java.io.File
-import java.io.IOException
 import java.net.URI
-import java.nio.charset.Charset
 
 /**
  * The builder for constructing an XML Calabash configuration.
@@ -233,6 +231,30 @@ class XmlCalabashBuilder {
 
         return this
     }
+
+    fun getConfiguredXQueryProcessors(): Map<URI, Map<QName, String>> {
+        return config._xqueryProcessors
+    }
+
+    fun configureXQueryProcessor(implementation: URI, properties: Map<QName, String>): XmlCalabashBuilder {
+        logger.debug { "configureXQueryProcessor ${implementation}" }
+        val map = mutableMapOf<QName, String>()
+        if (config._xqueryProcessors.containsKey(implementation)) {
+            map.putAll(config._xqueryProcessors[implementation]!!)
+        }
+        map.putAll(properties)
+        config._xqueryProcessors[implementation] = map
+
+        return this
+    }
+
+    fun getDefaultXQueryProcessor() = config._defaultXQueryProcessor
+    fun setDefaultXQueryProcessor(name: URI): XmlCalabashBuilder {
+        logger.debug { "setDefaultXQueryProcessor ${name}" }
+        config._defaultXQueryProcessor = name
+        return this
+    }
+
 
     fun addPagedMediaXslProcessor(xslFormatter: URI, properties: Map<QName, String>): XmlCalabashBuilder {
         logger.debug { "addPagedMediaXslProcessor ${xslFormatter}" }
@@ -555,6 +577,8 @@ class XmlCalabashBuilder {
         internal val _pagedMediaCssProcessors = mutableListOf<URI>()
         internal val _pagedMediaManagers = mutableListOf<PagedMediaManager>()
         internal val _pagedMediaXslProcessors = mutableListOf<URI>()
+        internal val _xqueryProcessors = mutableMapOf<URI, Map<QName, String>>(URI.create("https://saxonica.com") to emptyMap())
+        internal var _defaultXQueryProcessor = URI.create("https://saxonica.com/")
         internal var _pipe = false
         internal val _proxies = mutableMapOf<String, String>()
         internal var _saxonConfigurationFile: File? = null
@@ -640,6 +664,10 @@ class XmlCalabashBuilder {
             get() = _pagedMediaManagers
         override val pagedMediaXslProcessors: List<URI>
             get() = _pagedMediaXslProcessors
+        override val configuredXQueryProcessors: Map<URI, Map<QName, String>>
+            get() = _xqueryProcessors
+        override val defaultXQueryProcessor: URI
+            get() = _defaultXQueryProcessor
         override val pipe: Boolean
             get() = _pipe
         override val proxies: Map<String, String>
@@ -700,6 +728,8 @@ class XmlCalabashBuilder {
             config._pagedMediaCssProcessors.addAll(_pagedMediaCssProcessors)
             config._pagedMediaManagers.addAll(_pagedMediaManagers)
             config._pagedMediaXslProcessors.addAll(_pagedMediaXslProcessors)
+            config._defaultXQueryProcessor = _defaultXQueryProcessor
+            config._xqueryProcessors.putAll(_xqueryProcessors)
             config._pipe = _pipe
             config._proxies.putAll(_proxies)
             config._saxonConfigurationFile = saxonConfigurationFile

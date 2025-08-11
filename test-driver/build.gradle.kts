@@ -31,6 +31,7 @@ dependencies {
   implementation(project(":xmlcalabash"))
   testrunner(project(":test-driver"))
   implementation(project(":ext:polyglot"))
+  implementation(project(":ext:basex"))
 
   transformation ("net.sf.saxon:Saxon-HE:${saxonVersion}")
 }
