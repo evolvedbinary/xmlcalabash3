@@ -21,9 +21,7 @@ import org.apache.hc.client5.http.entity.mime.FormBodyPartBuilder
 import org.apache.hc.client5.http.entity.mime.HttpMultipartMode
 import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder
 import org.apache.hc.client5.http.impl.DefaultHttpRequestRetryStrategy
-import org.apache.hc.client5.http.impl.auth.BasicAuthCache
 import org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider
-import org.apache.hc.client5.http.impl.auth.BasicScheme
 import org.apache.hc.client5.http.impl.classic.HttpClients
 import org.apache.hc.client5.http.protocol.HttpClientContext
 import org.apache.hc.core5.http.*
@@ -38,6 +36,7 @@ import java.net.URI
 import java.nio.charset.StandardCharsets
 import java.time.Instant
 import java.time.format.DateTimeFormatter
+import java.util.*
 import java.util.concurrent.TimeUnit
 
 class InternetProtocolRequest(val stepConfig: StepConfiguration, val uri: URI) {
@@ -58,6 +57,7 @@ class InternetProtocolRequest(val stepConfig: StepConfiguration, val uri: URI) {
     private var _authMethod: String? = null
     private var _authPreemptive = false
     private var _usercreds: UsernamePasswordCredentials? = null
+    private var _authheader: String = ""
     var httpVersion: Pair<Int,Int>? = null
     var statusOnly = false
     var suppressCookies = false
@@ -101,13 +101,18 @@ class InternetProtocolRequest(val stepConfig: StepConfiguration, val uri: URI) {
         headers.put(name, value)
     }
 
-    fun authentication(method: String, username: String, password: String, preemtive: Boolean = false) {
+    fun authentication(method: String, username: String, password: String, preemptive: Boolean = false) {
         if (method != "basic" && method != "digest") {
             throw stepConfig.exception(XProcError.xcHttpBadAuth("auth-method must be 'basic' or 'digest'"))
         }
         _authMethod = method
         _usercreds = UsernamePasswordCredentials(username, password.toCharArray())
-        _authPreemptive = preemtive
+        _authPreemptive = preemptive
+
+        if (method == "basic" && preemptive) {
+            // We'll need this header later...
+            _authheader = Base64.getEncoder().encodeToString("${username}:${password}".toByteArray(StandardCharsets.UTF_8))
+        }
     }
 
     fun execute(method: String): InternetProtocolResponse {
@@ -161,12 +166,10 @@ class InternetProtocolRequest(val stepConfig: StepConfiguration, val uri: URI) {
                 "basic" -> {
                     authpref.add("basic")
                     if (_authPreemptive) {
-                        // See https://stackoverflow.com/questions/20914311/httpclientbuilder-basic-auth
-                        val authCache = BasicAuthCache()
-                        val basicAuth = BasicScheme()
-                        authCache.put(HttpHost(uri.host, uri.port), basicAuth)
-                        localContext.setCredentialsProvider(bCredsProvider)
-                        localContext.setAuthCache(authCache)
+                        // We used to try to do the complicated cache tricks described
+                        // in https://stackoverflow.com/questions/20914311/httpclientbuilder-basic-auth
+                        // But it's easier to just add the header ourselves.
+                        httpRequest.addHeader("Authorization", "Basic " + _authheader)
                     }
                 }
                 "digest" -> {
