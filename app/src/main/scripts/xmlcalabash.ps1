@@ -30,13 +30,29 @@ ForEach-Object {
 # 2. Find arguments that begin -D and assume they're Java properties. (Users
 #    will have to quote them if they contain spaces or colons, see item 3.)
 
+$Encoding = ""
 $Param = ""
 $JavaProp = foreach ($Item in $args)
 {
    if ($Item.StartsWith("-D"))
    {
+      if ($Item.StartsWith("-Dfile.encoding="))
+      {
+         $Encoding = $Item
+      }
       $Item
    }
+}
+
+# The default charset changed in Java 18. In Java 18 and later, it's always
+# UTF-8. Except, it ain't on Windows, mate. You can fix this by passing an
+# explicit -D"file.encoding=some-encoding" property. But if you *don't* do that,
+# this script adds -D"file.encoding=COMPAT" to get backwards-compatible
+# behavior.
+# See https://medium.com/@andbin/jdk-18-and-the-utf-8-as-default-charset-8451df737f90
+
+if ($Encoding -eq "") {
+   $JavaProp += ("-Dfile.encoding=COMPAT")
 }
 
 # 3. Fix the argument parsing. The way arguments are parsed by PowerShell when
@@ -56,7 +72,7 @@ $NewArgs = foreach ($Item in $args)
 
    if ($Item.StartsWith("-D"))
    {
-	continue
+        continue
    }
 
    if ($Param -ne "")
