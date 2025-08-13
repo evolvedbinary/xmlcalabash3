@@ -659,6 +659,8 @@ class XmlCalabashCli private constructor() {
                 stepConfig.messagePrinter.println(" using at most ${maxThreads} of ${totThreads} available threads")
             }
 
+            stepConfig.messagePrinter.println("The default character set is ${stepConfig.messagePrinter.encoding}")
+
             if (xmlCalabash.config.extensions.isNotEmpty()) {
                 val sb = StringBuilder()
                 for ((index, ext) in xmlCalabash.config.extensions.withIndex()) {
