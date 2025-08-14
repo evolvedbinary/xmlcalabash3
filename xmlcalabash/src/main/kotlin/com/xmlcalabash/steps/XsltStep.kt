@@ -181,6 +181,10 @@ open class XsltStep(): AbstractAtomicStep() {
         compiler.errorReporter = errorReporter
         compiler.resourceResolver = stepConfig.environment.documentManager
 
+        for ((name, value) in staticParameters) {
+            compiler.setParameter(name, value)
+        }
+
         val exec = try {
             compiler.compile((stylesheet.value as XdmNode).asSource())
         } catch (sae: Exception) {
