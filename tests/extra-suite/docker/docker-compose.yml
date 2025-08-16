@@ -1,0 +1,30 @@
+services:
+    exserver:
+      image: existdb/existdb:latest
+      container_name: existdb
+      ports:
+        - 8080:8080
+      stdin_open: true
+      tty: true
+      networks:
+        - external_net
+
+    basexserver:
+      image: basex
+      container_name: basex
+      command: /basex/basex/bin/basexserver
+      ports:
+        - 1984:1984
+      stdin_open: true
+      tty: true
+      networks:
+        - external_net
+      volumes:
+        - basex:/basex
+
+networks:
+  external_net: {}
+
+volumes:
+  basex:
+
