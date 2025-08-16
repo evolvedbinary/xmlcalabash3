@@ -59,3 +59,16 @@ services:
       MAIL_PASSWORD: password
       MAIL_ENCRYPTION: tcp
       MAIL_FROM_ADDRESS: nobody@example.com
+
+  - name: existdb
+    image: existdb/existdb:latest
+    ports:
+      - 8080:8080
+
+  - name: basex
+    image: basex
+    ports:
+      - 1984:1984
+    volumes:
+      - basex:/basex
+
