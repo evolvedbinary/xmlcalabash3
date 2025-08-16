@@ -67,6 +67,8 @@ services:
 
   - name: basex
     image: basex
+    commands:
+      - /basex/basex/bin/basexserver
     ports:
       - 1984
     volumes:
