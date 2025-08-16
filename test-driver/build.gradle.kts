@@ -32,6 +32,7 @@ dependencies {
   testrunner(project(":test-driver"))
   implementation(project(":ext:polyglot"))
   implementation(project(":ext:basex"))
+  implementation(project(":ext:existdb"))
 
   transformation ("net.sf.saxon:Saxon-HE:${saxonVersion}")
 }

@@ -15,6 +15,7 @@ import net.sf.saxon.om.NamespaceUri
 import net.sf.saxon.s9api.QName
 import net.sf.saxon.s9api.XdmValue
 import net.sf.saxon.value.AtomicValue
+import org.basex.api.client.ClientSession
 import org.basex.core.Context
 import org.basex.core.MainOptions
 import org.basex.core.StaticOptions
@@ -59,10 +60,10 @@ class XQueryBaseXProcessor(): XQueryProcessor {
         this.query = query.value.underlyingValue.stringValue
         this.parameters = parameters
 
-        host = config[Ns.host]
-        port = config[Ns.port]?.toInt() ?: 1984
-        username = config[Ns.username]
-        password = config[Ns.password]
+        host = parameters[NsCx.host]?.underlyingValue?.stringValue ?: config[Ns.host]
+        port = (parameters[NsCx.port]?.underlyingValue?.stringValue ?: config[Ns.port])?.toInt() ?: 1984
+        username = parameters[NsCx.username]?.underlyingValue?.stringValue ?: config[Ns.username]
+        password = parameters[NsCx.password]?.underlyingValue?.stringValue ?: config[Ns.password]
 
         if (host == null) {
             if (username != null || password != null) {
@@ -84,16 +85,32 @@ class XQueryBaseXProcessor(): XQueryProcessor {
             throw stepConfig.exception(XProcError.xdStepFailed("Username and password must be specified"))
         }
 
-        val staticOptions = StaticOptions(false)
-        staticOptions.set(StaticOptions.HOST, host)
-        staticOptions.set(StaticOptions.PORT, port)
-        staticOptions.set(StaticOptions.USER, username)
-        staticOptions.set(StaticOptions.PASSWORD, password)
-        val context = Context(staticOptions)
-        val qp = QueryProcessor(query, context)
+        val session = ClientSession(host, port, username, password)
+        val query = session.query(query)
 
-        bindExternalVariables(qp)
-        sendResults(qp)
+        for ((qname, value) in parameters) {
+            if (qname.namespaceUri != NsCx.namespace) {
+                val name = if (qname.namespaceUri == NamespaceUri.NULL) {
+                    qname.localName
+                } else {
+                    "Q{${qname.namespaceUri}}${qname.localName}"
+                }
+
+                if (value.underlyingValue is AtomicValue) {
+                    val avalue = value.underlyingValue as AtomicValue
+                    val type = avalue.primitiveType.name
+                    query.bind("\$${name}", value.underlyingValue.stringValue, "xs:${type}")
+                } else {
+                    query.bind("\$${name}", value.underlyingValue.stringValue)
+                }
+            }
+        }
+
+        while (query.more()) {
+            val item = query.next()
+            val type = query.type()
+            sendTypedResult(item.toByteArray(StandardCharsets.UTF_8), type)
+        }
     }
 
     private fun localQuery() {
@@ -142,35 +159,44 @@ class XQueryBaseXProcessor(): XQueryProcessor {
 
     private fun sendResults(qp: QueryProcessor) {
         for (item in qp.value()) {
-            val baos = ByteArrayOutputStream()
-            // FIXME: what should these be and how should they be specified?
-            val sopts = SerializerOptions()
-            val serializer = Serializer.get(baos, sopts)
-            serializer.serialize(item)
-            val serial = baos.toByteArray()
-
             if (item.type.id() >= Type.ID.NOD && item.type.id() <= Type.ID.SCA) {
-                val loader = DocumentLoader(stepConfig, null)
-                val stream = ByteArrayInputStream(serial)
-                val doc = loader.load(stream, MediaType.XML)
-                receiver.output("result", doc)
+                val baos = ByteArrayOutputStream()
+                // FIXME: what should these be and how should they be specified?
+                val sopts = SerializerOptions()
+                val serializer = Serializer.get(baos, sopts)
+                serializer.serialize(item)
+                val serial = baos.toByteArray()
+
+                sendTypedResult(serial, item.type)
             } else if (item.type.isStringOrUntyped) {
                 val serial = item.string(null)
-
-                val loader = DocumentLoader(stepConfig, null)
-                val stream = ByteArrayInputStream(serial)
-                val doc = loader.load(stream, MediaType.TEXT)
-                receiver.output("result", doc)
+                sendTypedResult(serial, item.type)
             } else {
                 val serial = item.string(null)
-
-                val loader = DocumentLoader(stepConfig, null)
-                val stream = ByteArrayInputStream(serial)
-                val doc = loader.load(stream, MediaType.JSON)
-                receiver.output("result", doc)
+                sendTypedResult(serial, item.type)
             }
         }
     }
+
+    private fun sendTypedResult(serial: ByteArray, type: Type) {
+        if (type.id() >= Type.ID.NOD && type.id() <= Type.ID.SCA) {
+            val loader = DocumentLoader(stepConfig, null)
+            val stream = ByteArrayInputStream(serial)
+            val doc = loader.load(stream, MediaType.XML)
+            receiver.output("result", doc)
+        } else if (type.isStringOrUntyped) {
+            val loader = DocumentLoader(stepConfig, null)
+            val stream = ByteArrayInputStream(serial)
+            val doc = loader.load(stream, MediaType.TEXT)
+            receiver.output("result", doc)
+        } else {
+            val loader = DocumentLoader(stepConfig, null)
+            val stream = ByteArrayInputStream(serial)
+            val doc = loader.load(stream, MediaType.JSON)
+            receiver.output("result", doc)
+        }
+    }
+
     override fun reset() {
         // nop
     }

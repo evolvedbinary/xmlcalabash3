@@ -37,6 +37,7 @@ dependencies {
                                    "configuration" to "releaseArtifacts")))
 
   implementation(project(":xmlcalabash"))
+  //implementation(project(":ext:existdb")) // No, it requires eXist-db
   //implementation(project(":ext:basex")) // No, it requires BaseX
   //implementation(project(":ext:polyglot")) // No, it requires Java 17
 }

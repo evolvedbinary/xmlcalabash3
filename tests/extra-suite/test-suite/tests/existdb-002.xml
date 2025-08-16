@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<t:test expected="pass"
+        xmlns:t="http://xproc.org/ns/testsuite/3.0">
+  <t:info>
+    <t:title>existdb-001</t:title>
+    <t:revision-history>
+      <t:revision>
+        <t:date>2025-08-16</t:date>
+        <t:author>
+          <t:name>Norm Tovey-Walsh</t:name>
+        </t:author>
+        <t:description xmlns="http://www.w3.org/1999/xhtml">
+          <p>Created test.</p>
+        </t:description>
+      </t:revision>
+    </t:revision-history>
+  </t:info>
+  <t:description xmlns="http://www.w3.org/1999/xhtml">
+    <p>Tests that eXist-db can be used as the default query processor.</p>
+  </t:description>
+  <t:pipeline>
+<p:declare-step xmlns:p="http://www.w3.org/ns/xproc"
+                xmlns:cx="http://xmlcalabash.com/ns/extensions"
+                xmlns:exist="http://exist.sourceforge.net/NS/exist"
+                expand-text="false"
+                name="main" version="3.0">
+  <p:output port="result" sequence="true"/>
+
+  <p:xquery cx:processor="https://exist-db.org/"
+            parameters="map{'cx:username': 'admin',
+                            'cx:password': '',
+                            'cx:database-uri': 'http://existdb:8080/exist/rest/db/',
+                            'cx:query': map{'cache':'yes'},
+                            'cx:properties': map{'omit-xml-declaration':'yes'}}">
+    <p:with-input><p:empty/></p:with-input>
+    <p:with-input port="query">
+      <p:inline content-type="text/plain">
+&lt;doc>{ 3 + 4 }&lt;/doc>
+      </p:inline>
+    </p:with-input>
+  </p:xquery>
+</p:declare-step>
+  </t:pipeline>
+  <t:schematron>
+    <s:schema queryBinding="xslt2"
+              xmlns:s="http://purl.oclc.org/dsdl/schematron">
+      <s:ns prefix="exist" uri="http://exist.sourceforge.net/NS/exist"/>
+      <s:pattern>
+        <s:rule context="/">
+          <s:assert test="exist:result">The root is wrong.</s:assert>
+          <s:assert test="exist:result[@exist:session]">No session.</s:assert>
+          <s:assert test="exist:result/doc[. = '7']">The doc is wrong.</s:assert>
+        </s:rule>
+      </s:pattern>
+    </s:schema>
+  </t:schematron>
+</t:test>

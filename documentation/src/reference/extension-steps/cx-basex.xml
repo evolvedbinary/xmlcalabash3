@@ -8,14 +8,14 @@
 <?db filename="cx-basex"?>
 <refnamediv>
   <refname>cx:basex</refname>
-  <refpurpose>Evaluate Xquery expressions</refpurpose>
+  <refpurpose>Evaluate XQuery expressions</refpurpose>
 </refnamediv>
 
 <refsynopsisdiv>
 <refsection role="introduction">
 <title>Introduction</title>
-<para>This step applies an Xquery expression to the sequence of documents
-provided on the <port>source</port> port.
+<para>This step applies an XQuery expression to the sequence of documents
+provided on the <port>source</port> port an external BaseX database.
 </para>
 </refsection>
 
@@ -24,6 +24,13 @@ provided on the <port>source</port> port.
 <xi:include href="../../../../ext/basex/src/main/resources/com/xmlcalabash/ext/basex.xpl"
             xpointer="xpath(/*/*[@type='cx:basex'])"/>
 <?import basex.xpl?>
+
+<para>In order to use the BaseX with XML Calabash, you must also download the XML Calabash extension
+step for BaseX, <uri>basex-<?version?>.zip</uri> and add its resources to your classpath. If you
+are using Maven, include the BaseX step in your dependencies:
+<code>com.xmlcalabash:basex:<?version?></code>. This step also requires the BaseX API
+libraries.</para>
+
 </refsection>
 </refsynopsisdiv>
 
@@ -36,11 +43,34 @@ are given for <option>host</option>, <option>port</option>, <option>username</op
 and <option>password</option>, they override any values given in the
 <link xlink:href="https://docs.xmlcalabash.com/userguide/current/configuration.html#cc.xquery-processor">configuration
 file</link>.
-The BaseX step can also be nominated as the default processor for <tag>p:xquery</tag>
+The <tag>cx:basex</tag> step can also be nominated as the default processor for <tag>p:xquery</tag>
 by setting the
 <link xlink:href="https://docs.xmlcalabash.com/userguide/current/configuration.html#cc.xml-calabash">default
-XQuery processor</link>.
+XQuery processor</link>. It can also be specified for a single instance of <tag>p:xquery</tag>
+by setting the <tag class="attribute">cx:processor</tag> attribute to
+<literal>https://basex.org/</literal>.
 </para>
+
+<para>The following parameters (in the standard <option>parameters</option> option)
+also apply. (When BaseX is used as the default <tag>p:xquery</tag> processor, this is 
+the only way to set them.)</para>
+
+<informaltable>
+<tgroup cols="2">
+<thead>
+<row><entry>Parameter name</entry><entry>Parameter value</entry></row>
+</thead>
+<tbody>
+<row><entry>cx:host</entry><entry>The host name</entry></row>
+<row><entry>cx:port</entry><entry>The port number</entry></row>
+<row><entry>cx:username</entry><entry>The username</entry></row>
+<row><entry>cx:password</entry><entry>The password</entry></row>
+</tbody>
+</tgroup>
+</informaltable>
+
+<para>Where the <code>cx</code> prefix is bound to the XML Calabash extension namespace,
+<uri>http://xmlcalabash.com/ns/extensions</uri>.</para>
 
 <para>The BaseX implementation of XQuery (whether it’s accessed with the <tag>cx:basex</tag>
 step or through the <tag>p:xquery</tag> step) operates in one of two modes:
@@ -57,8 +87,8 @@ The results of that query form the results of the step.
 </para>
 
 <para>In this configuration, the default context is always the entire default collection.
-This differs from the semantics of <tag>p:xquery</tag> in order to be compatible
-with BaseX.
+This is a slightly different semantic than the one described by the <tag>p:xquery</tag> step.
+It arises as a consequence of the way the BaseX API works.
 </para>
 </refsection>
 
@@ -69,9 +99,41 @@ with BaseX.
 There must be no documents on the <port>source</port> port.
 </para>
 
-<para>The coordinates provided are used to connect to a BaseX database. If that connection
-succeeds, the query is sent to the database and results returned form the results of
-the step.</para>
+<para>The host, port, etc. are used to connect to a BaseX database. If that
+connection succeeds, the query is sent to the database and results returned form
+the results of the step.</para>
 
 </refsection>
+
+<refsection>
+<title>Configuration</title>
+<para>The
+<tag xlink:href="https://docs.xmlcalabash.com/userguide/current/configuration.html#cc.xquery-processor">cc:xquery-processor</tag> element in the
+<link xlink:href="https://docs.xmlcalabash.com/userguide/current/configuration.html">configuration file</link>
+provides default values for some BaseX properties.</para>
+
+<para>The following attributes are recognized:</para>
+
+<informaltable>
+<tgroup cols="2">
+<thead>
+<row><entry>Attribute name</entry><entry>Attribute value</entry></row>
+</thead>
+<tbody>
+<row><entry><tag class="attribute">name</tag></entry><entry><code>https://basex.org/</code></entry></row>
+<row><entry><tag class="attribute">host</tag></entry><entry>The host name</entry></row>
+<row><entry><tag class="attribute">port</tag></entry><entry>The port number</entry></row>
+<row><entry><tag class="attribute">username</tag></entry><entry>The username</entry></row>
+<row><entry><tag class="attribute">password</tag></entry><entry>The password</entry></row>
+</tbody>
+</tgroup>
+</informaltable>
+
+<para>For example:</para>
+
+<programlisting language="xml"><![CDATA[<cc:xquery-processor name="https://basex.org/"
+                     username="admin" password="secret"
+                     port="1984" host="localhost"/>]]></programlisting>
+</refsection>
+
 </refentry>

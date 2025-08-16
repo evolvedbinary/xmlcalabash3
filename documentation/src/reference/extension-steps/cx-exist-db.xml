@@ -1,0 +1,176 @@
+<refentry xmlns:p="http://www.w3.org/ns/xproc"
+          xmlns:e="http://www.w3.org/1999/XSL/Spec/ElementSyntax"
+          xmlns:cxerr="http://xmlcalabash.com/ns/error"
+          xmlns:xi="http://www.w3.org/2001/XInclude"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          xmlns="http://docbook.org/ns/docbook"
+          xml:id="cx-exist-db">
+<?db filename="cx-exist-db"?>
+<refnamediv>
+  <refname>cx:exist-db</refname>
+  <refpurpose>Evaluate XQuery expressions</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv>
+<refsection role="introduction">
+<title>Introduction</title>
+<para>This step sends an XQuery expression to an external eXist-db database.
+</para>
+</refsection>
+
+<refsection role="step-declaration">
+<title>Step declaration</title>
+<xi:include href="../../../../ext/existdb/src/main/resources/com/xmlcalabash/ext/exist-db.xpl"
+            xpointer="xpath(/*/*[@type='cx:exist-db'])"/>
+<?import exist-db.xpl?>
+
+<para>In order to use the eXist-db with XML Calabash, you must also download the XML Calabash extension
+step for eXist-db, <uri>existdb-<?version?>.zip</uri> and add its resources to your classpath. If you
+are using Maven, include the BaseX step in your dependencies:
+<code>com.xmlcalabash:existdb:<?version?></code>.</para>
+
+</refsection>
+</refsynopsisdiv>
+
+<refsection>
+<title>Description</title>
+
+<para>This step is modeled on the <tag>p:xquery</tag> step, but specifically uses
+the <link xlink:href="https://exist-db.org/">eXist-db</link> implementation. If values
+are given for <option>database-uri</option>, <option>username</option>,
+and <option>password</option>, they override any values given in the
+<link xlink:href="https://docs.xmlcalabash.com/userguide/current/configuration.html#cc.xquery-processor">configuration
+file</link>.
+Any query parameters or properties defined in the configuration file are merged with the
+<option>query-parameters</option> and <tag>query-properties</tag> option maps.
+The <tag>cx:exist-db</tag> step can also be nominated as the default processor for <tag>p:xquery</tag>
+by setting the
+<link xlink:href="https://docs.xmlcalabash.com/userguide/current/configuration.html#cc.xml-calabash">default
+XQuery processor</link>. It can also be specified for a single instance of <tag>p:xquery</tag>
+by setting the <tag class="attribute">cx:processor</tag> attribute to
+<literal>https://exist-db.org/</literal>.
+</para>
+
+<para>When eXist-db is used as the query processor (with either the <tag>cx:exist-db</tag>
+step or when it is used as the default XQuery processor), it <emphasis>always</emphasis> queries
+an eXist-db database. You cannot pass documents to the step.</para>
+
+<para>Queries that bind external variables to atomic values and return XML documents seem
+to work fine. Passing non-atomic values, returning non-XML results, or returning a sequence
+of results often don’t work. It’s not clear if this is due to bugs in the REST API or misunderstandings
+about how the API works. Suggestions for improvements most welcome.</para>
+
+<refsection>
+<title>Options</title>
+
+<para>The <tag>cx:exist-db</tag> step has several additional options beyond
+the standard <tag>p:xquery</tag> options:
+</para>
+
+<variablelist>
+<varlistentry><term><option>database-uri</option></term>
+<listitem><para>This is the URI of the HTTP API endpoint for the database that you wish to
+query, for example,
+<uri>http://existdb:8080/exist/rest/db/</uri>.
+</para>
+
+</listitem>
+</varlistentry>
+<varlistentry><term><option>query-parameters</option></term>
+<listitem><para>A map of name/value pairs used to construct the query wrapper.
+These are very casually described
+<link xlink:href="https://exist-db.org/exist/apps/doc/devguide_rest#post-requests">by example</link>
+in the REST API documentation. You may also find the
+<link xlink:href="https://github.com/eXist-db/exist/blob/develop/exist-core/src/main/java/org/exist/http/RESTServerParameter.java">JavaDoc</link>
+comments in the source informative, but
+<link xlink:href="https://github.com/eXist-db/exist/issues/5844">beware</link> that
+they may be inconsistent with the implementation.
+</para></listitem>
+</varlistentry>
+<varlistentry><term><option>query-properties</option></term>
+<listitem><para>A map of name/value pairs used to construct the query properties.
+These are also casually described
+<link xlink:href="https://exist-db.org/exist/apps/doc/devguide_rest#post-requests">by example</link>
+in the REST API documentation and in more detail in the
+<link xlink:href="https://github.com/eXist-db/exist/blob/develop/exist-core/src/main/java/org/exist/http/RESTServerParameter.java">JavaDoc</link>
+comments in the source.
+</para></listitem>
+</varlistentry>
+<varlistentry><term><option>username</option></term>
+<listitem><para>The username for the request.
+</para></listitem>
+</varlistentry>
+<varlistentry><term><option>password</option></term>
+<listitem><para>The password for the request.
+</para></listitem>
+</varlistentry>
+</variablelist>
+
+<para>The following parameters (in the standard <option>parameters</option> option)
+also apply. (When eXist-db is used as the default <tag>p:xquery</tag> processor, this is 
+the only way to set them.)</para>
+
+<informaltable>
+<tgroup cols="2">
+<thead>
+<row><entry>Parameter name</entry><entry>Parameter value</entry></row>
+</thead>
+<tbody>
+<row><entry>cx:database-uri</entry><entry>The database URI</entry></row>
+<row><entry>cx:query</entry><entry>A map of query parameters</entry></row>
+<row><entry>cx:properties</entry><entry>A map of query properties</entry></row>
+<row><entry>cx:username</entry><entry>The username</entry></row>
+<row><entry>cx:password</entry><entry>The password</entry></row>
+</tbody>
+</tgroup>
+</informaltable>
+
+<para>Where the <code>cx</code> prefix is bound to the XML Calabash extension namespace,
+<uri>http://xmlcalabash.com/ns/extensions</uri>.</para>
+
+<para>If the XML Calabash debug option is enabled, the query that is sent to the eXist-db database
+will be output on the console.</para>
+</refsection>
+</refsection>
+
+<refsection>
+<title>Configuration</title>
+<para>The
+<tag xlink:href="https://docs.xmlcalabash.com/userguide/current/configuration.html#cc.xquery-processor">cc:xquery-processor</tag> element in the
+<link xlink:href="https://docs.xmlcalabash.com/userguide/current/configuration.html">configuration file</link>
+provides default values for some eXist-db properties.</para>
+
+<para>The following attributes are recognized:</para>
+
+<informaltable>
+<tgroup cols="2">
+<thead>
+<row><entry>Attribute name</entry><entry>Attribute value</entry></row>
+</thead>
+<tbody>
+<row><entry><tag class="attribute">name</tag></entry><entry><code>https://exist-db.org/</code></entry></row>
+<row><entry><tag class="attribute">database-uri</tag></entry><entry>The REST API endpoint</entry></row>
+<row><entry><tag class="attribute">username</tag></entry><entry>The username</entry></row>
+<row><entry><tag class="attribute">password</tag></entry><entry>The password</entry></row>
+<row><entry><tag class="attribute">existdb:*</tag></entry><entry>Query parameters</entry></row>
+<row><entry><tag class="attribute">ser:*</tag></entry><entry>Query properties</entry></row>
+</tbody>
+</tgroup>
+</informaltable>
+
+<para>Where <literal>existdb</literal> is bound to <uri>http://exist.sourceforge.net/NS/exist</uri>
+and <literal>ser</literal> is bound to <uri>http://exist-db.org/xquery/types/serialized</uri>.
+</para>
+
+<para>For example:</para>
+
+<programlisting language="xml"><![CDATA[<cc:xquery-processor xmlns:exist="http://exist.sourceforge.net/NS/exist"
+                     xmlns:ser="http://exist-db.org/xquery/types/serialized"
+                     name="https://exist-db.org/"
+                     database-uri="http://localhost:8080/exist/rest/db/"
+                     username="admin" password="secret"
+                     exist:max="10" ser:omit-xml-declaration="yes"/>]]></programlisting>
+
+</refsection>
+
+</refentry>

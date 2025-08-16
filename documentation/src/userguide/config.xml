@@ -611,16 +611,17 @@ only <tag>xsd:schema</tag> elements are allowed.
              name="cc.xqueryProcessor"/>
 
 <para>The <tag class="attribute">name</tag> attribute must identify the processor.
-The name of the default processor is <uri>https://saxonica.com/</uri>. The
-<uri>https://basex.org/</uri> processor can also be configured. (And in due course,
-support for eXist-db is also planned.)</para>
+The name of the default processor is <uri>https://saxonica.com/</uri> (it has no configurable options). The
+BaseX processor can be configured with the name <uri>https://basex.org/</uri>.
+The eXist-db processor can be configured with the name
+<uri>https://exist-db.org/</uri>.</para>
 
 <para>Any attributes other than the name attribute are passed to the processor.
 This may allow the configuration file to provide credentials for accessing a
 remote server, for example. The special attribute
 <tag class="attribute">cc:fallback</tag> identifies the URI of the processor to use if
 this processor is unavailable. If not specified, no fallback is provided and attempts
-to use XQuery will fail.</para>
+to use XQuery will fail if the nominated processor cannot be run.</para>
 
 </section>
 

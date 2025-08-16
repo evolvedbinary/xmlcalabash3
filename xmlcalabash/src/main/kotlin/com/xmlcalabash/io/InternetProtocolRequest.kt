@@ -156,6 +156,9 @@ class InternetProtocolRequest(val stepConfig: StepConfiguration, val uri: URI) {
             builder.setProxy(HttpHost.create(stepConfig.environment.proxies[uri.scheme]))
         }
 
+        // Hack for debugging with Charles proxy
+        // builder.setProxy(HttpHost.create("localhost:8888"))
+
         if (_usercreds != null) {
             val scope = AuthScope(uri.host, uri.port)
             val bCredsProvider = BasicCredentialsProvider()

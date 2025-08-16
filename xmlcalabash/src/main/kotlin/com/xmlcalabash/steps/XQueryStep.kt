@@ -40,7 +40,9 @@ open class XQueryStep(): AbstractAtomicStep() {
                 throw stepConfig.exception(XProcError.xdStepFailed("Cannot find requested XQuery processor (${requestedProcessor}) or fallback"))
             }
             xqueryImpl = proc.getImplementation()
-            xqueryImpl.setup(stepConfig, receiver, stepParams, proc.configuration)
+
+            val pconfig = stepConfig.xmlCalabashConfig.configuredXQueryProcessors[proc.implementationUri] ?: emptyMap()
+            xqueryImpl.setup(stepConfig, receiver, stepParams, pconfig)
         } else {
             var processor = stepConfig.xmlCalabashConfig.defaultXQueryProcessor
             var found = false
@@ -49,7 +51,8 @@ open class XQueryStep(): AbstractAtomicStep() {
                 val proc = getProcessorProvider(processor)
                 if (proc != null) {
                     xqueryImpl = proc.getImplementation()
-                    xqueryImpl.setup(stepConfig, receiver, stepParams, proc.configuration)
+                    val pconfig = stepConfig.xmlCalabashConfig.configuredXQueryProcessors[proc.implementationUri] ?: emptyMap()
+                    xqueryImpl.setup(stepConfig, receiver, stepParams, pconfig)
                     found = true
                 } else {
                     attempted.add(processor)
