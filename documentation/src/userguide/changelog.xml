@@ -13,6 +13,57 @@ See the commits and pull requests on
 finer detail.</para>
 
 <revhistory>
+<revision xml:id="r3014">
+<revnumber>3.0.14</revnumber>
+<date>2025-08-17</date>
+<revdescription>
+<itemizedlist>
+<listitem><para>Fixed <cbissue number="202"/>. It is now possible to set
+static parameters on <tag>p:xslt</tag>.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="199"/>. I’ve made another attempt at resolving
+the encoding problems on Windows console output.
+As far as I can tell, the root cause here is that in Java 18, the default
+character set was changed to UTF-8, irrespective of the platform. So if you run
+XML Calabash with Java 18+ on Windows, Java says the default character set is
+UTF-8 and it often just isn’t.</para>
+<para>The current workaround is to use <code>-Dfile.encoding=COMPAT</code> if no explicit
+<code>file.encoding</code> property is specified. That gives backwards-compatible behavior.
+If that doesn’t work, using <code>-Dfile.encoding</code> to pass the actual, correct
+encoding should.</para>
+</listitem>
+<listitem><para>Fixed <cbissue number="198"/>. An explicitly named
+output port on a <tag>p:try</tag> step was misinterpreted as a static error.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="196"/>. Preemptive authentication
+on <tag>p:http-request</tag> has never actually worked.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="190"/> and <cbissue number="194"/>. Added 
+support for processing XQuery using BaseX or eXist-db. This support is available
+through <tag>cx:basex</tag> and <tag>cx:exist-db</tag> steps. It is also possible
+to make either implementation the default processor for <tag>p:xquery</tag> steps.
+</para>
+<para>The steps that implement BaseX or eXist-db processing are distributed
+separately and must be added to your classpath.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="185"/> and <cbissue number="186"/>. The interactive
+debugger now supports tab completion. Also fixed the bug where sometimes “exit” had to be entered
+twice in order to quit the debugger.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="183"/>. Highlighting of step names in the graph
+visualization output is improved.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="181"/>. Upgraded to a more recent version of the
+DocBook xslTNG stylesheets for formatting the documentation. This fixes an ugly accessibility
+issue related to the spacebar.
+</para></listitem>
+<listitem><para>The “info version” command now identifies the JVM default character set.
+</para></listitem>
+<listitem><para>Switched to version 5.5.0 of SInclude, the XInclude processor.
+</para></listitem>
+</itemizedlist>
+</revdescription>
+</revision>
 <revision xml:id="r3013">
 <revnumber>3.0.13</revnumber>
 <date>2025-08-03</date>
