@@ -78,6 +78,10 @@ code.literal {
     margin-bottom: 0;
 }
 
+.uri {
+    white-space: nowrap;
+}
+
 .docslink a,
 .docslink a:visited {
     color: #7f7f7f;
