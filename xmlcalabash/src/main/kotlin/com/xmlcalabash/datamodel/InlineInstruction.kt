@@ -7,10 +7,13 @@ import com.xmlcalabash.namespace.NsCx
 import com.xmlcalabash.namespace.NsP
 import com.xmlcalabash.namespace.NsXs
 import com.xmlcalabash.util.MediaClassification
+import com.xmlcalabash.util.S9Api
+import com.xmlcalabash.util.SaxonTreeBuilder
 import com.xmlcalabash.util.ValueTemplateFilter
 import com.xmlcalabash.util.ValueTemplateFilterNone
 import com.xmlcalabash.util.ValueTemplateFilterXml
 import net.sf.saxon.s9api.QName
+import net.sf.saxon.s9api.XdmAtomicValue
 import net.sf.saxon.s9api.XdmMap
 import net.sf.saxon.s9api.XdmNode
 
@@ -92,6 +95,14 @@ class InlineInstruction(parent: XProcInstruction, xmlDocument: XdmNode): Connect
         }
 
         _xml = _valueTemplateFilter.expandStaticValueTemplates(stepConfig, expandText!!, staticBindings)
+
+        if (xml.baseURI != inlineBaseUri) {
+            val builder = SaxonTreeBuilder(stepConfig)
+            builder.startDocument(inlineBaseUri)
+            builder.addSubtree(xml)
+            builder.endDocument()
+            _xml = builder.result
+        }
 
         if (!markupContentType && _valueTemplateFilter.containsMarkup(stepConfig)) {
             stepConfig.warn { "Markup detected in ${contentType} inline" }

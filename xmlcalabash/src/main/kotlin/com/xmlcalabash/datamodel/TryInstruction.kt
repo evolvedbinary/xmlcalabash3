@@ -15,7 +15,8 @@ class TryInstruction(parent: XProcInstruction): CompoundStepDeclaration(parent, 
     }
 
     override fun findOutputDeclarations(): OutputInstruction? {
-        val output = group!!.findOutputDeclarations()
+        group!!.findOutputDeclarations()
+        val output = group!!.children.filterIsInstance<OutputInstruction>().firstOrNull { it.primary == true }
         if (output?.primary == true) {
             provisionalPrimaryOutput = output
         }

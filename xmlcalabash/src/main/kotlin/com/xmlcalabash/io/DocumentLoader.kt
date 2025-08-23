@@ -203,6 +203,21 @@ class DocumentLoader(val stepConfig: StepConfiguration,
     }
 
     private fun load(uri: URI?, stream: InputStream, overrideMediaType: MediaType, charset: Charset? = null): XProcDocument {
+        // If we got here via the InlineInstruction, we may not have started with load(), so we
+        // need to make sure that the absURI (which will be used for the base URI of the document)
+        // is correct.
+        if (uri != null) {
+            absURI = if (uri.isAbsolute) {
+                uri
+            } else {
+                if (stepConfig.baseUri != null) {
+                    stepConfig.baseUri!!.resolve(uri)
+                } else {
+                    UriUtils.cwdAsUri().resolve(uri)
+                }
+            }
+        }
+
         if (contentTypeLoaders == null) {
             val list = mutableListOf<ContentTypeLoader>()
             list.add(RdfLoader())
