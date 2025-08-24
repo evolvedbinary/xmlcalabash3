@@ -646,6 +646,10 @@ class XplParser internal constructor(val builder: PipelineBuilder) {
             Ns.collection to { value -> whenInstr.collection = parseStaticBoolean(stepConfig, value) }
         )
 
+        if (node.attributes.containsKey(Ns.message)) {
+            throw XProcError.xsAttributeNotAllowed(Ns.message).at(node.node).exception()
+        }
+
         processAttributes(node, whenInstr, attributeMapping)
 
         val elementMapping = mutableMapOf<QName, (ElementNode) -> Unit>(
@@ -672,6 +676,10 @@ class XplParser internal constructor(val builder: PipelineBuilder) {
         val attributeMapping = mapOf<QName, (String) -> Unit>(
             Ns.name to { value -> otherwise.name = value },
         )
+
+        if (node.attributes.containsKey(Ns.message)) {
+            throw XProcError.xsAttributeNotAllowed(Ns.message).at(node.node).exception()
+        }
 
         processAttributes(node, otherwise, attributeMapping)
 
@@ -792,6 +800,10 @@ class XplParser internal constructor(val builder: PipelineBuilder) {
             Ns.code to { value -> catch.code = parseCodes(catch.stepConfig, value) }
         )
 
+        if (node.attributes.containsKey(Ns.message)) {
+            throw XProcError.xsAttributeNotAllowed(Ns.message).at(node.node).exception()
+        }
+
         processAttributes(node, catch, attributeMapping)
 
         val elementMapping = mutableMapOf<QName, (ElementNode) -> Unit>(
@@ -809,6 +821,10 @@ class XplParser internal constructor(val builder: PipelineBuilder) {
         val attributeMapping = mapOf<QName, (String) -> Unit>(
             Ns.name to { value -> finally.name = value },
         )
+
+        if (node.attributes.containsKey(Ns.message)) {
+            throw XProcError.xsAttributeNotAllowed(Ns.message).at(node.node).exception()
+        }
 
         processAttributes(node, finally, attributeMapping)
 

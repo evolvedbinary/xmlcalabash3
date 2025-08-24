@@ -181,7 +181,7 @@ open class AtomicStepInstruction(parent: XProcInstruction, instructionType: QNam
     }
 
     open fun message(message: XProcAvtExpression) {
-        var name = if (instructionType.namespaceUri == NsP.namespace) {
+        val name = if (instructionType.namespaceUri == NsP.namespace) {
             Ns.message
         } else {
             NsP.message
