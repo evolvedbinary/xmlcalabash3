@@ -398,12 +398,18 @@ class Graph private constructor(val environment: GraphEnvironment) {
     private fun makeConnections() {
         for (edge in edges) {
             val from = edge.from.outputs[edge.outputPort]
-            if (from == null) {
-                throw RuntimeException("bang")
+                ?: throw RuntimeException("No from edge for port ${edge.outputPort}")
+            val to = edge.to.inputs[edge.inputPort]
+            if (to == null) {
+                if (edge.inputPort != "Q{}message" && edge.inputPort != "Q{http://www.w3.org/ns/xproc}message") {
+                    throw RuntimeException("No inputPort for port ${edge.inputPort}")
+                }
+            } else {
+                val conn = Connection(from, to)
+                connections.add(conn)
             }
-            val to = edge.to.inputs[edge.inputPort]!!
-            val conn = Connection(from, to)
-            connections.add(conn)
+
+
         }
     }
 

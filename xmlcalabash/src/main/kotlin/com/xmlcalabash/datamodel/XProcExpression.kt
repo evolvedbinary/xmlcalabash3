@@ -169,7 +169,12 @@ abstract class XProcExpression(val stepConfig: StepConfiguration, val asType: Se
 
         val exprStep = AtomicExpressionStepInstruction(step, bindingName, this)
         for (name in variableRefs) {
-            val variable = step.inscopeVariables[name]!!
+            val variable = step.inscopeVariables[name]
+
+            if (variable == null) {
+                throw stepConfig.exception(XProcError.xsXPathStaticError(name))
+            }
+
             if (variable.canBeResolvedStatically()) {
                 exprStep._staticOptions[name] = StaticOptionDetails(stepConfig, variable.name, variable.asType!!, emptyList(), variable.select!!)
             } else {

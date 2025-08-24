@@ -46,12 +46,16 @@ open class CompoundModel internal constructor(graph: Graph, parent: Model?, step
                 }
                 is WithInputInstruction -> {
                     inputs[child.port] = ModelPort(this, child)
-                    when (step) {
-                        is CompoundLoopDeclaration, is ChooseInstruction -> {
-                            head.inputs[child.port] = ModelPort(this, child)
-                        }
-                        else -> {
-                            head.outputs[child.port] = ModelPort(this, child)
+                    if (child.port == "Q{}message" || child.port == "Q{http://www.w3.org/ns/xproc}message") {
+                        head.inputs[child.port] = ModelPort(this, child)
+                    } else {
+                        when (step) {
+                            is CompoundLoopDeclaration, is ChooseInstruction -> {
+                                head.inputs[child.port] = ModelPort(this, child)
+                            }
+                            else -> {
+                                head.outputs[child.port] = ModelPort(this, child)
+                            }
                         }
                     }
                 }

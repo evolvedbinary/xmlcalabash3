@@ -179,6 +179,11 @@ abstract class CompoundStepDeclaration(parent: XProcInstruction?, stepConfig: In
             child.findDefaultReadablePort(drp)
         }
 
+        // Options read from our drp, not from, for example, the current port of a loop...
+        for (child in _children.filterIsInstance<WithOptionInstruction>()) {
+            child.findDefaultReadablePort(drp)
+        }
+
         var curdrp = defaultReadablePort() ?: drp
 
         for (child in _children) {
@@ -190,6 +195,7 @@ abstract class CompoundStepDeclaration(parent: XProcInstruction?, stepConfig: In
                     child.findDefaultReadablePort(curdrp)
                     curdrp = child.primaryOutput()
                 }
+                is WithOptionInstruction -> Unit
                 else -> child.findDefaultReadablePort(curdrp)
             }
         }
