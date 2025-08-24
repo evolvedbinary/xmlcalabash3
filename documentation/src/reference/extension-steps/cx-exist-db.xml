@@ -8,7 +8,7 @@
 <?db filename="cx-exist-db"?>
 <refnamediv>
   <refname>cx:exist-db</refname>
-  <refpurpose>Evaluate XQuery expressions</refpurpose>
+  <refpurpose>Evaluate XQuery expressions with eXist-db</refpurpose>
 </refnamediv>
 
 <refsynopsisdiv>
@@ -26,7 +26,7 @@
 
 <para>In order to use the eXist-db with XML Calabash, you must also download the XML Calabash extension
 step for eXist-db, <uri>existdb-<?version?>.zip</uri> and add its resources to your classpath. If you
-are using Maven, include the BaseX step in your dependencies:
+are using Maven, include the eXist-db step in your dependencies:
 <code>com.xmlcalabash:existdb:<?version?></code>.</para>
 
 </refsection>

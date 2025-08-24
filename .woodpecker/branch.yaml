@@ -154,6 +154,7 @@ steps:
       -   cd ../polyglot && ./gradlew --console=plain --stacktrace -PreleaseVersion=$VERSION jreleaserdeploy
       -   cd ../basex && ./gradlew --console=plain --stacktrace -PreleaseVersion=$VERSION jreleaserdeploy
       -   cd ../existdb && ./gradlew --console=plain --stacktrace -PreleaseVersion=$VERSION jreleaserdeploy
+      -   cd ../elemental && ./gradlew --console=plain --stacktrace -PreleaseVersion=$VERSION jreleaserdeploy
       - else
       -   echo "Not publishing $VERSION"
       - fi
