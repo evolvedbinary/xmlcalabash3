@@ -14,4 +14,5 @@ include("template:kotlin")
 include("ext:polyglot")
 include("ext:basex")
 include("ext:existdb")
+include("ext:elemental")
 

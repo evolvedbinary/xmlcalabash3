@@ -13,6 +13,7 @@
 <xi:include href="cx-collection-manager.xml"/>
 <xi:include href="cx-ditaa.xml"/>
 <xi:include href="cx-ebnf-convert.xml"/>
+<xi:include href="cx-elemental.xml"/>
 <xi:include href="cx-epubcheck.xml"/>
 <xi:include href="cx-exist-db.xml"/>
 <xi:include href="cx-fileset.xml"/>
