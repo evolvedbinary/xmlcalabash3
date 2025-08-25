@@ -324,10 +324,15 @@ No connection for primary output port “$1”.
 It is a static error if the primary output port has no explicit connection and
 the last step in the subpipeline does not have a primary output port.
 
-XS0008
+XS0008/1
 Forbidden attribute: “$1”.
 It is a static error if any element in the XProc namespace has attributes not
 defined by this specification unless they are extension attributes.
+
+XS0008/2
+Forbidden attribute: “message” on this element.
+It is a static error if the message attribute appears on p:catch, p:finally,
+p:when, or p:otherwise. Place the attribute on a step inside the subpipeline.
 
 XS0011
 Duplicate port name: “$1”.

@@ -647,7 +647,7 @@ class XplParser internal constructor(val builder: PipelineBuilder) {
         )
 
         if (node.attributes.containsKey(Ns.message)) {
-            throw XProcError.xsAttributeNotAllowed(Ns.message).at(node.node).exception()
+            throw XProcError.xsMessageAttributeForbidden().at(node.node).exception()
         }
 
         processAttributes(node, whenInstr, attributeMapping)
@@ -678,7 +678,7 @@ class XplParser internal constructor(val builder: PipelineBuilder) {
         )
 
         if (node.attributes.containsKey(Ns.message)) {
-            throw XProcError.xsAttributeNotAllowed(Ns.message).at(node.node).exception()
+            throw XProcError.xsMessageAttributeForbidden().at(node.node).exception()
         }
 
         processAttributes(node, otherwise, attributeMapping)
@@ -801,7 +801,7 @@ class XplParser internal constructor(val builder: PipelineBuilder) {
         )
 
         if (node.attributes.containsKey(Ns.message)) {
-            throw XProcError.xsAttributeNotAllowed(Ns.message).at(node.node).exception()
+            throw XProcError.xsMessageAttributeForbidden().at(node.node).exception()
         }
 
         processAttributes(node, catch, attributeMapping)
@@ -823,7 +823,7 @@ class XplParser internal constructor(val builder: PipelineBuilder) {
         )
 
         if (node.attributes.containsKey(Ns.message)) {
-            throw XProcError.xsAttributeNotAllowed(Ns.message).at(node.node).exception()
+            throw XProcError.xsMessageAttributeForbidden().at(node.node).exception()
         }
 
         processAttributes(node, finally, attributeMapping)
@@ -935,7 +935,7 @@ class XplParser internal constructor(val builder: PipelineBuilder) {
                         }
                     } else {
                         if (node.node.nodeName.namespaceUri == NsP.namespace) {
-                            errors.add(XProcError.xsAttributeNotAllowed(name).at(node.node).exception())
+                            errors.add(XProcError.xsAttributeInPNamespaceNotAllowed(name).at(node.node).exception())
                         } else {
                             instruction.expandText = parseStaticBoolean(instruction.stepConfig, value)
                         }
@@ -949,7 +949,7 @@ class XplParser internal constructor(val builder: PipelineBuilder) {
                         }
                     } else {
                         if (node.node.nodeName.namespaceUri == NsP.namespace) {
-                            errors.add(XProcError.xsAttributeNotAllowed(name).at(node.node).exception())
+                            errors.add(XProcError.xsAttributeInPNamespaceNotAllowed(name).at(node.node).exception())
                         } else {
                             instruction.message(XProcExpression.avt(instruction.stepConfig, value))
                         }
@@ -966,7 +966,7 @@ class XplParser internal constructor(val builder: PipelineBuilder) {
                             }
                             NsP.depends -> {
                                 if (node.node.nodeName.namespaceUri == NsP.namespace) {
-                                    throw XProcError.xsAttributeNotAllowed(name).at(node.node).exception()
+                                    throw XProcError.xsAttributeInPNamespaceNotAllowed(name).at(node.node).exception()
                                 }
                                 instruction.depends(value)
                             }
@@ -979,7 +979,7 @@ class XplParser internal constructor(val builder: PipelineBuilder) {
                             }
                             NsP.timeout -> {
                                 if (node.node.nodeName.namespaceUri == NsP.namespace) {
-                                    throw XProcError.xsAttributeNotAllowed(name).at(node.node).exception()
+                                    throw XProcError.xsAttributeInPNamespaceNotAllowed(name).at(node.node).exception()
                                 }
                                 instruction.depends(value)
                             }
@@ -1023,7 +1023,7 @@ class XplParser internal constructor(val builder: PipelineBuilder) {
                     }
                     NsP.depends -> {
                         if (node.node.nodeName.namespaceUri == NsP.namespace) {
-                            throw XProcError.xsAttributeNotAllowed(name).at(node.node).exception()
+                            throw XProcError.xsAttributeInPNamespaceNotAllowed(name).at(node.node).exception()
                         }
                         atomic.depends(value)
                     }
@@ -1061,7 +1061,7 @@ class XplParser internal constructor(val builder: PipelineBuilder) {
                     }
                     NsP.timeout -> {
                         if (node.node.nodeName.namespaceUri == NsP.namespace) {
-                            throw XProcError.xsAttributeNotAllowed(name).at(node.node).exception()
+                            throw XProcError.xsAttributeInPNamespaceNotAllowed(name).at(node.node).exception()
                         }
                         atomic.depends(value)
                     }
