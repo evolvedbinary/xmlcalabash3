@@ -13,6 +13,28 @@ See the commits and pull requests on
 finer detail.</para>
 
 <revhistory>
+<revision xml:id="r3015">
+<revnumber>3.0.15</revnumber>
+<date>2025-08-25</date>
+<revdescription>
+<itemizedlist>
+<listitem><para>Fixed <cbissue number="212"/>. The command line application (the “main” class) 
+should now be available from maven as <code>com.xmlcalabash:xmlcalabash:app</code>.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="213"/>. The <tag class="attribute">message</tag>
+attribute is now supported on compound steps.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="214"/>. This was another bug related to the 
+output of <tag>p:try</tag>. Also fixed a couple of small errors related to the base
+URI of inlines.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="216"/>. Added a <tag>cx:elemental</tag> step.
+At present, this is using the same REST API as the <tag>cx:exist-db</tag> step; but if the
+APIs diverge in the future, it’ll be clear which one is intended.
+</para></listitem>
+</itemizedlist>
+</revdescription>
+</revision>
 <revision xml:id="r3014">
 <revnumber>3.0.14</revnumber>
 <date>2025-08-17</date>
