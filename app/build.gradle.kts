@@ -18,6 +18,7 @@ plugins {
   id("buildlogic.kotlin-application-conventions")
   id("com.xmlcalabash.build.xmlcalabash-build")
   id("org.jetbrains.dokka") version "1.9.20"
+  id("maven-publish")
   application
 }
 
@@ -184,15 +185,65 @@ tasks.register<Zip>("release") {
   archiveFileName = "xmlcalabash-${xmlbuild.version.get()}.zip"
 }
 
-tasks.register("helloWorld") {
-  doLast {
-    println(ExternalDependencies.of(listOf("metadata-extractor", "nineml")))
-/*
-    println("Building with Java version ${System.getProperty("java.version")}")
-    for (jar in distClasspath()) {
-      println("APP: ${jar}")
-    }
-*/
+val sourcesJar by tasks.registering(Jar::class) {
+  archiveClassifier = "sources"
+  from(sourceSets.main.get().allSource)
+}
+
+tasks.javadoc {
+  if (JavaVersion.current().isJava9Compatible) {
+    (options as StandardJavadocDocletOptions).addBooleanOption("html5", true)
   }
 }
 
+val javadocJar = tasks.register<Jar>("javadocJar") {
+  dependsOn("dokkaJavadoc")
+  archiveClassifier = "javadoc"
+  from(tasks.dokkaJavadoc)
+}
+
+publishing {
+  publications {
+    create<MavenPublication>("mavenApp") {
+      pom {
+        groupId = project.findProperty("xmlcalabashGroup").toString()
+        version = project.findProperty("xmlcalabashVersion").toString()
+        name = "XML Calabash application"
+        packaging = "jar"
+        description = "An XML Calabash application runner"
+        url = "https://codeberg.org/xmlcalabash/xmlcalabash3"
+
+        scm {
+          url = "scm:git@codeberg.org:xmlcalabash/xmlcalabash3.git"
+          connection = "scm:git@codeberg.org:xmlcalabash/xmlcalabash3.git"
+          developerConnection = "scm:git@codeberg.org:xmlcalabash/xmlcalabash3.git"
+        }
+
+        licenses {
+          license {
+            name = "MIT License"
+            url = "https://opensource.org/api/license/mit"
+            distribution = "repo"
+          }
+        }
+
+        developers {
+          developer {
+            id = "ndw"
+            name = "Norm Tovey-Walsh"
+          }
+        }
+      }
+
+      from(components["java"])
+      artifact(sourcesJar.get())
+      artifact(javadocJar.get())
+    }
+  }
+
+  repositories {
+    maven {
+      url = layout.buildDirectory.dir("maven-release").get().asFile.toURI()
+    }
+  }
+}
