@@ -9,6 +9,7 @@ import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.namespace.Ns
 import com.xmlcalabash.namespace.NsCx
+import com.xmlcalabash.parsers.Xmlnt
 import com.xmlcalabash.spi.ContentTypeLoader
 import com.xmlcalabash.spi.ContentTypeLoaderServiceProvider
 import com.xmlcalabash.tracing.TraceListener
@@ -32,6 +33,7 @@ import java.time.ZoneOffset
 import java.util.*
 import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.sax.SAXSource
+import kotlin.math.min
 
 class DocumentLoader(val stepConfig: StepConfiguration,
                      val href: URI?,
@@ -84,6 +86,23 @@ class DocumentLoader(val stepConfig: StepConfiguration,
             }
 
             return sb.toString()
+        }
+
+        fun textDeclaration(bytes: ByteArray): String? {
+            if (bytes[0].toInt() == '<'.code && bytes[1].toInt() == '?'.code) {
+                val sb = StringBuilder()
+                var pos = 0;
+                var pch: Char = bytes[0].toInt().toChar()
+                while (pos < min(bytes.size, 1024)) {
+                    val ch = bytes[pos++].toInt().toChar()
+                    sb.append(ch)
+                    if (pch == '?' && ch == '>') {
+                        return sb.toString()
+                    }
+                    pch = ch
+                }
+            }
+            return null
         }
     }
 
@@ -233,6 +252,21 @@ class DocumentLoader(val stepConfig: StepConfiguration,
             }
         }
 
+        // Is this supposed to be loaded with xmlnt?
+        val xmlnt: String? = if (parameters.containsKey(NsCx.xmlnt)) {
+            val value = parameters[NsCx.xmlnt]!!
+            when (value.underlyingValue.stringValue) {
+                "true" -> "attributes"
+                "entities" -> "entities"
+                "attributes" -> "attributes"
+                else -> {
+                    throw stepConfig.exception(XProcError.xdStepFailed("Can't specify parameter cx:xmlnt=${value.underlyingValue.stringValue}}"))
+                }
+            }
+        } else {
+            null
+        }
+
         mediaType = overrideMediaType
         properties.setAll(documentProperties)
         properties[Ns.contentType] = mediaType
@@ -241,10 +275,19 @@ class DocumentLoader(val stepConfig: StepConfiguration,
         }
 
         val classification = mediaType.classification()
+
+        if ((classification != MediaClassification.XML && classification != MediaClassification.XHTML) && xmlnt != null) {
+            throw stepConfig.exception(XProcError.xdStepFailed("Can't specify cx:xmlnt parser for non-XML resources"))
+        }
+
         val doc = when (classification) {
             MediaClassification.XML, MediaClassification.XHTML -> {
                 try {
-                    loadXml(uri, stream)
+                    if (xmlnt == null) {
+                        loadXml(uri, stream)
+                    } else {
+                        loadXmlnt(uri,  xmlnt == "entities", stream)
+                    }
                 } catch (ex: SaxonApiException) {
                     if (href != null) {
                         throw stepConfig.exception(XProcError.xdNotWellFormed(href), ex)
@@ -310,6 +353,41 @@ class DocumentLoader(val stepConfig: StepConfiguration,
         } finally {
             stepConfig.saxonConfig.configuration.parseOptions = saveParseOptions
         }
+    }
+
+    private fun loadXmlnt(uri: URI?, preserveEntities: Boolean, stream: InputStream): XProcDocument {
+        val startChar = if (parameters.containsKey(NsCx.xmlntStartchar)) {
+            parameters.getValue(NsCx.xmlntStartchar).underlyingValue.stringValue
+        } else {
+            "\uE000"
+        }
+
+        if (startChar.length > 1) {
+            throw stepConfig.exception(XProcError.xdStepFailed("Xmlnt start character must be a single character: ${startChar}"))
+        }
+
+        val parser = Xmlnt(stepConfig,  preserveEntities, startChar[0])
+
+        var bytes = stream.readAllBytes()
+        val textdecl = textDeclaration(bytes)
+
+        val charset = if (textdecl != null && textdecl.startsWith("<?xml")) {
+            val encoding = "\\sencoding\\s*=\\s*[\"']([^\"']+)[\"']".toRegex()
+            val match = encoding.find(textdecl)
+
+            bytes = bytes.sliceArray(textdecl.length until bytes.size)
+
+            if (match != null) {
+                match.groupValues[1]
+            } else {
+                "UTF-8"
+            }
+        } else {
+            "UTF-8"
+        }
+
+        val xml = bytes.toString(Charset.forName(charset))
+        return parser.parse(xml, uri)
     }
 
     private fun loadHtml(uri: URI?, stream: InputStream): XProcDocument {

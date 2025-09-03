@@ -134,6 +134,7 @@ object NsCx {
     val jsonPath = QName(namespace, "cx:jsonpath")
     val markupBlitz = QName(namespace, "cx:markup-blitz")
     val mathmlToSvg = QName(namespace, "cx:mathml-to-svg")
+    val mergeProperties = QName(namespace, "cx:merge-properties")
     val metadataExtractor = QName(namespace, "cx:metadata-extractor")
     val pipelineMessages = QName(namespace, "cx:pipeline-messages")
     val plantuml = QName(namespace, "cx:plantuml")
@@ -148,5 +149,7 @@ object NsCx {
     val uniqueId = QName(namespace, "cx:unique-id")
     val waitForUpdate = QName(namespace, "cx:wait-for-update")
     val xmlUnit = QName(namespace, "cx:xmlunit")
+    val xmlnt = QName(namespace, "cx:xmlnt")
+    val xmlntStartchar = QName(namespace, "cx:xmlnt-startchar")
     val xpath = QName(namespace, "cx:xpath")
 }

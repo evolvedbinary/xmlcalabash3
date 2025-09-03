@@ -1,4 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?><refentry xmlns="http://docbook.org/ns/docbook" xmlns:p="http://www.w3.org/ns/xproc" xml:id="p-load">
+<?xml version="1.0" encoding="utf-8"?>
+<refentry xmlns="http://docbook.org/ns/docbook"
+          xmlns:p="http://www.w3.org/ns/xproc"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          xml:id="p-load">
 <?db filename="p-load"?>
    <refnamediv>
       <refname>p:load</refname>
@@ -85,5 +89,39 @@ are <glossterm>implementation-defined</glossterm>.
 <refsection>
   <title>Description</title>
   <para role="external-refs"/>
+
+  <para>The XML Calabash <tag>p:load</tag> step accepts additional parameters to enable
+the <link xlink:href="https://docs.xmlcalabash.com/userguide/current/xmlnt.html">XMLn’t parser</link>.
+  </para>
+
+  <variablelist>
+    <varlistentry><term><code>cx:xmlnt</code></term>
+    <listitem>
+      <para>Enables the XMLn’t parser. Allowed values are:</para>
+      <variablelist>
+        <varlistentry><term><literal>attributes</literal> or <literal>true()</literal></term>
+        <listitem>
+          <para>To enable the parser.</para>
+        </listitem>
+        </varlistentry>
+        <varlistentry><term><literal>entities</literal></term>
+        <listitem>
+          <para>To enable the parser and also preserve entity references.</para>
+        </listitem>
+        </varlistentry>
+      </variablelist>
+    </listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><code>cx:xmlnt-startchar</code></term>
+      <listitem>
+        <para>Specifies the initial character to use for encoding entity references. (This
+        value only applies if <code>cx:xmlnt</code> is set to <literal>entities</literal>.)
+        The default character is <code>&amp;xE000;</code>, the first character in the
+        Unicode private use area.</para>
+      </listitem>
+    </varlistentry>
+  </variablelist>
+
 </refsection>
 </refentry>

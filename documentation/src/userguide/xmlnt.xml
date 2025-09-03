@@ -1,0 +1,102 @@
+<chapter xmlns="http://docbook.org/ns/docbook"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         xmlns:xi='http://www.w3.org/2001/XInclude'
+         version="5.2" xml:id="xmlnt">
+<info>
+  <?db filename="xmlnt"?>
+  <title>The XMLn’t parser</title>
+</info>
+
+<para>XML Calabash includes support for a non-conformant XML parser: an “XMLn’t”
+parser. It’s built from the grammar productions in the fifth edition of the XML
+Recommendation, but it is not an XML parser. It doesn’t check the
+well-formedness constraints of XML and it does not follow the rules of the
+XML specification.</para>
+
+<orderedlist>
+<listitem>
+<para>It doesn’t normalize whitespace in attribute values.</para>
+</listitem>
+<listitem>
+<para>Optionally, it encodes entity references such that they can be restored
+during serialization.</para>
+</listitem>
+</orderedlist>
+
+<para>The XMLn’t parser is enabled with the <code>cx:xmlnt</code> property in
+the <option>parameters</option> on <tag>p:document</tag> or <tag>p:load</tag>.
+The <code>cx:xmlnt</code> property can have one of three values: “<literal>attributes</literal>”
+or “<literal>true()</literal>” to enable it; or “<literal>entities</literal>” to
+enable the parser and also preservation of entity references.</para>
+
+<para>If you parse this document with the XMLn’t parser:</para>
+
+<programlisting language="xml"><![CDATA[<doc>
+   <if test="significant
+             line
+             breaks">
+      …
+   </if>
+</doc>]]></programlisting>
+
+<para>You get a XPath data model that has an attribute with newlines in it. That
+is not what an XML parser would do, an XML parser would normalize those newlines
+to spaces.</para>
+
+<para>If you also enable entity preservation,
+it replaces every entity reference with a single Unicode character.
+By default, these are taken from the Unicode private use area (starting at U+E000), but
+you can choose any starting point you like by setting the
+<code>cx:xmlnt-startchar</code> property in the <option>parameters</option> to the
+initial character.
+</para>
+
+<para>Parsing this document:</para>
+
+<programlisting language="xml"><![CDATA[<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE doc [
+<!ENTITY motto "Spoon!">
+]>
+<doc>
+   <if test="significant
+             line
+             breaks">&motto;</if>
+</doc>]]></programlisting>
+
+<para>Results in an XPath data model that has an <code>if</code> element that contains
+a single character, <code>&amp;#xE000;</code>. XML Calabash provides a use-character-map
+in the serialization properties
+that will allow the serializer to reproduce the original. If you load this document with the XMLn’t
+parser,
+what you get is an XProc document that has the data model that you would get from
+parsing this input with a proper XML parser:</para>
+
+<programlisting language="xml"><![CDATA[<?xml version="1.0" encoding="iso-8859-1"?>
+<doc>
+   <if test="significant&#xA;
+             line&#xA;
+             breaks">&#xE000;</if>
+</doc>]]></programlisting>
+
+<para>The document will have two additional properties, a <code>cx:xmlnt</code>
+property that contains the text of the prolog (<code>&lt;!DOCTYPE … ]]&gt;</code>) and
+a serialization property that includes a character map:</para>
+
+<programlisting>map{Q{}use-character-maps:map{"&amp;#xE000;":"&amp;motto;"}}</programlisting>
+
+<para>Both of these properties must remain on the document in order to get the
+correct serialization. If you pass this document through a step, such as <tag>p:xslt</tag>, that
+produces a new document with different properties, you must arrange to put these properties
+back or the result of serialization will not be correct.</para>
+
+<para>The <tag>cx:merge-properties</tag> step exists to simpify putting the
+XMLn’t properties back. For example:</para>
+
+<programlisting language="xml"
+><xi:include href="../examples/xpl/xmlnt.xpl" parse="text"/></programlisting>
+
+<para>In principle, you can change the character map or the declaration by
+adjusting the document properties, but an error will likely result in an
+unparsable result.</para>
+
+</chapter>

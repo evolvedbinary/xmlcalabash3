@@ -1,0 +1,43 @@
+<refentry xmlns:p="http://www.w3.org/ns/xproc"
+          xmlns:e="http://www.w3.org/1999/XSL/Spec/ElementSyntax"
+          xmlns:cxerr="http://xmlcalabash.com/ns/error"
+          xmlns:xi="http://www.w3.org/2001/XInclude"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          xmlns="http://docbook.org/ns/docbook"
+          xml:id="cx-merge-properties">
+<?db filename="cx-merge-properties"?>
+<refnamediv>
+  <refname>cx:merge-properties</refname>
+  <refpurpose>Merges the properties of two documents</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv>
+<refsection role="introduction">
+<title>Introduction</title>
+<para>This step merges the properties of two documents, optionally merging map valued
+properties as well.
+</para>
+</refsection>
+
+<refsection role="step-declaration">
+<title>Step declaration</title>
+<xi:include href="../../../../xmlcalabash/src/main/resources/com/xmlcalabash/ext/merge-properties.xpl"
+            xpointer="xpath(/*/*[@type='cx:merge-properties'])"/>
+<?import merge-properties.xpl?>
+</refsection>
+</refsynopsisdiv>
+
+<refsection>
+<title>Description</title>
+
+<para>This step merges the properties of the <port>alternate</port> document
+with the properties of the <port>source</port> document. That is, the
+<port>result</port> document has all the properties of the <port>source</port>
+document plus any properties that exist on the <port>alternate</port> document
+but not on the <port>source</port> document.</para>
+
+<para>If <parameter>merge-maps</parameter> is true, the keys of any map-valued properties
+on both ports are merged.</para>
+
+</refsection>
+</refentry>

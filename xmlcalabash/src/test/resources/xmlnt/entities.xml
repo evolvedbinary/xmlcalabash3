@@ -1,0 +1,7 @@
+<!DOCTYPE doc [
+<!ENTITY motto "Spoon!">
+]>
+<doc a="testing
+        with a newline">
+&motto;
+</doc>

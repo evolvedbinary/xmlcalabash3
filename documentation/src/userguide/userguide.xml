@@ -35,6 +35,7 @@
 <xi:include href="errors.xml"/>
 <xi:include href="debugger.xml"/>
 <xi:include href="assertions.xml"/>
+<xi:include href="xmlnt.xml"/>
 
 <xi:include href="config.xml"/>
 <xi:include href="tracing.xml"/>
