@@ -23,6 +23,7 @@ class StandardDocumentResolver: DocumentResolverProvider, DocumentResolver {
         URI("https://xmlcalabash.com/ext/library/json-patch.xpl") to "/com/xmlcalabash/ext/json-patch.xpl",
         URI("https://xmlcalabash.com/ext/library/jsonpath.xpl") to "/com/xmlcalabash/ext/jsonpath.xpl",
         URI("https://xmlcalabash.com/ext/library/markup-blitz.xpl") to "/com/xmlcalabash/ext/markup-blitz.xpl",
+        URI("https://xmlcalabash.com/ext/library/merge-properties.xpl") to "/com/xmlcalabash/ext/merge-properties.xpl",
         URI("https://xmlcalabash.com/ext/library/metadata-extractor.xpl") to "/com/xmlcalabash/ext/metadata-extractor.xpl",
         URI("https://xmlcalabash.com/ext/library/pipeline-messages.xpl") to "/com/xmlcalabash/ext/pipeline-messages.xpl",
         URI("https://xmlcalabash.com/ext/library/polyglot.xpl") to "/com/xmlcalabash/ext/polyglot.xpl",

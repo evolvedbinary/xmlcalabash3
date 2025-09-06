@@ -106,6 +106,7 @@ class StandardStepProvider: AtomicStepManager, AtomicStepProvider {
         NsCx.jsonPath           to { _: StepParameters? -> JsonPathStep() },
         NsCx.markupBlitz        to { _: StepParameters? -> MarkupBlitzStep() },
         NsCx.mathmlToSvg        to { _: StepParameters? -> MathMLtoSvgStep() },
+        NsCx.mergeProperties    to { _: StepParameters? -> MergePropertiesStep() },
         NsCx.metadataExtractor  to { _: StepParameters? -> MetadataExtractorStep() },
         NsCx.pipelineMessages   to { _: StepParameters? -> PipelineMessagesStep() },
         NsCx.plantuml           to { _: StepParameters? -> PlantumlStep() },

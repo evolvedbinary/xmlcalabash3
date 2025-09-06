@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.toml.TomlFactory
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator.Feature
+import com.xmlcalabash.datamodel.DocumentContext
 import com.xmlcalabash.documents.XProcBinaryDocument
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
@@ -13,19 +14,22 @@ import com.xmlcalabash.namespace.NsCx
 import com.xmlcalabash.util.MediaClassification
 import com.xmlcalabash.util.SaxonTreeBuilder
 import com.xmlcalabash.util.TypeUtils
+import net.sf.saxon.event.ReceiverOption
 import net.sf.saxon.event.SequenceCopier
 import net.sf.saxon.lib.SerializerFactory
+import net.sf.saxon.om.NodeName
 import net.sf.saxon.om.StructuredQName
-import net.sf.saxon.query.QueryResult
 import net.sf.saxon.s9api.*
 import net.sf.saxon.serialize.CharacterMap
 import net.sf.saxon.serialize.CharacterMapIndex
-import net.sf.saxon.serialize.SerializationProperties
+import net.sf.saxon.serialize.Emitter
+import net.sf.saxon.serialize.XMLEmitter
 import net.sf.saxon.value.QNameValue
 import net.sf.saxon.z.IntHashMap
 import java.io.ByteArrayOutputStream
 import java.io.OutputStream
 import java.nio.charset.StandardCharsets
+import java.util.*
 import javax.xml.transform.stream.StreamResult
 
 class DocumentWriter(val doc: XProcDocument,
@@ -100,9 +104,18 @@ class DocumentWriter(val doc: XProcDocument,
             }
         }
 
+        val savesf = docContext.processor.underlyingConfiguration.serializerFactory
+
+        if (doc.properties[NsCx.xmlnt] != null) {
+            val prolog = doc.properties[NsCx.xmlnt]!!.underlyingValue.stringValue
+            docContext.processor.underlyingConfiguration.serializerFactory = XmlntSerializerFactory(docContext, prolog)
+        }
+
         val serializer = docContext.processor.newSerializer(stream)
         setSerializationProperties(serializer)
         serializeValue(serializer, doc.value)
+
+        docContext.processor.underlyingConfiguration.serializerFactory = savesf
     }
 
     private fun writeJson() {
@@ -249,5 +262,44 @@ class DocumentWriter(val doc: XProcDocument,
             _params[Ns.useCharacterMaps] = XdmAtomicValue(cmapName)
         }
         return cmapIndex
+    }
+
+    private class XmlntSerializerFactory(docContext: DocumentContext, val prolog: String): SerializerFactory(docContext.processor.underlyingConfiguration) {
+        override fun newXMLEmitter(properties: Properties?): Emitter {
+            return NonconformantXmlEmitter(properties, prolog)
+        }
+    }
+
+    private class NonconformantXmlEmitter(val properties: Properties?, val prolog: String): XMLEmitter() {
+        override fun writeDeclaration() {
+            if (!declarationIsWritten) {
+                super.writeDeclaration()
+                writer.write(prolog)
+            }
+        }
+
+        override fun writeAttribute(elCode: NodeName, attname: String, value: String, properties: Int) {
+            val prop = properties or ReceiverOption.DISABLE_ESCAPING and (ReceiverOption.USE_NULL_MARKERS.inv())
+
+            // I'm not sure what this business with null markers is...
+            val entref = "\u0000([^\u0000]+)\u0000".toRegex()
+            var match = entref.find(value)
+            if (match != null) {
+                val sb = StringBuilder()
+                var normalvalue = value
+                while (match != null) {
+                    sb.append(normalvalue.substring(0, match.range.first))
+                    sb.append("&")
+                    sb.append(match.groupValues[1])
+                    sb.append(";")
+                    normalvalue = normalvalue.substring(match.range.last+1)
+                    match = entref.find(normalvalue)
+                }
+                normalvalue = sb.toString() + normalvalue
+                super.writeAttribute(elCode, attname, normalvalue, prop)
+            } else {
+                super.writeAttribute(elCode, attname, value, prop)
+            }
+        }
     }
 }

@@ -1,0 +1,5 @@
+<!DOCTYPE doc [
+<!ENTITY content SYSTEM "simple.xml">
+]>
+<wrapper>&content;</wrapper>
+

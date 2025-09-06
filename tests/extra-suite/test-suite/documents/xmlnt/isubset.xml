@@ -1,0 +1,6 @@
+<!DOCTYPE doc [
+<!ENTITY p "<p>some text</p>">
+<!ENTITY q "&p;<x/><q>some other text</q>">
+<!ENTITY r "testing">
+]>
+<doc>&q;&r;</doc>
