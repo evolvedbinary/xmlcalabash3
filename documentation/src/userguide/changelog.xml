@@ -13,6 +13,20 @@ See the commits and pull requests on
 finer detail.</para>
 
 <revhistory>
+<revision xml:id="r3016">
+<revnumber>3.0.16</revnumber>
+<date>2025-09-07</date>
+<revdescription>
+<itemizedlist>
+<listitem><para>Fixed <cbissue number="191"/>. Updated the <filename>xmlcalabash.sh</filename>
+script in the distribution to use a POSIX-compliant version of “<code>readlink</code>”.
+</para></listitem>
+<listitem><para>Added support for the
+<link xlink:href="https://docs.xmlcalabash.com/userguide/current/xmlnt.html">XMLn’t parser</link>.
+</para></listitem>
+</itemizedlist>
+</revdescription>
+</revision>
 <revision xml:id="r3015">
 <revnumber>3.0.15</revnumber>
 <date>2025-08-25</date>
