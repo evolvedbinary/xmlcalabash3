@@ -15,8 +15,8 @@ import org.xml.sax.helpers.AttributesImpl
 import org.xmlresolver.sources.ResolverInputSource
 import java.net.URI
 import java.nio.charset.Charset
-import java.util.*
-import kotlin.math.min
+import java.util.Stack
+import kotlin.collections.iterator
 
 class Xmlnt(val stepConfig: StepConfiguration, val preserveEntities: Boolean, puastart: Char) {
     private var prolog = ""
@@ -25,7 +25,10 @@ class Xmlnt(val stepConfig: StepConfiguration, val preserveEntities: Boolean, pu
     private var parserContext = "document"
     private var nextpua = puastart
 
-    public fun parse(xml: String, baseUri: URI?): XProcDocument {
+    // N.B. This "parser" doesn't attempt to maintain a document locator. It probably should
+    // but it's messy and complicated so I'm not bothering right now.
+
+    fun parse(xml: String, baseUri: URI?): XProcDocument {
         val builder = stepConfig.processor.newDocumentBuilder()
         val bch = builder.newBuildingContentHandler()
         val handler = XmlEventHandler(bch as ReceivingContentHandler)
@@ -77,6 +80,8 @@ class Xmlnt(val stepConfig: StepConfiguration, val preserveEntities: Boolean, pu
         private var gentities = mutableMapOf<String, Entity>()
         private var pentities = mutableMapOf<String, Entity>()
         private var pentity = false
+        private var ignoreStart = -1
+        private var ignorePE = "IGNORE"
 
         constructor(handler: XmlEventHandler): this(handler.contentHandler) {
             // Yes, copy the object references...
@@ -91,8 +96,10 @@ class Xmlnt(val stepConfig: StepConfiguration, val preserveEntities: Boolean, pu
 
         override fun startNonterminal(name: String?, begin: Int) {
             //println("S ${name}")
-            if (name == "element") {
-                attributes.clear()
+            when (name) {
+                "element" -> attributes.clear()
+                "ignoreSect" -> ignoreStart = begin
+                else -> Unit
             }
             nonterminalStack.push(name)
         }
@@ -144,6 +151,22 @@ class Xmlnt(val stepConfig: StepConfiguration, val preserveEntities: Boolean, pu
                         else -> Unit
                     }
                 }
+                "ignoreSect" -> {
+                    when (ignorePE) {
+                        "IGNORE" -> Unit
+                        "INCLUDE" -> {
+                            var section = xml.substring(ignoreStart, end - 3) // Remove ]]>
+                            section = section.substring(3); // Remove <![
+                            val pos = section.indexOf('[')
+                            section = section.substring(pos+1)
+
+                            val handler = XmlEventHandler(this)
+                            val parser = XMLesub(section, handler)
+                            parser.parse_extSubset()
+                        }
+                        else -> throw RuntimeException("Invalid marked section marker: $ignorePE")
+                    }
+                }
                 else -> Unit
             }
             nonterminalStack.pop()
@@ -181,7 +204,7 @@ class Xmlnt(val stepConfig: StepConfiguration, val preserveEntities: Boolean, pu
                 "AttValue" -> {
                     val value = parseAttributeValue(xml.substring(begin, end))
                     if (attributes.containsKey(attributeName)) {
-                        throw RuntimeException("Duplicate attribte: $attributeName")
+                        throw RuntimeException("Duplicate attribute: $attributeName")
                     }
                     attributes[attributeName] = value
                 }
@@ -311,9 +334,17 @@ class Xmlnt(val stepConfig: StepConfiguration, val preserveEntities: Boolean, pu
                 "PEReference" -> {
                     val entity = xml.substring(begin, end)
                     val xml = expandParameterEntities(entity)
-                    val handler = XmlEventHandler(this)
-                    val parser = XMLesub(xml, handler)
-                    parser.parse_extSubset()
+                    if (nonterminalStack.peek() == "ignoreSect") {
+                        ignorePE = xml
+                    } else {
+                        if (xml.contains("<")) {
+                            val handler = XmlEventHandler(this)
+                            val parser = XMLesub(xml, handler)
+                            parser.parse_extSubset()
+                        } else {
+                            contentHandler.characters(xml.toCharArray(), 0, xml.length)
+                        }
+                    }
                 }
                 "'&'" -> {
                     if (nonterminalStack.peek() == "EntityRef") {
@@ -420,12 +451,21 @@ class Xmlnt(val stepConfig: StepConfiguration, val preserveEntities: Boolean, pu
                     "apos" -> sb.append("'")
                     "quot" -> sb.append("\"")
                     else -> {
-                        if (!entityMap.containsKey(entity)) {
-                            characterMap[nextpua] = entity
-                            entityMap[entity] = nextpua
-                            nextpua++
+                        if (preserveEntities) {
+                            if (!entityMap.containsKey(entity)) {
+                                characterMap[nextpua] = entity
+                                entityMap[entity] = nextpua
+                                nextpua++
+                            }
+                            sb.append(entityMap[entity])
+                        } else {
+                            val decl = gentities[entity]
+                            if (decl is InternalEntity) {
+                                sb.append(decl.value)
+                            } else {
+                                throw RuntimeException("Unknown entity: $entity")
+                            }
                         }
-                        sb.append(entityMap[entity])
                     }
                 }
                 rest = rest.substring(result.range.last + 1)
@@ -446,7 +486,7 @@ class Xmlnt(val stepConfig: StepConfiguration, val preserveEntities: Boolean, pu
                         sb.append(rest.substring(0, result.range.first))
                     }
                     val name = rest.substring(result.range.first + 1, result.range.last)
-                    val entity = pentities[name]!!
+                    val entity = pentities[name] ?: throw RuntimeException("Unknown parameter entity: $name")
                     val replacement = when (entity) {
                         is InternalEntity -> {
                             entity.value
