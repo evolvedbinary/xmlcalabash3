@@ -366,7 +366,7 @@ class DocumentLoader(val stepConfig: StepConfiguration,
             throw stepConfig.exception(XProcError.xdStepFailed("Xmlnt start character must be a single character: ${startChar}"))
         }
 
-        val parser = Xmlnt(stepConfig,  preserveEntities, startChar[0])
+        val parser = Xmlnt(stepConfig, preserveEntities, startChar[0])
 
         var bytes = stream.readAllBytes()
         val textdecl = textDeclaration(bytes)

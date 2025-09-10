@@ -79,7 +79,7 @@ ExternalOrPublicID
 
 conditionalSect    ::= includeSect | ignoreSect
 includeSect        ::= '<![' S? 'INCLUDE' S? '[' extSubsetDecl ']]>'
-ignoreSect         ::= '<![' S? 'IGNORE' S? '[' ignoreSectContents ']]>'
+ignoreSect         ::= '<![' S? ('IGNORE'|PEReference) S? '[' ignoreSectContents ']]>'
 ignoreSectContents ::= Ignore*
 
 Ignore ::= NotOne | NotTwo | NotThree | ('<![' ignoreSectContents ']]>')

@@ -1,0 +1,8 @@
+<!DOCTYPE book SYSTEM "ms-draft.dtd">
+<book status="&status;">
+<comments>This is a draft.</comments>
+<title>Some title</title>
+<body>
+<p>Some paragraph.</p>
+</body>
+</book>
