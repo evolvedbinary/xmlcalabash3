@@ -70,3 +70,4 @@ Snapshot releases of current development are available from
 Please [[https://codeberg.org/xmlcalabash/xmlcalabash3/issues][open issues]] for any problems you encounter. There are going to be bugs,
 so it’s probably not you.
 
+This is also bogus
