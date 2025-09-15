@@ -13,6 +13,23 @@ See the commits and pull requests on
 finer detail.</para>
 
 <revhistory>
+<revision xml:id="r3017">
+<revnumber>3.0.17</revnumber>
+<date>2025-09-15</date>
+<revdescription>
+<itemizedlist>
+<listitem><para>Fixed <cbissue number="229"/>. Added tests and documentation for
+running pipelines as functions.
+</para></listitem>
+<listitem><para>Upgraded to Saxon 12.9.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="230"/>. Improvements to the XMLn’t parser:
+handle entity references in attribute values, support include and ignore marked
+sections in the external subset, improved some error messages.
+</para></listitem>
+</itemizedlist>
+</revdescription>
+</revision>
 <revision xml:id="r3016">
 <revnumber>3.0.16</revnumber>
 <date>2025-09-07</date>
