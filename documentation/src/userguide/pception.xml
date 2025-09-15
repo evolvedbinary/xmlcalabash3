@@ -1,0 +1,192 @@
+<chapter xmlns="http://docbook.org/ns/docbook"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         xmlns:xi='http://www.w3.org/2001/XInclude'
+         version="5.2" xml:id="pipelineception">
+<info>
+  <?db filename="pipelineception"?>
+  <title>Calling steps as functions</title>
+</info>
+
+<para>In XML Calabash, any pipeline that you declare with an explicit type also
+creates a function with that name. The function is available to XPath
+expressions with the scope of that step type. (For a little background about
+this feature, see the weblog post
+<citetitle xlink:href="https://so.nwalsh.com/2025/05/04-pipelineception">Pipelineception</citetitle>
+on <uri>https://so.nwalsh.com/</uri>.)</para>
+
+<section>
+<title>An example</title>
+
+<para>To see how this works, let’s consider a plausibly useful step, <code>ex:hash</code>:</para>
+
+<programlisting language="xml"><![CDATA[<p:declare-step type="ex:hash">
+  <p:output port="result" content-types="text"/>
+  <p:option name="text" as="xs:string" required="true"/>
+  <p:option name="algorithm" as="xs:string" select="'sha'"/>
+  <p:option name="version" as="xs:string?"
+            select="if ($algorithm = 'sha') then '256' else ()"/>
+
+  <p:hash algorithm="{$algorithm}" value="{$text}" match="/doc">
+    <p:with-option name="version" select="$version"/>
+    <p:with-input>
+      <doc/>
+    </p:with-input>
+  </p:hash>]]></programlisting>
+
+<para>A typical use for this step in a pipeline might look something like
+this:</para>
+
+<programlisting language="xml"><![CDATA[
+<ex:hash text="Hello, world."/>
+<p:wrap-sequence wrapper="hash"/>]]></programlisting>
+
+<para>That pipeline fragment takes the SHA256 hash of “Hello, world.” and 
+wraps an element named <code>hash</code> around it, producing:</para>
+
+<programlisting language="xml"><![CDATA[<hash>f8c3bf62a9aa3e6fc1619c250e48abe7519373d3edf41be62eb5dc45199af2ef</hash>]]></programlisting>
+
+<para>Alternatively, we can take advantage of the fact that a function has
+been created and call that instead (we’ll come back to the function arguments in a bit):</para>
+
+<programlisting language="xml"><![CDATA[<p:identity>
+  <p:with-input>
+    <hash>{ex:hash(map{'text': 'Hello, world.'})?result}</hash>
+  </p:with-input>
+</p:identity>]]></programlisting>
+
+<para>On the surface, that’s not a huge improvement. The real magic is that the
+function is declared in the XPath context of the step, and by extension, in the
+XPath context of all the steps that occur within it.</para>
+
+<para>Consider this pipeline:</para>
+
+<programlisting language="xml"><![CDATA[<p:declare-step xmlns:p="http://www.w3.org/ns/xproc"
+                xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+                xmlns:ex="http://example.com/ns"
+                exclude-inline-prefixes="#all"
+                name="main" version="3.0">
+  <p:output port="result" sequence="true"/>
+
+  <p:declare-step type="ex:hash">…same as above…</p:declare-step>
+
+  <p:xslt>
+    <p:with-input port="source">
+      <doc>
+        <hash>Hello, world.</hash>
+      </doc>
+    </p:with-input>
+    <p:with-input port="stylesheet" href="pception.xsl"/>
+  </p:xslt>
+
+</p:declare-step>
+]]></programlisting>
+
+<para>Where the stylesheet, <filename>pception.xsl</filename>, is:</para>
+
+<programlisting language="xml"><![CDATA[<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+                xmlns:ex="http://example.com/ns"
+                xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                exclude-result-prefixes="ex xs"
+                expand-text="yes"
+                version="3.0">
+
+<xsl:output method="xml" encoding="utf-8" indent="no"/>
+
+<xsl:mode on-no-match="shallow-copy"/>
+
+<xsl:template match="hash">
+  <p>The hash of “{string(.)}” is:</p>
+  <xsl:copy>
+    <xsl:apply-templates select="@*"/>
+    <xsl:sequence select="ex:hash(map{'text': string(.)})?result"/>
+  </xsl:copy>
+</xsl:template>
+
+</xsl:stylesheet>]]></programlisting>
+
+
+<para>That pipeline will run in XML Calabash, producing the output:</para>
+
+<programlisting language="xml"><![CDATA[<doc>
+   <p>The hash of “Hello, world.” is:</p>
+   <hash>f8c3bf62a9aa3e6fc1619c250e48abe7519373d3edf41be62eb5dc45199af2ef</hash>
+</doc>]]></programlisting>
+
+<para>That’s because the <tag>p:xslt</tag> step inherits the XPath context that
+includes the function definition for <function>ex:hash()</function> and
+consequently so does the stylesheet.</para>
+</section>
+
+<section>
+<title>Calling a step function</title>
+
+<para>The function signature for a “step function” is one argument for each of
+the step inputs, in declaration order. If the step has options, a final
+<code>map(xs:QName,item()*)</code> argument is allowed. The key names must be
+the names of options.</para>
+
+<para>The function always returns a <code>map(xs:NCName, item()*)</code> map
+where the key names are the names of output ports from the step.</para>
+
+<para>The function signature for our <function>ex:hash</function> function from the
+example above is:</para>
+
+<screen>function ex:hash($options as map(xs:QName, item()*)?) as map(xs:NCName, item()*)</screen>
+
+<para>More generally for a step declared thus:</para>
+
+<programlisting language="xml"><![CDATA[<p:declare-step type="ex:name">
+  <p:input name="input1"/>
+  <p:input name="input2"/>
+  …
+  <p:input name="inputN"/>
+  <p:option name="option1"/>
+  …
+</p:declare-step>]]></programlisting>
+
+<para>The function signature would be:</para>
+
+<screen>
+function ex:name($input1 as item()*,
+                 $input2 as item()*,
+                 …,
+                 $inputN as item()*,
+                 options as map(xs:QName, item()*)?)
+   as map(xs:NCName, item()*)</screen>
+
+</section>
+
+<section>
+<title>Using step functions outside XProc</title>
+
+<para>It’s possible to take this one step further. It’s possible to make this
+work even if you <emphasis>aren’t</emphasis> running a pipeline. It just
+requires a little more work to set up.</para>
+
+<orderedlist>
+<listitem>
+<para>You have to hook into Saxon’s startup. The <option>-init:</option> option
+let’s you do that.</para>
+</listitem>
+<listitem>
+<para>You have to be able to point to a library of pipelines. We can use a Java
+property for that.</para>
+</listitem>
+</orderedlist>
+
+<para>So, in fact, this also “just works” (assuming <filename>doc.xml</filename> contains
+the input and the <code>ex:hash</code> step is defined
+in <filename>library.xpl</filename>):</para>
+
+<screen>XLIB=/path/to/library.xpl
+CP=...all the jars...
+java -Dcom.xmlcalabash.pipelines="$XLIB" -cp "$CP" \
+     net.sf.saxon.Transform \
+     -init:com.xmlcalabash.api.RegisterSaxonFunctions \
+     -s:doc.xml -xsl:pception.xsl</screen>
+
+<para>To be fair “…all the jars…” is doing some work in there, but XML Calabash ships
+with shell and Powershell scripts that point the way.</para>
+</section>
+
+</chapter>

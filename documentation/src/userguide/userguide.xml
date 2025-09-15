@@ -23,24 +23,35 @@
   <h:link href="./css/xmlcalabash.css" rel="stylesheet"/>
   <h:link href="./css/xproc.css" rel="stylesheet"/>
 </info>
-<!--
-<xi:include href="preface.xml"/>
--->
+<part xml:id="part-install">
+<title>Installing and using XML Calabash</title>
 <xi:include href="install.xml"/>
 <xi:include href="run.xml"/>
 <xi:include href="threading.xml"/>
-<xi:include href="validation.xml"/>
 <xi:include href="graphs.xml"/>
-<xi:include href="logging.xml"/>
 <xi:include href="errors.xml"/>
+<xi:include href="logging.xml"/>
+</part>
+<part xml:id="part-extensions">
+<title>Extensions</title>
+<partintro>
+<para>These chapters describe features of XML Calabash that are extensions of
+“standard” behavior. Relying on these features will make your pipelines less
+portable.</para>
+</partintro>
 <xi:include href="debugger.xml"/>
+<xi:include href="validation.xml"/>
 <xi:include href="assertions.xml"/>
 <xi:include href="xmlnt.xml"/>
-
+<xi:include href="pception.xml"/>
+</part>
+<part xml:id="part-appendixes">
+<title>Appendixes</title>
 <xi:include href="config.xml"/>
 <xi:include href="tracing.xml"/>
 <xi:include href="mediatypes.xml"/>
 <xi:include href="changelog.xml"/>
+</part>
 <xi:include href="colophon.xml"/>
 
 </book>
