@@ -40,10 +40,13 @@ class PipelineFunction(private val decl: DeclareStepInstruction): ExtensionFunct
     }
 
     override fun getMinimumNumberOfArguments(): Int {
-        return 1
+        return inputs.size
     }
 
     override fun getMaximumNumberOfArguments(): Int {
+        if (options.isEmpty()) {
+            return inputs.size
+        }
         return inputs.size + 1
     }
 
