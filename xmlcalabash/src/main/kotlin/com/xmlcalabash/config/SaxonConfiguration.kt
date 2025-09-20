@@ -5,6 +5,8 @@ import com.xmlcalabash.datamodel.XProcFunctionLibrary
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.exceptions.XProcException
 import com.xmlcalabash.functions.*
+import com.xmlcalabash.namespace.NsCx
+import com.xmlcalabash.namespace.NsP
 import com.xmlcalabash.spi.Configurer
 import net.sf.saxon.Configuration
 import net.sf.saxon.functions.FunctionLibrary
@@ -235,9 +237,15 @@ class SaxonConfiguration private constructor(val licensed: Boolean,
     }
 
     fun declareFunction(decl: DeclareStepInstruction) {
-        val function = PipelineFunction(decl)
-        pipelineExtensionFunctions.add(function)
-        processor.registerExtensionFunction(function)
+        // Ignore steps that don't have types and steps in the p: and cx: namespaces
+        if (decl.type == null || decl.type!!.namespaceUri == NsP.namespace || decl.type!!.namespaceUri == NsCx.namespace) {
+            return
+        }
+        if (decl.function == null) {
+            decl.function = PipelineFunction(decl)
+        }
+        pipelineExtensionFunctions.add(decl.function!!)
+        processor.registerExtensionFunction(decl.function)
     }
 
     // ============================================================

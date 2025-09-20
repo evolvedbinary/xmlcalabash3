@@ -28,9 +28,7 @@ class RegisterSaxonFunctions(): Initializer {
                 if (ex.error.code == NsErr.xi(216)) {
                     val decl = xplParser.parse(libraryUri)
                     decl.validate()
-                    if (decl.type != null) {
-                        xmlCalabash.saxonConfiguration.declareFunction(decl)
-                    }
+                    xmlCalabash.saxonConfiguration.declareFunction(decl)
                 }
             }
         } else {

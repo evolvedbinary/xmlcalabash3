@@ -91,6 +91,7 @@ abstract class XProcInstruction internal constructor(initialParent: XProcInstruc
     protected fun updateStepConfig(stepTypes: Map<QName, DeclareStepInstruction>, stepNames: Map<String, StepDeclaration>, bindings: Map<QName, VariableBindingContainer>) {
         for ((type, decl) in stepTypes) {
             addVisibleStepType(decl)
+            stepConfig.saxonConfig.declareFunction(decl)
         }
         for ((_, decl) in stepNames) {
             addVisibleStepName(decl)
