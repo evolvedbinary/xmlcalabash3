@@ -2,6 +2,7 @@ package com.xmlcalabash.datamodel
 
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.io.MediaType
+import com.xmlcalabash.namespace.NsCx
 import com.xmlcalabash.namespace.NsP
 import com.xmlcalabash.runtime.XProcPipeline
 import com.xmlcalabash.runtime.XProcRuntime
@@ -84,13 +85,14 @@ open class LibraryInstruction(stepConfig: InstructionConfiguration): XProcInstru
     var foundDeclarations = false
     override fun findDeclarations(stepTypes: Map<QName, DeclareStepInstruction>, stepNames: Map<String, StepDeclaration>, bindings: Map<QName, VariableBindingContainer>) {
         // Libraries don't inherit anything...
-
         if (foundDeclarations) {
             return
         }
         foundDeclarations = true
 
         val newStepTypes = mutableMapOf<QName, DeclareStepInstruction>()
+        val internalSteps = mutableListOf<DeclareStepInstruction>()
+        val externalSteps = mutableListOf<DeclareStepInstruction>()
 
         // Sort out what we're exporting so that if there are recursive imports, the
         // importing containers will get the correct imports.
@@ -110,12 +112,14 @@ open class LibraryInstruction(stepConfig: InstructionConfiguration): XProcInstru
             when (import) {
                 is DeclareStepInstruction -> {
                     import.findDeclarations(stepTypes, emptyMap(), bindings)
+                    addStep(internalSteps, import)
                     if (import.type != null && import.visibility != Visibility.PRIVATE) {
                         if (newStepTypes.containsKey(import.type)) {
                             throw stepConfig.exception(XProcError.xsDuplicateStepType(import.type!!))
                         }
                         newStepTypes[import.type!!] = import
                         _exportedSteps[import.type!!] = import
+                        addStep(externalSteps, import)
                     }
                 }
                 is LibraryInstruction -> {
@@ -137,8 +141,10 @@ open class LibraryInstruction(stepConfig: InstructionConfiguration): XProcInstru
                             throw stepConfig.exception(XProcError.xsDuplicateStepType(type))
                         }
                         newStepTypes[type] = decl
+                        addStep(internalSteps, decl)
                         if (decl.visibility != Visibility.PRIVATE) {
                             _exportedSteps[type] = decl
+                            addStep(externalSteps, decl)
                         }
                     }
                 }
@@ -170,6 +176,10 @@ open class LibraryInstruction(stepConfig: InstructionConfiguration): XProcInstru
             when (child) {
                 is DeclareStepInstruction -> {
                     child.findDeclarations(newStepTypes, emptyMap(), newBindings)
+                    addStep(internalSteps, child)
+                    if (child.visibility != Visibility.PRIVATE) {
+                        addStep(externalSteps, child)
+                    }
                 }
                 is OptionInstruction -> {
                     child.findDeclarations(newStepTypes, emptyMap(), newBindings)
@@ -182,6 +192,22 @@ open class LibraryInstruction(stepConfig: InstructionConfiguration): XProcInstru
                 }
                 else -> throw stepConfig.exception(XProcError.xsInvalidElement(child.instructionType))
             }
+        }
+
+        for (child in children.filterIsInstance<DeclareStepInstruction>()) {
+            for (decl in internalSteps) {
+                child.stepConfig.saxonConfig.declareFunction(decl)
+            }
+        }
+
+        for (decl in externalSteps) {
+            stepConfig.saxonConfig.declareFunction(decl)
+        }
+    }
+
+    private fun addStep(list: MutableList<DeclareStepInstruction>, step: DeclareStepInstruction) {
+        if (step.type != null && step.type!!.namespaceUri != NsP.namespace && step.type!!.namespaceUri != NsCx.namespace) {
+            list.add(step)
         }
     }
 

@@ -1,6 +1,7 @@
 package com.xmlcalabash.datamodel
 
 import com.xmlcalabash.exceptions.XProcError
+import com.xmlcalabash.functions.PipelineFunction
 import com.xmlcalabash.io.MediaType
 import com.xmlcalabash.namespace.NsCx
 import com.xmlcalabash.namespace.NsP
@@ -30,6 +31,7 @@ class DeclareStepInstruction(parent: XProcInstruction?, stepConfig: InstructionC
     override val contentModel = anySteps + mapOf(NsP.input to '*', NsP.output to '*', NsP.declareStep to '*', NsP.option to '*')
     internal val declaredSteps = mutableListOf<DeclareStepInstruction>()
     internal val assertions = mutableMapOf<String, XdmNode>()
+    internal var function: PipelineFunction? = null
 
     override var psviRequired: Boolean? = null
         set(value) {
@@ -296,12 +298,12 @@ class DeclareStepInstruction(parent: XProcInstruction?, stepConfig: InstructionC
             when (import) {
                 is DeclareStepInstruction -> {
                     import.validate()
-                    registerPipelineFunction(import)
+                    stepConfig.saxonConfig.declareFunction(import)
                 }
                 is LibraryInstruction -> {
                     import.validate()
                     for ((_, decl) in import.exportedSteps) {
-                        registerPipelineFunction(decl)
+                        stepConfig.saxonConfig.declareFunction(decl)
                     }
                 }
                 else -> throw stepConfig.exception(XProcError.xiImpossible("Import not a library or declared step?"))
@@ -313,7 +315,7 @@ class DeclareStepInstruction(parent: XProcInstruction?, stepConfig: InstructionC
             if (child is DeclareStepInstruction) {
                 child.elaborateInstructions()
                 declaredSteps.add(child)
-                registerPipelineFunction(child)
+                stepConfig.saxonConfig.declareFunction(child)
             } else {
                 // Elaborate static options early so that they're available in nested declare steps
                 if (child is OptionInstruction && child.static) {
@@ -325,7 +327,7 @@ class DeclareStepInstruction(parent: XProcInstruction?, stepConfig: InstructionC
         }
 
         // For recursive use...
-        registerPipelineFunction(this)
+        stepConfig.saxonConfig.declareFunction(this)
 
         _children.clear()
         _children.addAll(newChildren)
@@ -333,12 +335,6 @@ class DeclareStepInstruction(parent: XProcInstruction?, stepConfig: InstructionC
         super.elaborateInstructions()
 
         open = false
-    }
-
-    private fun registerPipelineFunction(decl: DeclareStepInstruction) {
-        if (decl.type != null) {
-            stepConfig.saxonConfig.declareFunction(decl)
-        }
     }
 
     private var validated = false
