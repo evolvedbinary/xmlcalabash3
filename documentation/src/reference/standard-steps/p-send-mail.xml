@@ -1,4 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?><refentry xmlns="http://docbook.org/ns/docbook" xmlns:p="http://www.w3.org/ns/xproc" xml:id="p-send-mail">
+<?xml version="1.0" encoding="utf-8"?>
+<refentry xmlns="http://docbook.org/ns/docbook"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          xmlns:p="http://www.w3.org/ns/xproc"
+          xml:id="p-send-mail">
 <?db filename="p-send-mail"?>
 <info>
   <bibliomisc role="version">3.1</bibliomisc>
@@ -50,7 +54,126 @@
 </refsynopsisdiv>
 
 <refsection>
-  <title>Description</title>
-  <para role="external-refs"/>
+<title>Description</title>
+<para role="external-refs"/>
+
+<para>The XML Calabash implementation of <tag>p:send-mail</tag> relies on the
+<code xlink:href="https://docs.oracle.com/javaee/7/api/javax/mail/package-summary.html">javax.mail</code>
+package to send mail. The <code>javax.mail</code> package is configured with a set of 
+properties. There are two ways to configure the properties: with
+<link xlink:href="https://docs.xmlcalabash.com/userguide/current/configuration.html#cc.send-mail"
+>cc:send-mail</link> in a configuration file and with the 
+<option>parameters</option> option. If an option is specified in both places, the
+value from the <option>parameters</option> option is used.
+(The <code>send-authentication</code> property is true by default if a username or password
+is provided in the <option>auth</option> parameter and false otherwise).</para>
+
+<para>The following mappings apply:</para>
+
+<informaltable>
+<tgroup cols="2">
+<thead>
+<row>
+  <entry><tag>p:send-mail</tag> configuration</entry>
+  <entry><code>javax.mail</code> configuration</entry>
+</row>
+</thead>
+<tbody>
+<row>
+  <entry><code>host</code></entry>
+  <entry><code>mail.smtp.host</code></entry>
+</row>
+<row>
+  <entry><code>port</code></entry>
+  <entry><code>mail.smtp.port</code></entry>
+</row>
+<row>
+  <entry><code>send-authentication</code></entry>
+  <entry><code>mail.smtp.auth</code></entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+
+<para>In addition, if the <code>debug</code> property is <code>true</code>, <code>javax.mail</code>
+session debugging is enabled.</para>
+
+<para>Any other configuration name/value pairs are passed through unchanged.</para>
+
+<para>The following configuration, for example, will send mail using GMail’s SMTP server
+(in September, 2025; GMail authentication may change over time):</para>
+
+<informaltable>
+<tgroup cols="2">
+<thead>
+<row>
+  <entry><tag>p:send-mail</tag> configuration</entry>
+  <entry>Value</entry>
+</row>
+</thead>
+<tbody>
+<row>
+  <entry><code>host</code></entry>
+  <entry><code>smtp.gmail.com</code></entry>
+</row>
+<row>
+  <entry><code>port</code></entry>
+  <entry><code>465</code></entry>
+</row>
+<row>
+  <entry><code>send-authentication</code></entry>
+  <entry><code>true</code></entry>
+</row>
+<row>
+  <entry><code>mail.smtp.socketFactory.port</code></entry>
+  <entry><code>465</code></entry>
+</row>
+<row>
+  <entry><code>mail.smtp.socketFactory.class</code></entry>
+  <entry><code>javax.net.ssl.SSLSocketFactory</code></entry>
+</row>
+<row>
+  <entry><code>mail.smtp.fallback</code></entry>
+  <entry><code>false</code></entry>
+</row>
+<row>
+  <entry><code>mail.smtp.starttls.enable</code></entry>
+  <entry><code>true</code></entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+
+<para>You must use your full GMail address as the <code>username</code> and an
+application-specific password as the <code>password</code>.</para>
+
+<para>You might arrange for this configuration by specifying a <tag>cc:send-mail</tag>
+element in your configuration:</para>
+
+<programlisting language="xml"><![CDATA[<cc:send-mail host='smtp.gmail.com' port='465'
+              mail.smtp.socketFactory.port='465'
+              mail.smtp.socketFactory.class='javax.net.ssl.SSLSocketFactory'
+              mail.smtp.socketFactory.fallback='false'
+              mail.smtp.starttls.enable='true'/>]]></programlisting>
+
+<para>And then calling <tag>p:send-mail</tag> with only the <option>auth</option> option
+specifying the username and password. Or, conversely, by passing all the values in the
+<option>parameters</option> option:</para>
+
+<programlisting language="xml"><![CDATA[<p:send-mail
+    parameters="map{'host': 'smtp.gmail.com', 'port': '465',
+                    'mail.smtp.socketFactory.port': '465',
+                    'mail.smtp.socketFactory.class': 'javax.net.ssl.SSLSocketFactory',
+                    'mail.smtp.socketFactory.fallback': 'false',
+                    'mail.smtp.starttls.enable': 'true'}"
+             auth="map{'username':'myusername@gmail.com',
+                       'password':'my-secret-app-password'}">
+  <p:with-input>
+    …
+  </p:with-input>
+</p:send-mail>]]></programlisting>
+
+<para>Or any combination of the two that suits you.</para>
+
 </refsection>
 </refentry>

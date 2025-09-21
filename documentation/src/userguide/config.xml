@@ -382,6 +382,15 @@ exist will throw an exception. Boolean valued properties must have the value
 <rng-pattern schema="../../build/xml-calabash.rng"
              name="cc.sendMail"/>
 
+<para>This element can be used to specify any properties for the
+<tag>p:send-mail</tag> step. These values are the defaults, they will be overridden by
+properties of the same name passed as <option>parameters</option> to the step.</para>
+
+<para>Only attributes that are not in a namespace are passed through as properties.
+Any other attributes are ignored.</para>
+
+<para>For backwards compatibility, the following four names are special:</para>
+
 <variablelist>
 <varlistentry><term><tag class="attribute">host</tag> (string)</term>
 <listitem>
