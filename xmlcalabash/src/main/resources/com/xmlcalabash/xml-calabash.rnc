@@ -126,10 +126,7 @@ cc.pagedMedia =
 
 cc.sendMail =
     element cc:send-mail {
-        attribute host { text },
-        attribute port { xsd:integer }?,
-        attribute username { text }?,
-        attribute password { text }?,
+        attribute * { text }*,
         empty
     }
 

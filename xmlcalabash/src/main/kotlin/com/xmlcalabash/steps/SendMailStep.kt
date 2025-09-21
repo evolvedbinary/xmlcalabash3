@@ -42,6 +42,10 @@ class SendMailStep(): AbstractAtomicStep() {
         val _port = QName("port")
         val _username = QName("username")
         val _password = QName("password")
+        val _send_authentication = QName("send-authentication")
+        val mail_smtp_host = "mail.smtp.host"
+        val mail_smtp_port = "mail.smtp.port"
+        val mail_smtp_auth = "mail.smtp.auth"
     }
 
     private lateinit var sendmail: Map<String,String>
@@ -60,10 +64,22 @@ class SendMailStep(): AbstractAtomicStep() {
     override fun run() {
         super.run()
 
+        // The spec says that 'username' and 'password' come from auth and
+        // 'host', 'port', and 'send-authorization' come from parameters
+        //
+        // javax.mail accepts a whole bunch of properties when the instance
+        // is created...
+        //
+        // Plan:
+        //
+        // configuration parameters -> properties
+        // -> host -> mail.smtp.host
+        // -> port -> mail.smtp.port
+
         sources.addAll(queues["source"]!!)
         val parameters = qnameMapBinding(Ns.parameters)
         serialization = qnameMapBinding(Ns.serialization)
-        auth = qnameMapBinding(Ns.serialization)
+        auth = qnameMapBinding(Ns.auth)
 
         val mainMessage = sources.removeFirst()
         val email = if (mainMessage.value is XdmNode) {
@@ -76,13 +92,36 @@ class SendMailStep(): AbstractAtomicStep() {
             throw stepConfig.exception(XProcError.step(161, "p:send-mail source is not an em:Message"))
         }
 
-        setProperty("mail.smtp.host", parameters[_host]?.underlyingValue?.stringValue ?: sendmail["host"])
-        setProperty("mail.smtp.port", parameters[_port]?.underlyingValue?.stringValue ?: sendmail["port"])
-        if (sendmail["username"] != null) {
-            properties["mail.smtp.auth"] = "true"
+        properties.clear()
+        for ((name, value) in sendmail) {
+            if (name !in listOf("username", "password", "send-authorization", "host", "port")) {
+                setProperty(name, value)
+            }
         }
-        if (auth[_username] != null) {
-            properties["mail.smtp.auth"] = "true"
+
+        for ((name, value) in parameters) {
+            if (name.namespaceUri == NamespaceUri.NULL) {
+                if (name.localName !in listOf("username", "password", "send-authorization", "host", "port")) {
+                    setProperty(name.localName, value.underlyingValue.stringValue)
+                }
+            }
+        }
+
+        sendmail["host"]?.let { setProperty(mail_smtp_host, it) }
+        parameters[_host]?.let { setProperty(mail_smtp_host, it.underlyingValue.stringValue) }
+
+        sendmail["port"]?.let { setProperty(mail_smtp_port, it) }
+        parameters[_port]?.let { setProperty(mail_smtp_port, it.underlyingValue.stringValue) }
+
+        if ("username" in sendmail || _username in auth) {
+            setProperty(mail_smtp_auth, "true")
+        }
+
+        if (_send_authentication in auth) {
+            val send = auth[_send_authentication]!!
+            if (send.underlyingValue.stringValue == "false") {
+                setProperty(mail_smtp_auth, "false")
+            }
         }
 
         var mp: MimeMultipart? = null

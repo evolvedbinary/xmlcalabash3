@@ -285,12 +285,9 @@ class ConfigurationLoader(val builder: XmlCalabashBuilder) {
     }
 
     private fun parseSendmail(node: XdmNode) {
-        checkAttributes(node, listOf(_host), listOf(_port, _username, _password))
-
-        for (attr in listOf(_host, _port, _username, _password)) {
-            val value = node.getAttributeValue(attr)
-            if (value != null) {
-                builder.addSendmailProperty(attr.localName, value)
+        for (attr in node.axisIterator(Axis.ATTRIBUTE)) {
+            if (attr.nodeName.namespaceUri == NamespaceUri.NULL) {
+                builder.addSendmailProperty(attr.nodeName.localName, attr.underlyingNode.stringValue)
             }
         }
     }
