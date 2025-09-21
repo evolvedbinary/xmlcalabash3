@@ -13,6 +13,27 @@ See the commits and pull requests on
 finer detail.</para>
 
 <revhistory>
+<revision xml:id="r3018">
+<revnumber>3.0.18</revnumber>
+<date>2025-09-21</date>
+<revdescription>
+<itemizedlist>
+<listitem><para>Fixed <cbissue number="242"/>. Corrected a couple of bugs in
+<tag>p:send-mail</tag>. Generalized the properties that can be set with
+<tag>cc:send-mail</tag>. Improved the documentation and specifically included an
+example of how to send mail with a modern TLS-enabled system.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="239"/>. Support for
+<link linkend="pipelineception">pipeline functions</link> failed to consider the
+possibility that a step might have no inputs, outputs, or options.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="238"/>. Several bugs related to the scope of
+<link linkend="pipelineception">pipeline functions</link> have been fixed. New tests
+have been added.
+</para></listitem>
+</itemizedlist>
+</revdescription>
+</revision>
 <revision xml:id="r3017">
 <revnumber>3.0.17</revnumber>
 <date>2025-09-15</date>
