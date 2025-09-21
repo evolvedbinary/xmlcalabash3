@@ -16,7 +16,9 @@
     </t:revision-history>
   </t:info>
   <t:description xmlns="http://www.w3.org/1999/xhtml">
-    <p>Test that a pipeline with no outputs works.</p>
+    <p>Test that a pipeline function imported from a library is available
+    in the Saxon configuration of steps <em>declared</em> within the
+    pipeline that imports the library.</p>
   </t:description>
   <t:pipeline>
 <p:declare-step xmlns:p="http://www.w3.org/ns/xproc"

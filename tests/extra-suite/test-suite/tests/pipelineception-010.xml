@@ -16,7 +16,9 @@
     </t:revision-history>
   </t:info>
   <t:description xmlns="http://www.w3.org/1999/xhtml">
-    <p>Test that a pipeline with no outputs works.</p>
+    <p>Test that a step declared in a library is accessible as a function even if the
+    implementation uses a pipeline function that’s from a step that’s private
+    to the library.</p>
   </t:description>
   <t:pipeline>
 <p:declare-step xmlns:p="http://www.w3.org/ns/xproc"
