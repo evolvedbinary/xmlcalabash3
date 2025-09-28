@@ -1346,8 +1346,12 @@ XC0204
 Unsupported content type: “$1”.
 It is a dynamic error if the requested content-type is not supported.
 
-XC0205
+XC0205/1
 Input cannot be parsed with grammar.
+It is a dynamic error if the source document cannot be parsed by the provided grammar.
+
+XC0205/2
+Input cannot be parsed with grammar. Failed parse: $1
 It is a dynamic error if the source document cannot be parsed by the provided grammar.
 
 XC0206/1
@@ -1395,8 +1399,16 @@ XC0211
 At most one grammar can be provided to p:ixml.
 It is a dynamic error if more than one document appears on the grammar port.
 
-XC0212
+XC0212/1
 Invalid Invisible XML grammar.
+It is a dynamic error if the grammar provided is not a valid Invisible XML grammar.
+
+XC0212/2
+Invalid Invisible XML grammar. Failed parse: $1
+It is a dynamic error if the grammar provided is not a valid Invisible XML grammar.
+
+XC0212/3
+Invalid Invisible XML grammar: $1
 It is a dynamic error if the grammar provided is not a valid Invisible XML grammar.
 
 cxerr:XC0001

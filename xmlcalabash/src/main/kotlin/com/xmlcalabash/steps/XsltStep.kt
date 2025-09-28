@@ -521,7 +521,7 @@ open class XsltStep(): AbstractAtomicStep() {
                 serprop = serprop.put(XdmAtomicValue(name), value)
             }
         }
-        if (characterMap != null && !characterMap.isEmpty()) {
+        if (characterMap != null && !characterMap.isEmptyMap()) {
             serprop = serprop.put(XdmAtomicValue(Ns.useCharacterMaps), characterMap)
         }
         return serprop

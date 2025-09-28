@@ -42,15 +42,17 @@ class InvisibleXmlNineML(stepConfig: XProcStepConfiguration): InvisibleXmlImpl(s
 
     private fun runParser(parser: InvisibleXmlParser, input: String, failOnError: Boolean, parameters: Map<QName, XdmValue>): XProcDocument {
         val doc = parser.parse(input)
-        if (!doc.succeeded() && failOnError) {
-            throw stepConfig.exception(XProcError.xcInvisibleXmlParseFailed())
-        }
 
         val builder = stepConfig.processor.newDocumentBuilder()
         builder.isLineNumbering = true
         val bch = builder.newBuildingContentHandler()
         doc.getTree(bch)
         val tree = bch.documentNode
+
+        if (!doc.succeeded() && failOnError) {
+            throw stepConfig.exception(XProcError.xcInvisibleXmlParseFailed(tree))
+        }
+
         return XProcDocument.ofXml(tree, stepConfig)
     }
 

@@ -5,16 +5,11 @@ import com.xmlcalabash.datamodel.Location
 import com.xmlcalabash.documents.XProcBinaryDocument
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.io.DocumentWriter
-import com.xmlcalabash.io.MessagePrinter
 import com.xmlcalabash.namespace.Ns
 import com.xmlcalabash.namespace.NsCx
 import com.xmlcalabash.namespace.NsErr
 import com.xmlcalabash.namespace.NsXvrl
-import com.xmlcalabash.util.InternalDocumentResolver
-import com.xmlcalabash.util.MediaClassification
-import com.xmlcalabash.util.Report
-import com.xmlcalabash.util.S9Api
-import com.xmlcalabash.util.Verbosity
+import com.xmlcalabash.util.*
 import net.sf.saxon.s9api.*
 import org.xml.sax.InputSource
 import java.io.BufferedReader
@@ -192,10 +187,23 @@ class DefaultErrorExplanation(val reporter: MessageReporter): ErrorExplanation {
                     if (index > 0) {
                         sb.append(", ")
                     }
-                    sb.append(any[index].toString())
+                    sb.append(stringify(any[index]!!))
                 }
                 sb.append("]")
                 return sb.toString()
+            }
+            is XdmNode -> {
+                if (any.nodeKind == XdmNodeKind.ELEMENT || any.nodeKind == XdmNodeKind.DOCUMENT) {
+                    val baos = ByteArrayOutputStream()
+                    val serializer = any.processor.newSerializer(baos)
+                    serializer.setOutputProperty(Serializer.Property.METHOD, "xml")
+                    serializer.setOutputProperty(Serializer.Property.OMIT_XML_DECLARATION, "yes")
+                    serializer.setOutputProperty(Serializer.Property.INDENT, "yes")
+                    serializer.serializeNode(any)
+                    return "\n${baos.toString(StandardCharsets.UTF_8)}"
+                } else {
+                    return any.toString()
+                }
             }
             else -> return any.toString()
         }
