@@ -13,6 +13,28 @@ See the commits and pull requests on
 finer detail.</para>
 
 <revhistory>
+<revision xml:id="r3019">
+<revnumber>3.0.19</revnumber>
+<date>2025-09-28</date>
+<revdescription>
+<itemizedlist>
+<listitem><para>Fixed <cbissue number="249"/>. The command line mechanism
+for setting the content type of a source document only worked for
+<literal>stdin</literal>.</para>
+</listitem>
+<listitem><para>Fixed <cbissue number="248"/>. Improved error messages associated
+with unsuccessful attempts to parse with <tag>p:invisible-xml</tag>. The error
+message now includes the failed parse, if there is one.
+</para>
+</listitem>
+<listitem><para>Fixed <cbissue number="247"/>. Remove non-static options from
+the set of in-scope variables when a <tag>p:declare-step</tag> is nested inside
+another step declaration.
+</para>
+</listitem>
+</itemizedlist>
+</revdescription>
+</revision>
 <revision xml:id="r3018">
 <revnumber>3.0.18</revnumber>
 <date>2025-09-21</date>

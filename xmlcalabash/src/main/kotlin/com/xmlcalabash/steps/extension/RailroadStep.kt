@@ -362,7 +362,7 @@ class RailroadStep(): AbstractAtomicStep() {
                 val anchor = iter.next()
                 refs = refs.addMember(XdmAtomicValue(anchor.underlyingValue.stringValue))
             }
-            if (!refs.isEmpty) {
+            if (!refs.isEmptySequence) {
                 properties["referenced-by"] = refs
             }
         }
