@@ -78,6 +78,18 @@ class InstructionConfiguration(saxonConfig: SaxonConfiguration,
         _staticBindings[name] = value
     }
 
+    fun clearNonStaticBindings() {
+        val staticVariables = mutableMapOf<QName, VariableBindingContainer>()
+        for ((name, binding) in _inscopeVariables) {
+            if (binding is OptionInstruction && binding.static) {
+                staticVariables[name] = binding
+            }
+        }
+
+        _inscopeVariables.clear()
+        _inscopeVariables.putAll(staticVariables)
+    }
+
     override fun with(prefix: String, uri: NamespaceUri): InstructionConfiguration {
         val ccontext = context.with(prefix, uri)
         return copy(saxonConfig, ccontext)

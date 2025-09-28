@@ -26,6 +26,11 @@ class DeclareStepInstruction(parent: XProcInstruction?, stepConfig: InstructionC
         this.type = type
     }
 
+    init {
+        // Declared steps always begin with an empty set of in-scope variables
+        this.stepConfig.clearNonStaticBindings()
+    }
+
     private var standardStep = false
     private var compiled = false
     override val contentModel = anySteps + mapOf(NsP.input to '*', NsP.output to '*', NsP.declareStep to '*', NsP.option to '*')
