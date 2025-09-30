@@ -61,8 +61,8 @@ open class ValidateWithRelaxNG(): AbstractAtomicStep() {
         val listener = CachingErrorListener(stepConfig, report)
         val properties = PropertyMapBuilder()
         properties.put(ValidateProperty.ERROR_HANDLER, listener)
-        //properties.put(ValidateProperty.URI_RESOLVER, ...)
-        //properties.put(ValidateProperty.ENTITY_RESOLVER, ...)
+        properties.put(ValidateProperty.URI_RESOLVER, stepConfig.documentManager.resolver.uriResolver)
+        properties.put(ValidateProperty.ENTITY_RESOLVER, stepConfig.documentManager.resolver.entityResolver2)
 
         if (dtdIdIdRefWarnings) {
             RngProperty.CHECK_ID_IDREF.add(properties)
@@ -82,24 +82,22 @@ open class ValidateWithRelaxNG(): AbstractAtomicStep() {
             schemaInputSource = S9Api.xdmToInputSource(stepConfig, schema)
         }
 
-        var except: XProcError? = null
-        var errors: XdmNode? = null
         val driver = ValidationDriver(properties.toPropertyMap(), sr)
 
         val loaded = try {
             driver.loadSchema(schemaInputSource)
         } catch (ex: Exception) {
-            if (document.baseURI == null) {
+            if (schema.baseURI == null) {
                 throw stepConfig.exception(XProcError.xcNotRelaxNG("Error loading schema"), ex)
             }
-            throw stepConfig.exception(XProcError.xcNotRelaxNG(document.baseURI!!, "Error loading schema"), ex)
+            throw stepConfig.exception(XProcError.xcNotRelaxNG(schema.baseURI!!, "Error loading schema"), ex)
         }
 
         if (!loaded) {
-            if (document.baseURI == null) {
+            if (schema.baseURI == null) {
                 throw stepConfig.exception(XProcError.xcNotRelaxNG("Error loading schema"))
             }
-            throw stepConfig.exception(XProcError.xcNotRelaxNG(document.baseURI!!, "Error loading schema"))
+            throw stepConfig.exception(XProcError.xcNotRelaxNG(schema.baseURI!!, "Error loading schema"))
         }
 
         val din = S9Api.xdmToInputSource(stepConfig, document)
