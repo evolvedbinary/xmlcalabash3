@@ -7,6 +7,7 @@ import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.io.DocumentLoader
 import com.xmlcalabash.namespace.Ns
 import com.xmlcalabash.namespace.NsCx
+import com.xmlcalabash.namespace.NsXml
 import net.sf.saxon.event.ReceivingContentHandler
 import net.sf.saxon.s9api.QName
 import net.sf.saxon.s9api.XdmAtomicValue
@@ -536,6 +537,10 @@ class Xmlnt(val stepConfig: StepConfiguration, val preserveEntities: Boolean, pu
         }
 
         private fun binding(prefix: String): String {
+            if (prefix == "xml") {
+                return NsXml.namespace.toString()
+            }
+
             var depth = elementStack.size - 1
             while (depth >= 0) {
                 val element = elementStack[depth]
