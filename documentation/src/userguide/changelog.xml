@@ -13,6 +13,23 @@ See the commits and pull requests on
 finer detail.</para>
 
 <revhistory>
+<revision xml:id="r3020">
+<revnumber>3.0.20</revnumber>
+<date>2025-10-05</date>
+<revdescription>
+<itemizedlist>
+<listitem><para>Fixed <cbissue number="258"/>. The <link linkend="xmlnt">XMLn’t parser</link>
+wasn’t recognizing the built-in <code>xml:</code> prefix.
+</para>
+</listitem>
+<listitem><para>Fixed <cbissue number="255"/>. The <tag>p:validate-with-relax-ng</tag>
+step was failing to use the catalog resolver. It was also using the wrong URI (the document
+URI instead of the schema URI) in error messages about schema problems.
+</para>
+</listitem>
+</itemizedlist>
+</revdescription>
+</revision>
 <revision xml:id="r3019">
 <revnumber>3.0.19</revnumber>
 <date>2025-09-28</date>
