@@ -3,6 +3,7 @@ package com.xmlcalabash.app
 import com.xmlcalabash.XmlCalabash
 import com.xmlcalabash.XmlCalabashBuildConfig
 import com.xmlcalabash.XmlCalabashBuilder
+import com.xmlcalabash.api.MessageReporter
 import com.xmlcalabash.config.ConfigurationLoader
 import com.xmlcalabash.datamodel.*
 import com.xmlcalabash.documents.DocumentProperties
@@ -52,6 +53,7 @@ class XmlCalabashCli private constructor() {
     private lateinit var xmlCalabash: XmlCalabash
     private lateinit var commandLine: CommandLine
     private lateinit var cliPrinter: MessagePrinter
+    private lateinit var cliReporter: MessageReporter
     private lateinit var cliExplain: ErrorExplanation
     private lateinit var stepConfig: InstructionConfiguration
     private val serializationParameters = mutableMapOf<String, MutableMap<QName, XdmAtomicValue>>()
@@ -60,7 +62,7 @@ class XmlCalabashCli private constructor() {
     private fun run(args: Array<out String>) {
         builder = XmlCalabashBuilder()
         cliPrinter = DefaultMessagePrinter()
-        val cliReporter = DefaultMessageReporter(LoggingMessageReporter())
+        cliReporter = DefaultMessageReporter(LoggingMessageReporter())
         cliReporter.setMessagePrinter(cliPrinter)
         cliExplain = DefaultErrorExplanation(cliReporter)
 
@@ -149,9 +151,9 @@ class XmlCalabashCli private constructor() {
             val moon = Moon.illumination()
             if (moon > builder.mpt) {
                 if (moon > 0.99) {
-                    logger.warn { "The moon is full." }
+                    warn { "The moon is full." }
                 } else {
-                    logger.warn { "The moon is ${"%3.1f".format(moon * 100.0)}% full." }
+                    warn { "The moon is ${"%3.1f".format(moon * 100.0)}% full." }
                 }
             }
 
@@ -248,7 +250,7 @@ class XmlCalabashCli private constructor() {
                 val description = pipeline.runtime.description()
                 val vis = VisualizerOutput(xmlCalabash, description, commandLine.pipelineGraphs!!)
                 if (xmlCalabash.config.graphviz == null) {
-                    logger.warn { "Cannot create SVG, graphviz is not configured"}
+                    warn { "Cannot create SVG, graphviz is not configured"}
                     vis.xml()
                 } else {
                     vis.svg()
@@ -392,6 +394,10 @@ class XmlCalabashCli private constructor() {
         }
 
         stepConfig.debug { "Elapsed time: ${(tend - tstart) / 1e9}s" }
+    }
+
+    private fun warn(message: () -> String) {
+        cliReporter.warn { Report(Verbosity.WARN, message(), Location.NULL) }
     }
 
     private fun implicitContentType(types: List<MediaType>?): MediaType {
