@@ -50,7 +50,7 @@ object ExternalDependencies {
 
         "ebnf-convert" to listOf("de.bottlecaps.ebnf-convert:ebnf-convert-lib:0.72"),
 
-        "epubcheck" to listOf("org.w3c:epubcheck:5.2.1",
+        "epubcheck" to listOf("org.w3c:epubcheck:5.3.0",
             "javax.activation:activation:1.1.1"),
 
         "find" to listOf("com.jayway.jsonpath:json-path:2.9.0",
