@@ -46,9 +46,12 @@ class OsInfo(): AbstractAtomicStep() {
         for ((pname, pvalue) in System.getProperties()) {
             val name = pname.toString()
             val value = pvalue.toString()
+
             if (mapping.contains(name)) {
                 attr[QName(mapping[name])] = value
-            } else if (!onlyStandardProperties) {
+            }
+
+            if (!onlyStandardProperties) {
                 val qname = QName(NsCx.namespace, "cx:${name.replace(".", "-")}")
                 attr[qname] = value
             }
