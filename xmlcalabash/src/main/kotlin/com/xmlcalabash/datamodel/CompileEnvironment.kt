@@ -110,7 +110,7 @@ open class CompileEnvironment(override val episode: String, override val xmlCala
     override val monitors: MutableList<Monitor> = mutableListOf()
     override val documentManager: DocumentManager = xmlCalabash.config.documentManager
     override val errorExplanation: ErrorExplanation = xmlCalabash.config.errorExplanation
-    override val proxies: Map<String, String> = emptyMap()
+    override val proxies: Map<String, String> = xmlCalabash.config.proxies.toMap()
     override val assertions: AssertionsLevel = xmlCalabash.config.assertions
 
     private val stepManagers = mutableListOf<AtomicStepManager>()

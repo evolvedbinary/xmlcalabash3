@@ -29,6 +29,7 @@ import org.apache.hc.core5.http.io.HttpClientResponseHandler
 import org.apache.hc.core5.http.io.entity.ByteArrayEntity
 import org.apache.hc.core5.http.io.support.ClassicRequestBuilder
 import org.apache.hc.core5.util.TimeValue
+import org.apache.logging.log4j.kotlin.logger
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.net.SocketTimeoutException
@@ -153,7 +154,10 @@ class InternetProtocolRequest(val stepConfig: StepConfiguration, val uri: URI) {
         builder.setRetryStrategy(DefaultHttpRequestRetryStrategy(3, TimeValue.ofSeconds(1)))
 
         if (stepConfig.environment.proxies[uri.scheme] != null) {
+            logger.debug { "Setting up proxy for ${uri.scheme}: ${stepConfig.environment.proxies[uri.scheme]}" }
             builder.setProxy(HttpHost.create(stepConfig.environment.proxies[uri.scheme]))
+        } else {
+            logger.debug { "No proxy configured for ${uri.scheme}" }
         }
 
         // Hack for debugging with Charles proxy
