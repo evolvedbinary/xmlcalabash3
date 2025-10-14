@@ -141,7 +141,7 @@ class XProcPipeline internal constructor(val runtime: XProcRuntime, pipeline: Co
 
             val trace = config.xmlCalabashConfig.trace
             if (trace != null && traceListener != null) {
-                trace.parentFile.mkdirs()
+                trace.absoluteFile.parentFile?.mkdirs()
                 val doc = XProcDocument.ofXml(traceListener!!.summary(config), config)
                 val fos = FileOutputStream(trace)
                 val writer = DocumentWriter(doc, fos)
