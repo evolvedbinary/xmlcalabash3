@@ -1,16 +1,23 @@
 package com.xmlcalabash.steps.pagedmedia.fop
 
 import com.xmlcalabash.api.FoProcessor
+import com.xmlcalabash.api.MessageReporter
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.io.MediaType
 import com.xmlcalabash.runtime.XProcStepConfiguration
+import com.xmlcalabash.util.Report
 import com.xmlcalabash.util.S9Api
+import com.xmlcalabash.util.Verbosity
 import net.sf.saxon.s9api.QName
 import net.sf.saxon.s9api.XdmValue
 import org.apache.fop.apps.FopFactory
 import org.apache.fop.apps.FopFactoryBuilder
 import org.apache.fop.configuration.DefaultConfigurationBuilder
+import org.apache.fop.events.Event
+import org.apache.fop.events.EventFormatter
+import org.apache.fop.events.EventListener
+import org.apache.fop.events.model.EventSeverity
 import org.apache.logging.log4j.kotlin.logger
 import java.io.File
 import java.io.OutputStream
@@ -96,23 +103,46 @@ class FoFop(): FoProcessor {
         return "Apache FOP"
     }
 
-    override fun initialize(stepConfig: XProcStepConfiguration, baseURI: URI, options: Map<QName, XdmValue>) {
-        this.stepConfig = stepConfig
+    override fun initialize(context: XProcStepConfiguration, baseURI: URI, options: Map<QName, XdmValue>) {
+        this.stepConfig = context
         this.options = options
+
+        // Our base URI is the base URI of the document. But FOP stupidly doesn't resolve
+        // against that URI, it just assumes it'll end in '/' and that it can concatenate
+        // things on to it. #headdesk
+        // We have to mangle the base URI into the string that FOP can use for concatenation.
+        val fopBaseUri = if (baseURI.isAbsolute && baseURI.scheme in listOf("http", "https", "file", "ftp")) {
+            // Maybe other schemes would also work, maybe it isn't absolutely necessary that
+            // the URI is absolute. But I think it always will be. We're just working around a bug in FOP so
+            // my patience may be running a bit thin here.
+            if (baseURI.path.endsWith('/') || !baseURI.path.contains('/')) {
+                baseURI
+            } else {
+                var uristr = baseURI.toString()
+                val pos = uristr.lastIndexOf('/')
+                uristr = uristr.substring(0, pos+1)
+                if (baseURI.query != null) {
+                    uristr += "?${baseURI.query}"
+                }
+                URI(uristr)
+            }
+        } else {
+            baseURI
+        }
 
         // Only FOP 2.x is supported
         val userConfig = options[_UserConfig]?.underlyingValue?.stringValue ?: defaultStringOptions[_UserConfig]
         val fopBuilder = if (userConfig != null) {
             val cfgBuilder = DefaultConfigurationBuilder()
             val cfg = cfgBuilder.buildFromFile(File(userConfig))
-            FopFactoryBuilder(baseURI).setConfiguration(cfg)
+            FopFactoryBuilder(fopBaseUri).setConfiguration(cfg)
         } else {
-            FopFactoryBuilder(baseURI)
+            FopFactoryBuilder(fopBaseUri)
         }
 
         for (key in options.keys) {
             if (key != _CreationDate && key !in stringOptions && key !in floatOptions && key !in booleanOptions) {
-                stepConfig.warn { "Unsupported FOP property: ${key}" }
+                context.warn { "Unsupported FOP property: ${key}" }
             }
         }
 
@@ -166,9 +196,12 @@ class FoFop(): FoProcessor {
         }
 
         val fodoc = S9Api.xdmToInputSource(stepConfig, document)
+        fodoc.systemId = document.baseURI.toString()
         val source = SAXSource(fodoc)
 
         val userAgent = fopFactory.newFOUserAgent()
+
+        userAgent.eventBroadcaster.addEventListener(FopEventListener(stepConfig.messageReporter))
 
         for (key in stringOptions) {
             val value = options[key]?.underlyingValue?.stringValue ?: defaultStringOptions[key]
@@ -219,4 +252,28 @@ class FoFop(): FoProcessor {
         val transformer = transformerFactory.newTransformer()
         transformer.transform(source, SAXResult(defHandler))
     }
+
+    private class FopEventListener(val reporter: MessageReporter): EventListener {
+        override fun processEvent(event: Event?) {
+            if (event == null) {
+                // I assume this never actually happens...
+                return
+            }
+
+            val message = EventFormatter.format(event);
+            when (event.severity) {
+                EventSeverity.FATAL, EventSeverity.ERROR -> {
+                    reporter.error { Report(Verbosity.ERROR, message) }
+                }
+                EventSeverity.WARN -> {
+                    reporter.warn { Report(Verbosity.WARN, message) }
+                }
+                EventSeverity.INFO -> {
+                    // One man's info is another man's debug...
+                    reporter.debug { Report(Verbosity.DEBUG, message) }
+                }
+            }
+        }
+    }
+
 }
