@@ -165,7 +165,7 @@ class XmlCalabashCli private constructor() {
 
             logVersion()
 
-            if (commandLine.help || (commandLine.command == "run" && commandLine.pipeline == null && commandLine.step == null)) {
+            if (commandLine.help || (commandLine.command == "run" && commandLine.pipelineUri == null && commandLine.step == null)) {
                 help()
                 return
             }
@@ -201,8 +201,8 @@ class XmlCalabashCli private constructor() {
             evaluateOptions(xprocParser.builder, commandLine)
 
             val compStart = System.nanoTime()
-            val declstep = if (commandLine.pipeline != null) {
-                xprocParser.parse(commandLine.pipeline!!.toURI(), commandLine.step)
+            val declstep = if (commandLine.pipelineUri != null) {
+                xprocParser.parse(commandLine.pipelineUri!!, commandLine.step)
             } else {
                 val type = stepConfig.typeUtils.parseQName(commandLine.step!!, commandLine.namespaces)
                 constructWrapper(type)

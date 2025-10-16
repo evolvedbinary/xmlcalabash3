@@ -507,6 +507,7 @@ open class XProcError protected constructor(val code: QName, val variant: Int, v
         fun xiCliDuplicateNamespace(prefix: String) = internal(214, prefix)
         fun xiMergeDuplicatesError(name: String) = internal(215, name)
         fun xiNotALibrary(uri: URI) = internal(216, uri)
+        fun xiFileOnOtherHost(uri: URI, host: String) = internal(217, uri, host);
 
         fun xiXvrlInvalidValue(name: QName, value: String) = internal(300, name, value)
         fun xiXvrlIllegalMessageName(name: QName) = internal(301, name)
