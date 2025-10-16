@@ -76,7 +76,7 @@ class CommandLine private constructor(val args: Array<out String>) {
     private var _options = mutableMapOf<String,List<String>>()
     private var _namespaces = mutableMapOf<String, NamespaceUri>()
     private var _initializers = mutableListOf<String>()
-    private var _pipeline: File? = null
+    private var _pipelineUri: URI? = null
     private var _step: String? = null
     private val _xmlSchemas = mutableListOf<URI>()
     private var _validationMode = ValidationMode.DEFAULT
@@ -223,12 +223,12 @@ class CommandLine private constructor(val args: Array<out String>) {
     val initializers: List<String>
         get() = _initializers
 
-    /** The pipeline or library document containing the pipeline to run. */
-    val pipeline: File?
-        get() = _pipeline
+    /** The URI of the pipeline or library containing the pipeline to run. */
+    val pipelineUri: URI?
+        get() = _pipelineUri
 
     /** The step (in a library) to run.
-     * <p>If the [pipeline] is an <code>p:library</code>, the [step] option identifies
+     * <p>If the [pipelineUri] is an <code>p:library</code>, the [step] option identifies
      * a step in the library to run. The step is identified by name, not by type.</p>
      */
     val step: String?
@@ -406,18 +406,14 @@ class CommandLine private constructor(val args: Array<out String>) {
                         parseOptionParam(opt)
                     }
                 } else {
-                    if (_pipeline != null) {
-                        _errors.add(XProcError.xiCliMoreThanOnePipeline(_pipeline.toString(), opt).exception())
+                    if (_pipelineUri != null) {
+                        _errors.add(XProcError.xiCliMoreThanOnePipeline(_pipelineUri!!.toString(), opt).exception())
                     } else {
                         val cmd = isCommand(opt)
                         if (cmd != null) {
                             _command = cmd
                         } else {
-                            try {
-                                _pipeline = parseFile(opt)
-                            } catch (ex: XProcException) {
-                                _errors.add(ex)
-                            }
+                            _pipelineUri = UriUtils.resolve(opt)
                         }
                     }
                 }
@@ -590,14 +586,6 @@ class CommandLine private constructor(val args: Array<out String>) {
         values.addAll(_options[name] ?: emptyList())
         values.add(value)
         _options[name] = values
-    }
-
-    private fun parseFile(arg: String): File {
-        val pfile = File(arg)
-        if (!pfile.exists() || !pfile.isFile() || !pfile.canRead()) {
-            throw XProcError.xiUnreadableFile(arg).exception()
-        }
-        return pfile
     }
 
     private fun parseVisualizer(arg: String) {

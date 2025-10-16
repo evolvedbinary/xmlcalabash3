@@ -1750,9 +1750,10 @@ cxerr:XI0216
 Input is not a p:library
 
 cxerr:XI0217
-Lookup is not possible when custom resolvers are provided
-If a configuration installs a customer resolver, then lookup is disabled.
-There is no way for it to give a correct answer.
+File URI ($1) refers to file on a different host: $2.
+In principle, this is a completely valid file: URI, but there’s no standard
+mechanism for referring to files on other hosts. This error is usually
+a typo, file:// instead of file:/ or file:///.
 
 cxerr:XI0300
 Negative line and column numbers are not allowed: $1=$2

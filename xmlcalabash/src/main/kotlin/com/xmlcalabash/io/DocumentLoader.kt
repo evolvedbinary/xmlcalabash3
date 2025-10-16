@@ -177,6 +177,10 @@ class DocumentLoader(val stepConfig: StepConfiguration,
     }
 
     private fun loadFile(): XProcDocument {
+        if (absURI.host != null) {
+            throw stepConfig.exception(XProcError.xiFileOnOtherHost(absURI, absURI.host));
+        }
+
         val start = System.nanoTime()
         val file = File(UriUtils.path(absURI))
 

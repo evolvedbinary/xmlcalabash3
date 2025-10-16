@@ -73,7 +73,7 @@ open class DocumentManager(val resolver: XMLResolver): EntityResolver, EntityRes
     }
 
     fun lookup(href: URI, baseUri: URI? = null): URI {
-            val req = if (baseUri == null) {
+        val req = if (baseUri == null) {
             resolver.getRequest("${href}")
         } else {
             resolver.getRequest("${href}", "${baseUri}")

@@ -80,6 +80,11 @@ class UriUtils {
 
         fun path(uri: URI): String {
             if (uri.scheme == "file") {
+                if (uri.path == null) {
+                    // If the path part is null, ???, just return everything after file:
+                    // (This occurs for file:name (which isn't a valid file: URI) and returns "name".)
+                    return uri.toString().substring(5);
+                }
                 return normalizePath(uri.path)
             }
             return uri.path
