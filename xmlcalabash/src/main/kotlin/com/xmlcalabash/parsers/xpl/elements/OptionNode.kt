@@ -30,7 +30,7 @@ class OptionNode(parent: AnyNode, node: XdmNode, val name: QName, val select: St
 
         if (context.staticOptions[this] == null) {
             if (useWhen == true) {
-                val value = if (context.builder.staticOptionsManager.useWhenOptions.containsKey(name)) {
+                var value = if (context.builder.staticOptionsManager.useWhenOptions.containsKey(name)) {
                     context.builder.staticOptionsManager.useWhenOptions[name]
                 } else {
                     context.resolveExpression(stepConfig, select)
@@ -40,7 +40,7 @@ class OptionNode(parent: AnyNode, node: XdmNode, val name: QName, val select: St
                     if (!asType!!.matches(value)) {
                         try {
                             val typeUtils = TypeUtils(stepConfig)
-                            typeUtils.xpathPromote(value, asType!!.itemType.typeName)
+                            value = typeUtils.xpathPromote(value, asType!!.itemType.typeName)
                         } catch (ex: Exception) {
                             if (value == XdmEmptySequence.getInstance()) {
                                 throw stepConfig.exception(XProcError.xdBadTypeEmpty(TypeUtils.sequenceTypeToString(asType!!)), ex)

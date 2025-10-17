@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<t:test expected="pass"
+        xmlns:t="http://xproc.org/ns/testsuite/3.0">
+  <t:info>
+    <t:title>static-opt-002</t:title>
+    <t:revision-history>
+      <t:revision>
+        <t:date>2025-10-17</t:date>
+        <t:author>
+          <t:name>Norm Tovey-Walsh</t:name>
+        </t:author>
+        <t:description xmlns="http://www.w3.org/1999/xhtml">
+          <p>Created test.</p>
+        </t:description>
+      </t:revision>
+    </t:revision-history>
+  </t:info>
+  <t:description xmlns="http://www.w3.org/1999/xhtml">
+    <p>Tests that bug <a href="https://codeberg.org/xmlcalabash/xmlcalabash3/issues/275">#275</a>
+    stays solved.</p>
+  </t:description>
+<t:option name="develop" select="true()" static="true"/>
+  <t:pipeline>
+<p:declare-step xmlns:p="http://www.w3.org/ns/xproc"
+                xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+                xmlns:cx="http://xmlcalabash.com/ns/extensions"
+                name="main" version="3.0">
+  <p:output port="result"/>
+
+  <p:option name="develop" as="xs:boolean" static="true" select="false()"/>
+
+  <p:input port="source" primary="true" sequence="false" content-types="xml">
+    <p:document href="{resolve-uri('static-opt-002.xml', static-base-uri())}" use-when="$develop"/>
+  </p:input>
+
+  <p:identity/>
+</p:declare-step>
+  </t:pipeline>
+  <t:schematron>
+    <s:schema queryBinding="xslt2"
+              xmlns:s="http://purl.oclc.org/dsdl/schematron">
+      <s:ns prefix="t" uri="http://xproc.org/ns/testsuite/3.0"/>
+      <s:pattern>
+        <s:rule context="/">
+          <s:assert test="t:test">The root is wrong.</s:assert>
+        </s:rule>
+      </s:pattern>
+    </s:schema>
+  </t:schematron>
+</t:test>
