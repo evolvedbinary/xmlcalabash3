@@ -37,6 +37,14 @@ abstract class XProcExpression(val stepConfig: StepConfiguration, val asType: Se
                 stepConfig.warn { "Invalid match expression: ${match}: ${expr.details.error?.message ?: "(no explanation)"}" }
                 //throw stepConfig.exception(XProcError.xsXPathStaticError(expr.details.error?.message ?: ""), expr.details.error!!)
             }
+            if (stepConfig is InstructionConfiguration) {
+                for ((name, value) in stepConfig.inscopeVariables) {
+                    if (value.canBeResolvedStatically()) {
+                        expr.setBinding(name, value.select!!.evaluate(stepConfig))
+                    }
+                }
+            }
+
             return expr
         }
 
@@ -117,6 +125,15 @@ abstract class XProcExpression(val stepConfig: StepConfiguration, val asType: Se
         }
 
         for (name in details.variableRefs) {
+            // Why is this needed here? I assume this is going to go away in the refactor for #115
+            if (stepConfig is InstructionConfiguration) {
+                for ((name, value) in stepConfig.inscopeVariables) {
+                    if (value is OptionInstruction && value.static) {
+                        staticVariableBindings[name] = value.select!!
+                    }
+                }
+            }
+
             if (!staticVariableBindings.contains(name)) {
                 return false
             }

@@ -38,30 +38,28 @@ open class ViewportStep(config: XProcStepConfiguration, compound: CompoundStepMo
         var match = ""
         val bindings = mutableMapOf<QName, XdmValue>()
 
-        if (head.options.containsKey(Ns.match)) {
-            val matchMap = head.options[Ns.match]!!.first().value as XdmMap
-            for (key in matchMap.keySet()) {
-                val value = matchMap.get(key)
-                val qkey = key.underlyingValue
-                if (qkey is QNameValue) {
-                    val lexical = if (qkey.prefix == null || qkey.prefix == "") {
-                        qkey.localName
-                    } else {
-                        "${qkey.prefix}:${qkey.localName}"
-                    }
-                    bindings[QName(qkey.namespaceURI, lexical)] = value
-                } else {
-                    match = value.underlyingValue.stringValue
-                }
-            }
+        val matchMap = if (head.options.containsKey(Ns.match)) {
+            head.options[Ns.match]!!.first().value as XdmMap
         } else {
             // It must have been resolved statically
-            val matchMap = params.options[Ns.match]!!.staticValue!!.evaluate(stepConfig).underlyingValue as MapItem
-            match = matchMap.get(StringValue("match")).stringValue
-            if (matchMap.size() != 1) {
-                throw stepConfig.exception(XProcError.xiImpossible("Unexpected values in static match expression"))
+            stepConfig.typeUtils.asXdmMap(params.options[Ns.match]!!.staticValue!!.evaluate(stepConfig).underlyingValue as MapItem)
+        }
+
+        for (key in matchMap.keySet()) {
+            val value = matchMap.get(key)
+            val qkey = key.underlyingValue
+            if (qkey is QNameValue) {
+                val lexical = if (qkey.prefix == null || qkey.prefix == "") {
+                    qkey.localName
+                } else {
+                    "${qkey.prefix}:${qkey.localName}"
+                }
+                bindings[QName(qkey.namespaceURI, lexical)] = value
+            } else {
+                match = value.underlyingValue.stringValue
             }
         }
+
 
         val composer = XmlViewportComposer(stepConfig, match, bindings)
 
