@@ -5,21 +5,14 @@ import com.xmlcalabash.namespace.NsSaxon
 import com.xmlcalabash.namespace.NsSvrl
 import com.xmlcalabash.namespace.NsXml
 import com.xmlcalabash.namespace.NsXvrl
-import com.xmlcalabash.runtime.XProcStepConfiguration
 import com.xmlcalabash.util.SaxonTreeBuilder
-import com.xmlcalabash.util.Verbosity
 import com.xmlcalabash.xvrl.XvrlReports.Companion._context
 import com.xmlcalabash.xvrl.XvrlReports.Companion._document
 import com.xmlcalabash.xvrl.XvrlReports.Companion._documents
 import com.xmlcalabash.xvrl.XvrlReports.Companion._location
 import com.xmlcalabash.xvrl.XvrlReports.Companion._role
 import net.sf.saxon.om.NamespaceUri
-import net.sf.saxon.s9api.Axis
-import net.sf.saxon.s9api.HostLanguage
-import net.sf.saxon.s9api.QName
-import net.sf.saxon.s9api.XdmNode
-import net.sf.saxon.s9api.XdmNodeKind
-import net.sf.saxon.s9api.XmlProcessingError
+import net.sf.saxon.s9api.*
 import net.sf.saxon.trans.XPathException
 import org.apache.logging.log4j.kotlin.logger
 import java.net.URI
@@ -40,7 +33,10 @@ class XvrlReport private constructor(stepConfig: StepConfiguration, val metadata
         }
 
         fun fromSvrl(stepConfig: StepConfiguration, svrl: XdmNode): XvrlReport {
-            val report = newInstance(stepConfig)
+            val context = stepConfig.context
+                .with("svrl", NsSvrl.namespace)
+            val newConfig = StepConfiguration(stepConfig.saxonConfig, context, stepConfig.environment)
+            val report = newInstance(newConfig)
             report.fromSvrl(svrl)
             return report
         }
