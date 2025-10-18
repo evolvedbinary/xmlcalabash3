@@ -13,6 +13,42 @@ See the commits and pull requests on
 finer detail.</para>
 
 <revhistory>
+<revision xml:id="r3021">
+<revnumber>3.0.21</revnumber>
+<date>2025-10-18</date>
+<revdescription>
+<itemizedlist>
+<listitem><para>Fixed <cbissue number="278"/>. FOP has a completely broken implementation
+of URI resolution against the base URI; worked around that.
+Also added an event listener so that FOP messages are reported.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="274"/> and <cbissue number="275"/>. There were
+a couple of issues relating to static options. At least one is likely to be better resolved
+when the refactor for <cbissue number="115"/> is finished.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="273"/>. Allow the pipeline specified on the command line
+to be a URI.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="270"/>. Fixed a bug in transformation of SVRL to XVRL
+caused by a missing namespace declaration.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="268"/>. Fixed a bug where setting the trace output
+to a simple filename, without a path, caused an error.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="265"/>. Make sure proxy settings are passed all the
+way through to the runtime configuration.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="262"/>. Make sure that a warning message is printed
+if the user attempts to use graph output but hasn’t configured Graphviz.
+</para></listitem>
+<listitem><para>In the <tag>p:os-info</tag> step, added all the properties to the
+<code>cx:</code> namespace, even the standard ones (that are also reported without a namespace).
+</para></listitem>
+<listitem><para>Upgraded to EPUBCheck version 5.3.0.
+</para></listitem>
+</itemizedlist>
+</revdescription>
+</revision>
 <revision xml:id="r3020">
 <revnumber>3.0.20</revnumber>
 <date>2025-10-05</date>
