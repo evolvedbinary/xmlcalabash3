@@ -115,7 +115,10 @@ class XvrlMessageElement private constructor(stepConfiguration: StepConfiguratio
     }
 
     override fun serialize(builder: SaxonTreeBuilder) {
-        builder.addStartElement(name, stepConfig.typeUtils.attributeMap(attributes))
+        val serialAttr = mutableMapOf<QName,String?>()
+        serialAttr.putAll(attributes);
+        serialAttr.remove(Ns.name)
+        builder.addStartElement(name, stepConfig.typeUtils.attributeMap(serialAttr))
         for (item in content) {
             item.serialize(builder)
         }
