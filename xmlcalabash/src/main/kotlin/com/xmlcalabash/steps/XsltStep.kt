@@ -26,6 +26,7 @@ import net.sf.saxon.serialize.CharacterMapIndex
 import net.sf.saxon.serialize.SerializationProperties
 import net.sf.saxon.trans.XPathException
 import net.sf.saxon.tree.wrapper.RebasedDocument
+import net.sf.saxon.type.StringConverter
 import java.net.URI
 
 open class XsltStep(): AbstractAtomicStep() {
@@ -475,8 +476,8 @@ open class XsltStep(): AbstractAtomicStep() {
     private fun consumeSecondary(results: List<XdmItem>, uri: URI, serprops: Map<QName,XdmValue>) {
         val prop = DocumentProperties()
         prop[Ns.baseUri] = uri
-        if (primaryOutputProperties.isNotEmpty()) {
-            prop[Ns.serialization] = serializationProperties(primaryOutputProperties)
+        if (serprops.isNotEmpty()) {
+            prop[Ns.serialization] = serializationProperties(serprops)
         }
 
         if (results.get(0) is XdmNode) {
@@ -495,7 +496,7 @@ open class XsltStep(): AbstractAtomicStep() {
             builder.endDocument()
             val doc = builder.result
 
-            prop[Ns.contentType] =  serializationContentType(primaryOutputProperties, ValueUtils.contentClassification(doc) ?: MediaType.XML)
+            prop[Ns.contentType] = serializationContentType(serprops, ValueUtils.contentClassification(doc) ?: MediaType.XML)
 
             if (ValueUtils.contentClassification(doc) == MediaType.TEXT) {
                 receiver.output("secondary", XProcDocument.ofText(doc, stepConfig, MediaType.TEXT, prop))
@@ -512,7 +513,16 @@ open class XsltStep(): AbstractAtomicStep() {
 
     private fun serializationProperties(props: Map<QName,XdmValue>, characterMap: XdmMap? = null): XdmMap {
         var serprop = XdmMap()
-        for ((name, value) in primaryOutputProperties) {
+
+        var charMap = characterMap
+        for ((name, value) in props) {
+            if (name == Ns.useCharacterMaps) {
+                if (value is XdmMap) {
+                    charMap = value
+                    continue
+                }
+            }
+
             val strval = value.underlyingValue.stringValue
             if (strval == "yes" || strval == "no") {
                 // Hack; we should check if the property is boolean...but what about extension properties?
@@ -521,8 +531,8 @@ open class XsltStep(): AbstractAtomicStep() {
                 serprop = serprop.put(XdmAtomicValue(name), value)
             }
         }
-        if (characterMap != null && !characterMap.isEmptyMap()) {
-            serprop = serprop.put(XdmAtomicValue(Ns.useCharacterMaps), characterMap)
+        if (charMap != null && !charMap.isEmptyMap()) {
+            serprop = serprop.put(XdmAtomicValue(Ns.useCharacterMaps), charMap)
         }
         return serprop
     }
@@ -604,7 +614,63 @@ open class XsltStep(): AbstractAtomicStep() {
                 }
 
                 val xprocProps = mutableMapOf<QName, XdmValue>()
-                // FIXME: copy the serialization properties?
+                properties.properties.forEach { (anyName, anyValue) ->
+                    val name = anyName.toString()
+                    val value = anyValue.toString()
+
+                    val qname = if (name.startsWith("{")) {
+                        val pos = name.lastIndexOf("}")
+                        QName("", name.substring(1, pos), name.substring(pos+1))
+                    } else {
+                        QName(name)
+                    }
+
+                    if (qname == Ns.useCharacterMaps) {
+                        var characterMap = XdmMap()
+                        val mapNames = value.trim().split("\\s+".toRegex())
+
+                        // Workaround a Saxon bug, https://saxonica.plan.io/issues/6929
+                        // The characterMaps of secondary result documents always include the character maps from the primary output
+                        // But, if the user has specified them explicitly for the secondary output, then they appear twice.
+                        // So, we ignore any map name that is in the primary output properties and is not repeated.
+                        val primaryMaps = (primaryOutputProperties[Ns.useCharacterMaps]?.underlyingValue?.stringValue ?: "").trim().split("\\s+".toRegex())
+                        val mapsToUse = mutableSetOf<String>()
+                        val mapsSeen = mutableSetOf<String>()
+                        for (clarkName in mapNames) {
+                            if (clarkName !in primaryMaps || clarkName in mapsSeen) {
+                                mapsToUse.add(clarkName)
+                            }
+                            mapsSeen.add(clarkName)
+                        }
+                        mapsSeen.clear()
+                        val mapList = mutableListOf<String>()
+                        for (clarkName in mapNames) {
+                            if (clarkName in mapsToUse && clarkName !in mapsSeen) {
+                                mapList.add(clarkName)
+                                mapsSeen.add(clarkName)
+                            }
+                        }
+
+                        for (clarkName in mapList) {
+                            val name =  StructuredQName.fromClarkName(clarkName)
+                            val cmap = characterMaps!!.getCharacterMap(name)
+                            if (cmap != null) {
+                                for (codepoint in cmap.map.keySet()) {
+                                    val str = cmap.map.get(codepoint)
+                                    val chars = Character.toChars(codepoint)
+                                    if (chars.size != 1) {
+                                        throw IllegalArgumentException("Codepoint is not a single character: ${codepoint}")
+                                    }
+                                    characterMap = characterMap.put(XdmAtomicValue("${chars[0]}"), XdmAtomicValue(str))
+                                }
+                            }
+                        }
+                        xprocProps[qname] = characterMap
+                    } else {
+                        val untypedValue = StringConverter.StringToUntypedAtomic().convert(XdmAtomicValue(value).underlyingValue)
+                        xprocProps[qname] = XdmAtomicValue.wrap(untypedValue)
+                    }
+                }
 
                 results[uri] = Pair(destination, xprocProps)
 
