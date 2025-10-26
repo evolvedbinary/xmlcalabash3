@@ -450,7 +450,7 @@ class TestCase(val xmlCalabash: XmlCalabash, val testOptions: TestOptions, val t
 
     private fun validate(doc: XdmValue): List<XdmNode> {
         val validator = SchematronImpl(testConfig)
-        return validator.test(doc, schematron!!)
+        return validator.test(doc, schematron!!, null, emptyMap())
     }
 
     private fun loadTest(root: XdmNode) {

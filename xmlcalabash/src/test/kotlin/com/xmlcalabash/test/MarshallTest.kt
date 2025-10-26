@@ -487,7 +487,7 @@ class MarshallTest {
         val converted = converter.convert()
 
         Assertions.assertEquals(MediaType.HTML, converted.contentType)
-        Assertions.assertTrue(converted.properties.getSerialization().isEmpty)
+        Assertions.assertTrue(converted.properties.getSerialization().isEmptyMap)
         Assertions.assertEquals(XdmAtomicValue("false"), doc.properties.get(NsCx.link))
     }
 
@@ -560,7 +560,7 @@ class MarshallTest {
 
         val text = textDoc.value.underlyingValue.stringValue
         Assertions.assertTrue(text.startsWith("<doc>"))
-        Assertions.assertTrue(textDoc.properties.getSerialization().isEmpty)
+        Assertions.assertTrue(textDoc.properties.getSerialization().isEmptyMap)
     }
 
     // xml to binary
@@ -605,7 +605,7 @@ class MarshallTest {
 
         val xmlDoc = converter.convert()
         Assertions.assertEquals(MediaType.XML, xmlDoc.contentType)
-        Assertions.assertTrue(xmlDoc.properties.getSerialization().isEmpty)
+        Assertions.assertTrue(xmlDoc.properties.getSerialization().isEmptyMap)
 
         val root = S9Api.documentElement(xmlDoc.value as XdmNode)
         Assertions.assertEquals(NsFn.map, root.nodeName)
