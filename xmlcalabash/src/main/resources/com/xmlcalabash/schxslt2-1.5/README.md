@@ -6,15 +6,15 @@ language (ISO/IEC-19757:3).
 SchXslt2 Schematron to XSLT 3.0 transpiler is copyright by David Maus &lt;dmaus@dmaus.name&gt; and released under the
 terms of the MIT license.
 
-Feedback to SchXslt2 is welcome via [email](mailto:dmaus@dmaus.name) or SourceHut's email-based [issue
-tracker](https://todo.sr.ht/~dmaus/schxslt2).
+Feedback to SchXslt2 is welcome via [email](mailto:dmaus@dmaus.name) or Codeberg's [issue
+management](https://codeberg.org/dmaus/schxslt2/issues).
 
 ## Installing
 
-You find the most recent relase [at the projects main repository](https://git.sr.ht/~dmaus/schxslt2) page. Every release
-provides a ZIP file with just the XSLT transpiler for you to download and extract.
+You find the most recent relase [at the projects main repository](https://codeberg.org/dmaus/schxslt2) page. Every
+release provides a ZIP file with just the XSLT transpiler for you to download and extract.
 
-In addition, a Java package is published to [Maven Central](https://mvnrepository.com/artifact/name.dmaus.schxslt/schxslt2) 
+In addition, a Java package is published to [Maven Central](https://mvnrepository.com/artifact/name.dmaus.schxslt/schxslt2)
 for use with Maven or the Java dependency management tool of your choice.
 
 ## Usage
@@ -23,6 +23,8 @@ Use the transpiler to create an XSLT transformation that processes a document an
 Reporting Language) report.
 
 ## Transpiler parameters
+
+The namespace prefix `schxslt` is bound to the name `http://dmaus.name/ns/2023/schxslt`.
 
 ### schxslt:debug as xs:boolean
 
@@ -61,62 +63,53 @@ successful report. Defaults to ```false```.
 When set to boolean ```true```, the validation stylesheet terminates the XSLT processor when it encounters a dynamic
 error. Defaults to ```true```.
 
+### schxslt:report-active-pattern as xs:boolean
+
+When set to boolean ```true```, the validation stylesheet reports active patterns and groups. Defaults to ```true```.
+
+### schxslt:report-fired-rule as xs:boolean
+
+When set to boolean ```true```, the validation stylesheet reports fired rules. Defaults to ```true```.
+
+### schxslt:report-suppressed-rule as xs:boolean
+
+When set to boolean ```true```, the validation stylesheet reports suppressed rules. Defaults to ```true```.
+
+## Schematron 4 (2025)
+
+As of version 1.4 SchXslt2 supports all but one feature of the 2025 edition of ISO Schematron (see limitations).
+
+Namely:
+
+* typed variables (supported since version 1.0)
+* top-level &lt;rules&gt; element (supported since version 1.0)
+* base URI and language fixup (supported since version 1.0)
+* restrict validation to a subset of the document (&lt;phase&gt;/@from)
+* attribute to express the relative importance of an assertion (&lt;assert&gt;/@severity, &lt;report&gt;/@severity)
+* refined rule context (&lt;rule&gt;/@visit-each)
+* rule sets (&lt;group&gt;)
+* libraries containing external declarations (&lt;library&gt;)
+* dynamic evaluation of @flag, @role, @severity
+* schema-level parameters (&lt;param&gt;)
+
 ## Enhancements
 
-### Typed variables
+### Express relationships in SVRL
 
-[Proposal 1](https://github.com/Schematron/schematron-enhancement-proposals/issues/1)
+The `svrl:failed-assert` and the `svrl:successful-report` element carries three optional attributes `@ruleId`,
+`@patternId`, and `@groupId` that reference the rule, pattern, or group the assertion is contained in. (see [Proposal
+82](https://github.com/Schematron/schematron-enhancement-proposals/issues/82))
 
-The Schematron specification does not allow for annotating variables with the expected type of its value. Type
-annotations are helpful to make the most of XSLT 3.0. Using them is current best practice.
+### Typed schema parameters
 
-This proposal adds support for an ```@as``` attribute on variable declarations.
+Schema parameters ```sch:schema/sch:param``` may declare an ```@as``` attribute denoting the expected type of the
+parameter.
 
-### Global abstract rules
+### Report suppressed rules
 
-[Proposal 3](https://github.com/Schematron/schematron-enhancement-proposals/issues/3)
-
-The Schematron specification limits the reuse of abstract rules to the current pattern element. The ```@href
-attribute``` on ```extends``` was introduced in 2016 to overcome this limitation but requires a schema author to
-externalize abstract rules for them to be used.
-
-This proposal extends Schematron with a top-level ```rules``` element to hold abstract rules that are globally
-referable by the ```@rule``` attribute of ```extends```.
-
-### Additional XSLT elements
-
-[Proposal 4](https://github.com/Schematron/schematron-enhancement-proposals/issues/4)
-
-The Schematron specification allows the XSLT elements ```function``` and ```key``` to be used in a Schematron
-schema. This makes sense because both are required to set up the query language environment. The ```key``` element
-prepares data structures for the ```key()``` function and the ```function``` element allows the use of user-defined
-functions.
-
-This proposal adds support for the following XSLT elements:
-
-* xsl:accumulator
-* xsl:import
-* xsl:import-schema
-* xsl:include
-* xsl:use-package
-
-### Declare abstract pattern parameters
-
-To address the shortcomings discussed in [Proposal
-8](https://github.com/Schematron/schematron-enhancement-proposals/issues/8) SchXslt2 supports the ```sch:param```
-element as child of an abstract pattern to declare an abstract pattern parameter.
-
-As of version 1.2 an abstract pattern parameter may also declare a default value in a ```@value``` attribute.
-
-```
-<sch:pattern id="a-001" abstract="true">
-  <sch:param name="_placeholder" value="default"/>
-  ...
-</sch:pattern>
-```
-
-If at least one ```sch:param``` element is present, the transpiler terminates with an error if a declared parameter is
-not provided, and if a provided parameter ist not declared.
+A Schematron pattern acts as an if-then-else statement for the contained rules. That is, a rule does not fire for an
+item if this item was matched by a lexically previous rule. If the validation stylesheet recognizes this happening, it
+reports an ```svrl:suppressed-rule``` element with the same content model as ```svrl:fired-rule```.
 
 ### Introspection
 
@@ -126,13 +119,19 @@ Expressions in the validation stylesheet can access the effective phase it was c
 ### Logging dynamic errors
 
 Dynamic errors during validation are logged by a svrl:error element (see [Proposal
-69](https://github.com/Schematron/schematron-enhancement-proposals/issues/69)). 
+69](https://github.com/Schematron/schematron-enhancement-proposals/issues/69)).
 
 Unless the static parameter ```schxslt:terminate-validation-on-error``` is set to ```false``` the validation stylesheet still
 terminates the XSLT processor.
+
+### Attribute value templates
+
+You can use attribute value templates in the ```@flag```, ```@role```, and ```@severity```.
 
 ## Limitations
 
 SchXslt2 does not implement proper scoping rules of pattern and phase variables. Schema, pattern, and phase variables
 are all implemented as global XSLT variables. As a consequence, the name of a schema, pattern, or phase variable MUST be
 unique in the entire schema.
+
+SchXslt2 does not support dynamic phase selection using the ```@when``` attribute on the ```sch:phase``` element.
