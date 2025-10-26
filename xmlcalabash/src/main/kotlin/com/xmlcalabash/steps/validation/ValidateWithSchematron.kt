@@ -5,6 +5,7 @@ import com.xmlcalabash.config.SaxonConfiguration
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.namespace.Ns
+import com.xmlcalabash.namespace.NsSchxslt
 import com.xmlcalabash.steps.AbstractAtomicStep
 import com.xmlcalabash.util.S9Api
 import com.xmlcalabash.util.SchematronImpl
@@ -39,15 +40,20 @@ open class ValidateWithSchematron(): AbstractAtomicStep() {
             throw stepConfig.exception(XProcError.xcUnsupportedReportFormat(reportFormat))
         }
 
+        if (phase != null && NsSchxslt.phase in parameters) {
+            if (phase != parameters[NsSchxslt.phase]!!.underlyingValue.stringValue) {
+                throw stepConfig.exception(XProcError.xdStepFailed("Conflicting phases specifed: ${phase} and ${parameters[NsSchxslt.phase]!!}"))
+            }
+        }
+
         val impl = SchematronImpl(stepConfig)
-        // FIXME: handle parameters
 
         val tron = S9Api.documentElement(schema.value as XdmNode)
         if (tron.nodeName != s_schematron) {
             throw stepConfig.exception(XProcError.xcNotSchematronSchema(tron.nodeName))
         }
 
-        var report = impl.report(document.value as XdmNode, schema.value as XdmNode, phase)
+        var report = impl.report(document.value as XdmNode, schema.value as XdmNode, phase, parameters)
         val failed = impl.failedAssertions(report)
 
         if (reportFormat == "xvrl") {
