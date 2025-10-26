@@ -62,8 +62,11 @@ class XmlCalabashCli private constructor() {
     private fun run(args: Array<out String>) {
         builder = XmlCalabashBuilder()
         cliPrinter = DefaultMessagePrinter()
-        cliReporter = BufferingMessageReporter(32, LoggingMessageReporter())
-        cliReporter.setMessagePrinter(cliPrinter)
+
+        val reporter = DefaultMessageReporter(LoggingMessageReporter())
+        reporter.setMessagePrinter(cliPrinter)
+
+        cliReporter = BufferingMessageReporter(32, reporter)
         cliExplain = DefaultErrorExplanation(cliReporter)
 
         builder.setMessagePrinter(cliPrinter)
