@@ -20,8 +20,7 @@ finer detail.</para>
 <itemizedlist>
 <listitem><para>Fixed <cbissue number="288"/>. Fix bugs in the handling of
 serialization properties for secondary result documents in <tag>p:xslt</tag>,
-especially character maps. See also
-<link xlink:href="https://saxonica.plan.io/issues/6929">Saxon bug #6929</link>.
+especially character maps.
 </para></listitem>
 <listitem><para>Fixed <cbissue number="287"/>. Provide more details about where
 XPath/XSLT parsing errors occur; for example, the location of static errors

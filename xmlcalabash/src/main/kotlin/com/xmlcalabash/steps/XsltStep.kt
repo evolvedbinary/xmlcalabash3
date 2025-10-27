@@ -627,31 +627,18 @@ open class XsltStep(): AbstractAtomicStep() {
 
                     if (qname == Ns.useCharacterMaps) {
                         var characterMap = XdmMap()
-                        val mapNames = value.trim().split("\\s+".toRegex())
+                        val mapNames = mutableListOf<String>()
 
-                        // Workaround a Saxon bug, https://saxonica.plan.io/issues/6929
-                        // The characterMaps of secondary result documents always include the character maps from the primary output
-                        // But, if the user has specified them explicitly for the secondary output, then they appear twice.
-                        // So, we ignore any map name that is in the primary output properties and is not repeated.
-                        val primaryMaps = (primaryOutputProperties[Ns.useCharacterMaps]?.underlyingValue?.stringValue ?: "").trim().split("\\s+".toRegex())
-                        val mapsToUse = mutableSetOf<String>()
+                        // Make a unique list of names
                         val mapsSeen = mutableSetOf<String>()
-                        for (clarkName in mapNames) {
-                            if (clarkName !in primaryMaps || clarkName in mapsSeen) {
-                                mapsToUse.add(clarkName)
+                        for (clarkName in value.trim().split("\\s+".toRegex())) {
+                            if (clarkName !in mapsSeen) {
+                                mapNames.add(clarkName)
                             }
                             mapsSeen.add(clarkName)
                         }
-                        mapsSeen.clear()
-                        val mapList = mutableListOf<String>()
-                        for (clarkName in mapNames) {
-                            if (clarkName in mapsToUse && clarkName !in mapsSeen) {
-                                mapList.add(clarkName)
-                                mapsSeen.add(clarkName)
-                            }
-                        }
 
-                        for (clarkName in mapList) {
+                        for (clarkName in mapNames) {
                             val name =  StructuredQName.fromClarkName(clarkName)
                             val cmap = characterMaps!!.getCharacterMap(name)
                             if (cmap != null) {
