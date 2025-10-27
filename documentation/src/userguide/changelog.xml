@@ -13,6 +13,36 @@ See the commits and pull requests on
 finer detail.</para>
 
 <revhistory>
+<revision xml:id="r3022">
+<revnumber>3.0.22</revnumber>
+<date>2025-10-27</date>
+<revdescription>
+<itemizedlist>
+<listitem><para>Fixed <cbissue number="288"/>. Fix bugs in the handling of
+serialization properties for secondary result documents in <tag>p:xslt</tag>,
+especially character maps. See also
+<link xlink:href="https://saxonica.plan.io/issues/6929">Saxon bug #6929</link>.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="287"/>. Provide more details about where
+XPath/XSLT parsing errors occur; for example, the location of static errors
+in a stylesheet. This fix improves the situation, but further work may be
+required.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="285"/>. Use a buffering message
+reporter in the main application. The <tag>cx:pipeline-messages</tag>
+step relies on a buffering message reporter. The test driver was using
+one, but the main application was not.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="286"/>. Support parameters on the
+<tag>p:schematron</tag> step. Only SchXslt2 parameters are supported.</para>
+<para>Upgraded Schematron support to SchXslt2 version 1.5.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="269"/>. Make sure a reasonable error is
+reported for a top-level pipeline that contains no steps.
+</para></listitem>
+</itemizedlist>
+</revdescription>
+</revision>
 <revision xml:id="r3021">
 <revnumber>3.0.21</revnumber>
 <date>2025-10-18</date>

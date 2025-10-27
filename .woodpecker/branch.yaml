@@ -172,6 +172,7 @@ steps:
         - 'ext/polyglot/build/distributions/*.zip'
         - 'ext/basex/build/distributions/*.zip'
         - 'ext/existdb/build/distributions/*.zip'
+        - 'ext/elemental/build/distributions/*.zip'
       api_key:
         from_secret: ACCESS_TOKEN
 
