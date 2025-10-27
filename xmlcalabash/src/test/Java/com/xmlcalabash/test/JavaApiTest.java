@@ -421,7 +421,7 @@ public class JavaApiTest {
         }
 
         @Override
-        public void setThreshold(@NotNull Verbosity verbosity) {
+        public void setThreshold(@NotNull Verbosity verbosity, boolean applyDownstream) {
             threshold = verbosity;
         }
 
