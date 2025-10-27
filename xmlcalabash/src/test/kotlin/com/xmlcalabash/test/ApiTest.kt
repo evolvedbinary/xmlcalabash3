@@ -226,11 +226,12 @@ class ApiTest {
         override val messagePrinter: MessagePrinter
             get() = _messagePrinter
 
-        override var threshold: Verbosity
+        override val threshold: Verbosity
             get() = _threshold
-            set(value) {
-                _threshold = value
-            }
+
+        override fun setThreshold(threshold: Verbosity, applyDownstream: Boolean) {
+            _threshold = threshold
+        }
 
         override fun setMessagePrinter(messagePrinter: MessagePrinter) {
             _messagePrinter = messagePrinter
@@ -257,7 +258,7 @@ class ApiTest {
         }
 
         override fun report(severity: Verbosity, report: () -> Report) {
-            if (severity >= threshold) {
+            if (severity >= _threshold) {
                 println(report().message)
             }
         }

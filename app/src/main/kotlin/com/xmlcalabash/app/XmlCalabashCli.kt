@@ -92,7 +92,7 @@ class XmlCalabashCli private constructor() {
                 builder.setVerbosity(Verbosity.DEBUG)
             }
 
-            cliReporter.threshold = builder.getVerbosity()
+            cliReporter.setThreshold(builder.getVerbosity())
 
             cliExplain.showStacktrace = commandLine.stacktrace
 
