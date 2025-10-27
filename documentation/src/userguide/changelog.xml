@@ -13,6 +13,18 @@ See the commits and pull requests on
 finer detail.</para>
 
 <revhistory>
+<revision xml:id="r3023">
+<revnumber>3.0.23</revnumber>
+<date>2025-10-27</date>
+<revdescription>
+<itemizedlist>
+<listitem><para>Fixed <cbissue number="299"/>. My update to use a buffering
+message reporter had the unintended consequence of suppressing all messages.
+I’ve done some emergency API surgery to “fix” it.
+</para></listitem>
+</itemizedlist>
+</revdescription>
+</revision>
 <revision xml:id="r3022">
 <revnumber>3.0.22</revnumber>
 <date>2025-10-27</date>
