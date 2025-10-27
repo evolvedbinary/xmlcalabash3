@@ -23,7 +23,7 @@
 <xsl:param name="version" as="xs:string" required="yes"/>
 
 <xsl:template match="/">
-  <xsl:apply-templates select="/db:book/db:appendix[@xml:id='changelog']"/>
+  <xsl:apply-templates select="/db:book//db:appendix[@xml:id='changelog']"/>
 </xsl:template>
 
 <xsl:template match="db:appendix">
