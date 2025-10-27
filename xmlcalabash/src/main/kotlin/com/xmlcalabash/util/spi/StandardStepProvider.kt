@@ -14,9 +14,13 @@ import com.xmlcalabash.steps.internal.*
 import com.xmlcalabash.steps.os.OsExec
 import com.xmlcalabash.steps.os.OsInfo
 import com.xmlcalabash.steps.validation.*
+import net.sf.saxon.om.NamespaceUri
 import net.sf.saxon.s9api.QName
 
 class StandardStepProvider: AtomicStepManager, AtomicStepProvider {
+    companion object {
+        //private val exIdentity = QName(NamespaceUri.of("http://example.com/testing"), "ex:identity")
+    }
     val implMap = mapOf(
         NsP.addAttribute        to { _: StepParameters? -> AddAttributeStep() },
         NsP.addXmlBase          to { _: StepParameters? -> AddXmlBaseStep() },
@@ -42,6 +46,7 @@ class StandardStepProvider: AtomicStepManager, AtomicStepProvider {
         NsP.hash                to { _: StepParameters? -> HashStep() },
         NsP.httpRequest         to { _: StepParameters? -> HttpRequestStep() },
         NsP.identity            to { _: StepParameters? -> IdentityStep() },
+        //exIdentity              to { _: StepParameters? -> IdentityStep() },
         NsP.invisibleXml        to { _: StepParameters? -> InvisibleXmlStep() },
         NsP.insert              to { _: StepParameters? -> InsertStep() },
         NsP.ixml                to { _: StepParameters? -> InvisibleXmlStep() },

@@ -378,7 +378,16 @@ class DeclareStepInstruction(parent: XProcInstruction?, stepConfig: InstructionC
                 compiled = true
             }
 
-            return XProcRuntime.newInstance(this)
+            // In principle, it might be possible to have a top-level declare-step for
+            // an atomic step and run that atomic step directly, but that doesn't work
+            // at the moment
+            for (child in children) {
+                if (child is StepDeclaration) {
+                    return XProcRuntime.newInstance(this)
+                }
+            }
+
+            throw stepConfig.exception(XProcError.xsNoSteps())
         }
     }
 
