@@ -298,9 +298,9 @@ vary depending on the processor. No configuration properties are supported for t
 processors.</para>
 
 <para>See
-<tag xlink:href="../../reference/current/p-css-formatter.html">p:css-formatter</tag>
+<tag>p:css-formatter</tag>
 and
-<tag xlink:href="../../reference/current/p-xsl-formatter.html">p:xsl-formatter</tag>
+<tag>p:xsl-formatter</tag>
 in the <citetitle xlink:href="../../reference/current">Reference Guide</citetitle>
 for details.</para>
 
@@ -502,7 +502,7 @@ runs.</para>
 <term><tag class="attribute">buffer-size</tag> (integer)</term>
 <listitem>
 <para>Sets the number of messages buffered. These can be retrieved in a pipeline
-with <tag>cx:pipeline-messages</tag>. If the value is negative, there is no limit on
+with <tag>cx:pipeline-messages</tag>. If the value is zero or negative, there is no limit on
 the number of messages buffered. The default value is 32.</para>
 </listitem>
 </varlistentry>

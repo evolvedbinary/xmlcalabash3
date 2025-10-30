@@ -328,8 +328,15 @@ class ConfigurationLoader(val builder: XmlCalabashBuilder) {
     }
 
     private fun parseMessageReporter(node: XdmNode) {
-        checkAttributes(node, listOf(_bufferSize))
-        node.getAttributeValue(_bufferSize)?.let { builder.setMessageBufferSize(it.toInt()) }
+        checkAttributes(node, emptyList(), listOf(_bufferSize))
+        val size = node.getAttributeValue(_bufferSize)
+        if (size != null) {
+            try {
+                node.getAttributeValue(_bufferSize)?.let { builder.setMessageBufferSize(it.toInt()) }
+            } catch (_: NumberFormatException) {
+                throw XProcError.xiInvalidConfigurationAttributeValue(node.getNodeName(), _bufferSize, size).exception()
+            }
+        }
     }
 
     private fun parseVisualizer(node: XdmNode) {

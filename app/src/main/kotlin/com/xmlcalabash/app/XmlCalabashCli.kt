@@ -63,10 +63,12 @@ class XmlCalabashCli private constructor() {
         builder = XmlCalabashBuilder()
         cliPrinter = DefaultMessagePrinter()
 
-        val reporter = DefaultMessageReporter(LoggingMessageReporter())
-        reporter.setMessagePrinter(cliPrinter)
+        val defaultReporter = DefaultMessageReporter(LoggingMessageReporter())
+        defaultReporter.setMessagePrinter(cliPrinter)
 
-        cliReporter = BufferingMessageReporter(32, reporter)
+        val bufferingReporter = BufferingMessageReporter(32, defaultReporter)
+
+        cliReporter = bufferingReporter
         cliExplain = DefaultErrorExplanation(cliReporter)
 
         builder.setMessagePrinter(cliPrinter)
@@ -82,6 +84,8 @@ class XmlCalabashCli private constructor() {
             }
 
             loadConfiguration(commandLine.config)
+
+            bufferingReporter.maxsize = builder.getMessageBufferSize()
 
             if (commandLine.verbosity != null) {
                 builder.setVerbosity(commandLine.verbosity!!)
