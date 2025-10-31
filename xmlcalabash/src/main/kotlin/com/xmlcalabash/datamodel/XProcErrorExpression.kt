@@ -24,7 +24,7 @@ class XProcErrorExpression private constructor(stepConfig: StepConfiguration): X
         throw UnsupportedOperationException("Attempt to evaluate error expression")
     }
 
-    override fun computeStaticValue(stepConfig: InstructionConfiguration): XdmValue? {
+    override fun computeStaticValue(stepConfig: InstructionConfiguration, alwaysTry: Boolean): XdmValue {
         throw UnsupportedOperationException("Attempt to find static value of error expression")
     }
 

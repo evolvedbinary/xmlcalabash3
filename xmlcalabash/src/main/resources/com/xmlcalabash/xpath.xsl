@@ -50,6 +50,16 @@
     <xsl:when test="$qname/@name = $inlinefunc/@name">
       <!-- there's a local declaration -->
     </xsl:when>
+    <xsl:when test="$qname/@name = 'Q{http://www.w3.org/ns/xproc}system-property'
+                    and count(nt:ArgumentList/*) = 1
+                    and nt:ArgumentList/nt:Literal/t:StringLiteral">
+      <xsl:variable name="token"
+                    select="nt:ArgumentList/nt:Literal/t:StringLiteral/@token/string()"/>
+      <xsl:variable name="literal"
+                    select="substring($token, 2, string-length($token) - 2)"/>
+      <xsl:sequence select="t:QName/@name || '#' || count(nt:ArgumentList/*) || ' ' || string(t:QName)
+                            || ' ' || $literal"/>
+    </xsl:when>
     <xsl:otherwise>
       <xsl:sequence select="t:QName/@name || '#' || count(nt:ArgumentList/*) || ' ' || string(t:QName)"/>
     </xsl:otherwise>

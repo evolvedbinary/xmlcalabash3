@@ -67,7 +67,22 @@ class XPathExpressionParser(val stepConfig: StepConfiguration) {
                     val qname = QName(ns, local)
 
                     usesContext = usesContext || contextDependentFunctions.contains(qname)
-                    alwaysDynamic = alwaysDynamic || alwaysDynamicFunctions.contains(qname)
+
+                    // If the argument to p:system-property is a string literal and it isn't
+                    // p:episode, then we can resolve this statically.
+                    if (qname == NsP.systemProperty) {
+                        val sppos2 = line.substring(sppos+1).indexOf(" ");
+                        if (sppos2 > 0) {
+                            val lit = line.substring(sppos + sppos2 +2)
+                            val qname = stepConfig.typeUtils.parseQName(lit);
+                            alwaysDynamic = alwaysDynamic || (qname == NsP.episode)
+                        } else {
+                            alwaysDynamic = true
+                        }
+                    } else {
+                        alwaysDynamic = alwaysDynamic || alwaysDynamicFunctions.contains(qname)
+                    }
+
                     functions.add(Pair(qname, arity))
                     if (DEBUG) {
                         println("  ${qname}#${arity}()")
@@ -139,7 +154,7 @@ class XPathExpressionParser(val stepConfig: StepConfiguration) {
             }
 
             if (name == "Literal") {
-                node.children.clear()
+                //node.children.clear()
             } else {
                 if (node.squash) {
                     val child = node.children[0]
