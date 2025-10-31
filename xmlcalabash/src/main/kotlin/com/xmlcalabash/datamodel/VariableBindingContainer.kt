@@ -134,7 +134,7 @@ abstract class VariableBindingContainer(parent: XProcInstruction, val name: QNam
             val eager = stepConfig.eagerEvaluation
             if (eager) {
                 // Make sure it doesn't throw an exception
-                select!!.computeStaticValue(stepConfig)
+                select!!.computeStaticValue(stepConfig, false)
             }
         }
     }

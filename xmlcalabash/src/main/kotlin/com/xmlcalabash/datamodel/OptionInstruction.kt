@@ -133,7 +133,7 @@ open class OptionInstruction(parent: XProcInstruction, name: QName, stepConfig: 
             if (inScope is OptionInstruction && inScope.static) {
                 throw stepConfig.exception(XProcError.xsShadowStaticOption(name))
             }
-            select!!.computeStaticValue(stepConfig)
+            select!!.computeStaticValue(stepConfig, true)
             stepConfig.addStaticBinding(name, select!!.staticValue!!)
         }
 

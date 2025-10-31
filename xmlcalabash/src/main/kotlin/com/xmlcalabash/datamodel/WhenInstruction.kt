@@ -83,7 +83,7 @@ class WhenInstruction(parent: ChooseInstruction): CompoundStepDeclaration(parent
             }
 
             if (testExpression.canBeResolvedStatically()) {
-                testExpression.computeStaticValue(stepConfig)
+                testExpression.computeStaticValue(stepConfig, false)
             }
 
             // FIXME: check static type?

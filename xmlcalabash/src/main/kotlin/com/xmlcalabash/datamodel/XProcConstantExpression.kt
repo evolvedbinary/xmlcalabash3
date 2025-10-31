@@ -33,7 +33,7 @@ class XProcConstantExpression private constructor(stepConfig: StepConfiguration,
         return config.typeUtils.checkType(null, staticValue!!, asType, values)
     }
 
-    override fun computeStaticValue(stepConfig: InstructionConfiguration): XdmValue {
+    override fun computeStaticValue(stepConfig: InstructionConfiguration, alwaysTry: Boolean): XdmValue {
         checkedStatic = true
         return staticValue!!
     }

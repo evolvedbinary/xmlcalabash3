@@ -151,7 +151,7 @@ abstract class XProcExpression(val stepConfig: StepConfiguration, val asType: Se
     abstract fun evaluate(stepConfig: StepConfiguration): XdmValue
     abstract fun cast(asType: SequenceType, values: List<XdmAtomicValue> = emptyList()): XProcExpression
 
-    internal open fun computeStaticValue(stepConfig: InstructionConfiguration): XdmValue? {
+    internal open fun computeStaticValue(stepConfig: InstructionConfiguration, alwaysTry: Boolean): XdmValue? {
         if (checkedStatic) {
             return staticValue
         }
@@ -170,7 +170,7 @@ abstract class XProcExpression(val stepConfig: StepConfiguration, val asType: Se
 
         // The expression can be resolved statically if it doesn't refer to a collection,
         // doesn't have any bindings, and can be resolved statically.
-        if (canBeResolvedStatically()) {
+        if (alwaysTry || canBeResolvedStatically()) {
             try {
                 _staticValue = evaluate(stepConfig)
             } catch (ex: SaxonApiException) {
