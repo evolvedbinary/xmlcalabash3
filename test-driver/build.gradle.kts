@@ -2,6 +2,7 @@ import java.io.PrintStream
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import com.xmlcalabash.build.XmlCalabashBuildExtension
+import com.xmlcalabash.build.ExternalDependencies
 
 plugins {
   id("buildlogic.kotlin-application-conventions")
@@ -17,15 +18,18 @@ repositories {
 val saxonVersion = project.properties["saxonVersion"].toString()
 val requirePass = project.findProperty("requirePass")?.toString() ?: "true"
 val consoleOutput = project.findProperty("xmlcalabash.testDriver.consoleOutput")?.toString() ?: "false"
+val dep_drewnoakesExtractor = project.findProperty("drewnoakesExtractor").toString()
+val dep_jaxbapi = project.findProperty("jaxbapi").toString()
+val dep_pdfbox = project.findProperty("pdfbox").toString()
 
 val transformation by configurations.creating
 val testrunner by configurations.creating {
   extendsFrom(configurations["runtimeClasspath"])
 }
 
-val dep_drewnoakesExtractor = project.findProperty("drewnoakesExtractor").toString()
-val dep_jaxbapi = project.findProperty("jaxbapi").toString()
-val dep_pdfbox = project.findProperty("pdfbox").toString()
+configurations.forEach {
+  it.exclude("net.sf.saxon")
+}
 
 dependencies {
   implementation(project(":xmlcalabash"))
@@ -33,8 +37,15 @@ dependencies {
   implementation(project(":ext:polyglot"))
   implementation(project(":ext:basex"))
   implementation(project(":ext:existdb"))
+  implementation("com.saxonica:Saxon-EE:${saxonVersion}")
 
   transformation ("net.sf.saxon:Saxon-HE:${saxonVersion}")
+
+  ExternalDependencies.of(ExternalDependencies.compileSteps).forEach {
+    implementation(it) {
+      exclude(group="net.sf.saxon", module="Saxon-HE")
+    }
+  }
 }
 
 java {
