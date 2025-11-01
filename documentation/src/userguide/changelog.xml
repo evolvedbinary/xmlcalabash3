@@ -13,6 +13,29 @@ See the commits and pull requests on
 finer detail.</para>
 
 <revhistory>
+<revision xml:id="r3024">
+<revnumber>3.0.24</revnumber>
+<date>2025-11-01</date>
+<revdescription>
+<itemizedlist>
+<listitem><para>Fixed <cbissue number="304"/>. Reworked the Maven dependencies
+so that Saxon-EE is no longer required. Also removed many of the dependencies
+needed for extension steps (for example, Selenium). All of the dependencies are
+still bundled with the released application, these changes only apply to
+projects that are using Maven dependencies to include XML Calabash.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="305"/>. The initializers for static
+options are now always resolved statically, even if analysis can’t prove that
+the value can be resolved statically. This will result in errors if it can’t,
+but won’t result in null pointer exceptions if analysis fails. Also improved
+the analysis associated with <function>p:system-property</function>.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="306"/>. There were still a number of
+errors related to the buffering message reporter necessary for
+<tag>cx:pipeline-messages</tag>. </para></listitem>
+</itemizedlist>
+</revdescription>
+</revision>
 <revision xml:id="r3023">
 <revnumber>3.0.23</revnumber>
 <date>2025-10-27</date>
