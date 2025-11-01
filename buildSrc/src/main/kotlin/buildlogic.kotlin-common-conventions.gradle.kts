@@ -49,9 +49,9 @@ configurations.configureEach {
 */
 
 dependencies {
-  //implementation("net.sf.saxon:Saxon-HE:${project.findProperty("saxonVersion")}")
+  implementation("net.sf.saxon:Saxon-HE:${project.findProperty("saxonVersion")}")
   //implementation("com.saxonica:Saxon-PE:${project.findProperty("saxonVersion")}")
-  implementation("com.saxonica:Saxon-EE:${project.findProperty("saxonVersion")}")
+  //implementation("com.saxonica:Saxon-EE:${project.findProperty("saxonVersion")}")
   implementation("org.apache.logging.log4j:log4j-api-kotlin:1.4.0")
 
   distributionClasspath("net.sf.saxon:Saxon-HE:${project.findProperty("saxonVersion")}")
@@ -72,13 +72,13 @@ dependencies {
 //    }
 //  }
 
-  constraints {
-    implementation("com.saxonica:Saxon-EE") {
-      version {
-        strictly ("${project.findProperty("saxonVersion")}")
-      }
-    }
-  }
+//  constraints {
+//    implementation("com.saxonica:Saxon-EE") {
+//      version {
+//        strictly ("${project.findProperty("saxonVersion")}")
+//      }
+//    }
+//  }
 
   testImplementation("org.junit.jupiter:junit-jupiter:5.10.1")
   testRuntimeOnly("org.junit.platform:junit-platform-launcher")

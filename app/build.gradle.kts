@@ -24,14 +24,18 @@ plugins {
 
 val xmlbuild = the<XmlCalabashBuildExtension>()
 
-val xmlcalabashRelease by configurations.dependencyScope("xmlcalabashRelease")
-
 val dep_activation = project.findProperty("activation").toString()
 val dep_drewnoakesExtractor = project.findProperty("drewnoakesExtractor").toString()
 val dep_jaxbapi = project.findProperty("jaxbapi").toString()
 val dep_nineml = project.findProperty("nineml").toString()
 val dep_pdfbox = project.findProperty("pdfbox").toString()
 val dep_slf4j = project.findProperty("slf4j").toString()
+
+val xmlcalabashRelease by configurations.dependencyScope("xmlcalabashRelease")
+
+val stageJars by configurations.creating {
+  extendsFrom(configurations["distributionClasspath"])
+}
 
 dependencies {
   xmlcalabashRelease(project(mapOf("path" to ":xmlcalabash",
@@ -41,6 +45,12 @@ dependencies {
   //implementation(project(":ext:existdb")) // No, it requires eXist-db
   //implementation(project(":ext:basex")) // No, it requires BaseX
   //implementation(project(":ext:polyglot")) // No, it requires Java 17
+
+  ExternalDependencies.of(ExternalDependencies.compileSteps).forEach {
+    stageJars(it) {
+      exclude(group="net.sf.saxon", module="Saxon-HE")
+    }
+  }
 }
 
 val xmlcalabashJar = configurations.resolvable("xmlcalabashJar") {
@@ -77,7 +87,7 @@ tasks.withType<DokkaTaskPartial>().configureEach {
 
 fun distClasspath(): List<File> {
   val libs = mutableListOf<File>()
-  configurations["distributionClasspath"].forEach {
+  configurations["stageJars"].forEach {
     // Test is !isDirectory rather than isFile() because
     // the xmlcalabash.jar file may not exist yet...but it will!
     if (!it.isDirectory() && !it.getName().startsWith("Saxon-EE")) {

@@ -31,7 +31,7 @@ configurations.forEach {
   it.exclude("com.sun.xml.ibind.jaxp")
   it.exclude("isorelax")
   it.exclude("relaxngDatatype")
-  it.exclude("net.sf.saxon")
+  //it.exclude("net.sf.saxon")
 }
 
 dependencies {
