@@ -84,6 +84,12 @@ dependencies {
   documentation(project(":app", "runtimeElements"))
   documentation(project(":xmlcalabash", "runtimeElements"))
 
+  ExternalDependencies.of(ExternalDependencies.compileSteps).forEach {
+    documentation(it) {
+      exclude(group="net.sf.saxon", module="Saxon-HE")
+    }
+  }
+
   deltaxml(fileTree("dir" to layout.projectDirectory.dir("lib"),
                     "include" to "*.jar"))
 }
