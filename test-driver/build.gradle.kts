@@ -39,7 +39,7 @@ dependencies {
   implementation(project(":ext:existdb"))
   implementation("com.saxonica:Saxon-EE:${saxonVersion}")
 
-  transformation ("net.sf.saxon:Saxon-HE:${saxonVersion}")
+  transformation ("com.saxonica:Saxon-EE:${saxonVersion}")
 
   ExternalDependencies.of(ExternalDependencies.compileSteps).forEach {
     implementation(it) {
