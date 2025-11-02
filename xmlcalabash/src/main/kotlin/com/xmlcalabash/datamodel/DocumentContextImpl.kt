@@ -104,7 +104,7 @@ class DocumentContextImpl(private val saxonConfig: SaxonConfiguration): Document
         return error.at(location).exception()
     }
 
-    override fun exception(error: XProcError, cause: Throwable): XProcException {
+    override fun exception(error: XProcError, cause: Throwable?): XProcException {
         return XProcException(error.at(location), cause)
     }
 

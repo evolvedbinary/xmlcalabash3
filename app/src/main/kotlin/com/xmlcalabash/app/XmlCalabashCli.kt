@@ -28,6 +28,7 @@ import net.sf.saxon.s9api.QName
 import net.sf.saxon.s9api.XdmAtomicValue
 import net.sf.saxon.s9api.XdmValue
 import org.apache.logging.log4j.kotlin.logger
+import org.xml.sax.SAXParseException
 import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
@@ -610,7 +611,36 @@ class XmlCalabashCli private constructor() {
                     stepConfig.xmlCalabashConfig.messageReporter.report(report.severity) { report }
                 }
             }
-            else -> Unit
+            else -> {
+                val cause = error.cause
+                if (cause != null) {
+                    val report = when (cause) {
+                        is SAXParseException -> {
+                            var sep = ""
+                            val sb = StringBuilder()
+                            if (cause.systemId != null) {
+                                sb.append(cause.systemId!!)
+                                sep = ":"
+                            }
+                            if (cause.lineNumber > 0) {
+                                sb.append(sep).append(cause.lineNumber)
+                                sep = ":"
+                            }
+                            if (cause.columnNumber > 0) {
+                                sb.append(sep).append(cause.columnNumber)
+                                sep = ":"
+                            }
+                            sb.append(sep)
+                            sb.append(cause.message ?: "Unknown error")
+                            Report(Verbosity.ERROR, sb.toString(), error.cause!!)
+                        }
+                        else -> {
+                            Report(Verbosity.ERROR, error.cause?.message ?: "Unknown error", error.cause!!)
+                        }
+                    }
+                    stepConfig.xmlCalabashConfig.messageReporter.report(report.severity) { report }
+                }
+            }
         }
 
         if (commandLine.explainErrors) {

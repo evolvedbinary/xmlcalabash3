@@ -94,10 +94,11 @@ open class ValidateWithRelaxNG(): AbstractAtomicStep() {
         }
 
         if (!loaded) {
+            val ex = listener.exceptions.firstOrNull()
             if (schema.baseURI == null) {
-                throw stepConfig.exception(XProcError.xcNotRelaxNG("Error loading schema"))
+                throw stepConfig.exception(XProcError.xcNotRelaxNG("Error loading schema"), ex)
             }
-            throw stepConfig.exception(XProcError.xcNotRelaxNG(schema.baseURI!!, "Error loading schema"))
+            throw stepConfig.exception(XProcError.xcNotRelaxNG(schema.baseURI!!, "Error loading schema"), ex)
         }
 
         val din = S9Api.xdmToInputSource(stepConfig, document)
