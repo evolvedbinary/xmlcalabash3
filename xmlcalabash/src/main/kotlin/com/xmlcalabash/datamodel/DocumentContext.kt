@@ -26,7 +26,7 @@ interface DocumentContext {
     fun updateWith(prefix: String, ns: NamespaceUri)
     fun updateWith(namespaces: Map<String, NamespaceUri>)
     fun exception(error: XProcError): XProcException
-    fun exception(error: XProcError, cause: Throwable): XProcException
+    fun exception(error: XProcError, cause: Throwable?): XProcException
 
     fun newXPathCompiler(): XPathCompiler
     fun resolve(href: String): URI
