@@ -776,10 +776,10 @@ class StandardLibrary private constructor(builder: PipelineBuilder, private val 
         var input = decl.input("source", primary=true, sequence=false)
         input.contentTypes = MediaType.parseList("xml html")
         input = decl.input("insertion", primary=false, sequence=true)
-        input.contentTypes = MediaType.parseList("xml html text")
+        input.contentTypes = MediaType.parseList("text xml html")
 
         val output = decl.output("result", primary=true, sequence=false)
-        output.contentTypes = MediaType.parseList("xml html text")
+        output.contentTypes = MediaType.parseList("text xml html")
 
         var option = decl.option(QName("match"))
         option.select = XProcExpression.select(stepConfig, "'/*'")

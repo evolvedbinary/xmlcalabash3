@@ -272,8 +272,8 @@
    </p:declare-step>
    <p:declare-step type="p:insert" xml:id="insert">
       <p:input port="source" primary="true" content-types="xml html"/>
-      <p:input port="insertion" sequence="true" content-types="xml html text"/>
-      <p:output port="result" content-types="xml html text"/>
+      <p:input port="insertion" sequence="true" content-types="text xml html"/>
+      <p:output port="result" content-types="text xml html"/>
       <p:option name="match"
                 as="xs:string"
                 select="'/*'"
