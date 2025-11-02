@@ -108,16 +108,28 @@ object ExternalDependencies {
 
       "xmlunit" to listOf("org.xmlunit:xmlunit-core:2.10.3"))
   val implSteps = listOf("xmlcalabash", "send-mail")
+  val exclSteps = listOf("polyglot")
   
   val compileSteps: List<String>
       get() {
-        val _compileSteps = mutableListOf<String>();
+        val compileSteps = mutableListOf<String>();
         for ((step, _) in steps) {
           if (step !in implSteps) {
-            _compileSteps.add(step)
+            compileSteps.add(step)
           }
         }
-        return _compileSteps
+        return compileSteps
+      }
+
+  val distributionSteps: List<String>
+      get() {
+        val distSteps = mutableListOf<String>();
+        for ((step, _) in steps) {
+          if (step !in implSteps && step !in exclSteps) {
+            distSteps.add(step)
+          }
+        }
+        return distSteps
       }
 
   fun of(keys: List<String>): List<String> {
