@@ -46,7 +46,7 @@ dependencies {
   //implementation(project(":ext:basex")) // No, it requires BaseX
   //implementation(project(":ext:polyglot")) // No, it requires Java 17
 
-  ExternalDependencies.of(ExternalDependencies.compileSteps).forEach {
+  ExternalDependencies.of(ExternalDependencies.distributionSteps).forEach {
     stageJars(it) {
       exclude(group="net.sf.saxon", module="Saxon-HE")
     }
@@ -86,11 +86,12 @@ tasks.withType<DokkaTaskPartial>().configureEach {
 }
 
 fun distClasspath(): List<File> {
+  val libdir = "${layout.projectDirectory.dir("../xmlcalabash/lib")}/"
   val libs = mutableListOf<File>()
   configurations["stageJars"].forEach {
     // Test is !isDirectory rather than isFile() because
     // the xmlcalabash.jar file may not exist yet...but it will!
-    if (!it.isDirectory() && !it.getName().startsWith("Saxon-EE")) {
+    if (!it.startsWith(libdir) && !it.isDirectory() && !it.getName().startsWith("Saxon-EE")) {
       libs.add(it)
     }
   }
