@@ -93,6 +93,10 @@ with the <tag>cc:paged-media</tag> element as described in the
   <entry><uri>https://xmlcalabash.com/paged-media/css-formatter/weasyprint</uri></entry>
   <entry><link linkend="css-weasyprint">Weasyprint</link></entry>
 </row>
+<row>
+  <entry><uri>https://xmlcalabash.com/paged-media/css-formatter/pagedjs</uri></entry>
+  <entry><link linkend="css-paged.js">Paged.js</link></entry>
+</row>
 </tbody>
 </tgroup>
 </informaltable>
@@ -386,6 +390,70 @@ exist, it will search the user’s <envar>PATH</envar> environment
 variable.</para>
 
 <para>For more information about the properties, consult the WeasyPrint documentation.</para>
+
+</refsection>
+
+<refsection xml:id="css-paged.js">
+<title>Paged.js</title>
+
+<para>In order to use the Paged.js formatter, you must install and configure
+<link xlink:href="https://pagedjs.org/">paged.js</link> and the
+<link xlink:href="https://pagedjs.org/en/documentation/2-getting-started-with-paged.js/#command-line-version">pagedjs-cli</link> processor. You will also need to have Google Chrome installed, I believe,
+as that’s the processor that Paged.js drives.</para>
+
+<para>You can configure the formatter with
+<link xlink:href="../../userguide/current/configuration.html#cc.paged-media">a
+configuration property</link> or via the <option>parameters</option> option.
+The following configuration options are supported (based on the command-line options
+of <command>pagedjs-cli</command> version 0.4.3):</para>
+
+<informaltable>
+<tgroup cols="2">
+<colspec colwidth="2*"/>
+<colspec colwidth="1*"/>
+<thead>
+<row><entry>Property name</entry><entry>Type</entry></row>
+</thead>
+<tbody>
+<row><entry><literal>exePath</literal></entry><entry>string</entry></row>
+<row><entry><literal>additionalScript</literal></entry><entry>list of string</entry></row>
+<row><entry><literal>allowedDomain</literal></entry><entry>list of string</entry></row>
+<row><entry><literal>allowedPath</literal></entry><entry>list of string</entry></row>
+<row><entry><literal>blockLocal</literal></entry><entry>boolean</entry></row>
+<row><entry><literal>blockRemote</literal></entry><entry>boolean</entry></row>
+<row><entry><literal>browserArgs</literal></entry><entry>string</entry></row>
+<row><entry><literal>browserEndpoint</literal></entry><entry>string</entry></row>
+<row><entry><literal>debug</literal></entry><entry>boolean</entry></row>
+<row><entry><literal>extra-header</literal></entry><entry>list of string</entry></row>
+<row><entry><literal>forceTransparentBackground</literal></entry><entry>boolean</entry></row>
+<row><entry><literal>height</literal></entry><entry>string</entry></row>
+<row><entry><literal>html</literal></entry><entry>boolean</entry></row>
+<row><entry><literal>landscape</literal></entry><entry>boolean</entry></row>
+<row><entry><literal>media</literal></entry><entry>string</entry></row>
+<row><entry><literal>outline-tags</literal></entry><entry>string</entry></row>
+<row><entry><literal>page-size</literal></entry><entry>string</entry></row>
+<row><entry><literal>style</literal></entry><entry>list of string</entry></row>
+<row><entry><literal>timeout</literal></entry><entry>string</entry></row>
+<row><entry><literal>warn</literal></entry><entry>boolean</entry></row>
+<row><entry><literal>width</literal></entry><entry>string</entry></row>
+</tbody>
+</tgroup>
+</informaltable>
+
+<note>
+<para>The “list of string” properties must be configured with a
+single space-delimited value. In other words the value “a b c” will
+be processed as a list of three values: “a”, “b”, and “c”.</para>
+</note>
+
+<para>The <literal>exePath</literal> property is used to locate the
+<literal>weasyprint</literal> executable. If it’s not specified, XML Calabash will
+first look for the system property
+<literal>com.xmlcalabash.css.pagedjs.exepath</literal>, and if that doesn’t
+exist, it will search the user’s <envar>PATH</envar> environment
+variable.</para>
+
+<para>For more information about the properties, consult the Paged.js documentation.</para>
 
 </refsection>
 </refsection>
