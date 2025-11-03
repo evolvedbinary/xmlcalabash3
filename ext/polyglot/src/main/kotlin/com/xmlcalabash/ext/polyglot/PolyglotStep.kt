@@ -89,7 +89,7 @@ class PolyglotStep(val stepLanguage: String): AbstractAtomicStep() {
                 jscontext.parse(language, program)
             } catch (ex: Exception) {
                 if (ex is PolyglotException) {
-                    throw stepConfig.exception(XProcError.xdStepFailed("error interpreting ${language} input"))
+                    throw stepConfig.exception(XProcError.xdStepFailed("error interpreting ${language} input"), ex)
                 }
                 throw ex
             }
@@ -121,7 +121,7 @@ class PolyglotStep(val stepLanguage: String): AbstractAtomicStep() {
         } catch (ex: Exception) {
             when (ex) {
                 is XProcException -> throw ex
-                is PolyglotException -> throw stepConfig.exception(XProcError.xdStepFailed("${language} evaluation failed or signaled an error"))
+                is PolyglotException -> throw stepConfig.exception(XProcError.xdStepFailed("${language} evaluation failed or signaled an error"), ex)
                 else -> throw stepConfig.exception(XProcError.xdStepFailed(ex.message ?: "(no explanation"), ex)
             }
         } finally {
