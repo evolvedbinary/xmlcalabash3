@@ -13,6 +13,31 @@ See the commits and pull requests on
 finer detail.</para>
 
 <revhistory>
+<revision xml:id="r3025">
+<revnumber>3.0.25</revnumber>
+<date>2025-11-04</date>
+<revdescription>
+<itemizedlist>
+<listitem><para>Fixed <cbissue number="324"/>. When the polyglot steps fail,
+the underlying exception is now passed back and included in the error output.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="320"/>. Attempted to clean up the distribution
+jar files. The standard distribution contained a bunch of unnecessary jars related
+to extension steps.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="317"/>. Corrected an error in the <tag>p:insert</tag>
+step that caused <code>text/html</code> inputs to be rejected.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="315"/>. When a RELAX NG grammar is invalid,
+the underlying exception is now passed back and included in the error output.
+</para></listitem>
+<listitem><para>Added support for
+<link xlink:href="https://pagedjs.org/">Paged.js</link> as a
+<tag>cx:css-formatter</tag>.
+</para></listitem>
+</itemizedlist>
+</revdescription>
+</revision>
 <revision xml:id="r3024">
 <revnumber>3.0.24</revnumber>
 <date>2025-11-01</date>
