@@ -18,13 +18,13 @@ $slash = if($IsLinux -or $IsMacOS) {"/"} else {"\"}
 $extraRoot = Join-Path -Path $PSScriptRoot -ChildPath "extra"
 Get-ChildItem $extraRoot -Filter *.jar |
 ForEach-Object {
-  $cp = "${cp}${cpdelim}${PSScriptroot}${slash}extra${slash}$_"
+  $cp = "${cp}${cpdelim}$($_.FullName)"
 }
 
 $libRoot = Join-Path -Path $PSScriptRoot -ChildPath "lib"
 Get-ChildItem $libRoot -Filter *.jar |
 ForEach-Object {
-  $cp = "${cp}${cpdelim}${PSScriptroot}${slash}lib${slash}$_"
+  $cp = "${cp}${cpdelim}$($_.FullName)"
 }
 
 # 2. Find arguments that begin -D and assume they're Java properties. (Users
