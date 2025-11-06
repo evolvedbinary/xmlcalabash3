@@ -48,6 +48,11 @@ and install it on your classpath before you can use this step.
 <refsection>
 <title>Description</title>
 
+<note>
+<para>The signature for this step was substantially changed in XML Calabash 3.0.26.
+In particular the meaning of the <option>parameters</option> option has changed.</para>
+</note>
+
 <para>The polyglot extension includes <tag>cx:javascript</tag> and <tag>cx:python</tag> for
 running JavaScript and Python scripts, respectively. Other languages are possible if
 the dependencies are installed and GraalVM is configured appropriately, including Ruby,
@@ -70,15 +75,93 @@ arguments to the program. The first argument passed to scripts is conventionally
 the name of the script executable. The polyglot step sets that to the base URI of the
 invoking step.</para>
 
-<para>The <option>parameters</option> option is used to initialize the in-scope
-variables for the script. The names of the parameters must not be in a namespace.
+<para>The <option>result-content-type</option> controls how the script returns a value.</para>
+
+<para>The <option>variables</option> option is used to initialize the in-scope
+variables for the script.
 The values are converted to language-appropriate values where possible. XML values
 are serialized and passed as strings.
 </para>
 
-<para>The <option>result-content-type</option> controls how the script returns a value.</para>
+<para>The <option>options</option> are passed to the runtime context builder.
+See the GraalVM documentation for more details about available options.</para>
+
+<para>If the <option>cwd</option> option is used, the specified path will be used
+as the current working directory for the evaluation of the program.</para>
 
 <para>If the script ends with an non-zero exit code, the step will fail.</para>
+
+<refsection>
+<title>Parameters</title>
+
+<para>The <option>parameters</option> option can be used to set parameters on the
+context builder. The following parameters are supported:</para>
+
+<variablelist>
+<varlistentry>
+<term><literal>allowAllAccess</literal> (boolean)</term>
+<listitem><para>Sets the all access parameter.
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>allowCreateProcess</literal> (boolean)</term>
+<listitem><para>Sets the create process parameter.
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>allowCreateThread</literal> (boolean)</term>
+<listitem><para>Sets the create thread parameter.
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>allowEnvironmentAccess</literal> (“ALL”, “INHERIT”)</term>
+<listitem><para>Sets the environment access parameter.
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>allowExperimentalOptions</literal> (boolean)</term>
+<listitem><para>Sets the experimental options parameter.
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>allowIO</literal> (“NONE”, “ALL”)</term>
+<listitem><para>Sets the allow IO parameter.
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>allowInnerContextOptions</literal> (boolean)</term>
+<listitem><para>Sets the allow inner context options parameter.
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>allowNativeAccess</literal> (boolean)</term>
+<listitem><para>Sets the allow native access parameter.
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>allowPolyglotAccess</literal> (“NONE”, “ALL”)</term>
+<listitem><para>Sets the polyglot access parameter.
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>allowValueSharing</literal> (boolean)</term>
+<listitem><para>Sets the allow value sharing parameter.
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>environment</literal> (<code>map(xs:string,xs:string)</code>)</term>
+<listitem><para>Sets environment variables for the program.
+</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>sandbox</literal> (“TRUSTED”, “CONSTRAINED”, “ISOLATED”, “UNTRUSTED”)</term>
+<listitem><para>Sets the sandbox policy.
+</para></listitem>
+</varlistentry>
+</variablelist>
+
+<para>Consult the GraalVM documentation for more information about the parameters.</para>
+</refsection>
 
 <refsection>
 <title>Returning values</title>

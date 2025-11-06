@@ -321,6 +321,24 @@ abstract class AbstractAtomicStep(): XProcStep {
         return map
     }
 
+    fun stringItemMapBinding(name: QName): Map<String, XdmValue> {
+        if (options[name] == null) {
+            return mapOf()
+        }
+        val value = options[name]!!.value
+        if (value == XdmEmptySequence.getInstance()) {
+            return mapOf()
+        }
+
+        val inputMap = value as XdmMap
+        val map = mutableMapOf<String, XdmValue>()
+        for (key in inputMap.keySet()) {
+            val value = inputMap.get(key)
+            map[key.stringValue] = value
+        }
+        return map
+    }
+
     fun overrideContentTypes(value: XdmValue): List<Pair<String,MediaType>> {
         if (value == XdmEmptySequence.getInstance()) {
             return emptyList()
