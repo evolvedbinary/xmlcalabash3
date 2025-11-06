@@ -14,11 +14,11 @@
 </p:variable>
 
 <cx:polyglot language="python"
-             parameters="map {'x': 17,
-                              'cx:s': 'String',
-                              'doc': $doc,
-                              'map': map { 'a': 1 },
-                              'a': [ map{'b': 2}, map{'c': 3}] }">
+             variables="map {'x': 17,
+                             'cx:s': 'String',
+                             'doc': $doc,
+                             'map': map { 'a': 1 },
+                             'a': [ map{'b': 2}, map{'c': 3}] }">
   <p:with-option name="args" select="('a','b','c')"/>
   <p:with-input port="source">
     <p:inline>{$doc}</p:inline>

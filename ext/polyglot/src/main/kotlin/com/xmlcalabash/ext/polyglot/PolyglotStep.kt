@@ -94,7 +94,10 @@ class PolyglotStep(val stepLanguage: String): AbstractAtomicStep() {
         val errorStream = ByteArrayOutputStream()
 
         var builder = Context.newBuilder(language)
-        options[Ns.cwd]?.let { builder = builder.currentWorkingDirectory(Paths.get(it.value.toString())) }
+
+        val cwd = stringBinding(Ns.cwd)
+        cwd?.let { builder = builder.currentWorkingDirectory(Paths.get(it)) }
+
         for ((name, value) in polyglotParameters) {
             when (name) {
                 ns_allowHostAccess -> {
