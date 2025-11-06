@@ -9,9 +9,12 @@
     <p:input port="program" content-types="text"/>
     <p:output port="result"/>
     <p:option name="language" as="xs:string"/>
+    <p:option name="cwd" as="xs:string?"/>
     <p:option name="args" as="xs:string*"/>
     <p:option name="result-content-type" as="xs:string?"/>
-    <p:option name="parameters" as="map(xs:QName,item()?)?"/> 
+    <p:option name="variables" as="map(xs:string,item()?)?"/>
+    <p:option name="parameters" as="map(xs:QName,item()?)?"/>
+    <p:option name="options" as="map(xs:string,xs:string)?"/>
   </p:declare-step>
 
   <p:declare-step type="cx:python">
@@ -20,9 +23,12 @@
     </p:input>
     <p:input port="program" content-types="text"/>
     <p:output port="result"/>
+    <p:option name="cwd" as="xs:string?"/>
     <p:option name="args" as="xs:string*"/>
     <p:option name="result-content-type" as="xs:string?"/>
-    <p:option name="parameters" as="map(xs:QName,item()?)?"/> 
+    <p:option name="variables" as="map(xs:string,item()?)?"/>
+    <p:option name="parameters" as="map(xs:QName,item()?)?"/>
+    <p:option name="options" as="map(xs:string,xs:string)?"/>
   </p:declare-step>
 
   <p:declare-step type="cx:javascript">
@@ -31,9 +37,12 @@
     </p:input>
     <p:input port="program" content-types="text"/>
     <p:output port="result"/>
+    <p:option name="cwd" as="xs:string?"/>
     <p:option name="args" as="xs:string*"/>
     <p:option name="result-content-type" as="xs:string?"/>
-    <p:option name="parameters" as="map(xs:QName,item()?)?"/> 
+    <p:option name="variables" as="map(xs:string,item()?)?"/>
+    <p:option name="parameters" as="map(xs:QName,item()?)?"/>
+    <p:option name="options" as="map(xs:string,xs:string)?"/>
   </p:declare-step>
 
   <p:declare-step type="cx:ruby">
@@ -42,9 +51,12 @@
     </p:input>
     <p:input port="program" content-types="text"/>
     <p:output port="result"/>
+    <p:option name="cwd" as="xs:string?"/>
     <p:option name="args" as="xs:string*"/>
     <p:option name="result-content-type" as="xs:string?"/>
-    <p:option name="parameters" as="map(xs:QName,item()?)?"/> 
+    <p:option name="variables" as="map(xs:string,item()?)?"/>
+    <p:option name="parameters" as="map(xs:QName,item()?)?"/>
+    <p:option name="options" as="map(xs:string,xs:string)?"/>
   </p:declare-step>
 
   <p:declare-step type="cx:r">
@@ -53,9 +65,12 @@
     </p:input>
     <p:input port="program" content-types="text"/>
     <p:output port="result"/>
+    <p:option name="cwd" as="xs:string?"/>
     <p:option name="args" as="xs:string*"/>
     <p:option name="result-content-type" as="xs:string?"/>
-    <p:option name="parameters" as="map(xs:QName,item()?)?"/> 
+    <p:option name="variables" as="map(xs:string,item()?)?"/>
+    <p:option name="parameters" as="map(xs:QName,item()?)?"/>
+    <p:option name="options" as="map(xs:string,xs:string)?"/>
   </p:declare-step>
 
   <p:declare-step type="cx:java">
@@ -64,8 +79,11 @@
     </p:input>
     <p:input port="program" content-types="text"/>
     <p:output port="result"/>
+    <p:option name="cwd" as="xs:string?"/>
     <p:option name="args" as="xs:string*"/>
     <p:option name="result-content-type" as="xs:string?"/>
-    <p:option name="parameters" as="map(xs:QName,item()?)?"/> 
+    <p:option name="variables" as="map(xs:string,item()?)?"/>
+    <p:option name="parameters" as="map(xs:QName,item()?)?"/>
+    <p:option name="options" as="map(xs:string,xs:string)?"/>
   </p:declare-step>
 </p:library>

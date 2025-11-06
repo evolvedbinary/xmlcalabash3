@@ -7,7 +7,7 @@
 
 <p:output port="result"/>
 
-<cx:ruby parameters="map {'x': 17 }">
+<cx:ruby variables="map {'x': 17 }">
   <p:with-input port="source">
     <p:empty/>
   </p:with-input>

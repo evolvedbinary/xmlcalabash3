@@ -13,14 +13,39 @@ import net.sf.saxon.s9api.*
 import net.sf.saxon.value.*
 import org.apache.logging.log4j.kotlin.logger
 import org.graalvm.polyglot.Context
+import org.graalvm.polyglot.EnvironmentAccess
 import org.graalvm.polyglot.HostAccess
+import org.graalvm.polyglot.PolyglotAccess
 import org.graalvm.polyglot.PolyglotException
+import org.graalvm.polyglot.SandboxPolicy
+import org.graalvm.polyglot.Source
 import org.graalvm.polyglot.Value
+import org.graalvm.polyglot.io.IOAccess
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import java.io.File
 import java.nio.charset.StandardCharsets
+import java.nio.file.Paths
 
 class PolyglotStep(val stepLanguage: String): AbstractAtomicStep() {
+    companion object {
+        val ns_variables = QName("variables")
+        val ns_options = QName("options")
+        val ns_allowHostAccess = QName("allowHostAccess")
+        val ns_allowNativeAccess = QName("allowNativeAccess")
+        val ns_allowCreateThread = QName("allowCreateThread")
+        val ns_allowAllAccess = QName("allowAllAccess")
+        val ns_allowExperimentalOptions = QName("allowExperimentalOptions")
+        val ns_allowPolyglotAccess = QName("allowPolyglotAccess")
+        val ns_allowValueSharing = QName("allowValueSharing")
+        val ns_allowInnerContextOptions = QName("allowInnerContextOptions")
+        val ns_allowIO = QName("allowIO")
+        val ns_allowCreateProcess = QName("allowCreateProcess")
+        val ns_sandbox = QName("sandbox")
+        val ns_allowEnvironmentAccess = QName("allowEnvironmentAccess")
+        val ns_environment = QName("environment")
+    }
+
     lateinit var jscontext: Context
     lateinit var language: String
 
@@ -39,7 +64,9 @@ class PolyglotStep(val stepLanguage: String): AbstractAtomicStep() {
 
         val source = queues["source"]?.firstOrNull()
         val program = queues["program"]!!.first().value.underlyingValue.stringValue
-        val variables = qnameMapBinding(Ns.parameters)
+        val polyglotVariables = stringItemMapBinding(ns_variables)
+        val polyglotParameters = qnameMapBinding(Ns.parameters)
+        val polyglotOptions = stringMapBinding(ns_options)
 
         val ctype = options[Ns.resultContentType]?.value
         val resultContentType = if (ctype == null || ctype === XdmEmptySequence.getInstance()) {
@@ -51,7 +78,6 @@ class PolyglotStep(val stepLanguage: String): AbstractAtomicStep() {
         val args = mutableListOf<String>()
         args.add(stepConfig.baseUri?.toString() ?: "")
         if (options[Ns.args] != null) {
-            val argsvalue = options[Ns.args]!!.value
             for (arg in options[Ns.args]!!.value) {
                 args.add(arg.toString())
             }
@@ -67,22 +93,90 @@ class PolyglotStep(val stepLanguage: String): AbstractAtomicStep() {
         val outputStream = ByteArrayOutputStream()
         val errorStream = ByteArrayOutputStream()
 
-        jscontext = Context.newBuilder(language)
-            .allowHostClassLookup { true }
+        var builder = Context.newBuilder(language)
+
+        val cwd = stringBinding(Ns.cwd)
+        cwd?.let { builder = builder.currentWorkingDirectory(Paths.get(it)) }
+
+        for ((name, value) in polyglotParameters) {
+            when (name) {
+                ns_allowHostAccess -> {
+                    when (value.toString()) {
+                        "ALL" -> builder = builder.allowHostAccess(HostAccess.ALL)
+                        "EXPLICIT" -> builder = builder.allowHostAccess(HostAccess.EXPLICIT)
+                        "NONE" -> builder = builder.allowHostAccess(HostAccess.NONE)
+                        else -> stepConfig.warn { "Unrecognized host access: $value (ignored)" }
+                    }
+                }
+                ns_allowPolyglotAccess -> {
+                    when (value.toString()) {
+                        "ALL" -> builder = builder.allowPolyglotAccess(PolyglotAccess.ALL)
+                        "NONE" -> builder = builder.allowPolyglotAccess(PolyglotAccess.NONE)
+                        else -> stepConfig.warn { "Unrecognized polyglot access: $value (ignored)" }
+                    }
+                }
+                ns_allowIO -> {
+                    when (value.toString()) {
+                        "ALL" -> builder = builder.allowIO(IOAccess.ALL)
+                        "NONE" -> builder = builder.allowIO(IOAccess.NONE)
+                        else -> stepConfig.warn { "Unrecognized allow IO: $value (ignored)" }
+                    }
+                }
+                ns_sandbox -> {
+                    when (value.toString()) {
+                        "TRUSTED" -> builder = builder.sandbox(SandboxPolicy.TRUSTED)
+                        "CONSTRAINED" -> builder = builder.sandbox(SandboxPolicy.CONSTRAINED)
+                        "ISOLATED" -> builder = builder.sandbox(SandboxPolicy.ISOLATED)
+                        "UNTRUSTED" -> builder = builder.sandbox(SandboxPolicy.UNTRUSTED)
+                        else -> stepConfig.warn { "Unrecognized sandbox: $value (ignored)" }
+                    }
+                }
+                ns_allowEnvironmentAccess -> {
+                    when (value.toString()) {
+                        "NONE" -> builder = builder.allowEnvironmentAccess(EnvironmentAccess.NONE)
+                        "INHERIT" -> builder = builder.allowEnvironmentAccess(EnvironmentAccess.INHERIT)
+                        else -> stepConfig.warn { "Unrecognized allow environment access: $value (ignored)" }
+                    }
+                }
+                ns_allowNativeAccess -> builder = builder.allowNativeAccess(asBoolean(value))
+                ns_allowCreateThread -> builder = builder.allowCreateThread(asBoolean(value))
+                ns_allowAllAccess -> builder = builder.allowAllAccess(asBoolean(value))
+                ns_allowExperimentalOptions -> builder = builder.allowExperimentalOptions(asBoolean(value))
+                ns_allowValueSharing -> builder = builder.allowValueSharing(asBoolean(value))
+                ns_allowInnerContextOptions -> builder = builder.allowInnerContextOptions(asBoolean(value))
+                ns_allowCreateProcess -> builder = builder.allowCreateProcess(asBoolean(value))
+                ns_environment -> {
+                    if (value is XdmMap) {
+                        val envMap = mutableMapOf<String, String>()
+                        val map = stepConfig.typeUtils.asGenericMap(value)
+                        for ((key, value) in map) {
+                            envMap[key.stringValue] = value.underlyingValue.stringValue
+                        }
+                        builder = builder.environment(envMap)
+                    } else {
+                        stepConfig.warn { "The environment must be a map of strings (ignored)"}
+                    }
+                }
+                else -> {
+                    stepConfig.warn { "Unrecognized polyglot parameter: $name (ignored)" }
+                }
+            }
+        }
+
+        if (polyglotOptions.isNotEmpty()) {
+            builder = builder.options(polyglotOptions)
+        }
+
+        jscontext = builder
             .arguments(language, args.toTypedArray())
             .`in`(inputStream)
             .out(outputStream)
-            .err(errorStream)
-            .allowHostAccess(HostAccess.ALL).build()
+            .err(errorStream).build()
 
         try {
             val jsbindings = jscontext.getBindings(language)
-            for ((name, value) in variables) {
-                if (name.namespaceUri == NamespaceUri.NULL) {
-                    jsbindings.putMember(name.localName, convertToValue(value))
-                } else {
-                    stepConfig.warn { "Unexpected parameter: ${name} on ${stepParams.stepType}/${stepParams.stepName}" }
-                }
+            for ((name, value) in polyglotVariables) {
+                jsbindings.putMember(name, convertToValue(value))
             }
 
             val jsvalue = try {
@@ -268,5 +362,16 @@ class PolyglotStep(val stepLanguage: String): AbstractAtomicStep() {
 
         stepConfig.warn { "Unconvertable value: ${value}" }
         return XdmAtomicValue(value.toString())
+    }
+
+    private fun asBoolean(value: XdmValue): Boolean {
+        when (value.toString()) {
+            "true" -> return true
+            "false" -> return false
+            else -> {
+                stepConfig.warn { "Unexpected value for boolean: $value (assuming false)" }
+                return false
+            }
+        }
     }
 }

@@ -26,7 +26,7 @@
       <p:import href="https://xmlcalabash.com/ext/library/polyglot.xpl"/>
       <p:output port="result"/>
 
-      <cx:python parameters="map{'x': 7, 'y': 9, 'now': current-dateTime()}">
+      <cx:python variables="map{'x': 7, 'y': 9, 'now': current-dateTime()}">
         <p:with-input>
           <doc>Test</doc>
         </p:with-input>
