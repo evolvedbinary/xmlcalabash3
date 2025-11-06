@@ -1,5 +1,6 @@
 package com.xmlcalabash.visualizers
 
+import com.xmlcalabash.datamodel.XProcAvtExpression
 import com.xmlcalabash.datamodel.XProcConstantExpression
 import com.xmlcalabash.datamodel.XProcSelectExpression
 import com.xmlcalabash.documents.XProcDocument
@@ -70,6 +71,7 @@ open class Plain(val printer: MessagePrinter, options: Map<String,String>): Abst
                 val expr = ((step as AtomicStep).implementation as ExpressionStep).expression
                 when (expr) {
                     is XProcSelectExpression -> " (${expr.select})"
+                    is XProcAvtExpression -> " (avt=${expr.avt})"
                     is XProcConstantExpression -> " (${expr.staticValue ?: "(NULL?)"})"
                     else -> " (???)"
                 }
