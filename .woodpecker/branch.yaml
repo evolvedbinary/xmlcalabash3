@@ -17,7 +17,7 @@ steps:
       LIBRARY_PASSPHRASE:
         from_secret: LIBRARY_PASSPHRASE
       SMTPSERVER: sendria
-      SKIP_EE_TESTS: true
+      SKIP_EE_TESTS: "true"
       GRADLE_USER_HOME: ./build/.gradle
     commands:
       # This build has to run as a non-root user
