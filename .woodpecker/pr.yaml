@@ -15,7 +15,7 @@ steps:
       - builder-home:/home/builder
     environment:
       SMTPSERVER: sendria
-      SKIP_EE_TESTS: true
+      SKIP_EE_TESTS: "true"
       GRADLE_USER_HOME: ./build/.gradle
     commands:
       # This build has to run as a non-root user
