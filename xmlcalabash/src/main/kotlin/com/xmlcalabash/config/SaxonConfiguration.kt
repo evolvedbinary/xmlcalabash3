@@ -13,6 +13,7 @@ import net.sf.saxon.functions.FunctionLibrary
 import net.sf.saxon.lib.ExtensionFunctionDefinition
 import net.sf.saxon.lib.FeatureIndex
 import net.sf.saxon.lib.Initializer
+import net.sf.saxon.om.StructuredQName
 import net.sf.saxon.s9api.Processor
 import net.sf.saxon.s9api.QName
 import net.sf.saxon.s9api.Xslt30Transformer
@@ -246,6 +247,16 @@ class SaxonConfiguration private constructor(val licensed: Boolean,
         }
         pipelineExtensionFunctions.add(decl.function!!)
         processor.registerExtensionFunction(decl.function)
+    }
+
+    fun isPipelineFunction(name: QName, arity: Int): Boolean {
+        val sname = StructuredQName(name.prefix, name.namespaceUri, name.localName)
+        for (decl in pipelineExtensionFunctions) {
+            if (decl.functionQName == sname && arity <= decl.maximumNumberOfArguments && arity >= decl.minimumNumberOfArguments) {
+                return true
+            }
+        }
+        return false
     }
 
     // ============================================================
