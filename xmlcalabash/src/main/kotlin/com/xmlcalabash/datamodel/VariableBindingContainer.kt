@@ -70,6 +70,15 @@ abstract class VariableBindingContainer(parent: XProcInstruction, val name: QNam
             return false
         }
 
+        // Special case, if any function in the expression is a pipeline extension function,
+        // assume it cannot be resolved statically.
+        for ((fname, arity) in select!!.details.functionRefs) {
+            if (select!!.stepConfig.saxonConfig.isPipelineFunction(fname, arity)) {
+                alwaysDynamic = true
+                return false
+            }
+        }
+
         val exprSelect = select
         if (exprSelect == null) {
             return false
@@ -140,7 +149,7 @@ abstract class VariableBindingContainer(parent: XProcInstruction, val name: QNam
     }
 
     open fun promoteToStep(step: XProcInstruction): List<AtomicStepInstruction> {
-        if (!alwaysDynamic && canBeResolvedStatically()) {
+        if (canBeResolvedStatically()) {
             return emptyList()
         }
 
