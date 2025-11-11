@@ -1212,7 +1212,7 @@ for example.</para>
 
 <note>
 <para>The <tag>p:documentation</tag> and <tag>p:pipeinfo</tag> elements have no special
-signifigance inside a <tag>p:inline</tag>; in that context, they’re just inline
+significance inside a <tag>p:inline</tag>; in that context, they’re just inline
 elements.</para>
 </note>
 
