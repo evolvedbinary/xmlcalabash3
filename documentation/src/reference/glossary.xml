@@ -7,7 +7,7 @@
 <glossentry>
 <glossterm>compound step</glossterm>
 <glossdef>
-<para>A <firstterm>compound step</firstterm>, as distinct from an atomic step, is one who’s
+<para>A <firstterm>compound step</firstterm>, as distinct from an atomic step, is one whose
 implementation is determined by the <glossterm>subpipeline</glossterm> it contains.
 </para>
 </glossdef>
