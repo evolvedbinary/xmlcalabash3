@@ -23,6 +23,7 @@ import net.sf.saxon.s9api.XdmMap
 import net.sf.saxon.s9api.XdmNode
 import net.sf.saxon.s9api.XdmNodeKind
 import net.sf.saxon.s9api.XdmValue
+import net.sf.saxon.trans.XPathException
 import net.sf.saxon.type.BuiltInAtomicType
 import net.sf.saxon.value.Cardinality
 import net.sf.saxon.value.EmptySequence
@@ -166,7 +167,12 @@ class PipelineFunction(private val decl: DeclareStepInstruction): ExtensionFunct
                 }
             }
 
-            exec.run()
+            try {
+                exec.run()
+            } catch (ex: Exception) {
+                // Wrap the exception in an XPathException so that try/catch in XQuery or XSLT will work
+                throw XPathException("Pipeline execution failed", ex)
+            }
 
             var map = XdmMap()
             for ((port, documents) in receiver.outputs) {
