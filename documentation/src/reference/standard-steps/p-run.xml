@@ -11,47 +11,38 @@
 
 <refsection role="introduction">
 <title>Introduction</title>
-
+<para>The <tag>p:run</tag> step is unlike the other standard steps. It functions
+as an atomic step, in that it has no subpipeline, but it takes a pipeline on it’s
+single, anonymous input port and it runs that subpipeline. </para>
 </refsection>
 
 <refsection role="step-declaration">
 <title>Step declaration</title>
-<refsection role="introduction">
-<title>Introduction</title>
-<para>The <tag>p:run</tag> step runs a dynamically loaded pipeline.</para>
-</refsection><refsection role="step-declaration">
-<title>Step declaration</title>
-<para>TBD.</para>
-</refsection><refsection role="errors"><title>Errors</title>
-<error code="C0200">It is a <glossterm>dynamic error</glossterm>
-if the pipeline input to the <tag>p:run</tag> step is not a
-valid pipeline.</error>
-<error code="C0206">It is a <glossterm>dynamic error</glossterm>
-if the dynamically executed pipeline implicitly or explicitly declares a primary input port with 
-a different name than implicitly or explicitly specified in the <tag>p:run</tag> invocation.</error>
-<error code="C0207">It is a <glossterm>dynamic error</glossterm>
-if the dynamically executed pipeline implicitly or explicitly declares a primary output port with 
-a different name than implicitly or explicitly specified in the <tag>p:run</tag> invocation.</error>
-</refsection><refsection role="implementation-features"><title>Implementation-defined and -dependent features</title>
-</refsection>
+
+<para>The <tag>p:run</tag> step has slightly different child elements from the
+other steps.</para>
+
+<programlisting linenumbering="unnumbered"><![CDATA[<p:run
+  name? = NCName>
+    (p:with-input & 
+     p:run-input* & 
+     p:run-option* & 
+     p:output*)
+</p:run>]]></programlisting>
+
 </refsection>
 
-<refsection role="errors"><title>Errors</title><para>
-<error code="C0200">It is a <glossterm>dynamic error</glossterm>
-if the pipeline input to the <tag>p:run</tag> step is not a
-valid pipeline.</error>
-<error code="C0206">It is a <glossterm>dynamic error</glossterm>
-if the dynamically executed pipeline implicitly or explicitly declares a primary input port with 
-a different name than implicitly or explicitly specified in the <tag>p:run</tag> invocation.</error>
-<error code="C0207">It is a <glossterm>dynamic error</glossterm>
-if the dynamically executed pipeline implicitly or explicitly declares a primary output port with 
-a different name than implicitly or explicitly specified in the <tag>p:run</tag> invocation.</error>
-</para>
-</refsection>
-
-<refsection role="implementation-features"><title>Implementation-defined and -dependent features</title>
+<refsection role="errors"><title>Errors</title>
 <para>
-</para>
+<error code="C0200">It is a <glossterm>dynamic error</glossterm>
+if the pipeline input to the <tag>p:run</tag> step is not a
+valid pipeline.</error></para>
+<para><error code="C0206">It is a <glossterm>dynamic error</glossterm>
+if the dynamically executed pipeline implicitly or explicitly declares a primary input port with 
+a different name than implicitly or explicitly specified in the <tag>p:run</tag> invocation.</error></para>
+<para><error code="C0207">It is a <glossterm>dynamic error</glossterm>
+if the dynamically executed pipeline implicitly or explicitly declares a primary output port with 
+a different name than implicitly or explicitly specified in the <tag>p:run</tag> invocation.</error></para>
 </refsection>
 </refsynopsisdiv>
 
