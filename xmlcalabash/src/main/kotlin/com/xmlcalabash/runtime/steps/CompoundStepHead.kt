@@ -345,6 +345,7 @@ class CompoundStepHead(config: XProcStepConfiguration, val parent: CompoundStep,
         _cache.clear()
         inputCount.clear()
         _options.clear()
+        inputErrors.clear()
         showMessage = true
     }
 
