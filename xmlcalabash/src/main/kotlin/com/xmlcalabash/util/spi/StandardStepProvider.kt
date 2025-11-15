@@ -3,6 +3,7 @@ package com.xmlcalabash.util.spi
 import com.xmlcalabash.api.XProcStep
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.namespace.NsCx
+import com.xmlcalabash.namespace.NsEXProc
 import com.xmlcalabash.namespace.NsP
 import com.xmlcalabash.runtime.parameters.*
 import com.xmlcalabash.spi.AtomicStepManager
@@ -140,7 +141,9 @@ class StandardStepProvider: AtomicStepManager, AtomicStepProvider {
         NsCx.select             to { p: StepParameters? -> SelectStep(p as SelectStepParameters) },
         NsCx.head               to { _: StepParameters? -> NullStep() },
         NsCx.foot               to { _: StepParameters? -> NullStep() },
-        NsCx.unimplemented      to { p: StepParameters? -> UnimplementedStep(p as UnimplementedStepParameters) }
+        NsCx.unimplemented      to { p: StepParameters? -> UnimplementedStep(p as UnimplementedStepParameters) },
+
+        NsEXProc.expandTemplates to { _: StepParameters? -> ExpandTemplates() }
     )
 
     override fun create(): AtomicStepManager {

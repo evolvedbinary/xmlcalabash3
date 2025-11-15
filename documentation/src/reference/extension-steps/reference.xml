@@ -3,7 +3,7 @@
       xmlns:xlink="http://www.w3.org/1999/xlink"
       xml:id="extension-steps" version="5.2">
 <info>
-  <title>Extension steps</title>
+  <title>XML Calabash extension steps</title>
 </info>
 
 <xi:include href="cx-asciidoctor.xml"/>
