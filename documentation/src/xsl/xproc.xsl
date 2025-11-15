@@ -40,7 +40,6 @@
         >&lt;p:import href="https://xmlcalabash.com/ext/library/{$import}"/&gt;</screen>
       </xsl:variable>
       <xsl:apply-templates select="$pl"/>
-
     </xsl:if>
 
     <details>
@@ -48,6 +47,7 @@
       <xsl:variable name="clean-decl">
         <xsl:apply-templates select="." mode="clean-decl"/>
       </xsl:variable>
+
       <xsl:variable name="pl" as="element()">
         <db:programlisting language="xml">
           <xsl:sequence select="serialize($clean-decl, map {'method':'xml', 'indent':true()})"/>
@@ -267,7 +267,12 @@
 
 <xsl:template match="p:declare-step" mode="clean-decl">
   <xsl:element name="{node-name(.)}" namespace="{namespace-uri(.)}">
-    <xsl:apply-templates select="@* except (@xml:id | @xml:base)"/>
+    <xsl:if test="@type">
+      <xsl:apply-templates select="." mode="typens">
+        <xsl:with-param name="prefix" select="substring-before(@type, ':')"/>
+      </xsl:apply-templates>
+    </xsl:if>
+    <xsl:apply-templates select="@* except (@xml:id | @xml:base)" mode="clean-decl"/>
     <xsl:apply-templates select="node()" mode="clean-decl"/>
   </xsl:element>
 </xsl:template>
@@ -282,6 +287,23 @@
 
 <xsl:template match="attribute()|text()|comment()|processing-instruction()" mode="clean-decl">
   <xsl:copy/>
+</xsl:template>
+
+<!-- ============================================================ -->
+
+<xsl:template match="*" mode="typens" as="namespace-node()?">
+  <xsl:param name="prefix" as="xs:string"/>
+
+  <xsl:choose>
+    <xsl:when test="namespace::*[local-name(.) = $prefix]">
+      <xsl:sequence select="namespace::*[local-name(.) = $prefix]"/>
+    </xsl:when>
+    <xsl:otherwise>
+      <xsl:apply-templates select="parent::*" mode="typens">
+        <xsl:with-param name="prefix" select="$prefix"/>
+      </xsl:apply-templates>
+    </xsl:otherwise>
+  </xsl:choose>
 </xsl:template>
 
 </xsl:stylesheet>

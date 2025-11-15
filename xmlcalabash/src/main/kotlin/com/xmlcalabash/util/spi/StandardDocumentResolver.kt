@@ -34,7 +34,8 @@ class StandardDocumentResolver: DocumentResolverProvider, DocumentResolver {
         URI("https://xmlcalabash.com/ext/library/unique-id.xpl") to "/com/xmlcalabash/ext/unique-id.xpl",
         URI("https://xmlcalabash.com/ext/library/wait-for-update.xpl") to "/com/xmlcalabash/ext/wait-for-update.xpl",
         URI("https://xmlcalabash.com/ext/library/xmlunit.xpl") to "/com/xmlcalabash/ext/xmlunit.xpl",
-        URI("https://xmlcalabash.com/ext/library/xpath.xpl") to "/com/xmlcalabash/ext/xpath.xpl"
+        URI("https://xmlcalabash.com/ext/library/xpath.xpl") to "/com/xmlcalabash/ext/xpath.xpl",
+        URI("https://xmlcalabash.com/ext/library/expand-templates.xpl") to "/com/xmlcalabash/ext/expand-templates.xpl"
     )
     private val libraryMapping = mutableMapOf<URI, XProcDocument>()
 

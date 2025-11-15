@@ -15,7 +15,7 @@ import net.sf.saxon.s9api.XdmValue
  */
 class LazyValue private constructor(val context: DocumentContext, config: StepConfiguration) {
     private var expression: XProcExpression? = null
-    private var constant: XProcDocument? = null
+    private var constant: XdmValue? = null
     private val resolvedConfig = config.copy()
 
     init {
@@ -27,12 +27,16 @@ class LazyValue private constructor(val context: DocumentContext, config: StepCo
     }
 
     constructor(doc: XProcDocument, config: StepConfiguration): this(doc.context, config) {
-        this.constant = doc
+        this.constant = doc.value
+    }
+
+    constructor(doc: XProcDocument, config: StepConfiguration, value: XdmValue): this(doc.context, config) {
+        this.constant = value
     }
 
     val value: XdmValue by lazy {
         if (constant != null) {
-            constant!!.value
+            constant!!
         } else {
             expression!!.evaluate(resolvedConfig)
         }

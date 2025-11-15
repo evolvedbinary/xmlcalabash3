@@ -1,0 +1,38 @@
+<refentry xmlns:p="http://www.w3.org/ns/xproc"
+          xmlns:e="http://www.w3.org/1999/XSL/Spec/ElementSyntax"
+          xmlns:cxerr="http://xmlcalabash.com/ns/error"
+          xmlns:xi="http://www.w3.org/2001/XInclude"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          xmlns="http://docbook.org/ns/docbook"
+          xml:id="ex-expand-templates">
+<?db filename="ex-expand-templates"?>
+<refnamediv>
+  <refname>ex:expand-templates</refname>
+  <refpurpose>Expand value templates in a document</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv>
+<refsection role="introduction">
+<title>Introduction</title>
+<para>This step expands value templates in an input document. This is analagous
+to what <tag>p:inline</tag> does for inline content.
+</para>
+</refsection>
+
+<refsection role="step-declaration">
+<title>Step declaration</title>
+<xi:include href="../../../../xmlcalabash/src/main/resources/com/xmlcalabash/ext/expand-templates.xpl"
+            xpointer="xpath(/*/*[@type='ex:expand-templates'])"/>
+<?import expand-templates.xpl?>
+</refsection>
+</refsynopsisdiv>
+
+<refsection>
+<title>Description</title>
+
+<para>This step expands any attribute- or text-value templates in the source document.
+The source document is the context item for expression evalation; the in-scope variables
+are the ones passed in <option>variables</option>.</para>
+
+</refsection>
+</refentry>

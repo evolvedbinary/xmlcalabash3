@@ -18,7 +18,7 @@ import java.net.URI
 import java.nio.charset.StandardCharsets
 import java.util.*
 
-class ValueTemplateFilterXml(val originalNode: XdmNode, val contentType: MediaType, val baseUri: URI): ValueTemplateFilter {
+class ValueTemplateFilterXml(val originalNode: XdmNode, val contentType: MediaType, val baseUri: URI?): ValueTemplateFilter {
     private var xmlNode = originalNode
     private var static = true
     private var onlyChecking = false

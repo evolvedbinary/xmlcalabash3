@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<t:test expected="pass"
+        xmlns:t="http://xproc.org/ns/testsuite/3.0">
+  <t:info>
+    <t:title>expand-templates-001</t:title>
+    <t:revision-history>
+      <t:revision>
+        <t:date>2025-11-15</t:date>
+        <t:author>
+          <t:name>Norm Tovey-Walsh</t:name>
+        </t:author>
+        <t:description xmlns="http://www.w3.org/1999/xhtml">
+          <p>Created test.</p>
+        </t:description>
+      </t:revision>
+    </t:revision-history>
+  </t:info>
+  <t:description xmlns="http://www.w3.org/1999/xhtml">
+    <p>Tests ex:expand-template.</p>
+  </t:description>
+  <t:pipeline>
+<p:declare-step xmlns:p="http://www.w3.org/ns/xproc"
+                xmlns:ex="http://exproc.org/ns/steps"
+                name="main" version="3.0">
+  <p:import href="https://xmlcalabash.com/ext/library/expand-templates.xpl"/>
+  <p:output port="result"/>
+
+  <ex:expand-templates>
+    <p:with-input>
+      <p:inline exclude-inline-prefixes="#all"
+                ><doc><sum>{{$x+4}}</sum><greeting>{{$greeting}}</greeting></doc></p:inline>
+    </p:with-input>
+    <p:with-option name="variables"
+                   select="map{'x':3, 'greeting': 'Hello, world'}"/>
+  </ex:expand-templates>
+</p:declare-step>
+  </t:pipeline>
+  <t:schematron>
+    <s:schema queryBinding="xslt2"
+              xmlns:s="http://purl.oclc.org/dsdl/schematron">
+      <s:pattern>
+        <s:rule context="/">
+          <s:assert test="doc">The root is wrong.</s:assert>
+          <s:assert test="doc/sum = '7'">The sum is wrong.</s:assert>
+          <s:assert test="doc/greeting = 'Hello, world'">The greeting is wrong.</s:assert>
+        </s:rule>
+      </s:pattern>
+    </s:schema>
+  </t:schematron>
+</t:test>
