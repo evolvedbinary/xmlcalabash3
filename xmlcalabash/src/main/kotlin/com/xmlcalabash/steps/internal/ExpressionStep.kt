@@ -19,11 +19,19 @@ import net.sf.saxon.type.BuiltInAtomicType
 import org.apache.logging.log4j.kotlin.logger
 
 open class ExpressionStep(val params: ExpressionStepParameters): AbstractAtomicStep() {
+    private object LockObject
+
     val contextItems = mutableListOf<XProcDocument>()
     val expression = params.expression
     val collection = params.collection
 
     override fun run() {
+        synchronized(LockObject) {
+            unsafeRun()
+        }
+    }
+
+    private fun unsafeRun() {
         super.run()
 
         params.expression.details.error?.let {
