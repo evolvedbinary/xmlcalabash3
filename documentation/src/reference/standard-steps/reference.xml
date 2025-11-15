@@ -61,6 +61,7 @@ To avoid repeating it in every example, it is summarized here.</para>
 <xi:include href="p-pack.xml"/>
 <xi:include href="p-rename.xml"/>
 <xi:include href="p-replace.xml"/>
+<xi:include href="p-run.xml"/>
 <xi:include href="p-send-mail.xml"/>
 <xi:include href="p-set-attributes.xml"/>
 <xi:include href="p-set-properties.xml"/>
