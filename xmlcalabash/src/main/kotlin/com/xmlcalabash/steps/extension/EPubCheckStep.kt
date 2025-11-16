@@ -12,6 +12,7 @@ import com.xmlcalabash.documents.XProcBinaryDocument
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.namespace.Ns
+import com.xmlcalabash.namespace.NsEXProc
 import com.xmlcalabash.steps.AbstractAtomicStep
 import com.xmlcalabash.util.Report
 import com.xmlcalabash.util.Verbosity
@@ -21,14 +22,14 @@ import net.sf.saxon.om.NamespaceUri
 import net.sf.saxon.s9api.QName
 import java.io.ByteArrayInputStream
 
-class EPubCheckStep(): AbstractAtomicStep() {
-    lateinit var reporter: MessageReporter
-    lateinit var report: XvrlReport
-
+class EPubCheckStep(val namespace: NamespaceUri): AbstractAtomicStep() {
     companion object {
         val epubNamespace = NamespaceUri.of("http://xmlcalabash.com/ns/epubcheck")
         val epub_path = QName(epubNamespace, "epub:path")
     }
+
+    lateinit var reporter: MessageReporter
+    lateinit var report: XvrlReport
 
     override fun run() {
         super.run()
@@ -51,6 +52,9 @@ class EPubCheckStep(): AbstractAtomicStep() {
         val node = report.asXml()
         if (report.digest.errorCount > 0 || report.digest.fatalErrorCount > 0) {
             if (assertValid) {
+                if (namespace == NsEXProc.namespace) {
+                    throw stepConfig.exception(XProcError.excEPubValidationFailed())
+                }
                 throw stepConfig.exception(XProcError.xdStepFailed("EPUBCheck reported errors"))
             }
         }
@@ -59,7 +63,12 @@ class EPubCheckStep(): AbstractAtomicStep() {
         receiver.output("report", XProcDocument.ofXml(node, stepConfig, MediaType.XML, DocumentProperties()))
     }
 
-    override fun toString(): String = "cx:epubcheck"
+    override fun toString(): String {
+        if (namespace == NsEXProc.namespace) {
+            return "ex:epubcheck"
+        }
+        return "cx:epubcheck"
+    }
 
     inner class EpubReport(epubName: String): DefaultReportImpl(epubName, null, true) {
         override fun message(id: MessageId?, location: EPUBLocation?, vararg args: Any?) {

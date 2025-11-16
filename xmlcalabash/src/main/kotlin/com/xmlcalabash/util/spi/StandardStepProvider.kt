@@ -103,7 +103,7 @@ class StandardStepProvider: AtomicStepManager, AtomicStepProvider {
         NsCx.cacheDelete        to { _: StepParameters? -> CacheDeleteStep() },
         NsCx.collectionManager  to { _: StepParameters? -> CollectionManagerStep() },
         NsCx.ditaa              to { _: StepParameters? -> DitaaStep() },
-        NsCx.ePubCheck          to { _: StepParameters? -> EPubCheckStep() },
+        NsCx.ePubCheck          to { _: StepParameters? -> EPubCheckStep(NsCx.namespace) },
         NsCx.ebnfConvert        to { _: StepParameters? -> EbnfConvertStep() },
         NsCx.fileset            to { _: StepParameters? -> FileSetStep() },
         NsCx.find               to { _: StepParameters? -> FindStep() },
@@ -143,7 +143,8 @@ class StandardStepProvider: AtomicStepManager, AtomicStepProvider {
         NsCx.foot               to { _: StepParameters? -> NullStep() },
         NsCx.unimplemented      to { p: StepParameters? -> UnimplementedStep(p as UnimplementedStepParameters) },
 
-        NsEXProc.expandTemplates to { _: StepParameters? -> ExpandTemplates() }
+        NsEXProc.expandTemplates to { _: StepParameters? -> ExpandTemplates() },
+        NsEXProc.epubcheck       to { _: StepParameters? -> EPubCheckStep(NsEXProc.namespace) }
     )
 
     override fun create(): AtomicStepManager {

@@ -1,0 +1,36 @@
+package com.xmlcalabash.namespace
+
+import net.sf.saxon.om.NamespaceUri
+import net.sf.saxon.s9api.QName
+
+object NsEXProcErr {
+    val namespace: NamespaceUri = NamespaceUri.of("http://exproc.org/ns/error")
+
+    private val staticErrors = mutableMapOf<Int, QName>()
+    private val dynamicErrors = mutableMapOf<Int, QName>()
+    private val stepErrors = mutableMapOf<Int, QName>()
+    private val internalErrors = mutableMapOf<Int, QName>()
+    private val xstepErrors = mutableMapOf<Int, QName>()
+
+    fun xs(code: Int): QName {
+        val err = staticErrors[code] ?: error(code, "XS")
+        staticErrors[code] = err
+        return err
+    }
+
+    fun xd(code: Int): QName {
+        val err = dynamicErrors[code] ?: error(code, "XD")
+        dynamicErrors[code] = err
+        return err
+    }
+
+    fun xc(code: Int): QName {
+        val err = stepErrors[code] ?: error(code, "XC")
+        stepErrors[code] = err
+        return err
+    }
+
+    private fun error(code: Int, type: String): QName {
+        return QName(namespace, "exerr:${type}${code.toString().padStart(4, '0')}")
+    }
+}
