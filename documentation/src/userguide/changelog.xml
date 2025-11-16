@@ -13,6 +13,50 @@ See the commits and pull requests on
 finer detail.</para>
 
 <revhistory>
+<revision xml:id="r3026">
+<revnumber>3.0.26</revnumber>
+<date>2025-11-16</date>
+<revdescription>
+<itemizedlist>
+<listitem><para>Fixed <cbissue number="344"/>. Updated to
+<link xlink:href="https://sinclude.nwalsh.com/">SInclude</link> version 5.6.0. This fixes
+a bug where in-scope namespaces were lost that effected the documentation. Also updated a
+few other things.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="341"/>. Fixed a bug where errors in
+“<link xlink:href="https://docs.xmlcalabash.com/userguide/current/pipelineception.html">pipelineception</link>”
+functions couldn’t be caught in XSLT or XQuery.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="340"/>. Fixed a bug where expressions were not
+evaluated correctly when multithreading was used.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="339"/>. Added <tag>p:run</tag> to the reference
+documentation.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="337"/>. Make sure that input errors are cleared
+when a compound step is reset.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="334"/>. Fixed a bug where calls to pipeline
+extension functions were treated as static, which they aren’t (in general).
+</para></listitem>
+<listitem><para>Fixed <cbissue number="330"/>. Improved rendering of AVTs in visualizer output.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="316"/>. Improved <filename>xmlcalabash.ps1</filename>
+so that it works correctly in both Powershell 5 and Powershell 7.
+</para></listitem>
+<listitem><para>Added support for <tag>ex:epubcheck</tag>, that is, the EPUB check step
+in the EXProc namespace.
+</para></listitem>
+<listitem><para>Added an <tag>ex:expand-templates</tag> step to expand attribute- and text-value
+templates in an input document. This is in the EXProc step namespace.
+</para></listitem>
+<listitem><para>Made a variety of improvements to the polyglot steps.
+</para></listitem>
+<listitem><para>Fixed typos in the reference documentation. (Thanks @galtm!)
+</para></listitem>
+</itemizedlist>
+</revdescription>
+</revision>
 <revision xml:id="r3025">
 <revnumber>3.0.25</revnumber>
 <date>2025-11-04</date>
