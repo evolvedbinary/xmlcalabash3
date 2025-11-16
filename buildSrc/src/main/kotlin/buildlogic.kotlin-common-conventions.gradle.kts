@@ -38,6 +38,9 @@ configurations.all {
     if (requested.group == "net.sourceforge.plantuml") {
       useVersion(ExternalDependencies.version("net.sourceforge.plantuml:plantuml"))
     }
+    if (requested.group == "com.nwalsh" && requested.name == "sinclude") {
+      useVersion(ExternalDependencies.version("com.nwalsh:sinclude"))
+    }
   }
 }
 
