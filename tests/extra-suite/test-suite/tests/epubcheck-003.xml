@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<t:test expected="pass"
+        xmlns:t="http://xproc.org/ns/testsuite/3.0">
+  <t:info>
+    <t:title>epubcheck-003</t:title>
+    <t:revision-history>
+      <t:revision>
+        <t:date>2025-11-16</t:date>
+        <t:author>
+          <t:name>Norm Tovey-Walsh</t:name>
+        </t:author>
+        <t:description xmlns="http://www.w3.org/1999/xhtml">
+          <p>Created test.</p>
+        </t:description>
+      </t:revision>
+    </t:revision-history>
+  </t:info>
+  <t:description xmlns="http://www.w3.org/1999/xhtml">
+    <p>Tests the ex:epubcheck step error code.</p>
+  </t:description>
+  <t:pipeline>
+    <p:declare-step version="3.0"
+                    xmlns:err="http://www.w3.org/ns/xproc-error"
+                    xmlns:cx="http://xmlcalabash.com/ns/extensions"
+                    xmlns:ex="http://exproc.org/ns/steps"
+                    xmlns:p="http://www.w3.org/ns/xproc"
+                    exclude-inline-prefixes="#all">
+      <p:import href="https://xmlcalabash.com/ext/library/epubcheck.xpl"/>
+      <p:output port="result"/>
+
+      <p:try>
+        <ex:epubcheck name="epubcheck" assert-valid="true">
+          <p:with-input href="../epubcheck/epub-001.epub"/>
+        </ex:epubcheck>
+        <p:catch code="Q{http://exproc.org/ns/error}XC0001">
+          <p:identity>
+            <p:with-input>
+              <pass/>
+            </p:with-input>
+          </p:identity>
+        </p:catch>
+      </p:try>
+    </p:declare-step>
+  </t:pipeline>
+  <t:schematron>
+    <s:schema queryBinding="xslt2"
+              xmlns:s="http://purl.oclc.org/dsdl/schematron">
+      <s:ns prefix="xvrl" uri="http://www.xproc.org/ns/xvrl"/>
+      <s:pattern>
+        <s:rule context="/">
+          <s:assert test="pass">Test failed</s:assert>
+        </s:rule>
+      </s:pattern>
+    </s:schema>
+  </t:schematron>
+</t:test>

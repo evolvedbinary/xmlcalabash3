@@ -3,6 +3,7 @@ package com.xmlcalabash.exceptions
 import com.xmlcalabash.datamodel.Location
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.io.MediaType
+import com.xmlcalabash.namespace.NsEXProcErr
 import com.xmlcalabash.namespace.NsErr
 import com.xmlcalabash.util.Report
 import net.sf.saxon.s9api.*
@@ -33,6 +34,10 @@ open class XProcError protected constructor(val code: QName, val variant: Int, v
             return NsErr.xxc(code)
         }
 
+        private fun exprocStepError(code: Int): QName {
+            return NsEXProcErr.xc(code)
+        }
+
         private fun static(code: Pair<Int, Int>, vararg details: Any): XProcError {
             val ecode = staticError(code.first)
             return XProcError(ecode, code.second, Location.NULL, Location.NULL, *details)
@@ -59,6 +64,19 @@ open class XProcError protected constructor(val code: QName, val variant: Int, v
         fun step(code: Int, vararg details: Any): XProcError = step(Pair(code, 1), *details)
 
         private fun step(code: Int, location: Location, vararg details: Any): XProcError = step(Pair(code, 1), location, *details)
+
+        private fun exprocStep(code: Pair<Int,Int>, vararg details: Any): XProcError {
+            return exprocStep(code, Location.NULL, *details)
+        }
+
+        private fun exprocStep(code: Pair<Int,Int>, inputLocation: Location, vararg details: Any): XProcError {
+            val ecode = exprocStepError(code.first)
+            return XProcError(ecode, code.second, Location.NULL, inputLocation, *details)
+        }
+
+        fun exprocStep(code: Int, vararg details: Any): XProcError = exprocStep(Pair(code, 1), *details)
+
+        private fun exprocStep(code: Int, location: Location, vararg details: Any): XProcError = step(Pair(code, 1), location, *details)
 
         private fun internal(code: Pair<Int,Int>, vararg details: Any): XProcError {
             val ecode = internalError(code.first)
@@ -393,6 +411,8 @@ open class XProcError protected constructor(val code: QName, val variant: Int, v
         fun xcInvalidIxmlGrammar() = step(Pair(212, 1))
         fun xcInvalidIxmlGrammar(failure: XdmNode) = step(Pair(212, 2), failure)
         fun xcInvalidIxmlGrammar(failure: String) = step(Pair(212, 3), failure)
+
+        fun excEPubValidationFailed() = exprocStep(1)
 
         fun xiCastUnsupported(message: String) = xstep(1, message)
         fun xiCastInputIncorrect(message: String) = xstep(2, message)

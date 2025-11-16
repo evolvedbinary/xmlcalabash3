@@ -12,5 +12,6 @@
 </partintro>
 
 <xi:include href="ex-expand-templates.xml"/>
+<xi:include href="ex-epubcheck.xml"/>
 
 </part>
