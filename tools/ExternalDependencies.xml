@@ -37,7 +37,7 @@
       <artifact id="json-schema-validator" version="1.5.8"/>
     </group>
     <group id="com.nwalsh">
-      <artifact id="sinclude" version="5.5.0"/>
+      <artifact id="sinclude" version="5.6.0"/>
     </group>
     <group id="com.princexml">
       <artifact id="prince-java-wrapper" version="1.5.0"/>
@@ -128,12 +128,12 @@
       <artifact id="kotlinx-coroutines-core" version="1.10.2"/>
     </group>
     <group id="org.jline">
-      <artifact id="jline" version="3.30.4"/>
-      <artifact id="jline-terminal-jansi" version="3.30.4"/>
+      <artifact id="jline" version="3.30.6"/>
+      <artifact id="jline-terminal-jansi" version="3.30.6"/>
     </group>
     <group id="org.nineml">
-      <artifact id="coffeefilter" version="3.2.9"/>
-      <artifact id="coffeegrinder" version="3.2.9"/>
+      <artifact id="coffeefilter" version="3.3.3"/>
+      <artifact id="coffeegrinder" version="3.3.3"/>
     </group>
     <group id="org.relaxng">
       <artifact id="jing" version="20241231"/>
@@ -153,7 +153,7 @@
       <artifact id="xz" version="1.10"/>
     </group>
     <group id="org.w3c">
-      <artifact id="epubcheck" version="5.2.1"/>
+      <artifact id="epubcheck" version="5.3.0"/>
     </group>
     <group id="org.xmlresolver">
       <artifact id="xmlresolver" version="6.0.19"/>
@@ -166,6 +166,12 @@
   <kotlin>package com.xmlcalabash.build
 
 import org.gradle.api.GradleException
+
+/**************************************************************
+ * This file is generated from tools/ExternalDependencies.xml *
+ * with tools/external-dependencies.xsl; do not update this   *
+ * file by hand!                                              *
+ **************************************************************/
 
 object ExternalDependencies {
     val steps = mapOf&lt;String,List&lt;String&gt;&gt;(
@@ -299,6 +305,31 @@ object ExternalDependencies {
       <artifact ref="xmlunit-core"/>
     </xmlunit>
   </depends-on>))
+
+  val implSteps = listOf("xmlcalabash", "send-mail")
+  val exclSteps = listOf("polyglot")
+  
+  val compileSteps: List&lt;String&gt;
+      get() {
+        val compileSteps = mutableListOf&lt;String&gt;();
+        for ((step, _) in steps) {
+          if (step !in implSteps) {
+            compileSteps.add(step)
+          }
+        }
+        return compileSteps
+      }
+
+  val distributionSteps: List&lt;String&gt;
+      get() {
+        val distSteps = mutableListOf&lt;String&gt;();
+        for ((step, _) in steps) {
+          if (step !in implSteps &amp;&amp; step !in exclSteps) {
+            distSteps.add(step)
+          }
+        }
+        return distSteps
+      }
 
   fun of(keys: List&lt;String&gt;): List&lt;String&gt; {
     val unifiedDeps = mutableSetOf&lt;String&gt;()
