@@ -166,7 +166,7 @@ requires a little more work to set up.</para>
 <orderedlist>
 <listitem>
 <para>You have to hook into Saxon’s startup. The <option>-init:</option> option
-let’s you do that.</para>
+lets you do that.</para>
 </listitem>
 <listitem>
 <para>You have to be able to point to a library of pipelines. We can use a Java
