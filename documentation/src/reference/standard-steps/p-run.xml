@@ -12,7 +12,7 @@
 <refsection role="introduction">
 <title>Introduction</title>
 <para>The <tag>p:run</tag> step is unlike the other standard steps. It functions
-as an atomic step, in that it has no subpipeline, but it takes a pipeline on it’s
+as an atomic step, in that it has no subpipeline, but it takes a pipeline on its
 single, anonymous input port and it runs that subpipeline. </para>
 </refsection>
 
