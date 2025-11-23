@@ -143,6 +143,17 @@ class DefaultErrorExplanation(val reporter: MessageReporter): ErrorExplanation {
     private fun template(code: QName, variant: Int, count: Int): ErrorExplanationTemplate {
         val clark = code.clarkName
         val templates = messages.filter { it.code == clark }.filter { it.variant == variant }.filter { it.cardinality <= count }
+        /* for debugging
+        val templates = mutableListOf<ErrorExplanationTemplate>()
+        for (message in messages) {
+            if (message.code == clark && message.variant == variant && message.cardinality <= count) {
+                templates.add(message)
+            } else {
+                println("NO: ${message.code}, ${message.variant}, ${message.cardinality}")
+            }
+        }
+         */
+
         if (templates.isEmpty()) {
             return ErrorExplanationTemplate(clark, 1, "[No explanatory message for ${code}]", "[No explanation for ${code}]")
         } else {
