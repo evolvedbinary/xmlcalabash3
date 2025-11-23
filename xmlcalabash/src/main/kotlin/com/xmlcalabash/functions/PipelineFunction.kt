@@ -3,10 +3,12 @@ package com.xmlcalabash.functions
 import com.xmlcalabash.datamodel.*
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
+import com.xmlcalabash.exceptions.XProcException
 import com.xmlcalabash.runtime.XProcRuntime
 import com.xmlcalabash.util.BufferingReceiver
 import com.xmlcalabash.util.MediaClassification
 import com.xmlcalabash.util.SaxonTreeBuilder
+import net.sf.saxon.expr.Expression
 import net.sf.saxon.expr.XPathContext
 import net.sf.saxon.lib.ExtensionFunctionCall
 import net.sf.saxon.lib.ExtensionFunctionDefinition
@@ -17,12 +19,16 @@ import net.sf.saxon.om.GroundedValue
 import net.sf.saxon.om.NodeInfo
 import net.sf.saxon.om.Sequence
 import net.sf.saxon.om.StructuredQName
+import net.sf.saxon.s9api.HostLanguage
+import net.sf.saxon.s9api.Location
+import net.sf.saxon.s9api.QName
 import net.sf.saxon.s9api.XdmAtomicValue
 import net.sf.saxon.s9api.XdmEmptySequence
 import net.sf.saxon.s9api.XdmMap
 import net.sf.saxon.s9api.XdmNode
 import net.sf.saxon.s9api.XdmNodeKind
 import net.sf.saxon.s9api.XdmValue
+import net.sf.saxon.s9api.XmlProcessingError
 import net.sf.saxon.trans.XPathException
 import net.sf.saxon.type.BuiltInAtomicType
 import net.sf.saxon.value.Cardinality
@@ -171,7 +177,33 @@ class PipelineFunction(private val decl: DeclareStepInstruction): ExtensionFunct
                 exec.run()
             } catch (ex: Exception) {
                 // Wrap the exception in an XPathException so that try/catch in XQuery or XSLT will work
-                throw XPathException("Pipeline execution failed", ex)
+                when (ex) {
+                    is XProcException -> {
+                        val error = ex.error
+                        val sb = StringBuilder()
+                        when (error.details.size) {
+                            0 -> Unit
+                            1 -> sb.append(error.details[0])
+                            else -> {
+                                sb.append("[")
+                                for (index in error.details.indices) {
+                                    if (index > 0) {
+                                        sb.append(", ")
+                                    }
+                                    sb.append(error.details[index])
+                                }
+                                sb.append("]")
+                            }
+                        }
+                        // Passing in null causes Saxon to report a more useful location...
+                        val loc = null // error.location.asSaxonLocation()
+                        val perr = FakeXmlProcessingError(error.code, sb.toString(), error.exception(), loc)
+                        throw XPathException.fromXmlProcessingError(perr)
+                    }
+                    else -> {
+                        throw XPathException("Pipeline execution failed", ex)
+                    }
+                }
             }
 
             var map = XdmMap()
@@ -184,6 +216,70 @@ class PipelineFunction(private val decl: DeclareStepInstruction): ExtensionFunct
             }
 
             return map.underlyingValue
+        }
+    }
+
+    private class FakeXmlProcessingError(val code: QName, val msg: String, val ex: Throwable?, val loc: Location?): XmlProcessingError {
+        private var alreadyReported = false
+
+        override fun getHostLanguage(): HostLanguage {
+            return HostLanguage.UNKNOWN
+        }
+
+        override fun isStaticError(): Boolean {
+            return false
+        }
+
+        override fun isTypeError(): Boolean {
+            return false
+        }
+
+        override fun getErrorCode(): QName {
+            return code
+        }
+
+        override fun getMessage(): String {
+            return msg
+        }
+
+        override fun getLocation(): Location? {
+            return loc
+        }
+
+        override fun getFailingExpression(): Expression? {
+            return null
+        }
+
+        override fun isWarning(): Boolean {
+            return false
+        }
+
+        override fun getPath(): String? {
+            return null
+        }
+
+        override fun getCause(): Throwable? {
+            return ex
+        }
+
+        override fun asWarning(): XmlProcessingError? {
+            return null
+        }
+
+        override fun setTerminationMessage(s: String?) {
+            throw IllegalStateException("You cannot set the termination message")
+        }
+
+        override fun getTerminationMessage(): String? {
+            return message
+        }
+
+        override fun isAlreadyReported(): Boolean {
+            return alreadyReported
+        }
+
+        override fun setAlreadyReported(reported: Boolean) {
+            alreadyReported = reported
         }
     }
 }
