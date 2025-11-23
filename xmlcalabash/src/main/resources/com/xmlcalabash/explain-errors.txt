@@ -103,7 +103,7 @@ Step failed: $1.
 It is a dynamic error if a step is unable or incapable of performing its function.
 
 XD0036/1
-Value “$1” cannot be converted to type “$2”.
+An empty sequence is not allowed as a value here.
 It is a dynamic error if the supplied or defaulted value of a variable or option
 cannot be converted to the required type.
 
@@ -113,16 +113,21 @@ It is a dynamic error if the supplied or defaulted value of a variable or option
 cannot be converted to the required type.
 
 XD0036/3
-Value “$2” for “$1” cannot be converted to “$3”.
+Value “$1” cannot be converted to type “$2”.
 It is a dynamic error if the supplied or defaulted value of a variable or option
 cannot be converted to the required type.
 
 XD0036/4
-Invalid type: “$1”.
+Value “$2” for “$1” cannot be converted to “$3”.
 It is a dynamic error if the supplied or defaulted value of a variable or option
 cannot be converted to the required type.
 
 XD0036/5
+Invalid type: “$1”.
+It is a dynamic error if the supplied or defaulted value of a variable or option
+cannot be converted to the required type.
+
+XD0036/6
 An empty sequence cannot be converted to the type “$1”.
 It is a dynamic error if the supplied or defaulted value of a variable or option
 cannot be converted to the required type. The empty sequence can only be converted
