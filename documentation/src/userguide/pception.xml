@@ -171,6 +171,17 @@ lets you do that.</para>
 <listitem>
 <para>You have to be able to point to a library of pipelines. We can use a Java
 property for that.</para>
+<para>The Java property <code>com.xmlcalabash.pipelines</code> must be provided
+and must be the URI of an XProc step library.</para>
+</listitem>
+<listitem>
+<para>You may wish to configure XML Calabash. There’s no way to
+access the command line, but you can point to an XML Calabash <link
+linkend="configuration">configuration</link>. We can use another Java property
+for that.</para>
+<para>If the Java property <code>com.xmlcalabash.configuration</code> is provided,
+it must be the URI of an XML Calabash configuration.
+</para>
 </listitem>
 </orderedlist>
 
