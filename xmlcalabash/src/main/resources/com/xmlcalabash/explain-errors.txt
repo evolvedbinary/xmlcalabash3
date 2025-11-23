@@ -284,7 +284,7 @@ the form “type/subtype+ext” or “type/subtype”.
 
 XD0079/2
 Cannot use content type shortcut “$1” here, use “$2”.
-Content type shorcuts (xml, json, etc.) can represent more than one specific
+Content type shortcuts (xml, json, etc.) can represent more than one specific
 content type. They can be used for inputs, but on ouputs, a single, specific
 content type must be provided. For “$1”, a common choice is “$2” but in some
 cases, a more specific $1 content type might be preferable.
@@ -380,6 +380,11 @@ namespace or in the XProc namespace.
 XS0028
 Options and variables may not be in the XProc namespace: “$1”.
 It is a static error to declare an option or variable in the XProc namespace.
+
+XS0029
+Cannot specify binding for “$1” on this output.
+It is a static error to specify a connection for a p:output inside a
+p:declare-step for an external step.
 
 XS0030
 Multiple primary input ports: “$1”.
@@ -720,7 +725,7 @@ not an instance of the XQuery 1.0 and XPath 2.0 Data Model, e.g. with a map, an
 array, or a function.
 
 XC0008
-Styelsheet mode “$1” invalid: $2.
+Stylesheet mode “$1” invalid: $2.
 It is a dynamic error if the stylesheet does not support a given mode.
 
 XC0009
@@ -1385,7 +1390,7 @@ explicitly declares a primary output port with a different name than implicitly
 or explicitly specified in the p:run invocation.
 
 XC0207/3
-Pirmary output port mismatch: “$1”.
+Primary output port mismatch: “$1”.
 It is a dynamic error if the dynamically executed pipeline implicitly or
 explicitly declares a primary output port with a different name than implicitly
 or explicitly specified in the p:run invocation.
@@ -1443,7 +1448,7 @@ the hue, saturation, lightness color space.
 
 cxerr:XC0008
 Invalid hex color: $1
-The color value must be a valid hexidecimal (RGB) color specification.
+The color value must be a valid hexadecimal (RGB) color specification.
 
 cxerr:XC0009
 No style definitions.
