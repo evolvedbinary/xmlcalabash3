@@ -132,12 +132,19 @@ class DefaultErrorExplanation(val reporter: MessageReporter): ErrorExplanation {
     }
 
     override fun explanation(error: XProcError): String {
-        val message = template(error.code, error.variant, error.details.size).explanation
-        return wrapped(substitute(message, *error.details))
+        val template = template(error.code, error.variant, error.details.size)
+        if (template.found) {
+            val message = template.explanation
+            return wrapped(substitute(message, *error.details))
+        }
+        return ""
     }
 
     override fun reportExplanation(error: XProcError) {
-        reporter.error { Report(Verbosity.ERROR, explanation(error), Location.NULL) }
+        val message = explanation(error)
+        if (message.isNotEmpty()) {
+            reporter.error { Report(Verbosity.ERROR, message, Location.NULL) }
+        }
     }
 
     private fun template(code: QName, variant: Int, count: Int): ErrorExplanationTemplate {
@@ -155,7 +162,7 @@ class DefaultErrorExplanation(val reporter: MessageReporter): ErrorExplanation {
          */
 
         if (templates.isEmpty()) {
-            return ErrorExplanationTemplate(clark, 1, "[No explanatory message for ${code}]", "[No explanation for ${code}]")
+            return ErrorExplanationTemplate(clark, 1, "[No explanatory message for ${code}]", "[No explanation for ${code}]", false)
         } else {
             var maxCardinality = -1
             var maxTemplate: ErrorExplanationTemplate? = null
@@ -433,7 +440,9 @@ class DefaultErrorExplanation(val reporter: MessageReporter): ErrorExplanation {
         return sb.toString()
     }
 
-    class ErrorExplanationTemplate(val code: String, val variant: Int, val message: String, val explanation: String) {
+    class ErrorExplanationTemplate(val code: String, val variant: Int,
+                                   val message: String, val explanation: String,
+                                   val found: Boolean = true) {
         val cardinality: Int = message.count { ch -> ch == '\$' }
         override fun toString(): String {
             return "${code}/${variant} (${cardinality}): ${message}"
