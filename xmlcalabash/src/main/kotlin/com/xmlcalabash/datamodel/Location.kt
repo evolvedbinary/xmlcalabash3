@@ -1,6 +1,7 @@
 package com.xmlcalabash.datamodel
 
 import com.xmlcalabash.documents.XProcDocument
+import com.xmlcalabash.util.SaxonLocation
 import net.sf.saxon.s9api.XdmNode
 import java.net.URI
 
@@ -23,6 +24,10 @@ class Location(uri: URI?, lineNo: Int?, colNo: Int?) {
             _lineNumber = (doc.value as XdmNode).lineNumber
             _columnNumber = (doc.value as XdmNode).columnNumber
         }
+    }
+
+    fun asSaxonLocation(): net.sf.saxon.s9api.Location {
+        return SaxonLocation(this)
     }
 
     override fun toString(): String {
