@@ -21,6 +21,8 @@ import javax.xml.transform.sax.SAXSource
 
 class DefaultErrorExplanation(val reporter: MessageReporter): ErrorExplanation {
     override var showStacktrace = false
+    override var messageWidth = 72;
+    private val nl: String
 
     companion object {
         private var loaded = false
@@ -28,6 +30,12 @@ class DefaultErrorExplanation(val reporter: MessageReporter): ErrorExplanation {
     }
 
     init {
+        if (Urify.isWindows) {
+            nl = "\r\n"
+        } else {
+            nl = "\n"
+        }
+
         if (!loaded) {
             val uc = System.getProperty("user.country", "")
             val ul = System.getProperty("user.language", "")
@@ -125,7 +133,7 @@ class DefaultErrorExplanation(val reporter: MessageReporter): ErrorExplanation {
 
     override fun explanation(error: XProcError): String {
         val message = template(error.code, error.variant, error.details.size).explanation
-        return substitute(message, *error.details)
+        return wrapped(substitute(message, *error.details))
     }
 
     override fun reportExplanation(error: XProcError) {
@@ -388,6 +396,31 @@ class DefaultErrorExplanation(val reporter: MessageReporter): ErrorExplanation {
         return text
     }
 
+    private fun wrapped(text: String): String {
+        val sb = StringBuilder()
+        var width = 0;
+        var oneline = text.replace("\n", " ")
+        var pos = oneline.indexOf(" ");
+        while (pos >= 0) {
+            val seg = oneline.take(pos + 1);
+            oneline = oneline.substring(pos + 1)
+            sb.append(seg)
+            width += seg.length
+            if (width + seg.length >= messageWidth) {
+                sb.append(nl)
+                width = 0
+            }
+            pos = oneline.indexOf(" ")
+        }
+        if (oneline.isNotEmpty()) {
+            if (width + oneline.length >= messageWidth) {
+                sb.append(nl)
+            }
+            sb.append(oneline)
+        }
+
+        return sb.toString()
+    }
 
     class ErrorExplanationTemplate(val code: String, val variant: Int, val message: String, val explanation: String) {
         val cardinality: Int = message.count { ch -> ch == '\$' }

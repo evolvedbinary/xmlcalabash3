@@ -102,7 +102,33 @@ fileTree("dir" to layout.projectDirectory.dir("lib"),
   }
 }
 
+// ============================================================
+val linkTargets = tasks.register<SaxonXsltTask>("link_targets") {
+  outputs.file(layout.buildDirectory.file("spec-links.xml"))
+  inputs.dir(layout.buildDirectory.dir("spec-links"))
+  stylesheet(layout.projectDirectory.file("src/xsl/spec-links.xsl"))
+  output(layout.buildDirectory.file("spec-links.xml").get())
+  args(listOf("-it",
+              "path=${layout.buildDirectory.file("spec-links").get().asFile}"))
+}
+
+listOf("xproc", "steps", "run", "file", "os", "mail",
+       "paged-media", "text", "validation", "ixml").forEach { spec ->
+  val t = tasks.register<SaxonXsltTask>("get_${spec}_link_targets") {
+    outputs.file(layout.buildDirectory.file("spec-links/{$spec}.xml"))
+    inputs.file(layout.projectDirectory.file("src/xsl/spec-link-targets.xsl"))
+    stylesheet(layout.projectDirectory.file("src/xsl/spec-link-targets.xsl"))
+    output(layout.buildDirectory.file("spec-links/${spec}.xml").get())
+    args(listOf("-it",
+                "spec=https://spec.xproc.org/3.1/${spec}/"))
+  }
+  linkTargets { dependsOn(t) }
+}
+
+// ============================================================
+
 val makeExamples = tasks.register("makeExamples") {
+
   // Just somewhere to hang dependencies
 }
 
@@ -280,6 +306,7 @@ val reference = tasks.register<SaxonXsltTask>("reference") {
   dependsOn("validateReference")
   dependsOn("xmlCalabashVersion")
   dependsOn("xmlCalabashBuildInfo")
+  dependsOn(linkTargets)
 
   inputs.file(layout.buildDirectory.file("version.json"))
   inputs.dir(layout.projectDirectory.dir("src/xsl"))
