@@ -20,6 +20,9 @@
                 expand-text="yes"
                 version="3.0">
 
+<xsl:variable name="targets" select="doc('../../build/spec-links.xml')"/>
+<xsl:key name="targets" match="link" use="@target"/>
+
 <xsl:template match="db:book" mode="m:generate-titlepage">
   <header>
     <div class="cover">
@@ -136,9 +139,19 @@
                     <code>{$code}</code>
                   </xsl:when>
                   <xsl:otherwise>
-                    <a class="exlink" href="{$steps-base-uri}#err.{$code}">
-                      <code>err:X{$code}</code>
-                    </a>
+                    <xsl:variable name="targets" select="key('targets', 'err.'||$code, $targets)"/>
+                    <xsl:choose>
+                      <xsl:when test="exists($targets)">
+                        <xsl:variable name="href" select="$targets[1]/ancestor::spec/@href/string()"/>
+                        <a class="exlink" href="{$href}#err.{$code}">
+                          <code>err:X{$code}</code>
+                        </a>
+                      </xsl:when>
+                      <xsl:otherwise>
+                        <xsl:message select="'Cannot link to err.' || $code || ' (unknown spec)'"/>
+                        <code>err:X{$code}</code>
+                      </xsl:otherwise>
+                    </xsl:choose>
                   </xsl:otherwise>
                 </xsl:choose>
               </td>
@@ -242,7 +255,7 @@
     </xsl:when>
     <xsl:otherwise>
       <xsl:text>It is also described on </xsl:text>
-      <a href="https://xprocref.org/{$version}/{replace($name, ':', '.')}.html">XProcRef.org</a>
+      <a href="https://xprocref.org/3.1/{replace($name, ':', '.')}.html">XProcRef.org</a>
       <xsl:text>.</xsl:text>
     </xsl:otherwise>
   </xsl:choose>

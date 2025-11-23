@@ -136,10 +136,10 @@ example above is:</para>
 <para>More generally for a step declared thus:</para>
 
 <programlisting language="xml"><![CDATA[<p:declare-step type="ex:name">
-  <p:input name="input1"/>
-  <p:input name="input2"/>
+  <p:input port="input1"/>
+  <p:input port="input2"/>
   …
-  <p:input name="inputN"/>
+  <p:input port="inputN"/>
   <p:option name="option1"/>
   …
 </p:declare-step>]]></programlisting>
