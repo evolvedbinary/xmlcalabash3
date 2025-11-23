@@ -13,31 +13,25 @@ import java.io.File
 import java.nio.file.Files
 
 open class DirectoryListStep(): FileStep(NsP.directoryList) {
+    private object LockObject
+
     private lateinit var rootPath: String
     private var detailed = false
     private val includeFilters = mutableListOf<String>()
     private val excludeFilters = mutableListOf<String>()
 
     override fun run() {
+        synchronized(LockObject) {
+            unsafeRun()
+        }
+    }
+
+    private fun unsafeRun() {
         super.run()
 
         val path = uriBinding(Ns.path)!!
         detailed = booleanBinding(Ns.detailed)!!
         val maxDepth = stringBinding(Ns.maxDepth)!!
-
-        if (options.containsKey(Ns.includeFilter)) {
-            val include = valueBinding(Ns.includeFilter)
-            for (item in include.value.iterator()) {
-                includeFilters.add(item.stringValue)
-            }
-        }
-
-        if (options.containsKey(Ns.excludeFilter)) {
-            val exclude = valueBinding(Ns.excludeFilter)
-            for (item in exclude.value.iterator()) {
-                excludeFilters.add(item.stringValue)
-            }
-        }
 
         if (path.scheme != "file") {
             throw stepConfig.exception(XProcError.xcUnsupportedScheme(path.scheme))
@@ -47,6 +41,30 @@ open class DirectoryListStep(): FileStep(NsP.directoryList) {
         val dir = File(UriUtils.path(path))
         if (!dir.isDirectory) {
             throw stepConfig.exception(XProcError.xcNotADirectory(UriUtils.path(path)))
+        }
+
+        stepConfig.debug { "${toString()}: path: ${rootPath} ${System.identityHashCode(this)}"}
+
+        if (options.containsKey(Ns.includeFilter)) {
+            val include = valueBinding(Ns.includeFilter)
+            for (item in include.value.iterator()) {
+                if (item.stringValue.isEmpty()) {
+                    throw stepConfig.exception(XProcError.xcInvalidRegex(item.stringValue))
+                }
+                stepConfig.debug { "${toString()}: include: ${item.stringValue}" }
+                includeFilters.add(item.stringValue)
+            }
+        }
+
+        if (options.containsKey(Ns.excludeFilter)) {
+            val exclude = valueBinding(Ns.excludeFilter)
+            for (item in exclude.value.iterator()) {
+                if (item.stringValue.isEmpty()) {
+                    throw stepConfig.exception(XProcError.xcInvalidRegex(item.stringValue))
+                }
+                stepConfig.debug { "${toString()}: exclude: ${item.stringValue}" }
+                excludeFilters.add(item.stringValue)
+            }
         }
 
         val depth = if (maxDepth == "unbounded") {
@@ -120,6 +138,7 @@ open class DirectoryListStep(): FileStep(NsP.directoryList) {
         }
 
         if (dir.isDirectory) {
+            stepConfig.debug { "${toString()}: dir: ${dir.absolutePath}, include: ${include}" }
             val entry = DirectoryDir(dir, include)
 
             // N.B. If depth starts negative, this is unbounded
@@ -135,6 +154,7 @@ open class DirectoryListStep(): FileStep(NsP.directoryList) {
 
             return entry
         } else {
+            stepConfig.debug { "${toString()}: file: ${dir.absolutePath}, include: ${include}" }
             val ctype = overrideContentType
                 ?: MediaType.parse(stepConfig.documentManager.mimetypesFileTypeMap.getContentType(dir))
             return DirectoryFile(dir, include, ctype)
