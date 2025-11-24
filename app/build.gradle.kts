@@ -91,7 +91,7 @@ fun distClasspath(): List<File> {
   configurations["stageJars"].forEach {
     // Test is !isDirectory rather than isFile() because
     // the xmlcalabash.jar file may not exist yet...but it will!
-    if (!it.startsWith(libdir) && !it.isDirectory() && !it.getName().startsWith("Saxon-EE")) {
+    if (!it.isDirectory() && !it.getName().startsWith("Saxon-EE")) {
       libs.add(it)
     }
   }
