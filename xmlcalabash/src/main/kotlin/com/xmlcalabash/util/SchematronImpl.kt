@@ -4,7 +4,6 @@ import com.xmlcalabash.XmlCalabashBuildConfig
 import com.xmlcalabash.config.StepConfiguration
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.namespace.NsSchxslt
-import net.sf.saxon.om.NamespaceUri
 import net.sf.saxon.s9api.*
 import javax.xml.transform.stream.StreamSource
 
@@ -14,21 +13,21 @@ class SchematronImpl(val stepConfig: StepConfiguration) {
         var transpilerExec: XsltExecutable? = null
     }
 
-    fun test(sourceXml: XdmNode, schemaXml: XdmNode, phase: String?, parameters: Map<QName, XdmValue>): List<XdmNode> {
-        return failedAssertions(report(sourceXml, schemaXml, phase, parameters))
+    fun test(sourceXml: XdmNode, schemaXml: XdmNode, phase: String?, compileParams: Map<QName, XdmValue>, dynamicParams: Map<QName, XdmValue>): List<XdmNode> {
+        return failedAssertions(report(sourceXml, schemaXml, phase, compileParams, dynamicParams))
     }
 
-    fun test(sourceValue: XdmValue, schemaXml: XdmNode, phase: String?, parameters: Map<QName, XdmValue>): List<XdmNode> {
+    fun test(sourceValue: XdmValue, schemaXml: XdmNode, phase: String?, compileParams: Map<QName, XdmValue>, dynamicParams: Map<QName, XdmValue>): List<XdmNode> {
         val failures = mutableListOf<XdmNode>()
         val iter = sourceValue.iterator()
         while (iter.hasNext()) {
             val item = iter.next()
-            failures.addAll(failedAssertions(report(item, schemaXml, phase, parameters)))
+            failures.addAll(failedAssertions(report(item, schemaXml, phase, compileParams, dynamicParams)))
         }
         return failures
     }
 
-    fun report(sourceXml: XdmItem, schemaXml: XdmNode, phase: String?, parameters: Map<QName, XdmValue>): XdmNode {
+    fun report(sourceXml: XdmItem, schemaXml: XdmNode, phase: String?, compileParams: Map<QName, XdmValue>, dynamicParams: Map<QName, XdmValue>): XdmNode {
         val schemaRoot = when (schemaXml.nodeKind) {
             XdmNodeKind.ELEMENT -> schemaXml
             else -> S9Api.documentElement(schemaXml)
@@ -48,7 +47,7 @@ class SchematronImpl(val stepConfig: StepConfiguration) {
         val schemaAware = stepConfig.processor.isSchemaAware
 
         val staticParams = mutableMapOf<QName, XdmValue>()
-        for ((name, value) in parameters) {
+        for ((name, value) in compileParams) {
             if (name in NsSchxslt.staticParams) {
                 staticParams[name] = value
             }
@@ -64,7 +63,7 @@ class SchematronImpl(val stepConfig: StepConfiguration) {
             transpiler.setParameter(NsSchxslt.phase, XdmAtomicValue(phase))
         }
 
-        for ((name, value) in parameters) {
+        for ((name, value) in dynamicParams) {
             if (name in NsSchxslt.dynamicParams) {
                 transpiler.setParameter(name, value)
             } else if (name !in NsSchxslt.staticParams) {
@@ -91,7 +90,7 @@ class SchematronImpl(val stepConfig: StepConfiguration) {
         val exec = compiler.compile(compiledSchema.asSource())
         val transformer = exec.load30()
 
-        transformer.setStylesheetParameters(parameters)
+        transformer.setStylesheetParameters(dynamicParams)
 
         transformer.globalContextItem = sourceXml
         if (sourceXml is XdmNode && sourceXml.baseURI != null) {

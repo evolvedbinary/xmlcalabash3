@@ -5,6 +5,7 @@ import com.xmlcalabash.config.SaxonConfiguration
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.namespace.Ns
+import com.xmlcalabash.namespace.NsC
 import com.xmlcalabash.namespace.NsSchxslt
 import com.xmlcalabash.steps.AbstractAtomicStep
 import com.xmlcalabash.util.S9Api
@@ -14,7 +15,9 @@ import com.xmlcalabash.xvrl.XvrlReports
 import net.sf.saxon.om.NamespaceUri
 import net.sf.saxon.s9api.QName
 import net.sf.saxon.s9api.XdmDestination
+import net.sf.saxon.s9api.XdmMap
 import net.sf.saxon.s9api.XdmNode
+import net.sf.saxon.s9api.XdmValue
 import net.sf.saxon.s9api.Xslt30Transformer
 import org.xml.sax.InputSource
 import javax.xml.transform.sax.SAXSource
@@ -31,7 +34,25 @@ open class ValidateWithSchematron(): AbstractAtomicStep() {
         val document = queues["source"]!!.first()
         val schema = queues["schema"]!!.first()
 
-        val parameters = qnameMapBinding(Ns.parameters)
+        val parameters = mutableMapOf<QName, XdmValue>()
+        parameters.putAll(qnameMapBinding(Ns.parameters))
+
+        val compileParams = mutableMapOf<QName, XdmValue>()
+        val dynamicParams = mutableMapOf<QName, XdmValue>()
+
+        if (NsC.compile in parameters) {
+            val xdmMap = stepConfig.typeUtils.forceQNameKeys(parameters.get(NsC.compile) as XdmMap)
+            for (key in xdmMap.keySet()) {
+                val value = xdmMap.get(key);
+                compileParams[key.qNameValue] = value
+            }
+            parameters.remove(NsC.compile)
+            dynamicParams.putAll(parameters)
+        } else {
+            compileParams.putAll(parameters)
+            dynamicParams.putAll(parameters)
+        }
+
         val assertValid = booleanBinding(Ns.assertValid) ?: true
         val phase = stringBinding(_phase)
         val reportFormat = stringBinding(Ns.reportFormat) ?: "svrl"
@@ -53,7 +74,7 @@ open class ValidateWithSchematron(): AbstractAtomicStep() {
             throw stepConfig.exception(XProcError.xcNotSchematronSchema(tron.nodeName))
         }
 
-        var report = impl.report(document.value as XdmNode, schema.value as XdmNode, phase, parameters)
+        var report = impl.report(document.value as XdmNode, schema.value as XdmNode, phase, compileParams, dynamicParams)
         val failed = impl.failedAssertions(report)
 
         if (reportFormat == "xvrl") {

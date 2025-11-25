@@ -7,6 +7,7 @@ object NsC {
     val namespace: NamespaceUri = NamespaceUri.of("http://www.w3.org/ns/xproc-step")
 
     val archive = QName(namespace, "c:archive")
+    val compile = QName(namespace, "c:compile")
     val data = QName(namespace, "c:data")
     val directory = QName(namespace, "c:directory")
     val encoding = QName(namespace, "c:encoding")
