@@ -270,7 +270,7 @@ class AssertionsMonitor(): Monitor {
             }
         }
 
-        val results = validator.test(testDocument, schema, null, emptyMap())
+        val results = validator.test(testDocument, schema, null, emptyMap(), emptyMap())
 
         if (results.isNotEmpty()) {
             val level = stepConfig.environment.assertions

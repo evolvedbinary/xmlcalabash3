@@ -95,7 +95,7 @@ class XvrlReportTest {
     fun fromSvrl1() {
         val schema = load("schema-001.xml")
         val doc = load("doc-001.xml")
-        val schReport = SchematronImpl(stepConfig).report(doc, schema, null, emptyMap())
+        val schReport = SchematronImpl(stepConfig).report(doc, schema, null, emptyMap(), emptyMap())
         val reports = XvrlReport.fromSvrl(stepConfig, schReport)
         val node = reports.asXml()
         Assertions.assertNotNull(node)

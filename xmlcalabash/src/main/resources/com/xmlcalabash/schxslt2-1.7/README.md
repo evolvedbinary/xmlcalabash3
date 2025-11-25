@@ -9,9 +9,20 @@ terms of the MIT license.
 Feedback to SchXslt2 is welcome via [email](mailto:dmaus@dmaus.name) or Codeberg's [issue
 management](https://codeberg.org/dmaus/schxslt2/issues).
 
+## FAQ: Why is SchXslt2 called a transpiler and not a Schematron implementation, validator, or processor?
+
+The ISO standard uses the terms “implementation,” “validator,” and “processor” interchangeably. A validator is defined
+as “a function returning 'valid,' 'invalid,' or 'error'” (ISO/IEC 19757-3:2025, p. 12), and a simple-conformance
+implementation is defined as a program that (among other things) reports if a Schematron schema document conforms to the
+RELAX NG and ISO Schematron schema laid out by the standard.
+
+SchXslt2 does not do this. It creates an XSL transformation that implements rule-based validation as close to the standard
+as possible. There are limitations inherent in XSLT (e.g. fewer levels to scope variables) and limitations in the
+implementation (e.g. always transpiling for a specific phase).
+
 ## Installing
 
-You find the most recent relase [at the projects main repository](https://codeberg.org/dmaus/schxslt2) page. Every
+You find the most recent release [at the projects main repository](https://codeberg.org/dmaus/schxslt2) page. Every
 release provides a ZIP file with just the XSLT transpiler for you to download and extract.
 
 In addition, a Java package is published to [Maven Central](https://mvnrepository.com/artifact/name.dmaus.schxslt/schxslt2)
@@ -24,9 +35,11 @@ Reporting Language) report.
 
 ## Transpiler parameters
 
+The namespace prefix `schxslt` is bound to the name `http://dmaus.name/ns/2023/schxslt`.
+
 ### schxslt:debug as xs:boolean
 
-Enable or disable debugging. When debugging is enabled, the validation stylesheet is indented. Defaults to false.
+Enable or disable debugging. When debugging is enabled, the validation stylesheet is indented. Defaults to `false`.
 
 ### schxslt:phase as xs:string?
 
@@ -61,6 +74,22 @@ successful report. Defaults to ```false```.
 When set to boolean ```true```, the validation stylesheet terminates the XSLT processor when it encounters a dynamic
 error. Defaults to ```true```.
 
+### schxslt:default-from as xs:string
+
+Default value of the expression that selects the subset of the document to be validate. Can be overwritten on a
+per-phase basis by the `@from` attribute.  The default from expression also applies to the phase '#ALL'. Defaults to
+'root()'.
+
+### schxslt:severity-threshold as xs:string
+
+Assertions with a severity lesser than the threshold are not checked. One of 'info', 'warning', 'error', or
+'fatal'. Defaults to 'info'.
+
+### schxslt:default-severity as xs:string
+
+Severity of assertions without an `@severity` attribute. One of 'info', 'warning', 'error', or 'fatal'. Defaults to
+'fatal'.
+
 ### schxslt:report-active-pattern as xs:boolean
 
 When set to boolean ```true```, the validation stylesheet reports active patterns and groups. Defaults to ```true```.
@@ -72,6 +101,10 @@ When set to boolean ```true```, the validation stylesheet reports fired rules. D
 ### schxslt:report-suppressed-rule as xs:boolean
 
 When set to boolean ```true```, the validation stylesheet reports suppressed rules. Defaults to ```true```.
+
+### schxslt:report-skipped-assertion as xs:boolean
+
+When set to boolean `true`, the validation stylesheet reports assertions that are skipped. Defaults to `true`.
 
 ## Schematron 4 (2025)
 
@@ -92,6 +125,12 @@ Namely:
 
 ## Enhancements
 
+### Express relationships in SVRL
+
+The `svrl:failed-assert` and the `svrl:successful-report` element carries three optional attributes `@ruleId`,
+`@patternId`, and `@groupId` that reference the rule, pattern, or group the assertion is contained in. (see [Proposal
+82](https://github.com/Schematron/schematron-enhancement-proposals/issues/82))
+
 ### Typed schema parameters
 
 Schema parameters ```sch:schema/sch:param``` may declare an ```@as``` attribute denoting the expected type of the
@@ -107,6 +146,8 @@ reports an ```svrl:suppressed-rule``` element with the same content model as ```
 
 Expressions in the validation stylesheet can access the effective phase it was compiled for by using the global variable
 ```Q{http://dmaus.name/ns/2023/schxslt}phase```.
+
+Expressions inside a rule can access to current context node by using the variable `Q{http://dmaus.name/ns/2023/schxslt}rule-context`.
 
 ### Logging dynamic errors
 
