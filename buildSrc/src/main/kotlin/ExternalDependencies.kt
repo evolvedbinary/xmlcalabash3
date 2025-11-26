@@ -34,6 +34,7 @@ object ExternalDependencies {
             "org.relaxng:jing:20241231",
             "org.tukaani:xz:1.10",
             "org.xmlresolver:xmlresolver:6.0.19",
+            "org.apache.santuario:xmlsec:4.0.4",
 
             // I was using log4j but httpclient5 uses slf4j.
             // Could I get httpclient5 to use log4j? Maybe. ¯\_(ツ)_/¯

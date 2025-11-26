@@ -26,6 +26,7 @@ import net.sf.saxon.serialize.Emitter
 import net.sf.saxon.serialize.XMLEmitter
 import net.sf.saxon.value.QNameValue
 import net.sf.saxon.z.IntHashMap
+import org.apache.xml.security.c14n.Canonicalizer
 import java.io.ByteArrayOutputStream
 import java.io.OutputStream
 import java.nio.charset.StandardCharsets
@@ -38,11 +39,14 @@ class DocumentWriter(val doc: XProcDocument,
     companion object {
         val cmapName = QName(NsCx.namespace, "cx:character-map-name")
         val cmapStructuredName = StructuredQName("cx", NsCx.namespace.toString(), "character-map-name")
+        private var c14nInit = false
     }
+
     private val _params = mutableMapOf<QName, XdmValue>()
     val inType = doc.contentType?.classification() ?: MediaClassification.BINARY
     val serializationParameters: Map<QName, XdmValue>
         get() = _params
+
     init {
         val inputMap = doc.properties.getSerialization()
         for (key in inputMap.keySet()) {
@@ -105,15 +109,34 @@ class DocumentWriter(val doc: XProcDocument,
         }
 
         val savesf = docContext.processor.underlyingConfiguration.serializerFactory
+        val c14n = Ns.canonical in serializationParameters
 
         if (doc.properties[NsCx.xmlnt] != null) {
+            if (c14n) {
+                throw XProcError.xdInvalidSerializationC14N().exception()
+            }
             val prolog = doc.properties[NsCx.xmlnt]!!.underlyingValue.stringValue
             docContext.processor.underlyingConfiguration.serializerFactory = XmlntSerializerFactory(docContext, prolog)
         }
 
-        val serializer = docContext.processor.newSerializer(stream)
-        setSerializationProperties(serializer)
-        serializeValue(serializer, doc.value)
+        if (c14n) {
+            val baos = ByteArrayOutputStream()
+            val serializer = docContext.processor.newSerializer(baos)
+            setSerializationProperties(serializer)
+            serializeValue(serializer, doc.value)
+
+            if (!c14nInit) {
+                org.apache.xml.security.Init.init();
+                c14nInit = true
+            }
+
+            val canon = Canonicalizer.getInstance(Canonicalizer.ALGO_ID_C14N_WITH_COMMENTS)
+            canon.canonicalize(baos.toByteArray(), stream, true)
+        } else {
+            val serializer = docContext.processor.newSerializer(stream)
+            setSerializationProperties(serializer)
+            serializeValue(serializer, doc.value)
+        }
 
         docContext.processor.underlyingConfiguration.serializerFactory = savesf
     }
@@ -229,9 +252,13 @@ class DocumentWriter(val doc: XProcDocument,
 
         try {
             for ((name, value) in _params) {
+                // Ignore canonical; it's not (yet) supported by Saxon and is handled above
+                if (name == Ns.canonical) {
+                    continue
+                }
+
                 if (value.underlyingValue is QNameValue) {
                     val qname = (value.underlyingValue as QNameValue)
-                    serializer.setOutputProperty(name, "Q{${qname.namespaceURI}}${qname.localName}")
                 } else {
                     // Ignore the empty sequence...
                     if (value != XdmEmptySequence.getInstance()) {

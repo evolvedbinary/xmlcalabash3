@@ -161,6 +161,9 @@
     <group id="org.xmlunit">
       <artifact id="xmlunit-core" version="2.10.3"/>
     </group>
+    <group id="org.apache.santuario">
+      <artifact id="xmlsec" version="4.0.4"/>
+    </group>
   </repository>
 
   <kotlin>package com.xmlcalabash.build
@@ -201,6 +204,7 @@ object ExternalDependencies {
       <artifact ref="jing"/>
       <artifact ref="xz"/>
       <artifact ref="xmlresolver"/>
+      <artifact ref="xmlsec"/>
       <text-line/>
       <text-line>// I was using log4j but httpclient5 uses slf4j.</text-line>
       <text-line>// Could I get httpclient5 to use log4j? Maybe. ¯\_(ツ)_/¯</text-line>

@@ -25,6 +25,7 @@ object Ns {
     val brotli = QName("brotli")
     val byteOrderMark = QName("byte-order-mark")
     val bzip2 = QName("bzip2")
+    val canonical = QName("canonical")
     val caseOrder = QName("case-order")
     val cdataSectionElements = QName("cdata-section-elements")
     val charset = QName("charset")
