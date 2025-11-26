@@ -4,8 +4,8 @@
 
 <p:declare-step xmlns:ex="http://exproc.org/ns/steps"
                 type="ex:expand-templates">
-  <p:input port="source" content-types="xml html"/>
-  <p:output port="result" content-types="xml html"/>
+  <p:input port="source" content-types="text xml html"/>
+  <p:output port="result" content-types="text xml html"/>
   <p:option name="variables" as="map(xs:QName,item()*)?"/>
 </p:declare-step>
 

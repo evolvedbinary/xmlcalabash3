@@ -142,7 +142,9 @@
       </xsl:when>
 
       <!-- Speculatively, the rest are steps. -->
-      <xsl:when test="starts-with($tagname, 'p:') or starts-with($tagname, 'cx:')">
+      <xsl:when test="starts-with($tagname, 'p:')
+                      or starts-with($tagname, 'cx:')
+                      or starts-with($tagname, 'ex:')">
         <a href="https://docs.xmlcalabash.com/reference/current/{replace($tagname, ':', '-')}.html">
           <xsl:sequence select="$formatted/node()"/>
         </a>

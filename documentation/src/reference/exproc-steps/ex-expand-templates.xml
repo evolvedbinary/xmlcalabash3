@@ -19,20 +19,33 @@ to what <tag>p:inline</tag> does for inline content.
 </para>
 </refsection>
 
-<refsection role="step-declaration">
+<refsection role="step-declaration exproc">
 <title>Step declaration</title>
 <xi:include href="../../../../xmlcalabash/src/main/resources/com/xmlcalabash/ext/expand-templates.xpl"
             xpointer="xpath(/*/*[@type='ex:expand-templates'])"/>
 <?import expand-templates.xpl?>
 </refsection>
+
+<refsection role="errors"><title>Errors</title><para>
+<error code="exerr:XC0050">It is a <glossterm>dynamic error</glossterm>
+if the XPath expression in a value template cannot be evaluated.</error>
+</para>
+</refsection>
+
 </refsynopsisdiv>
 
 <refsection>
 <title>Description</title>
 
-<para>This step expands any attribute- or text-value templates in the source document.
-The source document is the context item for expression evalation; the in-scope variables
+<para>This step expands value templates in the source document. The source
+document is the context item for expression evalation; the in-scope variables
 are the ones passed in <option>variables</option>.</para>
 
+<refsection>
+<title>Document properties</title>
+
+<para>All document properties are preserved.
+</para>
+</refsection>
 </refsection>
 </refentry>

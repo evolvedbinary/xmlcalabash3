@@ -19,7 +19,7 @@ EPUBCheck</link> validator to check the conformance of EPUB files.
 </para>
 </refsection>
 
-<refsection role="step-declaration">
+<refsection role="step-declaration exproc">
 <title>Step declaration</title>
 <xi:include href="../../../../xmlcalabash/src/main/resources/com/xmlcalabash/ext/epubcheck.xpl"
             xpointer="xpath(/*/*[@type='ex:epubcheck'])"/>
