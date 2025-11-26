@@ -3,7 +3,6 @@ package com.xmlcalabash.steps.extension
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.io.MediaType
-import com.xmlcalabash.namespace.Ns
 import com.xmlcalabash.runtime.LazyValue
 import com.xmlcalabash.steps.AbstractAtomicStep
 import com.xmlcalabash.util.ValueTemplateFilterXml
@@ -25,9 +24,8 @@ class ExpandTemplates(): AbstractAtomicStep()  {
         val source = queues["source"]!!.first()
         variables = qnameMapBinding(_variables)
 
-        val filter = ValueTemplateFilterXml(source.value as XdmNode,
-            source.contentType ?: MediaType.XML,
-            source.baseURI)
+        val ctype = source.contentType ?: MediaType.XML
+        val filter = ValueTemplateFilterXml(source.value as XdmNode, ctype, source.baseURI)
 
         val bindings = mutableMapOf<QName, LazyValue>()
         for ((key, value) in variables) {
@@ -46,6 +44,6 @@ class ExpandTemplates(): AbstractAtomicStep()  {
             }
         }
 
-        receiver.output("result", XProcDocument.ofXml(expanded, source.context, source.contentType ?: MediaType.XML))
+        receiver.output("result", XProcDocument.ofXml(expanded, source.context, source.properties))
     }
 }

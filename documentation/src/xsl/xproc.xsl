@@ -34,10 +34,15 @@
       For example, by including the extension library with an import at the top of your
       pipeline:</div>
 
+      <xsl:variable name="uri"
+                    select="(if (contains-token(../db:refsection/@role, 'exproc'))
+                             then 'https://xmlcalabash.com/ext/library/'
+                             else 'https://exproc.org/library/')
+                            || $import"/>
+
       <xsl:variable name="pl" as="element()">
         <screen xmlns="http://docbook.org/ns/docbook"
-                        language="xml"
-        >&lt;p:import href="https://xmlcalabash.com/ext/library/{$import}"/&gt;</screen>
+                        language="xml">&lt;p:import href="{$uri}"/&gt;</screen>
       </xsl:variable>
       <xsl:apply-templates select="$pl"/>
     </xsl:if>
