@@ -13,6 +13,43 @@ See the commits and pull requests on
 finer detail.</para>
 
 <revhistory>
+<revision xml:id="r3027">
+<revnumber>3.0.27</revnumber>
+<date>2025-11-26</date>
+<revdescription>
+<itemizedlist>
+<listitem><para>Fixed <cbissue number="372"/>. Added support for the
+<link xlink:href="https://spec.xproc.org/3.1/validation/#validation-common"><literal>c:compile</literal>
+parameter</link> on <tag>p:validate-with-schematron</tag>.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="369"/>. Added the AH control jar back 
+into the distribution.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="361"/>. Fixed a bug in the explanation for
+<code>err:XD0036</code> when it’s caused by a type error in an XPath expression.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="359"/>. Added a Java system property to
+identify the XML Calabash configuration when running pipeline functions starting outside of
+XProc.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="356"/>. Improved error explanations and fixed
+some documentation issues.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="355"/>. Suppress the “[No explanation for …]” message
+when <code>--explain</code> is used and the error is a user-defined error with no
+explanation.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="353"/>. Improved the detail in exceptions thrown by
+pipeline functions.
+</para></listitem>
+<listitem><para>Upgraded to 
+<link xlink:href="https://codeberg.org/schxslt/schxslt2">SchXslt2</link> version 1.7.
+</para></listitem>
+<listitem><para>Updated <tag>ex:expand-templates</tag> to allow text source documents.
+</para></listitem>
+</itemizedlist>
+</revdescription>
+</revision>
 <revision xml:id="r3026">
 <revnumber>3.0.26</revnumber>
 <date>2025-11-16</date>
