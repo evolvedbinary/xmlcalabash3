@@ -587,10 +587,40 @@ used to change the namespace bindings.</para>
 <varlistentry xml:id="cli-pipeline">
   <term><option><replaceable>pipeline.xpl</replaceable></option>, the pipeline to run</term>
 <listitem>
-<para>This identifies the pipeline to run. If the root element is 
-<tag>p:declare-step</tag>, then that pipeline will be run. If the root element is
-<tag>p:library</tag>, the first pipeline in the library will be run, unless the
-<option linkend="cli-step">step</option> option specifies an alternate pipeline.</para>
+
+<para>This identifies the pipeline to run.</para>
+
+<orderedlist>
+<listitem>
+<para>If the root element is 
+<tag>p:declare-step</tag>, then that pipeline will be run.</para>
+</listitem>
+<listitem>
+<para>If the root element is
+<tag>p:library</tag>, one of the steps it contains must be selected to run. Only the
+steps that are direct children of the <tag>p:library</tag> are considered.</para>
+
+<orderedlist>
+<listitem>
+<para>If the <option linkend="cli-step">step</option> option is used to specify a step,
+the step with that <emphasis>name</emphasis> will be run.</para>
+</listitem>
+<listitem>
+<para>If the <option linkend="cli-step">step</option> option is not provided, XML Calabash
+looks for the first <tag>p:declare-step</tag> in the library (in document order) and runs that
+step.</para>
+</listitem>
+</orderedlist>
+
+<para>This process is not recursive, if the library provided contains 
+<tag>p:import</tag> instructions, the steps declared in those libraries are not considered.
+</para>
+</listitem>
+</orderedlist>
+
+<para>It is an error if <replaceable>pipeline.xpl</replaceable> does not contain
+<tag>p:declare-step</tag> or <tag>p:library</tag> document.</para>
+
 </listitem>
 </varlistentry>
 
