@@ -26,6 +26,7 @@ class StaticOptionsManager() {
 
     fun useWhenValue(name: QName, value: XdmValue) {
         _useWhenOptions[name] = value
+        _staticOptions.add(name)
     }
 
     fun get(variable: VariableBindingContainer): StaticOptionDetails {
