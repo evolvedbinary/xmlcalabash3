@@ -618,7 +618,7 @@ step.</para>
 </listitem>
 </orderedlist>
 
-<para>It is an error if <replaceable>pipeline.xpl</replaceable> does not contain
+<para>It is an error if <replaceable>pipeline.xpl</replaceable> does not contain a
 <tag>p:declare-step</tag> or <tag>p:library</tag> document.</para>
 
 </listitem>
