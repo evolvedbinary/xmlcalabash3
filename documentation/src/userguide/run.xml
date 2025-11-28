@@ -566,7 +566,7 @@ that library. The named step will be run.</para>
 
 <para>For example:</para>
 
-<screen><prompt>$ </prompt><userinput>xmlcalabash --step:helloWorld --library:examples.xpl …</userinput></screen>
+<screen><prompt>$ </prompt><userinput>xmlcalabash --step:helloWorld examples.xpl …</userinput></screen>
 
 <para>If no pipeline is specified, the value of the <option>--step</option>
 option is interpreted as the <emphasis>type</emphasis> of a step. The (atomic)
