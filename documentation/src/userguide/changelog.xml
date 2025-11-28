@@ -13,6 +13,30 @@ See the commits and pull requests on
 finer detail.</para>
 
 <revhistory>
+<revision xml:id="r3028">
+<revnumber>3.0.28</revnumber>
+<date>2025-11-28</date>
+<revdescription>
+<itemizedlist>
+<listitem><para>Fixed <cbissue number="383"/>. Fixed how map-valued options are handled on the
+command line.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="382"/>. Clarified how steps
+<link linkend="cli-pipeline">are selected</link> when the
+pipeline document is a <tag>p:library</tag>.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="381"/>. Further improvements in the handling of
+exceptions in pipeline functions. If the exception detail is a document, serialize the document.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="380"/>. Fixed a bug in how static options specified
+on the command line are handled.
+</para></listitem>
+<listitem><para>Corrected documentation with respect to the (non-existant) <code>--library</code>
+option. (Thanks @galtm!).
+</para></listitem>
+</itemizedlist>
+</revdescription>
+</revision>
 <revision xml:id="r3027">
 <revnumber>3.0.27</revnumber>
 <date>2025-11-26</date>
