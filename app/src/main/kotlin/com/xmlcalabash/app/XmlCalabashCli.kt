@@ -26,6 +26,7 @@ import net.sf.saxon.om.NamespaceUri
 import net.sf.saxon.s9api.ItemType
 import net.sf.saxon.s9api.QName
 import net.sf.saxon.s9api.XdmAtomicValue
+import net.sf.saxon.s9api.XdmEmptySequence
 import net.sf.saxon.s9api.XdmValue
 import org.apache.logging.log4j.kotlin.logger
 import org.xml.sax.SAXParseException
@@ -475,7 +476,7 @@ class XmlCalabashCli private constructor() {
         }
 
         val implicitParameterName = pipelineBuilder.stepConfig.xmlCalabashConfig.implicitParameterName
-        val mapOptions = mutableMapOf<QName, XdmValue>()
+        val mapOptions = mutableMapOf<QName, MutableMap<QName, XdmValue>>()
 
         for ((name, initializers) in commandLine.options) {
             var mapName: QName? = null
@@ -491,10 +492,13 @@ class XmlCalabashCli private constructor() {
                 stepConfig.typeUtils.parseQName(name, nsmap)
             }
 
-            var value: XdmValue? = if (mapName != null) {
-                mapOptions[qname]
+            var value: XdmValue = if (mapName != null) {
+                if (mapName !in mapOptions) {
+                    mapOptions[mapName] = mutableMapOf()
+                }
+                mapOptions[mapName]!![qname] ?: XdmEmptySequence.getInstance()
             } else {
-                null
+                XdmEmptySequence.getInstance()
             }
 
             for (initializer in initializers) {
@@ -505,22 +509,18 @@ class XmlCalabashCli private constructor() {
                 } else {
                     XdmAtomicValue(initializer, ItemType.UNTYPED_ATOMIC)
                 }
-                if (value == null) {
-                    value = ivalue
-                } else {
-                    value = value.append(ivalue)
-                }
+                value = value.append(ivalue)
             }
 
             if (mapName != null) {
-                mapOptions[qname] = value!!
+                mapOptions[mapName]!![qname] = value
             } else {
-                pipelineBuilder.option(qname, value!!)
+                pipelineBuilder.option(qname, value)
             }
         }
 
-        if (mapOptions.isNotEmpty()) {
-            pipelineBuilder.option(implicitParameterName!!, stepConfig.typeUtils.asXdmMap(mapOptions))
+        for ((name, value) in mapOptions) {
+            pipelineBuilder.option(name, stepConfig.typeUtils.asXdmMap(value))
         }
     }
 
