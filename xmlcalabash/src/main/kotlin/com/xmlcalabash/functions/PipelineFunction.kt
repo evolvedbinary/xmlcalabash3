@@ -1,6 +1,7 @@
 package com.xmlcalabash.functions
 
 import com.xmlcalabash.datamodel.*
+import com.xmlcalabash.documents.XProcBinaryDocument
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.exceptions.XProcException
@@ -183,14 +184,14 @@ class PipelineFunction(private val decl: DeclareStepInstruction): ExtensionFunct
                         val sb = StringBuilder()
                         when (error.details.size) {
                             0 -> Unit
-                            1 -> sb.append(error.details[0])
+                            1 -> sb.append(errorDetail(error.details[0]))
                             else -> {
                                 sb.append("[")
                                 for (index in error.details.indices) {
                                     if (index > 0) {
                                         sb.append(", ")
                                     }
-                                    sb.append(error.details[index])
+                                    sb.append(errorDetail(error.details[index]))
                                 }
                                 sb.append("]")
                             }
@@ -216,6 +217,20 @@ class PipelineFunction(private val decl: DeclareStepInstruction): ExtensionFunct
             }
 
             return map.underlyingValue
+        }
+
+        private fun errorDetail(detail: Any): String {
+            when (detail) {
+                is XProcBinaryDocument -> {
+                    return "[binary document]"
+                }
+                is XProcDocument -> {
+                    return detail.value.toString()
+                }
+                else -> {
+                    return detail.toString()
+                }
+            }
         }
     }
 
