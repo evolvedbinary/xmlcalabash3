@@ -32,12 +32,12 @@ class XProcSelectExpression private constructor(stepConfig: StepConfiguration, v
         val compiler = runtimeConfig.newXPathCompiler()
 
         // Hack
-        val uri = runtimeConfig.baseUri // stepConfig, not config!
+        val uri = stepConfig.baseUri // stepConfig, not runtimeConfig!
         if (uri != null && !uri.toString().startsWith("?uniqueid")) {
             compiler.baseURI = uri
         }
 
-        for ((prefix, uri) in runtimeConfig.inscopeNamespaces) {
+        for ((prefix, uri) in stepConfig.inscopeNamespaces) { // stepConfig!
             compiler.declareNamespace(prefix, uri.toString())
         }
         for (name in variableRefs) {
