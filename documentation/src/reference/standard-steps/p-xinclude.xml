@@ -8,7 +8,7 @@
 
 <refsection role="introduction">
 <title>Introduction</title>
-<para>The <tag>p:xinclude</tag> step applies <biblioref linkend="xinclude"/> processing to the <port>source</port> document.</para>
+<para>The <tag>p:xinclude</tag> step applies <biblioref linkend="bib.xinclude"/> processing to the <port>source</port> document.</para>
 </refsection>
 
 <refsection role="step-declaration">

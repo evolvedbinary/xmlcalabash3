@@ -9,6 +9,8 @@ namespace a = "http://relaxng.org/ns/compatibility/annotations/1.0"
 default namespace = "http://docbook.org/ns/docbook"
 
 include "https://cdn.docbook.org/schema/5.2/rng/docbookxi.rnc" {
+  db._any =
+    element * - (db:* | p:*) { (db._any.attribute | text | db._any)* }
 }
 
 db.all.blocks |=
@@ -18,13 +20,20 @@ db.all.blocks |=
 
 p.declare-step =
    element p:declare-step {
-      attribute * { text }*,
-      (_any_xproc_syntax|db.xi.include)*
+       attribute name { text }?,
+       attribute type { text }?,
+       attribute psvi-required { text }?,
+       attribute xpath-version { text }?,
+       attribute exclude-inline-prefixes { text }?,
+       attribute version { text }?,
+       attribute visibility { text }?,
+       attribute xml:id { xsd:ID }?,
+       (_any_xproc_syntax|db.xi.include)*
    }
 
 _any_xproc_syntax =
    element p:* {
-      attribute * { text }*,
+      attribute (* - xml:id) { text }*,
       _any_xproc_syntax*
    }
 
