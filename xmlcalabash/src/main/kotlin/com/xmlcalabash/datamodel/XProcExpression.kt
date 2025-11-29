@@ -147,8 +147,8 @@ abstract class XProcExpression(val stepConfig: StepConfiguration, val asType: Se
     val staticValue: XdmValue?
         get() = _staticValue
 
-    abstract fun xevaluate(stepConfig: StepConfiguration): () -> XdmValue
-    abstract fun evaluate(stepConfig: StepConfiguration): XdmValue
+    abstract fun xevaluate(runtimeConfig: StepConfiguration): () -> XdmValue
+    abstract fun evaluate(runtimeConfig: StepConfiguration): XdmValue
     abstract fun cast(asType: SequenceType, values: List<XdmAtomicValue> = emptyList()): XProcExpression
 
     internal open fun computeStaticValue(stepConfig: InstructionConfiguration, alwaysTry: Boolean): XdmValue? {

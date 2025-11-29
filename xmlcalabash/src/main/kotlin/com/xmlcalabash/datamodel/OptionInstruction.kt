@@ -68,15 +68,16 @@ open class OptionInstruction(parent: XProcInstruction, name: QName, stepConfig: 
         }
 
         if (select == null) {
+            val lexical = if (name.prefix.isNullOrEmpty()) {
+                name.localName
+            } else {
+                "${name.prefix}:${name.localName}"
+            }
+
             if (required == true) {
                 if (!(parent as DeclareStepInstruction).isAtomic) {
-                    val lexical = if (name.prefix.isNullOrEmpty()) {
-                        name.localName
-                    } else {
-                        "${name.prefix}:${name.localName}"
-                    }
                     select = XProcExpression.select(stepConfig,
-                        "Q{http://xmlcalabash.com/ns/extensions}error('static', 18, Q{http://www.w3.org/2005/xpath-functions}QName('${name.namespaceUri}', '${lexical}'))",
+                        "Q{http://xmlcalabash.com/ns/extensions}error('static', 18, 1, Q{http://www.w3.org/2005/xpath-functions}QName('${name.namespaceUri}', '${lexical}'))",
                         SequenceType.ANY, false)
                     (select as XProcSelectExpression).requiresValue = true
                 }
@@ -89,7 +90,7 @@ open class OptionInstruction(parent: XProcInstruction, name: QName, stepConfig: 
                         if (type.occurrenceIndicator in listOf(OccurrenceIndicator.ONE, OccurrenceIndicator.ONE_OR_MORE)) {
                             // If an empty sequence isn't allowed here, make sure it will fail unless an option is provided at runtime
                             select = XProcExpression.select(stepConfig,
-                                "Q{http://xmlcalabash.com/ns/extensions}error('dynamic', 36)",
+                                "Q{http://xmlcalabash.com/ns/extensions}error('dynamic', 36, 7, Q{http://www.w3.org/2005/xpath-functions}QName('${name.namespaceUri}', '${lexical}'))",
                                 SequenceType.ANY, false)
                         } else {
                             select = XProcExpression.constant(stepConfig, XdmEmptySequence.getInstance(), type, values)

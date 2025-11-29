@@ -325,6 +325,7 @@ class DeclareStepInstruction(parent: XProcInstruction?, stepConfig: InstructionC
                 // Elaborate static options early so that they're available in nested declare steps
                 if (child is OptionInstruction && child.static) {
                     child.elaborateInstructions()
+                    builder.staticOptionsManager.markStatic(child.name)
                 }
 
                 newChildren.add(child)

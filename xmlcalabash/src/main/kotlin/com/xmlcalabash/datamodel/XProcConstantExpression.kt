@@ -25,12 +25,12 @@ class XProcConstantExpression private constructor(stepConfig: StepConfiguration,
         return constant(stepConfig, staticValue!!, asType, values)
     }
 
-    override fun xevaluate(config: StepConfiguration): () -> XdmValue {
+    override fun xevaluate(runtimeConfig: StepConfiguration): () -> XdmValue {
         return { staticValue!! }
     }
 
-    override fun evaluate(config: StepConfiguration): XdmValue {
-        return config.typeUtils.checkType(null, staticValue!!, asType, values)
+    override fun evaluate(runtimeConfig: StepConfiguration): XdmValue {
+        return runtimeConfig.typeUtils.checkType(null, staticValue!!, asType, values)
     }
 
     override fun computeStaticValue(stepConfig: InstructionConfiguration, alwaysTry: Boolean): XdmValue {

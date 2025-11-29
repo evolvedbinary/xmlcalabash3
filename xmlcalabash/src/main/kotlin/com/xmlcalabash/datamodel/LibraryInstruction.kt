@@ -40,10 +40,6 @@ open class LibraryInstruction(stepConfig: InstructionConfiguration): XProcInstru
     private val _exportedOptions = mutableMapOf<QName, OptionInstruction>()
     private var compiled = false
 
-    internal val _staticOptions = mutableMapOf<QName, StaticOptionDetails>()
-    val staticOptions: Map<QName, StaticOptionDetails>
-        get() = _staticOptions
-
     val exportedSteps: Map<QName, DeclareStepInstruction>
         get() = _exportedSteps
 
@@ -239,7 +235,7 @@ open class LibraryInstruction(stepConfig: InstructionConfiguration): XProcInstru
                 is OptionInstruction -> {
                     child.elaborateInstructions()
                     if (child.static) {
-                        _staticOptions[child.name] = builder.staticOptionsManager.get(child)
+                        builder.staticOptionsManager.markStatic(child.name)
                     }
                 }
                 else -> child.elaborateInstructions()

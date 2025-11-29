@@ -17,11 +17,11 @@ class XProcMatchExpression private constructor(stepConfig: StepConfiguration, va
         throw UnsupportedOperationException("XProcMatchExpression cannot be cast")
     }
 
-    override fun xevaluate(config: StepConfiguration): () -> XdmValue {
-        return { evaluate(config) }
+    override fun xevaluate(runtimeConfig: StepConfiguration): () -> XdmValue {
+        return { evaluate(runtimeConfig) }
     }
 
-    override fun evaluate(config: StepConfiguration): XdmValue {
+    override fun evaluate(runtimeConfig: StepConfiguration): XdmValue {
         var map = XdmMap()
         map = map.put(XdmAtomicValue("match"), XdmAtomicValue(match))
         for ((name, value) in variableBindings) {

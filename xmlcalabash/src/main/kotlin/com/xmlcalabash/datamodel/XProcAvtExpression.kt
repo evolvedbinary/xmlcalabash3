@@ -24,18 +24,18 @@ class XProcAvtExpression private constructor(stepConfig: StepConfiguration, val 
         return this
     }
 
-    override fun xevaluate(config: StepConfiguration): () -> XdmValue {
-        return { evaluate(config) }
+    override fun xevaluate(runtimeConfig: StepConfiguration): () -> XdmValue {
+        return { evaluate(runtimeConfig) }
     }
 
-    override fun evaluate(config: StepConfiguration): XdmValue {
+    override fun evaluate(runtimeConfig: StepConfiguration): XdmValue {
         val sb = StringBuilder()
 
         for (index in avt.value.indices) {
             if (index % 2 == 0) {
                 sb.append(avt.value[index])
             } else {
-                val compiler = config.newXPathCompiler()
+                val compiler = runtimeConfig.newXPathCompiler()
                 for (name in variableRefs) {
                     compiler.declareVariable(name)
                 }
@@ -43,7 +43,7 @@ class XProcAvtExpression private constructor(stepConfig: StepConfiguration, val 
                 val selector = compiler.compile(avt.value[index]).load()
                 //selector.resourceResolver = stepConfiguration.pipelineConfig.documentManager
 
-                setupExecutionContext(config, selector)
+                setupExecutionContext(runtimeConfig, selector)
                 val result = try {
                     for ((name, value) in variableBindings) {
                         selector.setVariable(name, value)
@@ -65,15 +65,15 @@ class XProcAvtExpression private constructor(stepConfig: StepConfiguration, val 
             }
         }
 
-        if (asType.underlyingSequenceType.primaryType == BuiltInAtomicType.ANY_URI && config.baseUri != null) {
+        if (asType.underlyingSequenceType.primaryType == BuiltInAtomicType.ANY_URI && runtimeConfig.baseUri != null) {
             val value = patchUriValue(this.stepConfig, XdmAtomicValue(sb.toString()))
-            return config.typeUtils.checkType(null, value, asType, values)
+            return runtimeConfig.typeUtils.checkType(null, value, asType, values)
         }
 
         if (asType !== SequenceType.ANY || values.isNotEmpty()) {
             // This must be an attribute, so treat the value as untyped atomic to begin with
             val value = StringToUntypedAtomic().convert(XdmAtomicValue(sb.toString()).underlyingValue)
-            return config.typeUtils.checkType(null, XdmAtomicValue(value), asType, values)
+            return runtimeConfig.typeUtils.checkType(null, XdmAtomicValue(value), asType, values)
         }
 
         return XdmAtomicValue(sb.toString())

@@ -16,11 +16,11 @@ class XProcErrorExpression private constructor(stepConfig: StepConfiguration): X
         return error(stepConfig)
     }
 
-    override fun xevaluate(config: StepConfiguration): () -> XdmValue {
-        return { evaluate(config) }
+    override fun xevaluate(runtimeConfig: StepConfiguration): () -> XdmValue {
+        return { evaluate(runtimeConfig) }
     }
 
-    override fun evaluate(config: StepConfiguration): XdmValue {
+    override fun evaluate(runtimeConfig: StepConfiguration): XdmValue {
         throw UnsupportedOperationException("Attempt to evaluate error expression")
     }
 

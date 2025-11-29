@@ -3,6 +3,7 @@ package com.xmlcalabash.functions
 import com.xmlcalabash.config.SaxonConfiguration
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.namespace.NsCx
+import com.xmlcalabash.namespace.NsErr
 import net.sf.saxon.expr.XPathContext
 import net.sf.saxon.lib.ExtensionFunctionCall
 import net.sf.saxon.lib.ExtensionFunctionDefinition
@@ -29,11 +30,11 @@ class ErrorFunction(private val config: SaxonConfiguration): ExtensionFunctionDe
     }
 
     override fun getMinimumNumberOfArguments(): Int {
-        return 2
+        return 3
     }
 
     override fun getMaximumNumberOfArguments(): Int {
-        return 5
+        return 6
     }
 
     override fun getResultType(suppliedArgumentTypes: Array<out SequenceType>?): SequenceType {
@@ -48,9 +49,10 @@ class ErrorFunction(private val config: SaxonConfiguration): ExtensionFunctionDe
         override fun call(context: XPathContext?, arguments: Array<out Sequence>?): Sequence {
             val errorType = (arguments!![0].head() as StringValue).stringValue
             val errorNumber = (arguments[1].head() as Int64Value).longValue().toInt()
+            val variant = (arguments[2].head() as Int64Value).longValue().toInt()
 
             val params = mutableListOf<Any>()
-            for (index in 2 until arguments.size) {
+            for (index in 3 until arguments.size) {
                 val value = arguments[index].head()
                 when (value) {
                     is StringValue -> params.add(value.stringValue)
@@ -63,10 +65,10 @@ class ErrorFunction(private val config: SaxonConfiguration): ExtensionFunctionDe
             }
 
             when (errorType) {
-                "step" -> throw XProcError.step(errorNumber, *params.toTypedArray()).exception()
-                "static" -> throw XProcError.static(errorNumber, *params.toTypedArray()).exception()
-                "dynamic" -> throw XProcError.dynamic(errorNumber, *params.toTypedArray()).exception()
-                else -> throw XProcError.internal(errorNumber, *params.toTypedArray()).exception()
+                "step" -> throw XProcError.step(Pair(errorNumber, variant), *params.toTypedArray()).exception()
+                "static" -> throw XProcError.static(Pair(errorNumber, variant), *params.toTypedArray()).exception()
+                "dynamic" -> throw XProcError.dynamic(Pair(errorNumber, variant), *params.toTypedArray()).exception()
+                else -> throw XProcError.internal(Pair(errorNumber, variant), *params.toTypedArray()).exception()
             }
         }
     }
