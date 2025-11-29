@@ -13,6 +13,17 @@ See the commits and pull requests on
 finer detail.</para>
 
 <revhistory>
+<revision xml:id="r3029">
+<revnumber>3.0.29</revnumber>
+<date>2025-11-29</date>
+<revdescription>
+<itemizedlist>
+<listitem><para>Fixed <cbissue number="391"/>. Corrected catastrophic error in
+command-line option handling.
+</para></listitem>
+</itemizedlist>
+</revdescription>
+</revision>
 <revision xml:id="r3028">
 <revnumber>3.0.28</revnumber>
 <date>2025-11-28</date>
