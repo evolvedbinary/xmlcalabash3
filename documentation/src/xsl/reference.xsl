@@ -19,6 +19,9 @@
                 version="3.0">
 
 <xsl:import href="https://cdn.docbook.org/release/xsltng/current/xslt/docbook.xsl"/>
+<!--
+<xsl:import href="file:///Volumes/Projects/docbook/xslTNG/build/xslt/docbook.xsl"/>
+-->
 
 <xsl:import href="xproc.xsl"/>
 <xsl:import href="markdown-extensions.xsl"/>

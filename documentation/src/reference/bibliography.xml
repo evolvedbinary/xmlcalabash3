@@ -122,7 +122,7 @@ Anders Berglund, editor. W3C Recommendation. 5 December 2006.</bibliomixed>
 A.Wright, H. Andrews and B. Hutton, editors.
 Internet Engineering Task Force. June, 2022.</bibliomixed>
 
-<bibliomixed xml:id="xinclude"><abbrev>XInclude</abbrev>
+<bibliomixed xml:id="bib.xinclude"><abbrev>XInclude</abbrev>
 <citetitle xlink:href="https://www.w3.org/TR/xinclude/">XML Inclusions
 (XInclude) Version 1.0 (Second Edition)</citetitle>. Jonathan Marsh,
 David Orchard, and Daniel Veillard, editors.
