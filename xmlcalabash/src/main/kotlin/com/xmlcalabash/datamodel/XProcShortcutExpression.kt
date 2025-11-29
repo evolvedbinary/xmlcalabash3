@@ -18,11 +18,11 @@ class XProcShortcutExpression private constructor(stepConfig: StepConfiguration,
         throw UnsupportedOperationException()
     }
 
-    override fun xevaluate(config: StepConfiguration): () -> XdmValue {
+    override fun xevaluate(runtimeConfig: StepConfiguration): () -> XdmValue {
         throw UnsupportedOperationException("Cannot evaluate a shortcut expression")
     }
 
-    override fun evaluate(config: StepConfiguration): XdmValue {
+    override fun evaluate(runtimeConfig: StepConfiguration): XdmValue {
         throw UnsupportedOperationException("Cannot evaluate a shortcut expression")
     }
 

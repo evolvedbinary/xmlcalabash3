@@ -26,6 +26,9 @@ class StaticOptionsManager() {
 
     fun useWhenValue(name: QName, value: XdmValue) {
         _useWhenOptions[name] = value
+    }
+
+    internal fun markStatic(name: QName) {
         _staticOptions.add(name)
     }
 

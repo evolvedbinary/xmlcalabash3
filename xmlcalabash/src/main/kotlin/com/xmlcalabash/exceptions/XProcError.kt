@@ -38,21 +38,21 @@ open class XProcError protected constructor(val code: QName, val variant: Int, v
             return NsEXProcErr.xc(code)
         }
 
-        private fun static(code: Pair<Int, Int>, vararg details: Any): XProcError {
+        internal fun static(code: Pair<Int, Int>, vararg details: Any): XProcError {
             val ecode = staticError(code.first)
             return XProcError(ecode, code.second, Location.NULL, Location.NULL, *details)
         }
 
         fun static(code: Int, vararg details: Any): XProcError = static(Pair(code, 1), *details)
 
-        private fun dynamic(code: Pair<Int,Int>, vararg details: Any): XProcError {
+        internal fun dynamic(code: Pair<Int,Int>, vararg details: Any): XProcError {
             val ecode = dynamicError(code.first)
             return XProcError(ecode, code.second, Location.NULL, Location.NULL, *details)
         }
 
         fun dynamic(code: Int, vararg details: Any): XProcError = dynamic(Pair(code, 1), *details)
 
-        private fun step(code: Pair<Int,Int>, vararg details: Any): XProcError {
+        internal fun step(code: Pair<Int,Int>, vararg details: Any): XProcError {
             return step(code, Location.NULL, *details)
         }
 
@@ -78,7 +78,7 @@ open class XProcError protected constructor(val code: QName, val variant: Int, v
 
         private fun exprocStep(code: Int, location: Location, vararg details: Any): XProcError = step(Pair(code, 1), location, *details)
 
-        private fun internal(code: Pair<Int,Int>, vararg details: Any): XProcError {
+        internal fun internal(code: Pair<Int,Int>, vararg details: Any): XProcError {
             val ecode = internalError(code.first)
             return XProcError(ecode, code.second, Location.NULL, Location.NULL, *details)
         }
@@ -207,6 +207,7 @@ open class XProcError protected constructor(val code: QName, val variant: Int, v
         fun xdBadType(name: QName, value: String, type: String) = dynamic(Pair(36,4), name, value, type)
         fun xdBadType(message: String) = dynamic(Pair(36,5), message)
         fun xdBadTypeEmpty(type: String) = dynamic(Pair(36,6), type)
+        fun xdOptionValueIsRequired(name: QName) = dynamic(Pair(36,7), name)
         fun xdBadInputContentType(port: String, type: String) = dynamic(38, port, type)
         fun xdUnsupportedCharset(charset: String) = dynamic(39, charset)
         fun xdBadBase64Input() = dynamic(40)

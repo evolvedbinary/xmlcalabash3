@@ -24,20 +24,20 @@ class XProcSelectExpression private constructor(stepConfig: StepConfiguration, v
         return select(stepConfig, select, asType, collection, values)
     }
 
-    override fun xevaluate(stepConfig: StepConfiguration): () -> XdmValue {
-        return { evaluate(stepConfig) }
+    override fun xevaluate(runtimeConfig: StepConfiguration): () -> XdmValue {
+        return { evaluate(runtimeConfig) }
     }
 
-    override fun evaluate(stepConfig: StepConfiguration): XdmValue {
-        val compiler = stepConfig.newXPathCompiler()
+    override fun evaluate(runtimeConfig: StepConfiguration): XdmValue {
+        val compiler = runtimeConfig.newXPathCompiler()
 
         // Hack
-        val uri = stepConfig.baseUri // stepConfig, not config!
+        val uri = runtimeConfig.baseUri // stepConfig, not config!
         if (uri != null && !uri.toString().startsWith("?uniqueid")) {
             compiler.baseURI = uri
         }
 
-        for ((prefix, uri) in stepConfig.inscopeNamespaces) {
+        for ((prefix, uri) in runtimeConfig.inscopeNamespaces) {
             compiler.declareNamespace(prefix, uri.toString())
         }
         for (name in variableRefs) {
@@ -50,30 +50,33 @@ class XProcSelectExpression private constructor(stepConfig: StepConfiguration, v
             // I suppose it's possible that it could occur elsewhere...still, hopefully the message
             // is clear enough.
             if (ex.message != null && ex.message!!.contains("cannot be used as a namespace URI")) {
-                throw stepConfig.exception(XProcError.xcCannotSetNamespaces())
+                throw runtimeConfig.exception(XProcError.xcCannotSetNamespaces())
             }
             throw ex
         }
 
-        val sconfig = stepConfig.saxonConfig.configuration
+        val sconfig = runtimeConfig.saxonConfig.configuration
         val defaultCollectionUri = sconfig.defaultCollection
         val collectionFinder = XProcCollectionFinder(defaultCollection, selector.underlyingXPathContext.collectionFinder)
         selector.underlyingXPathContext.collectionFinder = collectionFinder
-        selector.resourceResolver = stepConfig.documentManager
+        selector.resourceResolver = runtimeConfig.documentManager
         sconfig.defaultCollection = XProcCollectionFinder.DEFAULT
 
         for (name in variableRefs) {
             if (name in staticVariableBindings) {
-                selector.setVariable(name, staticVariableBindings[name]!!.evaluate(stepConfig))
+                selector.setVariable(name, staticVariableBindings[name]!!.evaluate(runtimeConfig))
             } else if (name in variableBindings) {
                 selector.setVariable(name, variableBindings[name]!!)
             }
         }
 
-        setupExecutionContext(stepConfig, selector)
+        setupExecutionContext(runtimeConfig, selector)
 
         var result = try {
             selector.evaluate()
+        } catch (ex: XProcException) {
+            ex.error.updateAt(stepConfig.location)
+            throw ex
         } catch (ex: Throwable) {
             throw ex
         } finally {
@@ -86,7 +89,7 @@ class XProcSelectExpression private constructor(stepConfig: StepConfiguration, v
             result = patchUriValue(this.stepConfig, result)
 
             try {
-                return stepConfig.typeUtils.checkType(null, result, asType, values)
+                return runtimeConfig.typeUtils.checkType(null, result, asType, values)
             } catch (ex: XProcException) {
                 if (ex.error.code == NsErr.xd(36) && asType.underlyingSequenceType.primaryType == BuiltInAtomicType.QNAME) {
                     throw ex.error.with(NsErr.xd(61)).exception()
