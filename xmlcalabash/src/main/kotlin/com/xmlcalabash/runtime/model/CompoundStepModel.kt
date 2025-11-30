@@ -2,6 +2,7 @@ package com.xmlcalabash.runtime.model
 
 import com.xmlcalabash.datamodel.AtomicExpressionStepInstruction
 import com.xmlcalabash.datamodel.CatchInstruction
+import com.xmlcalabash.datamodel.DeclareStepInstruction
 import com.xmlcalabash.graph.*
 import com.xmlcalabash.namespace.NsP
 import com.xmlcalabash.runtime.XProcRuntime
@@ -13,8 +14,12 @@ import com.xmlcalabash.runtime.parameters.TryCatchStepParameters
 import com.xmlcalabash.runtime.parameters.ViewportStepParameters
 import com.xmlcalabash.runtime.steps.AbstractStep
 import com.xmlcalabash.runtime.steps.CompoundStep
+import net.sf.saxon.s9api.QName
 
 class CompoundStepModel(runtime: XProcRuntime, model: CompoundModel): StepModel(runtime, model) {
+    internal val stepType: QName?
+    internal val stepName: String?
+
     internal var userStep: AtomicUserStepModel? = null
     lateinit var head: HeadModel
     lateinit var foot: FootModel
@@ -25,6 +30,13 @@ class CompoundStepModel(runtime: XProcRuntime, model: CompoundModel): StepModel(
     val childThreadGroups = model.childThreadGroups
 
     init {
+        if (model.step is DeclareStepInstruction) {
+            stepType = model.step.type
+            stepName = model.step.name
+        } else {
+            stepType = null
+            stepName = null
+        }
         staticOptions.putAll(model.step.staticOptions)
         extensionAttributes.putAll(model.step.extensionAttributes)
     }

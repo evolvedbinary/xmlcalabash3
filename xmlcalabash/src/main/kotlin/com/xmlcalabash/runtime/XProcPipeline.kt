@@ -24,6 +24,9 @@ import net.sf.saxon.s9api.XdmValue
 import java.io.FileOutputStream
 
 class XProcPipeline internal constructor(val runtime: XProcRuntime, pipeline: CompoundStepModel, val config: XProcStepConfiguration) {
+    val stepType = pipeline.stepType
+    val stepName = pipeline.stepName
+
     val inputManifold = pipeline.inputs
     val outputManifold = pipeline.outputs
     val optionManifold = pipeline.options
@@ -80,6 +83,12 @@ class XProcPipeline internal constructor(val runtime: XProcRuntime, pipeline: Co
     fun option(name: QName, value: XProcDocument) {
         val option = optionManifold[name]
         if (option == null) {
+            if (stepType != null) {
+                if (stepName == null || stepName.startsWith("!")) {
+                    throw XProcError.xsNoSuchOption(name, stepType).exception()
+                }
+                throw XProcError.xsNoSuchOption(name, stepType, stepName).exception()
+            }
             throw XProcError.xsNoSuchOption(name).exception()
         }
 

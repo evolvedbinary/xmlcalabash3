@@ -400,8 +400,18 @@ XS0030
 Multiple primary input ports: “$1”.
 It is a static error to specify that more than one input port is the primary.
 
-XS0031
+XS0031/1
 The step has no option named “$1”.
+It is a static error to use an option name in p:with-option if the step type
+being invoked has not declared an option with that name.
+
+XS0031/2
+Step of type “$2” has no option named “$1”.
+It is a static error to use an option name in p:with-option if the step type
+being invoked has not declared an option with that name.
+
+XS0031/3
+Step of type “$2” (named “$3”) has no option named “$1”.
 It is a static error to use an option name in p:with-option if the step type
 being invoked has not declared an option with that name.
 

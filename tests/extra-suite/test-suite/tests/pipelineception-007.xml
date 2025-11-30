@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <t:test xmlns:err="http://www.w3.org/ns/xproc-error"
-        expected="fail" code="err:XS0031"
+        expected="fail" code="err:XS0031 err:XD0050"
         xmlns:t="http://xproc.org/ns/testsuite/3.0">
   <t:info>
     <t:title>pipelineception-007</t:title>

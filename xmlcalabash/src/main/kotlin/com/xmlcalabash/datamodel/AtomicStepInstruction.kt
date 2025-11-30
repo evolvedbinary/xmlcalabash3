@@ -103,6 +103,9 @@ open class AtomicStepInstruction(parent: XProcInstruction, instructionType: QNam
 
             val dopt = decl.getOption(opt.name)
             if (dopt == null) {
+                if (decl.type != null) {
+                    throw stepConfig.exception(XProcError.xsNoSuchOption(opt.name, decl.type!!))
+                }
                 throw stepConfig.exception(XProcError.xsNoSuchOption(opt.name))
             }
             if (options.containsKey(opt.name)) {
