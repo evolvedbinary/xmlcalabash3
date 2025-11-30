@@ -218,12 +218,14 @@ class PipelineFunction(private val decl: DeclareStepInstruction): ExtensionFunct
             }
 
             var map = XdmMap()
-            for ((port, documents) in receiver.outputs) {
+            for (output in outputs) {
                 var value: XdmValue = XdmEmptySequence.getInstance()
-                for (document in documents) {
-                    value = value.append(document.value)
+                if (output.port in receiver.outputs) {
+                    for (document in receiver.outputs[output.port]!!) {
+                        value = value.append(document.value)
+                    }
                 }
-                map = map.put(XdmAtomicValue(port), value)
+                map = map.put(XdmAtomicValue(output.port), value)
             }
 
             return map.underlyingValue
