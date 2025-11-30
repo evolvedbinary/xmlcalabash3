@@ -13,6 +13,46 @@ See the commits and pull requests on
 finer detail.</para>
 
 <revhistory>
+<revision xml:id="r3030">
+<revnumber>3.0.30</revnumber>
+<date>2025-11-30</date>
+<revdescription>
+<itemizedlist>
+<listitem><para>Fixed <cbissue number="407"/>. All output ports now appear in the
+result map when a pipeline function is called. If there was no output on a port,
+the map value will be the empty sequence.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="401"/>. Text documents can now be passed to
+pipeline functions. An XML node value that contains only text is passed as a 
+<code>text/plain</code> document, all other XML nodes are passed as
+<code>application/xml</code>. Maps, arrays, and scalar values are passed as
+<code>application/json</code>.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="403"/>. Fixed <tag>p:step-available()</tag> so
+that it returns true for the standard compound steps, the extension compound steps,
+and <tag>p:run</tag>.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="402"/>. Fixed <tag>p:text-head</tag> and
+<tag>p:text-tail</tag> so that they do end-of-line processing even when the
+line count is zero (meaning all the lines).
+</para></listitem>
+<listitem><para>Fixed <cbissue number="399"/>. Fixed a bug where the namespace
+bindings associated with a variable were resolved incorrectly.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="394"/>. Fixed incorrect cross reference on
+the <tag>p:xinclude</tag> reference page. Corrected the way <tag class="attribute">xml:id</tag>
+attributes are handled for pipeline fragments in the documentation.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="389"/>. Improved the error message associated
+with passing an invalid option to a pipeline function. Generally improved error
+message handling for pipeline functions.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="380"/>. Fixed a bug in how static options
+specified on the command line are handled. (Really fixed it this time, I think.)
+</para></listitem>
+</itemizedlist>
+</revdescription>
+</revision>
 <revision xml:id="r3029">
 <revnumber>3.0.29</revnumber>
 <date>2025-11-29</date>
