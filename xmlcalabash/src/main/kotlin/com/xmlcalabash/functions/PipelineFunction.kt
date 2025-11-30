@@ -8,6 +8,7 @@ import com.xmlcalabash.exceptions.XProcException
 import com.xmlcalabash.runtime.XProcRuntime
 import com.xmlcalabash.util.BufferingReceiver
 import com.xmlcalabash.util.MediaClassification
+import com.xmlcalabash.util.S9Api
 import com.xmlcalabash.util.SaxonTreeBuilder
 import net.sf.saxon.expr.Expression
 import net.sf.saxon.expr.XPathContext
@@ -133,13 +134,22 @@ class PipelineFunction(private val decl: DeclareStepInstruction): ExtensionFunct
                             is NodeInfo -> {
                                 val node = XdmNode(item)
                                 val doc = if (node.nodeKind == XdmNodeKind.DOCUMENT) {
-                                    XProcDocument.ofXml(node, decl.stepConfig)
+                                    if (S9Api.isTextDocument(node)) {
+                                        XProcDocument.ofText(node, decl.stepConfig)
+                                    } else {
+                                        XProcDocument.ofXml(node, decl.stepConfig)
+                                    }
                                 } else {
                                     val builder = SaxonTreeBuilder(node.processor)
                                     builder.startDocument(node.baseURI)
                                     builder.addSubtree(node)
                                     builder.endDocument()
-                                    XProcDocument.ofXml(builder.result, decl.stepConfig)
+                                    val result = builder.result
+                                    if (S9Api.isTextDocument(result)) {
+                                        XProcDocument.ofText(result, decl.stepConfig)
+                                    } else {
+                                        XProcDocument.ofXml(result, decl.stepConfig)
+                                    }
                                 }
                                 exec.input(input.port, doc)
                             }
