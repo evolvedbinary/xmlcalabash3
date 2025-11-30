@@ -13,12 +13,9 @@ open class TextHeadStep(): AbstractTextStep() {
         val lines = textLines(source)
         val sb = StringBuilder()
 
-        if (count == 0) {
-            receiver.output("result", source)
-            return
-        }
-
-        val fromTo = if (count < 0) {
+        val fromTo = if (count == 0) {
+            Pair(0, lines.size)
+        } else if (count < 0) {
             Pair(-count, lines.size)
         } else {
             Pair(0,  max(min(count, lines.size), 0))
