@@ -125,90 +125,79 @@ class PipelineFunction(private val decl: DeclareStepInstruction): ExtensionFunct
             val receiver = BufferingReceiver()
             exec.receiver = receiver
 
-            if (sequences != null) {
-                for ((index, input) in inputs.withIndex()) {
-                    val items = sequences.elementAt(index)!!.materialize()
-                    for (itemindex in 0..<items.length) {
-                        val item = items.itemAt(itemindex)
-                        when (item) {
-                            is NodeInfo -> {
-                                val node = XdmNode(item)
-                                val doc = if (node.nodeKind == XdmNodeKind.DOCUMENT) {
-                                    if (S9Api.isTextDocument(node)) {
-                                        XProcDocument.ofText(node, decl.stepConfig)
-                                    } else {
-                                        XProcDocument.ofXml(node, decl.stepConfig)
-                                    }
-                                } else {
-                                    val builder = SaxonTreeBuilder(node.processor)
-                                    builder.startDocument(node.baseURI)
-                                    builder.addSubtree(node)
-                                    builder.endDocument()
-                                    val result = builder.result
-                                    if (S9Api.isTextDocument(result)) {
-                                        XProcDocument.ofText(result, decl.stepConfig)
-                                    } else {
-                                        XProcDocument.ofXml(result, decl.stepConfig)
-                                    }
-                                }
-                                exec.input(input.port, doc)
-                            }
-                            is MapItem -> {
-                                val map = decl.stepConfig.typeUtils.asXdmMap(item)
-                                val doc = XProcDocument.ofValue(map, decl.stepConfig)
-                                exec.input(input.port, doc)
-                            }
-                            is ArrayItem -> {
-                                val array = decl.stepConfig.typeUtils.asXdmArray(item)
-                                val doc = XProcDocument.ofValue(array, decl.stepConfig)
-                                exec.input(input.port, doc)
-                            }
-                            is GroundedValue -> {
-                                val doc = XProcDocument.ofValue(XdmValue.wrap(item), decl.stepConfig)
-                                exec.input(input.port, doc)
-                            }
-
-                            else -> throw IllegalArgumentException("Failed to convert item to input: ${item}")
-                        }
-                    }
-                }
-
-                if (sequences.size > inputs.size) {
-                    val item = sequences.last()
-                    if (item is MapItem) {
-                        val map = decl.stepConfig.typeUtils.asMap(decl.stepConfig.typeUtils.forceQNameKeys(item))
-                        for ((name, value) in map) {
-                            exec.option(name, XProcDocument.ofValue(value, decl.stepConfig))
-                        }
-                    }
-                }
-            }
-
             try {
+                if (sequences != null) {
+                    for ((index, input) in inputs.withIndex()) {
+                        val items = sequences.elementAt(index)!!.materialize()
+                        for (itemindex in 0..<items.length) {
+                            val item = items.itemAt(itemindex)
+                            when (item) {
+                                is NodeInfo -> {
+                                    val node = XdmNode(item)
+                                    val doc = if (node.nodeKind == XdmNodeKind.DOCUMENT) {
+                                        if (S9Api.isTextDocument(node)) {
+                                            XProcDocument.ofText(node, decl.stepConfig)
+                                        } else {
+                                            XProcDocument.ofXml(node, decl.stepConfig)
+                                        }
+                                    } else {
+                                        val builder = SaxonTreeBuilder(node.processor)
+                                        builder.startDocument(node.baseURI)
+                                        builder.addSubtree(node)
+                                        builder.endDocument()
+                                        val result = builder.result
+                                        if (S9Api.isTextDocument(result)) {
+                                            XProcDocument.ofText(result, decl.stepConfig)
+                                        } else {
+                                            XProcDocument.ofXml(result, decl.stepConfig)
+                                        }
+                                    }
+                                    exec.input(input.port, doc)
+                                }
+
+                                is MapItem -> {
+                                    val map = decl.stepConfig.typeUtils.asXdmMap(item)
+                                    val doc = XProcDocument.ofValue(map, decl.stepConfig)
+                                    exec.input(input.port, doc)
+                                }
+
+                                is ArrayItem -> {
+                                    val array = decl.stepConfig.typeUtils.asXdmArray(item)
+                                    val doc = XProcDocument.ofValue(array, decl.stepConfig)
+                                    exec.input(input.port, doc)
+                                }
+
+                                is GroundedValue -> {
+                                    val doc = XProcDocument.ofValue(XdmValue.wrap(item), decl.stepConfig)
+                                    exec.input(input.port, doc)
+                                }
+
+                                else -> throw IllegalArgumentException("Failed to convert item to input: ${item}")
+                            }
+                        }
+                    }
+
+                    if (sequences.size > inputs.size) {
+                        val item = sequences.last()
+                        if (item is MapItem) {
+                            val map = decl.stepConfig.typeUtils.asMap(decl.stepConfig.typeUtils.forceQNameKeys(item))
+                            for ((name, value) in map) {
+                                exec.option(name, XProcDocument.ofValue(value, decl.stepConfig))
+                            }
+                        }
+                    }
+                }
+
                 exec.run()
             } catch (ex: Exception) {
                 // Wrap the exception in an XPathException so that try/catch in XQuery or XSLT will work
                 when (ex) {
                     is XProcException -> {
                         val error = ex.error
-                        val sb = StringBuilder()
-                        when (error.details.size) {
-                            0 -> Unit
-                            1 -> sb.append(errorDetail(error.details[0]))
-                            else -> {
-                                sb.append("[")
-                                for (index in error.details.indices) {
-                                    if (index > 0) {
-                                        sb.append(", ")
-                                    }
-                                    sb.append(errorDetail(error.details[index]))
-                                }
-                                sb.append("]")
-                            }
-                        }
+                        val message = runtime!!.environment.errorExplanation.message(error, false)
                         // Passing in null causes Saxon to report a more useful location...
                         val loc = null // error.location.asSaxonLocation()
-                        val perr = FakeXmlProcessingError(error.code, sb.toString(), error.exception(), loc)
+                        val perr = FakeXmlProcessingError(error.code, message, error.exception(), loc)
                         throw XPathException.fromXmlProcessingError(perr)
                     }
                     else -> {
