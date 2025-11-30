@@ -2,6 +2,8 @@ package com.xmlcalabash.config
 
 import com.xmlcalabash.datamodel.DeclareStepInstruction
 import com.xmlcalabash.datamodel.DocumentContext
+import com.xmlcalabash.namespace.NsCx
+import com.xmlcalabash.namespace.NsP
 import com.xmlcalabash.util.Report
 import com.xmlcalabash.util.TypeUtils
 import com.xmlcalabash.util.Verbosity
@@ -79,11 +81,18 @@ open class StepConfiguration(val saxonConfig: SaxonConfiguration,
     }
 
     fun stepAvailable(name: QName): Boolean {
-        val decl = stepDeclaration(name) ?: return false
-        if (decl.isAtomic) {
-            return environment.atomicStepAvailable(name)
+        val decl = stepDeclaration(name)
+        if (decl != null) {
+            if (decl.isAtomic) {
+                return environment.atomicStepAvailable(name)
+            }
+            return true
         }
-        return true
+
+        // Special cases...
+        return name in listOf(NsP.forEach, NsP.viewport, NsP.choose, NsP.`if`, NsP.group, NsP.`try`,
+            NsCx.until, NsCx.`while`,
+            NsP.run)
     }
 
     override fun atomicStepAvailable(name: QName): Boolean {
