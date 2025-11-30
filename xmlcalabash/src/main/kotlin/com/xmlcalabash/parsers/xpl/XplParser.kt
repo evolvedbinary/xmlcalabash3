@@ -123,6 +123,15 @@ class XplParser internal constructor(val builder: PipelineBuilder) {
                 }
                 throw XProcError.xiNoPipelineInLibrary(stepName, stepContainer.stepConfig.baseUri?.toString() ?: "-").exception()
             }
+
+            // This seems like a slightly odd place for this; ideally, I think the library
+            // should be returned and elaborated before the pipeline is selected, but that's
+            // a lot bigger refactor.
+            for (child in library.children.filterIsInstance<OptionInstruction>()) {
+                if (child.static) {
+                    builder.staticOptionsManager.markStatic(child.name)
+                }
+            }
             return decl
         }
     }
