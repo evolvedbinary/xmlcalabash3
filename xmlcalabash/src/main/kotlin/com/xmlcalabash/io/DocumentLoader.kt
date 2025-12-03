@@ -109,6 +109,7 @@ class DocumentLoader(val stepConfig: StepConfiguration,
     var mediaType = MediaType.XML
     val properties = DocumentProperties()
     var absURI: URI = UriUtils.cwdAsUri()
+    var readExternalSubset = true
 
     fun load(): XProcDocument {
         if (href == null) {
@@ -320,11 +321,6 @@ class DocumentLoader(val stepConfig: StepConfiguration,
         val builder = stepConfig.processor.newDocumentBuilder()
         builder.isLineNumbering = true
 
-        /* disable loading external subset
-        val cfg = context.saxonConfig.processor.underlyingConfiguration
-        cfg.parseOptions = cfg.parseOptions.withParserFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false)
-         */
-
         val validating = if (parameters[Ns.dtdValidate] != null) {
             val value = parameters[Ns.dtdValidate]!!.underlyingValue
             if (value is BooleanValue) {
@@ -337,6 +333,11 @@ class DocumentLoader(val stepConfig: StepConfiguration,
         }
 
         builder.isDTDValidation = validating
+        if (!validating && !readExternalSubset) {
+            val cfg = stepConfig.saxonConfig.processor.underlyingConfiguration
+            cfg.parseOptions = cfg.parseOptions.withParserFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false)
+        }
+
         val source = InputSource(stream)
         if (uri != null) {
             source.systemId = uri.toString();
