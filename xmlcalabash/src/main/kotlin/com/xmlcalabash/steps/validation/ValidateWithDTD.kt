@@ -18,14 +18,16 @@ import java.io.ByteArrayOutputStream
 import java.nio.charset.StandardCharsets
 import javax.xml.transform.sax.SAXSource
 
-class ValidateWithDTD(): AbstractAtomicStep() {
+class ValidateWithDTD(): AbstractValidationStep() {
     lateinit var source: XProcDocument
     lateinit var report: XvrlReport
 
     override fun run() {
         super.run()
 
-        report = XvrlReport.newInstance(stepConfig)
+        val parameters = qnameMapBinding(Ns.parameters)
+
+        report = XvrlReport.newInstance(stepConfig, xvrlParameters(parameters))
         report.metadata.creator(stepConfig.saxonConfig.environment.productName,
             stepConfig.saxonConfig.environment.productVersion)
 

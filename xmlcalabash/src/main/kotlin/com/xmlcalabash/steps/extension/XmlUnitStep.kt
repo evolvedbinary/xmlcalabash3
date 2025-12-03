@@ -6,6 +6,7 @@ import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.io.MediaType
 import com.xmlcalabash.namespace.*
 import com.xmlcalabash.steps.AbstractAtomicStep
+import com.xmlcalabash.steps.validation.AbstractValidationStep
 import com.xmlcalabash.util.MarkdownConfigurer
 import com.xmlcalabash.xvrl.XvrlLocation
 import com.xmlcalabash.xvrl.XvrlReport
@@ -54,6 +55,7 @@ class XmlUnitStep(): AbstractAtomicStep() {
         val elementSelector = stringBinding(_elementSelector)
         val nodeMatcherClass = stringBinding(_nodeMatcherClass)
         val elementSelectorClass = stringBinding(_elementSelectorClass)
+        val parameters = qnameMapBinding(Ns.parameters)
 
         if (reportFormat != "xvrl") {
             throw stepConfig.exception(XProcError.xcUnsupportedReportFormat(reportFormat))
@@ -157,7 +159,7 @@ class XmlUnitStep(): AbstractAtomicStep() {
             diffmeta[cx(_attributeList)] = sb.toString().trim()
         }
 
-        val report = XvrlReport.newInstance(stepConfig, diffmeta)
+        val report = XvrlReport.newInstance(stepConfig, AbstractValidationStep.xvrlParameters(parameters), diffmeta)
         report.metadata.validator("xmlunit", XmlCalabashBuildConfig.DEPENDENCIES["xmlunit"] ?: "unknown")
 
         for (comp in diff.differences) {

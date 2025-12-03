@@ -1,28 +1,21 @@
 package com.xmlcalabash.steps.validation
 
 import com.xmlcalabash.XmlCalabashBuildConfig
-import com.xmlcalabash.config.SaxonConfiguration
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.namespace.Ns
 import com.xmlcalabash.namespace.NsC
 import com.xmlcalabash.namespace.NsSchxslt
-import com.xmlcalabash.steps.AbstractAtomicStep
 import com.xmlcalabash.util.S9Api
 import com.xmlcalabash.util.SchematronImpl
 import com.xmlcalabash.xvrl.XvrlReport
-import com.xmlcalabash.xvrl.XvrlReports
 import net.sf.saxon.om.NamespaceUri
 import net.sf.saxon.s9api.QName
-import net.sf.saxon.s9api.XdmDestination
 import net.sf.saxon.s9api.XdmMap
 import net.sf.saxon.s9api.XdmNode
 import net.sf.saxon.s9api.XdmValue
-import net.sf.saxon.s9api.Xslt30Transformer
-import org.xml.sax.InputSource
-import javax.xml.transform.sax.SAXSource
 
-open class ValidateWithSchematron(): AbstractAtomicStep() {
+open class ValidateWithSchematron(): AbstractValidationStep() {
     companion object {
         private val s_schematron = QName(NamespaceUri.of("http://purl.oclc.org/dsdl/schematron"), "s:schema")
         private val _phase = QName("phase")
@@ -36,6 +29,8 @@ open class ValidateWithSchematron(): AbstractAtomicStep() {
 
         val parameters = mutableMapOf<QName, XdmValue>()
         parameters.putAll(qnameMapBinding(Ns.parameters))
+
+        val xvrlParameters = xvrlParameters(parameters)
 
         val compileParams = mutableMapOf<QName, XdmValue>()
         val dynamicParams = mutableMapOf<QName, XdmValue>()
@@ -78,7 +73,7 @@ open class ValidateWithSchematron(): AbstractAtomicStep() {
         val failed = impl.failedAssertions(report)
 
         if (reportFormat == "xvrl") {
-            report = xvrlReport(report, reportFormat, schema)
+            report = xvrlReport(report, reportFormat, schema, xvrlParameters)
         }
 
         if (assertValid) {
@@ -86,7 +81,7 @@ open class ValidateWithSchematron(): AbstractAtomicStep() {
                 val xvrl = if (reportFormat == "xvrl") {
                     report
                 } else {
-                    xvrlReport(report, "xvrl", schema)
+                    xvrlReport(report, "xvrl", schema, xvrlParameters)
                 }
                 val doc = XProcDocument.ofXml(xvrl, document.context)
                 if (document.baseURI == null) {
@@ -100,12 +95,12 @@ open class ValidateWithSchematron(): AbstractAtomicStep() {
         receiver.output("result", document)
     }
 
-    private fun xvrlReport(report: XdmNode, reportFormat: String, schema: XProcDocument): XdmNode {
+    private fun xvrlReport(report: XdmNode, reportFormat: String, schema: XProcDocument, xvrlParameters: Map<String,String>): XdmNode {
         if (reportFormat != "xvrl") {
             return report
         }
 
-        val xvrl = XvrlReport.fromSvrl(stepConfig, report)
+        val xvrl = XvrlReport.fromSvrl(stepConfig, xvrlParameters, report)
         xvrl.metadata.validator("SchXslt2", XmlCalabashBuildConfig.DEPENDENCIES["schxslt2"] ?: "unknown")
 
         if (stepConfig.baseUri != null && schema.baseURI != null

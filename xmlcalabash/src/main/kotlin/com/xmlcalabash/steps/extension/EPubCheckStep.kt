@@ -14,6 +14,7 @@ import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.namespace.Ns
 import com.xmlcalabash.namespace.NsEXProc
 import com.xmlcalabash.steps.AbstractAtomicStep
+import com.xmlcalabash.steps.validation.AbstractValidationStep
 import com.xmlcalabash.util.Report
 import com.xmlcalabash.util.Verbosity
 import com.xmlcalabash.xvrl.XvrlDetection
@@ -22,7 +23,7 @@ import net.sf.saxon.om.NamespaceUri
 import net.sf.saxon.s9api.QName
 import java.io.ByteArrayInputStream
 
-class EPubCheckStep(val namespace: NamespaceUri): AbstractAtomicStep() {
+class EPubCheckStep(val namespace: NamespaceUri): AbstractValidationStep() {
     companion object {
         val epubNamespace = NamespaceUri.of("http://xmlcalabash.com/ns/epubcheck")
         val epub_path = QName(epubNamespace, "epub:path")
@@ -34,7 +35,9 @@ class EPubCheckStep(val namespace: NamespaceUri): AbstractAtomicStep() {
     override fun run() {
         super.run()
 
-        report = XvrlReport.newInstance(stepConfig)
+        val parameters = qnameMapBinding(Ns.parameters)
+
+        report = XvrlReport.newInstance(stepConfig, xvrlParameters(parameters))
         reporter = stepConfig.environment.messageReporter
 
         val assertValid = booleanBinding(Ns.assertValid) ?: true

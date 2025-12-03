@@ -11,8 +11,8 @@ import net.sf.saxon.type.ValidationFailure
 import org.xml.sax.SAXParseException
 import java.net.URI
 
-class Errors(stepConfig: XProcStepConfiguration, uri: URI?) {
-    val report = XvrlReport.newInstance(stepConfig)
+class Errors(stepConfig: XProcStepConfiguration, uri: URI?, xvrlParameters: Map<String,String>) {
+    val report = XvrlReport.newInstance(stepConfig, xvrlParameters)
     init {
         report.metadata.creator(stepConfig.saxonConfig.environment.productName,
             stepConfig.saxonConfig.environment.productVersion)
