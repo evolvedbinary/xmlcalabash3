@@ -932,6 +932,7 @@ class XplParser internal constructor(val builder: PipelineBuilder) {
                 try {
                     mapping(value)
                 } catch (ex: XProcException) {
+                    ex.error.updateAt(Location(node.node.baseURI, node.node.lineNumber, node.node.columnNumber))
                     errors.add(ex.error.asStatic().exception())
                 }
             } else {

@@ -574,12 +574,14 @@ open class XProcError protected constructor(val code: QName, val variant: Int, v
             val detail0 = details[0].toString()
             val detail1 = details[1].toString()
             val error = xsValueDoesNotSatisfyType(detail0, detail1)
+            error.updateAt(location)
             error._throwable = throwable
             return error
         }
 
         if (code == NsErr.xd(69)) {
             val error = xsUnboundPrefix(details[0].toString())
+            error.updateAt(location)
             error._throwable = throwable
             return error
         }
