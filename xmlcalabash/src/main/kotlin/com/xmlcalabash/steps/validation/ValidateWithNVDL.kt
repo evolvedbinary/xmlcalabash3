@@ -11,9 +11,11 @@ import com.xmlcalabash.io.DocumentManager
 import com.xmlcalabash.namespace.Ns
 import com.xmlcalabash.steps.AbstractAtomicStep
 import com.xmlcalabash.util.S9Api
+import com.xmlcalabash.util.XmlToSax
 import net.sf.saxon.om.NamespaceUri
 import net.sf.saxon.s9api.XdmNode
 import org.xml.sax.InputSource
+import org.xmlresolver.utils.SaxProducer
 
 open class ValidateWithNVDL(): AbstractValidationStep() {
     override fun run() {
@@ -61,8 +63,7 @@ open class ValidateWithNVDL(): AbstractValidationStep() {
 
         val driver = ValidationDriver(properties.toPropertyMap())
 
-        val nvdlSource: InputSource = S9Api.xdmToInputSource(stepConfig, nvdldoc)
-        val docSource: InputSource = S9Api.xdmToInputSource(stepConfig, srcdoc)
+        val nvdlSource: InputSource = S9Api.xdmToInputSource(stepConfig, nvdl)
 
         try {
             driver.loadSchema(nvdlSource)
@@ -71,6 +72,7 @@ open class ValidateWithNVDL(): AbstractValidationStep() {
         }
 
         try {
+            val docSource = SaxProducer.adaptForJing(XmlToSax.asSaxProducer(srcdoc))
             if (!driver.validate(docSource)) {
                 val xvrl = XProcDocument.ofXml(report.asXml(), stepConfig)
                 if (assertValid) {

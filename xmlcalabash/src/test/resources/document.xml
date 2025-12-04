@@ -1,0 +1,18 @@
+<document role="some
+attribute
+value
+where
+whitespace
+normalization
+will
+really
+wreak
+havoc">
+  <para xml:id="one" role="another screw
+attribute value"
+
+
+/>
+  <para xml:id="two" bad-attribute="is bad"/>
+</document>
+

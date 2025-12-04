@@ -112,12 +112,8 @@ class SaxonXsdValidator(val stepConfig: XProcStepConfiguration) {
 
         stepConfig.saxonConfig.clearSchemaCache();
         for (schema in schemaDocuments) {
-            val source = S9Api.xdmToInputSource(stepConfig, schema)
-            if (schema.baseURI != null) {
-                source.systemId = schema.baseURI.toString()
-            }
             try {
-                manager.load(SAXSource(source))
+                manager.load(XmlToSax.asSaxSource(schema))
             } catch (ex: SaxonApiException) {
                 if (schema.baseURI != null) {
                     throw stepConfig.exception(XProcError.xcXmlSchemaInvalidSchema(schema.baseURI!!), ex)

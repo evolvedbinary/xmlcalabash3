@@ -10,21 +10,18 @@ import com.thaiopensource.validate.rng.CompactSchemaReader
 import com.xmlcalabash.XmlCalabashBuildConfig
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
-import com.xmlcalabash.io.MediaType
 import com.xmlcalabash.namespace.Ns
-import com.xmlcalabash.steps.AbstractAtomicStep
 import com.xmlcalabash.util.MediaClassification
 import com.xmlcalabash.util.S9Api
 import com.xmlcalabash.util.SaxonTreeBuilder
-import net.sf.saxon.om.AttributeMap
+import com.xmlcalabash.util.XmlToSax
 import net.sf.saxon.om.NamespaceUri
 import net.sf.saxon.s9api.Axis
 import net.sf.saxon.s9api.QName
 import net.sf.saxon.s9api.XdmNode
 import net.sf.saxon.s9api.XdmNodeKind
-import net.sf.saxon.s9api.XdmSequenceIterator
 import org.xml.sax.InputSource
-import org.xml.sax.SAXParseException
+import org.xmlresolver.utils.SaxProducer
 import java.io.StringReader
 
 open class ValidateWithRelaxNG(): AbstractValidationStep() {
@@ -108,8 +105,7 @@ open class ValidateWithRelaxNG(): AbstractValidationStep() {
         }
 
         var valid = true
-        val din = S9Api.xdmToInputSource(stepConfig, document)
-        if (!driver.validate(din)) {
+        if (!driver.validate(SaxProducer.adaptForJing(XmlToSax.asSaxProducer(document.value as XdmNode)))) {
             valid = false
             if (assertValid) {
                 val xvrl = XProcDocument.ofXml(report.asXml(), stepConfig)
