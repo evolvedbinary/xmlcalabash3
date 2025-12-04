@@ -215,8 +215,7 @@ class TypeUtils(val context: DocumentContext) {
 
     fun asXdmArray(inputArray: ArrayItem): XdmArray {
         var array = XdmArray()
-        for (index in 0 ..< inputArray.length) {
-            val item = inputArray.itemAt(index)
+        for (item in inputArray.members()) {
             when (item) {
                 is NodeInfo -> array = array.addMember(XdmNode(item))
                 is GroundedValue -> array = array.addMember(XdmValue.wrap(item))
