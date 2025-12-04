@@ -195,9 +195,7 @@ class FoFop(): FoProcessor {
             throw stepConfig.exception(XProcError.xcUnsupportedContentType(contentType))
         }
 
-        val fodoc = S9Api.xdmToInputSource(stepConfig, document)
-        fodoc.systemId = document.baseURI.toString()
-        val source = SAXSource(fodoc)
+        val source = S9Api.xdmToSaxSource(stepConfig, document)
 
         val userAgent = fopFactory.newFOUserAgent()
 

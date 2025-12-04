@@ -26,6 +26,7 @@ import java.net.URI
 import java.net.URISyntaxException
 import java.nio.charset.StandardCharsets
 import javax.management.Query.attr
+import javax.xml.transform.sax.SAXSource
 
 class S9Api {
     companion object {
@@ -249,7 +250,13 @@ class S9Api {
             return selections
         }
 
-        // OMG! This is such a hack!
+        fun xdmToSaxSource(stepConfig: XProcStepConfiguration, doc: XProcDocument): SAXSource {
+            val source = XmlToSax.asSaxSource(doc.value as XdmNode)
+            source.inputSource.systemId = doc.baseURI?.toString()
+            return source
+        }
+
+        // This is awful, but we have to get back to a parsable *InputSource*.
         fun xdmToInputSource(stepConfig: XProcStepConfiguration, doc: XProcDocument): InputSource {
             val out = ByteArrayOutputStream()
             DocumentWriter(doc, out).write()
@@ -258,11 +265,6 @@ class S9Api {
                 source.systemId = doc.baseURI.toString()
             }
             return source
-        }
-
-        fun xdmToInputSource(stepConfig: XProcStepConfiguration, node: XdmNode): InputSource {
-            val doc = XProcDocument.ofXml(node, stepConfig)
-            return xdmToInputSource(stepConfig ,doc)
         }
 
         fun serializationPropertyMap(props: SerializationProperties): Map<QName, XdmValue> {
