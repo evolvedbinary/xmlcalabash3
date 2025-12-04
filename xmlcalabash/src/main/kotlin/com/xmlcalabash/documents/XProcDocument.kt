@@ -278,12 +278,15 @@ open class XProcDocument internal constructor() {
         newProps.remove(Ns.baseUri)
         baseUri?.let { newProps[Ns.baseUri] = it }
 
-        val builder = SaxonTreeBuilder(context.processor)
-        builder.startDocument(baseUri)
-        builder.addSubtree(value)
-        builder.endDocument()
+        if (value is XdmNode) {
+            val builder = SaxonTreeBuilder(context.processor)
+            builder.startDocument(baseUri)
+            builder.addSubtree(value)
+            builder.endDocument()
+            return XProcDocument(builder.result, context, newProps)
+        }
 
-        return XProcDocument(builder.result, context, newProps)
+        return XProcDocument(value, context, newProps)
     }
 
     open fun with(properties: DocumentProperties): XProcDocument {

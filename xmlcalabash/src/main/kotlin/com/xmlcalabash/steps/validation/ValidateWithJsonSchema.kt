@@ -14,7 +14,7 @@ import java.io.ByteArrayOutputStream
 import java.net.URI
 import java.nio.charset.StandardCharsets
 
-open class ValidateWithJsonSchema(): AbstractAtomicStep() {
+open class ValidateWithJsonSchema(): AbstractValidationStep() {
     override fun run() {
         super.run()
 
@@ -64,7 +64,7 @@ open class ValidateWithJsonSchema(): AbstractAtomicStep() {
             executionContext: ExecutionContext -> executionContext.executionConfig.formatAssertionsEnabled = true
         }
 
-        val report = XvrlReport.newInstance(stepConfig)
+        val report = XvrlReport.newInstance(stepConfig, xvrlParameters(parameters))
         report.metadata.creator(stepConfig.saxonConfig.environment.productName,
             stepConfig.saxonConfig.environment.productVersion)
         report.metadata.validator("jsonSchemaValidator", XmlCalabashBuildConfig.DEPENDENCIES["jsonSchemaValidator"] ?: "unknown")

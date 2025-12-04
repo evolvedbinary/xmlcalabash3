@@ -15,7 +15,7 @@ import net.sf.saxon.om.NamespaceUri
 import net.sf.saxon.s9api.XdmNode
 import org.xml.sax.InputSource
 
-open class ValidateWithNVDL(): AbstractAtomicStep() {
+open class ValidateWithNVDL(): AbstractValidationStep() {
     override fun run() {
         super.run()
 
@@ -33,7 +33,7 @@ open class ValidateWithNVDL(): AbstractAtomicStep() {
             throw stepConfig.exception(XProcError.xcUnsupportedReportFormat(reportFormat))
         }
 
-        val report = Errors(stepConfig, document.baseURI)
+        val report = Errors(stepConfig, document.baseURI, xvrlParameters(parameters))
         report.report.metadata.validator("Jing", XmlCalabashBuildConfig.DEPENDENCIES["jing"] ?: "unknown")
 
         val listener = CachingErrorListener(stepConfig, report)

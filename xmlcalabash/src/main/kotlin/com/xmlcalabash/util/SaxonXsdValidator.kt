@@ -9,6 +9,7 @@ import com.xmlcalabash.namespace.NsErr
 import com.xmlcalabash.namespace.NsXs
 import com.xmlcalabash.namespace.NsXsi
 import com.xmlcalabash.runtime.XProcStepConfiguration
+import com.xmlcalabash.steps.validation.AbstractValidationStep
 import com.xmlcalabash.steps.validation.CachingErrorListener
 import com.xmlcalabash.steps.validation.Errors
 import net.sf.saxon.Controller
@@ -48,7 +49,7 @@ class SaxonXsdValidator(val stepConfig: XProcStepConfiguration) {
         manager.errorReporter = errorReporter
         manager.schemaURIResolver = XsdResolver(stepConfig)
 
-        val report = Errors(stepConfig, source.baseURI)
+        val report = Errors(stepConfig, source.baseURI, AbstractValidationStep.xvrlParameters(parameters))
         report.report.metadata.validator(
             "Saxon ${stepConfig.processor.saxonEdition}",
             stepConfig.processor.saxonProductVersion

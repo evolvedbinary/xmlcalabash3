@@ -5,7 +5,6 @@ import com.xmlcalabash.documents.XProcBinaryDocument
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.io.DocumentLoader
 import com.xmlcalabash.namespace.Ns
-import com.xmlcalabash.namespace.NsC
 import com.xmlcalabash.steps.archives.ArInputArchive
 import com.xmlcalabash.steps.archives.ArjInputArchive
 import com.xmlcalabash.steps.archives.CpioInputArchive
@@ -14,8 +13,6 @@ import com.xmlcalabash.steps.archives.SevenZInputArchive
 import com.xmlcalabash.steps.archives.TarInputArchive
 import com.xmlcalabash.steps.archives.ZipInputArchive
 import com.xmlcalabash.util.*
-import org.apache.commons.compress.archivers.zip.ZipFile
-import org.apache.commons.compress.utils.SeekableInMemoryByteChannel
 import java.net.URI
 
 open class UnarchiveStep(): AbstractArchiveStep() {
@@ -81,8 +78,9 @@ open class UnarchiveStep(): AbstractArchiveStep() {
             val contentType = contentType(entry.name)
 
             val loader = DocumentLoader(stepConfig, baseUri, DocumentProperties(), mapOf())
+            //loader.readExternalSubset = false
             val loadedDoc = loader.load(entry.inputStream!!, contentType)
-            val doc = loadedDoc.with(loadedDoc.value, baseUri).with(contentType)
+            val doc = loadedDoc.with(baseUri).with(contentType)
 
             receiver.output("result", doc)
         }

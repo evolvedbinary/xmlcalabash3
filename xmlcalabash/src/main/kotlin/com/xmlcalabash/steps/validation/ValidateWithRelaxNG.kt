@@ -10,18 +10,24 @@ import com.thaiopensource.validate.rng.CompactSchemaReader
 import com.xmlcalabash.XmlCalabashBuildConfig
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
+import com.xmlcalabash.io.MediaType
 import com.xmlcalabash.namespace.Ns
 import com.xmlcalabash.steps.AbstractAtomicStep
 import com.xmlcalabash.util.MediaClassification
 import com.xmlcalabash.util.S9Api
+import com.xmlcalabash.util.SaxonTreeBuilder
+import net.sf.saxon.om.AttributeMap
 import net.sf.saxon.om.NamespaceUri
+import net.sf.saxon.s9api.Axis
 import net.sf.saxon.s9api.QName
 import net.sf.saxon.s9api.XdmNode
+import net.sf.saxon.s9api.XdmNodeKind
+import net.sf.saxon.s9api.XdmSequenceIterator
 import org.xml.sax.InputSource
 import org.xml.sax.SAXParseException
 import java.io.StringReader
 
-open class ValidateWithRelaxNG(): AbstractAtomicStep() {
+open class ValidateWithRelaxNG(): AbstractValidationStep() {
     companion object {
         private val dtdAttributeValues = QName("dtd-attribute-values")
         private val dtdIdIdrefWarnings = QName("dtd-id-idref-warnings")
@@ -45,7 +51,7 @@ open class ValidateWithRelaxNG(): AbstractAtomicStep() {
             throw stepConfig.exception(XProcError.xcUnsupportedReportFormat(reportFormat))
         }
 
-        val report = Errors(stepConfig, document.baseURI)
+        val report = Errors(stepConfig, document.baseURI, xvrlParameters(parameters))
         report.report.metadata.validator("Jing", XmlCalabashBuildConfig.DEPENDENCIES["jing"] ?: "unknown")
 
         val language = if (compact) "RNC" else "RNG"
@@ -101,16 +107,80 @@ open class ValidateWithRelaxNG(): AbstractAtomicStep() {
             throw stepConfig.exception(XProcError.xcNotRelaxNG(schema.baseURI!!, "Error loading schema"), ex)
         }
 
+        var valid = true
         val din = S9Api.xdmToInputSource(stepConfig, document)
         if (!driver.validate(din)) {
-            val xvrl = XProcDocument.ofXml(report.asXml(), stepConfig)
+            valid = false
             if (assertValid) {
+                val xvrl = XProcDocument.ofXml(report.asXml(), stepConfig)
                 throw stepConfig.exception(XProcError.xcNotSchemaValidRelaxNG(xvrl))
             }
         }
 
-        receiver.output("result", document)
+        if (valid && dtdAttributeValues) {
+            val rngResolver = RelaxNGResolver(stepConfig.documentManager)
+            val defaultValues: RelaxNGDefaultValues
+
+            if (compact) {
+                defaultValues = RNCDefaultValues(rngResolver, listener)
+                sr = defaultValues.schemaReader()
+                // Hack
+                val srdr = StringReader(schema.value.underlyingValue.stringValue)
+                schemaInputSource = InputSource(srdr)
+                schemaInputSource.systemId = schema.baseURI.toString()
+            } else {
+                defaultValues = RNGDefaultValues(rngResolver, listener)
+                sr = defaultValues.schemaReader()
+                schemaInputSource = S9Api.xdmToInputSource(stepConfig, schema)
+            }
+
+            defaultValues.update(schemaInputSource)
+            if (defaultValues.defaults.isNotEmpty()) {
+                val builder = SaxonTreeBuilder(stepConfig)
+                augment(builder, document.value as XdmNode, defaultValues.defaults)
+                receiver.output("result", XProcDocument.ofXml(builder.result, stepConfig))
+            } else {
+                receiver.output("result", document)
+            }
+        } else {
+            receiver.output("result", document)
+        }
+
         receiver.output("report", XProcDocument.ofXml(report.asXml(), stepConfig))
+    }
+
+    private fun augment(builder: SaxonTreeBuilder, node: XdmNode, defaultAttributes: Map<QName, Map<QName, String>>) {
+        when (node.getNodeKind()) {
+            XdmNodeKind.ELEMENT -> {
+                if (defaultAttributes.containsKey(node.nodeName)) {
+                    val attmap = mutableMapOf<QName, String>()
+                    for (attr in node.axisIterator(Axis.ATTRIBUTE)) {
+                        attmap[attr.nodeName] = attr.stringValue
+                    }
+                    for ((attr, value) in defaultAttributes[node.nodeName]!!) {
+                        if (!attmap.containsKey(attr)) {
+                            attmap[attr] = value
+                        }
+                    }
+                    builder.addStartElement(node, stepConfig.typeUtils.attributeMap(attmap))
+                } else {
+                    builder.addStartElement(node)
+                }
+
+                for (child in node.children()) {
+                    augment(builder, child, defaultAttributes)
+                }
+                builder.addEndElement()
+            }
+            XdmNodeKind.DOCUMENT -> {
+                builder.startDocument(node.baseURI)
+                for (child in node.children()) {
+                    augment(builder, child, defaultAttributes)
+                }
+                builder.endDocument()
+            }
+            else -> builder.addSubtree(node)
+        }
     }
 
     override fun toString(): String = "p:validate-with-relax-ng"

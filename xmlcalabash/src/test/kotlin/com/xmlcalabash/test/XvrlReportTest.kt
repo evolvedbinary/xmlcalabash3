@@ -32,7 +32,7 @@ class XvrlReportTest {
 
     @Test
     fun metadataTest() {
-        val report = XvrlReport.newInstance(stepConfig)
+        val report = XvrlReport.newInstance(stepConfig, emptyMap())
         report.metadata.timestamp()
         report.metadata.validator(stepConfig.environment.productName, stepConfig.environment.productVersion, "content")
         report.metadata.creator(stepConfig.environment.vendor, mapOf(NsXml.id to "test"))
@@ -57,7 +57,7 @@ class XvrlReportTest {
 
     @Test
     fun detectionTest() {
-        val report = XvrlReport.newInstance(stepConfig)
+        val report = XvrlReport.newInstance(stepConfig, emptyMap())
 
         val detect = report.detection("info", "42")
         detect.location(URI.create("file:/tmp/out.xml"))
@@ -96,7 +96,7 @@ class XvrlReportTest {
         val schema = load("schema-001.xml")
         val doc = load("doc-001.xml")
         val schReport = SchematronImpl(stepConfig).report(doc, schema, null, emptyMap(), emptyMap())
-        val reports = XvrlReport.fromSvrl(stepConfig, schReport)
+        val reports = XvrlReport.fromSvrl(stepConfig, emptyMap(), schReport)
         val node = reports.asXml()
         Assertions.assertNotNull(node)
     }

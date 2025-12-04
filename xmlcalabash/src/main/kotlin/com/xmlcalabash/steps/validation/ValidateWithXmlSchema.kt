@@ -1,25 +1,14 @@
 package com.xmlcalabash.steps.validation
 
 import com.xmlcalabash.documents.XProcDocument
-import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.namespace.Ns
-import com.xmlcalabash.namespace.NsErr
-import com.xmlcalabash.namespace.NsXs
-import com.xmlcalabash.namespace.NsXsi
 import com.xmlcalabash.runtime.XProcStepConfiguration
 import com.xmlcalabash.runtime.api.Receiver
 import com.xmlcalabash.runtime.parameters.RuntimeStepParameters
 import com.xmlcalabash.steps.AbstractAtomicStep
-import com.xmlcalabash.util.S9Api
 import com.xmlcalabash.util.SaxonErrorReporter
 import com.xmlcalabash.util.SaxonXsdValidator
-import net.sf.saxon.Controller
-import net.sf.saxon.om.NamespaceUri
-import net.sf.saxon.s9api.*
-import net.sf.saxon.serialize.SerializationProperties
-import net.sf.saxon.type.ValidationException
-import java.net.URI
-import javax.xml.transform.sax.SAXSource
+import net.sf.saxon.s9api.ValidationMode
 
 open class ValidateWithXmlSchema(): AbstractAtomicStep() {
     lateinit var document: XProcDocument

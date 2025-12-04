@@ -6,37 +6,38 @@ import com.xmlcalabash.namespace.NsSvrl
 import com.xmlcalabash.namespace.NsXml
 import com.xmlcalabash.namespace.NsXvrl
 import com.xmlcalabash.util.SaxonTreeBuilder
-import com.xmlcalabash.xvrl.XvrlReports.Companion._context
-import com.xmlcalabash.xvrl.XvrlReports.Companion._document
-import com.xmlcalabash.xvrl.XvrlReports.Companion._documents
-import com.xmlcalabash.xvrl.XvrlReports.Companion._location
-import com.xmlcalabash.xvrl.XvrlReports.Companion._role
 import net.sf.saxon.om.NamespaceUri
 import net.sf.saxon.s9api.*
 import net.sf.saxon.trans.XPathException
 import org.apache.logging.log4j.kotlin.logger
 import java.net.URI
 
-class XvrlReport private constructor(stepConfig: StepConfiguration, val metadata: XvrlReportMetadata): XvrlElement(stepConfig) {
+class XvrlReport private constructor(stepConfig: StepConfiguration, val xvrlParameters: Map<String,String>, val metadata: XvrlReportMetadata): XvrlElement(stepConfig) {
     companion object {
-        fun newInstance(stepConfig: StepConfiguration, attr: Map<QName,String?> = emptyMap()): XvrlReport {
+        val _document = QName("document")
+        val _documents = QName("documents")
+        val _role = QName("role")
+        val _location = QName("location")
+        val _context = QName("context")
+
+        fun newInstance(stepConfig: StepConfiguration, xvrlParameters: Map<String,String>, attr: Map<QName,String?> = emptyMap()): XvrlReport {
             val metadata = XvrlReportMetadata.newInstance(stepConfig)
-            val report = XvrlReport(stepConfig, metadata)
+            val report = XvrlReport(stepConfig, xvrlParameters, metadata)
             report.commonAttributes(attr)
             return report
         }
 
-        fun newInstance(stepConfig: StepConfiguration, metadata: XvrlReportMetadata, attr: Map<QName,String?> = emptyMap()): XvrlReport {
-            val report = XvrlReport(stepConfig, metadata)
+        fun newInstance(stepConfig: StepConfiguration, xvrlParameters: Map<String,String>, metadata: XvrlReportMetadata, attr: Map<QName,String?> = emptyMap()): XvrlReport {
+            val report = XvrlReport(stepConfig, xvrlParameters, metadata)
             report.commonAttributes(attr)
             return report
         }
 
-        fun fromSvrl(stepConfig: StepConfiguration, svrl: XdmNode): XvrlReport {
+        fun fromSvrl(stepConfig: StepConfiguration, xvrlParameters: Map<String,String>, svrl: XdmNode): XvrlReport {
             val context = stepConfig.context
                 .with("svrl", NsSvrl.namespace)
             val newConfig = StepConfiguration(stepConfig.saxonConfig, context, stepConfig.environment)
-            val report = newInstance(newConfig)
+            val report = newInstance(newConfig, xvrlParameters)
             report.fromSvrl(svrl)
             return report
         }
