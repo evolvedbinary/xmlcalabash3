@@ -16,7 +16,7 @@
     </t:revision-history>
   </t:info>
   <t:description xmlns="http://www.w3.org/1999/xhtml">
-    <p>Tests that message on p:try works.</p>
+    <p>Tests that message on a step inside p:catch works.</p>
   </t:description>
   <t:pipeline>
     <p:declare-step version="3.0"

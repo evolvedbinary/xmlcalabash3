@@ -14,11 +14,13 @@ import net.sf.saxon.s9api.QName
 class PipelineMessagesStep(): AbstractAtomicStep() {
     companion object {
         private val _clear = QName("clear")
+        private val _messageAttribute = QName("message-attribute")
 
     }
     override fun run() {
         super.run()
 
+        val messageAttribute = booleanBinding(_messageAttribute)!!
         val levelString = stringBinding(Ns.level)
         val level = when (levelString?.lowercase()) {
             null -> Verbosity.TRACE
@@ -51,9 +53,17 @@ class PipelineMessagesStep(): AbstractAtomicStep() {
             val attributes = mutableMapOf<QName, String>()
             attributes.putAll(message.extraDetail)
             attributes[Ns.level] = "${message.severity}"
-            attributes[Ns.message] = message.message
+
+            if (messageAttribute) {
+                attributes[Ns.message] = message.message
+            }
 
             builder.addStartElement(NsCx.message, stepConfig.typeUtils.attributeMap(attributes))
+
+            if (!messageAttribute) {
+                builder.addText(message.message);
+            }
+
             builder.addEndElement()
         }
         builder.addEndElement()

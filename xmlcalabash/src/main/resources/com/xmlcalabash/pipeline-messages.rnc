@@ -21,7 +21,7 @@ cx.message =
         [ db:purpose
               [ "The message text" ]
         ]
-        attribute message { text },
+        attribute message { text }?,
         [ db:purpose
               [ "The message timestamp (local time)" ]
         ]
@@ -30,5 +30,5 @@ cx.message =
               [ "Any additional attributes are allowed" ]
         ]
         attribute * { text }, 
-        empty
+        text
     }
