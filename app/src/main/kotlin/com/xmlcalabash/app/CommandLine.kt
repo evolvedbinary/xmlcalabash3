@@ -290,7 +290,7 @@ class CommandLine private constructor(val args: Array<out String>) {
         ArgumentDescription("--stacktrace", listOf("--stack-trace"), ArgumentType.BOOLEAN, "true") { it -> _stacktrace = it == "true" },
         ArgumentDescription("--extension", listOf("-X"), ArgumentType.STRING) { it -> parseExtensionName(it) },
         ArgumentDescription("--verbosity", listOf("-V"),
-            ArgumentType.STRING, "info", listOf("trace", "debug", "progress", "info", "warn", "error")) { it ->
+            ArgumentType.STRING, "info", listOf("trace", "debug", "info", "warn", "error")) { it ->
             _verbosity = when(it) {
                 "error" -> Verbosity.ERROR
                 "warn" -> Verbosity.WARN
