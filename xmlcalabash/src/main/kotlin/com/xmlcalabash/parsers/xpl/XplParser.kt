@@ -951,17 +951,21 @@ class XplParser internal constructor(val builder: PipelineBuilder) {
                         }
                     }
                 } else if (instruction is CompoundStepDeclaration && (name == Ns.message || name == NsP.message)) {
-                    if (name == Ns.message) {
-                        if (node.node.nodeName.namespaceUri != NsP.namespace) {
-                            errors.add(XProcError.xsAttributeForbidden(name).at(node.node).exception())
-                        } else {
-                            instruction.message(XProcExpression.avt(instruction.stepConfig, value))
-                        }
+                    if (instruction is DeclareStepInstruction) {
+                        errors.add(XProcError.xsAttributeForbidden(name).at(node.node).exception())
                     } else {
-                        if (node.node.nodeName.namespaceUri == NsP.namespace) {
-                            errors.add(XProcError.xsAttributeInPNamespaceNotAllowed(name).at(node.node).exception())
+                        if (name == Ns.message) {
+                            if (node.node.nodeName.namespaceUri != NsP.namespace) {
+                                errors.add(XProcError.xsAttributeForbidden(name).at(node.node).exception())
+                            } else {
+                                instruction.message(XProcExpression.avt(instruction.stepConfig, value))
+                            }
                         } else {
-                            instruction.message(XProcExpression.avt(instruction.stepConfig, value))
+                            if (node.node.nodeName.namespaceUri == NsP.namespace) {
+                                errors.add(XProcError.xsAttributeInPNamespaceNotAllowed(name).at(node.node).exception())
+                            } else {
+                                instruction.message(XProcExpression.avt(instruction.stepConfig, value))
+                            }
                         }
                     }
                 } else {
