@@ -5,6 +5,7 @@ import com.xmlcalabash.documents.XProcBinaryDocument
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.exceptions.XProcException
+import com.xmlcalabash.exceptions.XProcUserError
 import com.xmlcalabash.runtime.XProcRuntime
 import com.xmlcalabash.util.BufferingReceiver
 import com.xmlcalabash.util.MediaClassification
@@ -194,7 +195,27 @@ class PipelineFunction(private val decl: DeclareStepInstruction): ExtensionFunct
                 when (ex) {
                     is XProcException -> {
                         val error = ex.error
-                        val message = runtime!!.environment.errorExplanation.message(error, false)
+                        val message = if (error is XProcUserError) {
+                            val sb = StringBuilder()
+                            when (error.details.size) {
+                                0 -> Unit
+                                1 -> sb.append(errorDetail(error.details[0]))
+                                else -> {
+                                    sb.append("[")
+                                    for (index in error.details.indices) {
+                                        if (index > 0) {
+                                            sb.append(", ")
+                                        }
+                                        sb.append(errorDetail(error.details[index]))
+                                    }
+                                    sb.append("]")
+                                }
+                            }
+                            sb.toString()
+                        } else {
+                            runtime!!.environment.errorExplanation.message(error, false)
+                        }
+
                         // Passing in null causes Saxon to report a more useful location...
                         val loc = null // error.location.asSaxonLocation()
                         val perr = FakeXmlProcessingError(error.code, message, error.exception(), loc)
