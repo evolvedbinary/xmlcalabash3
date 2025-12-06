@@ -13,6 +13,62 @@ See the commits and pull requests on
 finer detail.</para>
 
 <revhistory>
+<revision xml:id="r3031">
+<revnumber>3.0.31</revnumber>
+<date>2025-12-06</date>
+<revdescription>
+<itemizedlist>
+<listitem><para>Closed <cbissue number="426"/>. It isn’t practical to have step functions
+for atomic steps.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="419"/>. Added code to construct SAX sources directly
+from trees. This allows location information to be preserved. (In principle, all of the
+steps that XProc provides would be implemented natively on top of our tree model. In practice,
+lots of steps use third party libraries and this results in trees being parsed twice.
+Previously, location information in the second parse would often be incorrect, from the
+user’s point of view, because the document being parsed is one that had already undergone
+attribute value normalization, might or might not have an XML declaration, etc.)
+</para></listitem>
+<listitem><para>Fixed <cbissue number="418"/>. Add location information to messages about
+compile-time type errors.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="417"/>. Make sure that non-XML documents can be
+read from a ZIP file!
+</para></listitem>
+<listitem><para>Fixed <cbissue number="416"/>. Correctly handle JSON array documents
+passed to a pipeline function.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="415"/>. Removed the unused “<literal>progress</literal>”
+value from the command line parser and help text for <code linkend="cli-verbosity">verbosity</code>.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="414"/>. Fixed a bug arising in a complex
+set of circumstances that could cause the processor to deadlock (hang). Added
+code to detect a deadlock and throw an error.
+</para></listitem>
+<listitem><para>Fixed <cbissue number="413"/>. Improve error messages when a user-defined
+error is raised.
+</para></listitem>
+<listitem><para>Worked on <cbissue number="225"/>. I’ve speculatively implemented
+a proposal from the <link xlink:href="https://github.com/xproc/3.0-steps/issues/691">ongoing
+discussion</link> of how to clarify the semantics of the <tag>p:message</tag> step.
+</para></listitem>
+<listitem><para>Added support for the <option>dtd-attribute-values</option>
+option on the <tag>p:validate-with-relax-ng</tag> step. (Hat tip to George Bina
+for the implementation work in Jing and for getting me out of the weeds in my
+attempts to use it.)
+</para></listitem>
+<listitem><para>Added code to support recognizing the XVRL parameters passed to
+various flavors of validation step. They’re still ignored, but at least there’s
+a framework for recognizing them.
+</para></listitem>
+<listitem><para>The <tag class="attribute">message</tag> attribute is no longer
+allowed on <tag>p:declare-step</tag>. A declare step element is not a step invocation.
+</para></listitem>
+<listitem><para>Updated to the latest 3.0 test suite.
+</para></listitem>
+</itemizedlist>
+</revdescription>
+</revision>
 <revision xml:id="r3030">
 <revnumber>3.0.30</revnumber>
 <date>2025-11-30</date>
