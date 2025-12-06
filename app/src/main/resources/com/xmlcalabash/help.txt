@@ -19,7 +19,7 @@ And some of the frequently used options are:
   --debug                 To enable additional debugging output
   --debugger              Start the interactive debugger
   --verbosity:value       To set the general level of verbosity to “value”
-                          Values are: trace, debug, progress, info, warn, error
+                          Values are: trace, debug, info, warn, error
   --explain               Provide more detailed explanatory messages for errors
   --nogo                  Compile the pipeline and make graphs, but don’t run
 
