@@ -239,7 +239,7 @@ class SaxonConfiguration private constructor(val licensed: Boolean,
 
     fun declareFunction(decl: DeclareStepInstruction) {
         // Ignore steps that don't have types and steps in the p: and cx: namespaces
-        if (decl.type == null || decl.type!!.namespaceUri == NsP.namespace || decl.type!!.namespaceUri == NsCx.namespace) {
+        if (decl.type == null || decl.isAtomic) {
             return
         }
         if (decl.function == null) {
