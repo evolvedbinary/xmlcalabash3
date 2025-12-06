@@ -210,6 +210,10 @@ class CompoundStepHead(config: XProcStepConfiguration, val parent: CompoundStep,
         // Work out what should appear on each input...
         for ((port, output) in params.outputs) {
             if (output.weldedShut) {
+                val error = checkInputPort(port, output)
+                if (error != null) {
+                    inputErrors.add(error)
+                }
                 continue
             }
 
@@ -339,9 +343,11 @@ class CompoundStepHead(config: XProcStepConfiguration, val parent: CompoundStep,
 
     override fun reset() {
         super.reset()
+
         openPorts.clear()
-        openPorts.addAll(params.outputs.keys)
-        openPorts.addAll(params.inputs.keys)
+        openPorts.addAll(params.inputs.values.filter { !it.weldedShut }.map { it.name })
+        openPorts.addAll(params.outputs.values.filter { !it.weldedShut }.map { it.name })
+
         _cache.clear()
         inputCount.clear()
         _options.clear()
