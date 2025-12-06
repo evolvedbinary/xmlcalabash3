@@ -9,15 +9,13 @@ import com.xmlcalabash.namespace.NsP
 import com.xmlcalabash.runtime.LazyValue
 import com.xmlcalabash.runtime.RuntimeEnvironment
 import com.xmlcalabash.runtime.XProcStepConfiguration
-import com.xmlcalabash.runtime.model.AtomicBuiltinOptionModel
 import com.xmlcalabash.runtime.model.CompoundStepModel
 import com.xmlcalabash.runtime.model.StepModel
-import com.xmlcalabash.runtime.parameters.OptionStepParameters
 import com.xmlcalabash.steps.internal.ExpressionStep
 import kotlinx.coroutines.*
 import net.sf.saxon.s9api.QName
 import org.apache.logging.log4j.kotlin.logger
-import kotlin.collections.mutableMapOf
+import kotlin.concurrent.thread
 
 abstract class CompoundStep(config: XProcStepConfiguration, compound: CompoundStepModel): AbstractStep(config, compound) {
     companion object {
@@ -159,6 +157,7 @@ abstract class CompoundStep(config: XProcStepConfiguration, compound: CompoundSt
         }
 
         try {
+            val threadCounter = ThreadCounter(threadsToUse)
             if (threadsToUse == 1) {
                 val atomicOptionValues = mutableMapOf<QName, LazyValue>()
                 if (threadsAvailable > 0) {
@@ -173,7 +172,7 @@ abstract class CompoundStep(config: XProcStepConfiguration, compound: CompoundSt
                         sb.toString()
                     }
                 }
-                runSequentialStepsExhaustively(atomicOptionValues, stepsToRun)
+                runSequentialStepsExhaustively(atomicOptionValues, stepsToRun, threadCounter)
             } else {
                 logger.debug { "Assigning ${threadsToUse}/${threadsAvailable} threads to ${childThreadGroups} thread groups" }
                 val groups = assignToThreads(threadsToUse)
@@ -189,7 +188,7 @@ abstract class CompoundStep(config: XProcStepConfiguration, compound: CompoundSt
                         sb.toString()
                     }
                 }
-                runConcurrentStepsExhaustively(groups)
+                runConcurrentStepsExhaustively(groups, threadCounter)
             }
         } catch (ex: XProcException) {
             if (ex.error.code == NsErr.threadInterrupted) {
@@ -309,7 +308,7 @@ abstract class CompoundStep(config: XProcStepConfiguration, compound: CompoundSt
         }
     }
 
-    private fun runConcurrentStepsExhaustively(groups: List<List<AbstractStep>>) {
+    private fun runConcurrentStepsExhaustively(groups: List<List<AbstractStep>>, threadCounter: ThreadCounter) {
         // When we're running a step defined by a pipeline, the options passed in or computed
         // must be available for computing subsequent options.
         val atomicOptionValues = mutableMapOf<QName, LazyValue>()
@@ -321,10 +320,10 @@ abstract class CompoundStep(config: XProcStepConfiguration, compound: CompoundSt
 
             val jobs: List<Job> = groups.map { group ->
                 launch (Dispatchers.Default + handler + SupervisorJob()) {
-                    runSequentialStepsExhaustively(atomicOptionValues, group)
+                    runSequentialStepsExhaustively(atomicOptionValues, group, threadCounter)
                 }
             }
-            jobs.forEach { it.join() }
+            jobs.joinAll()
         }
 
         if (exception != null) {
@@ -332,7 +331,7 @@ abstract class CompoundStep(config: XProcStepConfiguration, compound: CompoundSt
         }
     }
 
-    private fun runSequentialStepsExhaustively(atomicOptionValues: MutableMap<QName, LazyValue>, steps: List<AbstractStep>) {
+    private fun runSequentialStepsExhaustively(atomicOptionValues: MutableMap<QName, LazyValue>, steps: List<AbstractStep>, threadCounter: ThreadCounter) {
         val stepsToRun = mutableListOf<AbstractStep>()
         stepsToRun.addAll(steps)
 
@@ -340,12 +339,23 @@ abstract class CompoundStep(config: XProcStepConfiguration, compound: CompoundSt
         // must be available for computing subsequent options.
 
         for (runMe in steps) {
+            var blocked = false
             while (!runMe.readyToRun) {
+                if (!blocked) {
+                    blocked = true
+                    threadCounter.blocked()
+                }
+                if (threadCounter.deadlocked()) {
+                    throw stepConfig.exception(XProcError.xiDeadlocked(threadCounter.totalThreads))
+                }
                 if (exception != null) {
                     // This must be in the threaded case and something's gone wrong on another thread
                     return
                 }
                 Thread.sleep(20)
+            }
+            if (blocked) {
+                threadCounter.unblocked();
             }
 
             if (runMe is AtomicOptionStep) {

@@ -545,6 +545,8 @@ open class XProcError protected constructor(val code: QName, val variant: Int, v
 
         fun xiAtMostOneStdout() = internal(320)
 
+        fun xiDeadlocked(threadCount: Int) = internal(999, threadCount)
+
         fun xiAbortDebugger() = internal(DEBUGGER_ABORT) // 9997
         fun xiImpossible(message: String) = internal(9998, message)
         fun xiNotImplemented(message: String) = internal(9999, message)

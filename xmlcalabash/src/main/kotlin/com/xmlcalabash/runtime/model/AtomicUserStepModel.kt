@@ -31,16 +31,7 @@ class AtomicUserStepModel(runtime: XProcRuntime, model: AtomicModel, private val
     }
 
     override fun runnable(config: XProcStepConfiguration): () -> AbstractStep {
-        // In this one case, the compound step's model inputs aren't the
-        // important ones, *this* step's model inputs are the important ones.
-        // What a lot of hackery.
         val step = synchronized(impl) {
-            val saveCompoundInputs = mutableMapOf<String, RuntimePort>()
-            saveCompoundInputs.putAll(impl.inputs)
-
-            val saveHeadOutputs = mutableMapOf<String, RuntimePort>()
-            saveHeadOutputs.putAll(impl.head.outputs)
-
             impl._inputs.clear()
             impl._inputs.putAll(inputs)
 
@@ -62,12 +53,6 @@ class AtomicUserStepModel(runtime: XProcRuntime, model: AtomicModel, private val
             if (stepConfig.validationMode != ValidationMode.DEFAULT) {
                 instance.head.stepConfig.validationMode = stepConfig.validationMode
             }
-
-            impl._inputs.clear()
-            impl._inputs.putAll(saveCompoundInputs)
-
-            impl.head._outputs.clear()
-            impl.head._outputs.putAll(saveHeadOutputs)
 
             instance
         }

@@ -1815,6 +1815,11 @@ standard output. If no explicit binding is provided, and the pipeline has a
 primary output port, the output of the primary output port will go to standard
 output.
 
+cxerr:XI0999
+Internal error: execution is deadlocked on $1 thread(s).
+All of the threads available are waiting, none are running. There is no recovery
+from this situation. It’s an internal error. Please report it.
+
 cxerr:XI9997
 User aborted execution from the debugger.
 
