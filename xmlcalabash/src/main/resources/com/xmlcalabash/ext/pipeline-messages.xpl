@@ -6,6 +6,7 @@
 <p:declare-step type="cx:pipeline-messages">
   <p:option name="level" as="xs:string?" select="()"/>
   <p:option name="clear" as="xs:boolean" select="false()"/>
+  <p:option name="message-attribute" as="xs:boolean" select="true()"/>
   <p:output port="result"/>
 </p:declare-step>
 

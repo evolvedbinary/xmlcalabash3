@@ -17,7 +17,7 @@
     </t:revision-history>
   </t:info>
   <t:description xmlns="http://www.w3.org/1999/xhtml">
-    <p>Tests that message on p:otherwise is forbidden.</p>
+    <p>Tests that message on p:when is forbidden.</p>
   </t:description>
   <t:pipeline>
     <p:declare-step version="3.0"
