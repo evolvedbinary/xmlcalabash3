@@ -1,6 +1,9 @@
 package com.xmlcalabash.runtime.steps
 
-import com.xmlcalabash.datamodel.*
+import com.xmlcalabash.datamodel.ConnectionInstruction
+import com.xmlcalabash.datamodel.DocumentInstruction
+import com.xmlcalabash.datamodel.EmptyInstruction
+import com.xmlcalabash.datamodel.InlineInstruction
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.exceptions.XProcException
