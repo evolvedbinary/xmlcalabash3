@@ -58,7 +58,10 @@ class PipeInstruction(parent: XProcInstruction): ConnectionInstruction(parent, N
 
             if (decl == null) {
                 if (readablePort == null) {
-                    throw stepConfig.exception(XProcError.xsPortNotReadable(step!!))
+                    if (port == null) {
+                        throw stepConfig.exception(XProcError.xsPortNotReadableOnUnknownStep(step!!))
+                    }
+                    throw stepConfig.exception(XProcError.xsPortNotReadableOnUnknownStep(step!!, port!!))
                 }
 
                 // If we're in the middle of rewriting things, the step might not
@@ -85,7 +88,7 @@ class PipeInstruction(parent: XProcInstruction): ConnectionInstruction(parent, N
                         if (step != null && port != null) {
                             throw stepConfig.exception(XProcError.xsPortNotReadable(step!!, port!!))
                         } else if (step != null) {
-                            throw stepConfig.exception(XProcError.xsPortNotReadable(step!!))
+                            throw stepConfig.exception(XProcError.xsPortNotReadableNoSuchPort(step!!, port!!))
                         } else {
                             throw stepConfig.exception(XProcError.xsNoStepPortNotReadable()) // I don't think this is actualy possible
                         }
