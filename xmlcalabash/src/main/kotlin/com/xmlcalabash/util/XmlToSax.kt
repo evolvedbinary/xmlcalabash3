@@ -36,7 +36,6 @@ object XmlToSax {
 
         override fun setFeature(name: String?, value: Boolean) {
             // nop
-            println("Set feature ${name} to ${value}")
         }
 
         override fun getProperty(name: String?): Any? {
@@ -48,7 +47,6 @@ object XmlToSax {
                 lexHandler = value as LexicalHandler
                 return
             }
-            println("Set property ${name} to ${value}")
         }
 
         override fun setEntityResolver(resolver: EntityResolver?) {
@@ -143,9 +141,11 @@ object XmlToSax {
                     contentHandler!!.processingInstruction(node.nodeName.localName, node.stringValue)
                 }
                 XdmNodeKind.COMMENT -> {
-                    val arr = node.stringValue.toCharArray()
-                    contentHandler!!.setDocumentLocator(LocalLocator(node))
-                    lexHandler!!.comment(arr, 0, arr.size)
+                    if (lexHandler != null) {
+                        val arr = node.stringValue.toCharArray()
+                        contentHandler!!.setDocumentLocator(LocalLocator(node))
+                        lexHandler!!.comment(arr, 0, arr.size)
+                    }
                 }
                 XdmNodeKind.ATTRIBUTE -> { /* nop */ }
                 XdmNodeKind.NAMESPACE -> { /* nop */ }
