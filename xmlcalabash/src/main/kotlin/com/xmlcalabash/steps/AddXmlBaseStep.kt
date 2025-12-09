@@ -71,10 +71,19 @@ class AddXmlBaseStep(): AbstractAtomicStep(), ProcessMatchingNodes {
             base = nodeBase
         }
 
-        val saveBase = base
+        var saveBase = base
 
-        if (addBase && relative && baseUriStack.isNotEmpty()) {
-            base = UriUtils.makeRelativeTo(baseUriStack.peek(), base!!)
+        if (addBase) {
+            if (relative) {
+                if (baseUriStack.isNotEmpty()) {
+                    base = UriUtils.makeRelativeTo(baseUriStack.peek(), base!!)
+                }
+            } else {
+                if (baseUriStack.isNotEmpty()) {
+                    base = baseUriStack.peek().resolve(base!!)
+                    saveBase = base
+                }
+            }
         }
 
         baseUriStack.push(saveBase)
