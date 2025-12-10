@@ -13,6 +13,7 @@ import net.sf.saxon.s9api.XdmAtomicValue
 import net.sf.saxon.s9api.XdmMap
 import net.sf.saxon.s9api.XdmNode
 import net.sf.saxon.s9api.XdmNodeKind
+import net.sf.saxon.s9api.XdmValue
 import org.apache.logging.log4j.kotlin.logger
 
 class Detail(printer: MessagePrinter, options: Map<String,String>): Plain(printer, emptyMap()) {
@@ -110,34 +111,7 @@ class Detail(printer: MessagePrinter, options: Map<String,String>): Plain(printe
         val type = if (document is XProcBinaryDocument) {
             "${t_leftg}binary${t_rightg}"
         } else {
-            when (value) {
-                is XdmNode -> {
-                    when (value.nodeKind) {
-                        XdmNodeKind.DOCUMENT -> {
-                            val root = S9Api.firstElement(value)?.nodeName
-                            if (root == null) {
-                                "${t_leftg}empty document${t_rightg}"
-                            } else {
-                                "<${root} ...>"
-                            }
-                        }
-                        XdmNodeKind.ELEMENT -> "<${value.nodeName} ...>"
-                        XdmNodeKind.TEXT -> {
-                            val str = value.underlyingNode.stringValue
-                            if (str.length > 30) {
-                                "\"${str.substring(0, 30)}...\""
-                            } else {
-                                "\"${str}\""
-                            }
-                        }
-                        else -> "${t_leftg}${value.nodeKind.toString().lowercase()}${t_rightg}"
-                    }
-                }
-                is XdmMap -> "map"
-                is XdmArray -> "array"
-                is XdmAtomicValue -> "${value}"
-                else -> "unknown"
-            }
+            summarize(value)
         }
 
         val sb = StringBuilder()
@@ -145,6 +119,41 @@ class Detail(printer: MessagePrinter, options: Map<String,String>): Plain(printe
         sb.append(t_indent)
         sb.append("${t_dots} ${name(step)}.${port} ${t_arrow} ${type}")
         printer.println(sb.toString())
+    }
+
+    private fun summarize(value: XdmValue): String {
+        return when (value) {
+            is XdmNode -> {
+                when (value.nodeKind) {
+                    XdmNodeKind.DOCUMENT -> {
+                        val root = S9Api.firstElement(value)?.nodeName
+                        if (root != null) {
+                            "<${root} ...>"
+                        }
+                        val child  = value.children().singleOrNull();
+                        if (child != null) {
+                            summarize(child);
+                        } else {
+                            "${t_leftg}empty document${t_rightg}"
+                        }
+                    }
+                    XdmNodeKind.ELEMENT -> "<${value.nodeName} ...>"
+                    XdmNodeKind.TEXT -> {
+                        val str = value.underlyingNode.stringValue
+                        if (str.length > 30) {
+                            "\"${str.substring(0, 30)}...\""
+                        } else {
+                            "\"${str}\""
+                        }
+                    }
+                    else -> "${t_leftg}${value.nodeKind.toString().lowercase()}${t_rightg}"
+                }
+            }
+            is XdmMap -> "map"
+            is XdmArray -> "array"
+            is XdmAtomicValue -> "${value}"
+            else -> "unknown"
+        }
     }
 
     override fun name(step: AbstractStep): String {
