@@ -57,9 +57,18 @@ class AtomicUserStepModel(runtime: XProcRuntime, model: AtomicModel, private val
             instance
         }
 
+        for ((port, flange) in outputs) {
+            if (flange.weldedShut) {
+                step.head.weldedPorts.add(port)
+            }
+        }
+
         for ((port, flange) in inputs) {
             if (flange.unbound) {
                 step.head.unboundInputs.add(port)
+            }
+            if (flange.weldedShut) {
+                step.head.weldedPorts.add(port)
             }
         }
 

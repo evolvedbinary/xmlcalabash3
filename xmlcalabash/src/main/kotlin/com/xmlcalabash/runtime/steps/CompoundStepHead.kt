@@ -23,6 +23,7 @@ class CompoundStepHead(config: XProcStepConfiguration, val parent: CompoundStep,
     val defaultInputs = step.defaultInputs
     internal val openPorts = mutableSetOf<String>()
     internal val unboundInputs = mutableSetOf<String>()
+    internal val weldedPorts = mutableSetOf<String>()
     private var message: XdmValue? = null
     internal var showMessage = true
     internal val _cache: ConcurrentMap<String, List<XProcDocument>> = ConcurrentHashMap()
@@ -345,8 +346,8 @@ class CompoundStepHead(config: XProcStepConfiguration, val parent: CompoundStep,
         super.reset()
 
         openPorts.clear()
-        openPorts.addAll(params.inputs.values.filter { !it.weldedShut }.map { it.name })
-        openPorts.addAll(params.outputs.values.filter { !it.weldedShut }.map { it.name })
+        openPorts.addAll(params.inputs.keys.filter { it !in weldedPorts })
+        openPorts.addAll(params.outputs.keys.filter { it !in weldedPorts })
 
         _cache.clear()
         inputCount.clear()
