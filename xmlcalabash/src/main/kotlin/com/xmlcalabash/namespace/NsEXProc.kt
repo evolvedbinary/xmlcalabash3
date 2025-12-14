@@ -7,5 +7,5 @@ object NsEXProc {
     val namespace: NamespaceUri = NamespaceUri.of("http://exproc.org/ns/steps")
 
     val expandTemplates = QName(namespace, "ex:expand-templates")
-    val epubcheck = QName(namespace, "epubcheck")
+    val epubcheck = QName(namespace, "ex:epubcheck")
 }
