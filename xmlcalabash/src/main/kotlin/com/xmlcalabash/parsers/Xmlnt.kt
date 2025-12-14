@@ -251,7 +251,7 @@ class Xmlnt(val stepConfig: StepConfiguration, val preserveEntities: Boolean, pu
                 "'>'", "'/>'" -> {
                     if (nonterminalStack.peek() == "element") {
                         val element = elementStack.pop()
-                        val ename = qname(element.name)
+                        var ename: QName? = null
                         if (nonterminalStack.peek() != "ETag") {
                             // End of start tag...
                             for ((name, parsedvalue) in attributes) {
@@ -290,11 +290,14 @@ class Xmlnt(val stepConfig: StepConfiguration, val preserveEntities: Boolean, pu
 
                             elementStack.push(element)
 
+                            ename = qname(element.name)
                             val attr = AttributesImpl()
                             for ((name, value) in actualattr) {
                                 attr.addAttribute(name.namespaceUri.toString(), name.localName, name.toString(), "CDATA", value)
                             }
                             contentHandler.startElement(ename.namespaceUri.toString(), ename.localName, ename.toString(), attr)
+                        } else {
+                            ename = qname(element.name)
                         }
 
                         if (name == "'/>'") {
@@ -519,7 +522,12 @@ class Xmlnt(val stepConfig: StepConfiguration, val preserveEntities: Boolean, pu
                 val parts = lexical.split(":")
                 return QName(binding(parts[0]), lexical)
             } else {
-                return QName(lexical)
+                val ns = binding("")
+                if (ns == "") {
+                    return QName(lexical)
+                } else {
+                    return QName(ns, lexical)
+                }
             }
         }
 
@@ -550,6 +558,11 @@ class Xmlnt(val stepConfig: StepConfiguration, val preserveEntities: Boolean, pu
                 }
                 depth--
             }
+
+            if (prefix == "") {
+                return ""
+            }
+
             throw RuntimeException("No binding for $prefix")
         }
     }
