@@ -146,13 +146,16 @@ example above is:</para>
 
 <para>The function signature would be:</para>
 
-<screen>
-function ex:name($input1 as item()*,
+<screen>function ex:name($input1 as item()*,
                  $input2 as item()*,
                  …,
                  $inputN as item()*,
                  options as map(xs:QName, item()*)?)
    as map(xs:NCName, item()*)</screen>
+
+<para>If a sequence is passed as argument that maps to a pipeline input,
+each item in the sequence is converted to a document (if necessary) and
+the input to the pipeline on that port is the resulting sequence of documents.</para>
 
 </section>
 
