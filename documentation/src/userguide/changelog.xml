@@ -13,6 +13,39 @@ See the commits and pull requests on
 finer detail.</para>
 
 <revhistory>
+<revision xml:id="r3032">
+<revnumber>3.0.32</revnumber>
+<date>2025-12-14</date>
+<revdescription>
+<itemizedlist>
+<listitem><para>Closed <cbissue number="450"/>. Fixed the bug where the XMLn’t parser
+didn’t preserve the document base URI.
+</para></listitem>
+<listitem><para>Closed <cbissue number="449"/>. Fixed the bug where the XMLn’t parser
+didn’t correctly handle namespaces on the document element (or on unprefixed names).
+</para></listitem>
+<listitem><para>Closed <cbissue number="447"/>. Clarified the interpretation of sequences
+passed to pipeline functions. (Added a test to demonstrate the interpretation.)
+</para></listitem>
+<listitem><para>Closed <cbissue number="445"/>. Fixed another bug associated with
+default inputs. Track empty ports on a per-instance basis, not a per-type basis.
+</para></listitem>
+<listitem><para>Closed <cbissue number="443"/>. Fixed the output for text documents in
+the detailed visualizer.
+</para></listitem>
+<listitem><para>Closed <cbissue number="439"/>. Fixed the names of steps/ports in various
+<code>err:XS0022</code> error messages.
+</para></listitem>
+<listitem><para>Closed <cbissue number="438"/>. When issuing SAX events directly from
+a parsed document, ignore comments if the <code>LexicalHandler</code> is null.
+</para></listitem>
+<listitem><para>Closed <cbissue number="437"/>. Make existing <tag class="attribute">xml:base</tag>
+attributes absolute when using <tag>p:add-xml-base</tag> with <tag class="attribute">relative</tag>
+set to false.
+</para></listitem>
+</itemizedlist>
+</revdescription>
+</revision>
 <revision xml:id="r3031">
 <revnumber>3.0.31</revnumber>
 <date>2025-12-06</date>
