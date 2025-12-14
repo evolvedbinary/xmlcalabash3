@@ -40,6 +40,8 @@ class Xmlnt(val stepConfig: StepConfiguration, val preserveEntities: Boolean, pu
         bch.endDocument()
 
         val properties = DocumentProperties()
+        properties[Ns.baseUri] = baseUri
+        
         if (characterMap.isEmpty()) {
             properties[NsCx.xmlnt] = ""
         } else {
