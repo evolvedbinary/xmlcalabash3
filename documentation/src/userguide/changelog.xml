@@ -18,6 +18,9 @@ finer detail.</para>
 <date>2025-12-14</date>
 <revdescription>
 <itemizedlist>
+<listitem><para>Closed <cbissue number="455"/>. Put the <code>ex:</code> prefix in
+the QName for the <tag>ex:epubcheck</tag> step.
+</para></listitem>
 <listitem><para>Closed <cbissue number="450"/>. Fixed the bug where the XMLn’t parser
 didn’t preserve the document base URI.
 </para></listitem>
