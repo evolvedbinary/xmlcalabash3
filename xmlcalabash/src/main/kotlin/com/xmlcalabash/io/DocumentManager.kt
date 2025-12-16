@@ -25,6 +25,7 @@ import org.xmlresolver.sources.ResolverSAXSource
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.net.URI
+import java.nio.charset.Charset
 import javax.activation.MimetypesFileTypeMap
 import javax.xml.transform.Source
 import javax.xml.transform.URIResolver
@@ -104,10 +105,10 @@ open class DocumentManager(val resolver: XMLResolver): EntityResolver, EntityRes
             href
         }
 
-        val resolved = tryResolvers(loadURI, stepConfig)
-        if (resolved != null) {
+        val locallyResolved = tryResolvers(loadURI, stepConfig)
+        if (locallyResolved != null) {
             trace(stepConfig, loadURI, href, resolved=true, cached=false)
-            return resolved
+            return locallyResolved
         }
 
         val originalUri = if (href == loadURI) {
@@ -123,6 +124,29 @@ open class DocumentManager(val resolver: XMLResolver): EntityResolver, EntityRes
             } else {
                 newProperties[key] = value
             }
+        }
+
+        val resolved = resolver.resolve(resp.request);
+        if (resolved.inputStream != null) {
+            val loader = DocumentLoader(stepConfig, resolved.resolvedURI, properties, parameters, originalUri)
+            // Generally speaking, the XProc configuration for content types is more accurate and
+            // complete than the underlying resolver configuration.
+            var ctype = mimetypesFileTypeMap.getContentType(resolved.resolvedURI.toString())
+
+            // http server content types are authoritative
+            val scheme = resolved.resolvedURI.scheme
+            if ((scheme == "http" || scheme == "https")
+                && resolved.contentType != null
+                && resolved.contentType != "content/unknown") {
+                ctype = resolved.contentType
+            }
+
+            // If there's an explicit content type in the document properties, *it* wins.
+            val mtype = properties.contentType ?: MediaType.parse(ctype ?: "application/octet-stream")
+
+            var encoding: Charset? = null
+            resolved.encoding?.let { encoding = Charset.forName(it) }
+            return loader.load(resolved.inputStream, mtype, encoding)
         }
 
         val loader = DocumentLoader(stepConfig, loadURI, properties, parameters, originalUri)
