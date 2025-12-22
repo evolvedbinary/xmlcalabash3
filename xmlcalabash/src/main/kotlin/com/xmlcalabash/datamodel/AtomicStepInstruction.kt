@@ -5,6 +5,7 @@ import com.xmlcalabash.namespace.Ns
 import com.xmlcalabash.namespace.NsCx
 import com.xmlcalabash.namespace.NsP
 import net.sf.saxon.ma.map.MapType
+import net.sf.saxon.om.NamespaceUri
 import net.sf.saxon.s9api.QName
 import net.sf.saxon.s9api.SequenceType
 import net.sf.saxon.s9api.XdmAtomicValue
@@ -30,8 +31,29 @@ open class AtomicStepInstruction(parent: XProcInstruction, instructionType: QNam
 
         val decl = declaration()
             ?: throw stepConfig.exception(XProcError.xsMissingStepDeclaration(instructionType))
-
         declId = decl.id
+
+        // What if some of the things we thought were options aren't actually options.
+        // Move them to extension attributes...
+        val newChildren = mutableListOf<XProcInstruction>()
+        for (child in children) {
+            if (child is WithOptionInstruction && child.fromShortcut) {
+                if (decl.getOption(child.name) != null) {
+                    newChildren.add(child)
+                } else {
+                    if (child.name.namespaceUri == NamespaceUri.NULL) {
+                        newChildren.add(child)
+                    } else {
+                        _extensionAttributes[child.name] = child.select.toString()
+                    }
+                }
+            } else {
+                newChildren.add(child)
+            }
+        }
+        _children.clear()
+        _children.addAll(newChildren)
+
         val seenPorts = mutableSetOf<String>()
         for (input in children.filterIsInstance<WithInputInstruction>()) {
             if (input.port.startsWith("Q{")) {
@@ -167,7 +189,7 @@ open class AtomicStepInstruction(parent: XProcInstruction, instructionType: QNam
         return withOption(name, XProcExpression.constant(stepConfig, XdmAtomicValue(value)))
     }
 
-    open fun withOption(name: QName, expr: XProcExpression?): WithOptionInstruction {
+    open fun withOption(name: QName, expr: XProcExpression?, fromShortcut: Boolean = false): WithOptionInstruction {
         if (children.filterIsInstance<WithOptionInstruction>().any { it.name == name }) {
             throw stepConfig.exception(XProcError.xsDuplicateWithOption(name))
         }
@@ -178,6 +200,7 @@ open class AtomicStepInstruction(parent: XProcInstruction, instructionType: QNam
         }
 
         val withOption = WithOptionInstruction(this, name, stepConfig.copy())
+        withOption.fromShortcut = fromShortcut
         expr.let { withOption.select = it }
         _children.add(withOption)
         return withOption

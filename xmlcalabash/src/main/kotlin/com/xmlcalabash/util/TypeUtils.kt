@@ -25,6 +25,7 @@ import net.sf.saxon.om.GroundedValue
 import net.sf.saxon.om.NamespaceUri
 import net.sf.saxon.om.NodeInfo
 import net.sf.saxon.om.StructuredQName
+import net.sf.saxon.s9api.Axis
 import net.sf.saxon.s9api.ItemType
 import net.sf.saxon.s9api.Location
 import net.sf.saxon.s9api.OccurrenceIndicator
@@ -85,6 +86,21 @@ class TypeUtils(val context: DocumentContext) {
 
     fun parseQName(name: String): QName {
         return parseQName(name, context.inscopeNamespaces, NamespaceUri.NULL)
+    }
+
+    fun parseQName(name: String, context: XdmNode, useDefault: Boolean = false): QName {
+        val inscopeNamespaces = mutableMapOf<String, NamespaceUri>()
+        var default = NamespaceUri.NULL
+        for (ns in context.axisIterator(Axis.NAMESPACE)) {
+            inscopeNamespaces[ns.nodeName.localName] = NamespaceUri.of(ns.stringValue)
+            if (ns.nodeName.localName == "") {
+                default = NamespaceUri.of(ns.stringValue)
+            }
+        }
+        if (useDefault) {
+            return parseQName(name, inscopeNamespaces, default)
+        }
+        return parseQName(name, inscopeNamespaces)
     }
 
     fun parseQName(

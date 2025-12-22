@@ -6,7 +6,6 @@ import com.xmlcalabash.api.MessageReporter
 import com.xmlcalabash.api.Monitor
 import com.xmlcalabash.api.XProcStep
 import com.xmlcalabash.config.XProcEnvironment
-import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.ErrorExplanation
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.io.DocumentManager
