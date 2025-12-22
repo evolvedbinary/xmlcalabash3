@@ -11,6 +11,7 @@ import net.sf.saxon.s9api.XdmAtomicValue
 open class WithOptionInstruction(parent: XProcInstruction, name: QName, stepConfig: InstructionConfiguration): VariableBindingContainer(parent, name, stepConfig, NsP.withOption) {
     internal var optionValues: List<XdmAtomicValue> = emptyList()
     internal var initializer: String? = null
+    internal var fromShortcut = false
 
     override fun elaborateInstructions() {
         if (select == null) {

@@ -359,7 +359,7 @@ class XplParser internal constructor(val builder: PipelineBuilder) {
 
     private fun parseOption(decl: DeclareStepInstruction, node: ElementNode) {
         val name = try {
-            node.attributes[Ns.name]?.let { decl.stepConfig.typeUtils.parseQName(it) }
+            node.attributes[Ns.name]?.let { decl.stepConfig.typeUtils.parseQName(it, node.node) }
         } catch (ex: XProcException) {
             when (ex.error.code) {
                 NsErr.xd(69) -> throw decl.stepConfig.exception(XProcError.xsUnboundPrefix(node.attributes[Ns.name]!!))
@@ -401,7 +401,7 @@ class XplParser internal constructor(val builder: PipelineBuilder) {
 
     private fun parseVariable(decl: CompoundStepDeclaration, node: ElementNode) {
         val name = try {
-            node.attributes[Ns.name]?.let { decl.stepConfig.typeUtils.parseQName(it) }
+            node.attributes[Ns.name]?.let { decl.stepConfig.typeUtils.parseQName(it, node.node) }
         } catch (ex: XProcException) {
             throw ex.error.asStatic().exception()
         }
@@ -445,7 +445,7 @@ class XplParser internal constructor(val builder: PipelineBuilder) {
     }
 
     private fun parseWithOption(decl: StepDeclaration, node: ElementNode) {
-        val name = node.attributes[Ns.name]?.let { decl.stepConfig.typeUtils.parseQName(it) }
+        val name = node.attributes[Ns.name]?.let { decl.stepConfig.typeUtils.parseQName(it, node.node) }
         if (name == null) {
             throw decl.stepConfig.exception(XProcError.xsMissingRequiredAttribute(Ns.name))
         }
@@ -1084,16 +1084,16 @@ class XplParser internal constructor(val builder: PipelineBuilder) {
                             || (atomic.instructionType.namespaceUri != NsP.namespace && name == NsP.message)) {
                             atomic.message(XProcExpression.avt(atomic.stepConfig, value))
                         } else {
-                            if (name.namespaceUri != NamespaceUri.NULL) {
-                                atomic.setExtensionAttribute(name, value)
+                            // This might be an option, or it might be an extension attribute. We can't tell
+                            // until we have the declaration. Make options for them (because we need the
+                            // atomic.expandText value to do that correctly). Later on, in AtomicStepInstruction
+                            // we'll move them into extension attributes if they're not declared.
+                            if (atomic.expandText == true) {
+                                atomic.withOption(name, XProcExpression.shortcut(atomic.stepConfig, value), true)
                             } else {
-                                if (atomic.expandText == true) {
-                                    atomic.withOption(name, XProcExpression.shortcut(atomic.stepConfig, value))
-                                } else {
-                                    // Attribute values are untyped so that "true" will cast to true() etc.
-                                    val untypedValue = StringToUntypedAtomic().convert(XdmAtomicValue(value).underlyingValue)
-                                    atomic.withOption(name, XProcExpression.constant(atomic.stepConfig, XdmAtomicValue.wrap(untypedValue)))
-                                }
+                                // Attribute values are untyped so that "true" will cast to true() etc.
+                                val untypedValue = StringToUntypedAtomic().convert(XdmAtomicValue(value).underlyingValue)
+                                atomic.withOption(name, XProcExpression.constant(atomic.stepConfig, XdmAtomicValue.wrap(untypedValue)), true)
                             }
                         }
                     }
