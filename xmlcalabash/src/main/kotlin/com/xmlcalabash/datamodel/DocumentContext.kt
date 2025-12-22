@@ -16,7 +16,8 @@ interface DocumentContext {
     val inscopeNamespaces: Map<String, NamespaceUri>
 
     fun copy(): DocumentContext
-    fun copy(newConfiguration: SaxonConfiguration): DocumentContext
+    fun copy(newProcessor: Processor): DocumentContext
+    fun copy(newConfig: SaxonConfiguration): DocumentContext
 
     fun with(location: Location): DocumentContext
     fun with(prefix: String, uri: NamespaceUri): DocumentContext

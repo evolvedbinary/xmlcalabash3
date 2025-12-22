@@ -17,23 +17,21 @@ import java.net.URI
 
 interface XmlCalabashConfiguration {
     val saxonConfiguration: SaxonConfiguration
+
     val assertions: AssertionsLevel
     val debug: Boolean
     val debugger: Boolean
     val documentManager: DocumentManager
     val eagerEvaluation: Boolean
     val errorExplanation: ErrorExplanation
-    val graphStyle: URI?
-    val graphviz: File?
     val implicitParameterName: QName?
     val inlineTrimWhitespace: Boolean
     val licensed: Boolean
-    val messageBufferSize: Int
     val messagePrinter: MessagePrinter
     val messageReporter: MessageReporter
     val other: Map<QName, List<Map<QName, String>>>
-    val pagedMediaCssProcessors: List<URI>
     val pagedMediaManagers: List<PagedMediaManager>
+    val pagedMediaCssProcessors: List<URI>
     val pagedMediaXslProcessors: List<URI>
     val configuredXQueryProcessors: Map<URI, Map<QName, String>>
     val defaultXQueryProcessor: URI
@@ -54,6 +52,6 @@ interface XmlCalabashConfiguration {
     val visualizer: String
     val visualizerProperties: Map<String,String>
     val xmlCatalogs: List<URI>
-    val xmlSchemaDocuments: List<URI>
+    val xmlSchemas: List<URI>
     val extensions: Set<ExtensionName>
 }

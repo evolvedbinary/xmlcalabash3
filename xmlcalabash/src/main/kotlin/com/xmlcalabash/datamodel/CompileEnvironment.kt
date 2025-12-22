@@ -6,7 +6,7 @@ import com.xmlcalabash.api.MessageReporter
 import com.xmlcalabash.api.Monitor
 import com.xmlcalabash.api.XProcStep
 import com.xmlcalabash.config.XProcEnvironment
-import com.xmlcalabash.exceptions.DefaultErrorExplanation
+import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.ErrorExplanation
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.io.DocumentManager
@@ -14,19 +14,15 @@ import com.xmlcalabash.io.MessagePrinter
 import com.xmlcalabash.runtime.parameters.StepParameters
 import com.xmlcalabash.spi.AtomicStepManager
 import com.xmlcalabash.spi.AtomicStepServiceProvider
-import com.xmlcalabash.spi.ConfigurerServiceProvider
-import com.xmlcalabash.spi.DocumentResolverProvider
 import com.xmlcalabash.spi.DocumentResolverServiceProvider
 import com.xmlcalabash.util.AssertionsLevel
-import com.xmlcalabash.util.Report
-import com.xmlcalabash.util.Verbosity
 import net.sf.saxon.s9api.QName
 import org.apache.logging.log4j.kotlin.logger
 import java.net.URI
 import java.util.*
-import javax.activation.MimetypesFileTypeMap
 
-open class CompileEnvironment(override val episode: String, override val xmlCalabash: XmlCalabash): XProcEnvironment {
+open class CompileEnvironment(override val episode: String,
+                              override val xmlCalabash: XmlCalabash): XProcEnvironment {
     companion object {
         var showAssignments = true // So we only do all the debug messages once
     }

@@ -1,6 +1,7 @@
 package com.xmlcalabash.util
 
 import com.xmlcalabash.api.MessageReporter
+import com.xmlcalabash.io.MessagePrinter
 import com.xmlcalabash.namespace.Ns
 import net.sf.saxon.s9api.QName
 import java.time.LocalDateTime
@@ -12,6 +13,11 @@ class BufferingMessageReporter(maxsize: Int, nextReporter: MessageReporter): Nop
         private val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
         private val tzformatter = DateTimeFormatter.ofPattern("Z")
     }
+
+    override val messagePrinter: MessagePrinter
+        get() {
+            return _messagePrinter ?: nextReporter!!.messagePrinter
+        }
 
     private val _reports = mutableListOf<Report>()
 

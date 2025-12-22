@@ -5,7 +5,7 @@ import com.xmlcalabash.io.MessagePrinter
 import net.sf.saxon.s9api.QName
 
 open class NopMessageReporter(val nextReporter: MessageReporter? = null): MessageReporter {
-    private var _messagePrinter: MessagePrinter? = null
+    protected var _messagePrinter: MessagePrinter? = null
     protected var _threshold = Verbosity.ERROR // irrelevant
 
     override val messagePrinter: MessagePrinter

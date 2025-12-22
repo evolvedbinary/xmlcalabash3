@@ -1,0 +1,4 @@
+<cc:xml-calabash xmlns:cc="https://xmlcalabash.com/ns/configuration">
+  <x:selenium xmlns:x="https://xmlcalabash.com/ext/ns/selenium"
+              whitelist="http://localhost.* https://testdata.xmlcalabash.com/.*"/>
+</cc:xml-calabash>

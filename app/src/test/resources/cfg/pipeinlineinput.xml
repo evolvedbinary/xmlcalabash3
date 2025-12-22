@@ -1,0 +1,11 @@
+<cc:xml-calabash xmlns:cc="https://xmlcalabash.com/ns/configuration">
+  <cc:pipeline href="/opt/pipelines/pipe.xpl">
+    <cc:input port="source" content-type="application/xhtml+xml">
+      <html xmlns="http://www.w3.org/1999/xhtml">
+        <body>
+          <p>Spoon</p>
+        </body>
+      </html>
+    </cc:input>
+  </cc:pipeline>
+</cc:xml-calabash>

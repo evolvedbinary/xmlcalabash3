@@ -15,7 +15,7 @@ class CxPipelineMessages {
     fun runPipeline() {
         val pipeline = File("src/test/resources/001-pipeline-messages.xpl").toURI()
         val xbuilder = XmlCalabashBuilder()
-        xbuilder.setVisualizer("detail", emptyMap())
+        xbuilder.visualizerName.set("detail")
         val calabash = xbuilder.build()
         val parser = calabash.newXProcParser()
         val decl = parser.parse(pipeline)

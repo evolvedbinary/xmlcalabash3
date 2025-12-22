@@ -23,6 +23,9 @@ plugins {
 }
 
 val xmlbuild = the<XmlCalabashBuildExtension>()
+val saxonGroup = project.findProperty("saxonGroup")
+val saxonArtifact = project.findProperty("saxonArtifact")
+val saxonVersion = project.findProperty("saxonVersion")
 
 val dep_activation = project.findProperty("activation").toString()
 val dep_drewnoakesExtractor = project.findProperty("drewnoakesExtractor").toString()
@@ -86,7 +89,6 @@ tasks.withType<DokkaTaskPartial>().configureEach {
 }
 
 fun distClasspath(): List<File> {
-  val libdir = "${layout.projectDirectory.dir("../xmlcalabash/lib")}/"
   val libs = mutableListOf<File>()
   configurations["stageJars"].forEach {
     // Test is !isDirectory rather than isFile() because
@@ -143,7 +145,7 @@ val copyLib = tasks.register<Copy>("copyLib") {
   into(layout.buildDirectory.dir("stage/lib"))
 }
 
-tasks.register("stage-release") {
+val stage = tasks.register("stage-release") {
   inputs.files(xmlcalabashJar)
   inputs.files(copyScripts)
   inputs.files(copyLib)
@@ -211,6 +213,59 @@ val javadocJar = tasks.register<Jar>("javadocJar") {
   dependsOn("dokkaJavadoc")
   archiveClassifier = "javadoc"
   from(tasks.dokkaJavadoc)
+}
+
+val cmdlineTests = tasks.register("cmdline-tests") {}
+tasks.named("test") { finalizedBy(cmdlineTests) }
+
+tasks.register<JavaExec>("cmdline-test-0") {
+  dependsOn(stage)
+  classpath = stageJars + sourceSets["main"].output
+  mainClass = "com.xmlcalabash.app.Main"
+  args("info", "version", "--licensed")
+}
+
+tasks.register<JavaExec>("cmdline-test-1") {
+  dependsOn(stage)
+  classpath = stageJars + sourceSets["main"].output
+  mainClass = "com.xmlcalabash.app.Main"
+  args("--config:src/test/resources/in-a-b.xml", "--output:result=/dev/null", "--assertions:error")
+}
+
+tasks.register<JavaExec>("cmdline-test-2") {
+  dependsOn(stage)
+  classpath = stageJars + sourceSets["main"].output
+  mainClass = "com.xmlcalabash.app.Main"
+  args("--config:src/test/resources/in-b-b.xml", "--output:result=/dev/null", "--assertions:error",
+       "-i:source=src/test/resources/a.xml")
+}
+
+tasks.register<JavaExec>("cmdline-test-3") {
+  dependsOn(stage)
+  classpath = stageJars + sourceSets["main"].output
+  mainClass = "com.xmlcalabash.app.Main"
+  args("--config:src/test/resources/in-b-a.xml", "--output:result=/dev/null", "--assertions:error",
+       "-i:source=src/test/resources/a.xml", "wrap=b")
+}
+
+if (saxonArtifact == "Saxon-EE") {
+  tasks.register<JavaExec>("cmdline-test-4") {
+    dependsOn(stage)
+    classpath = stageJars + sourceSets["main"].output
+    mainClass = "com.xmlcalabash.app.Main"
+    args("src/test/resources/xsdvalidate.xpl", "--output:result=/dev/null", "--assertions:error",
+         "-i:source=src/test/resources/doc.xml", "--xml-schema:src/test/resources/testxsd.xsd",
+         "--licensed")
+  }
+} else {
+  println("Not running EE; not including XML Schema-related tests")
+}
+
+// This feels like a bit of a hack, but it simplifies the tests
+tasks.withType<JavaExec>().forEach { task ->
+  if (task.name.contains("cmdline-test-")) {
+    cmdlineTests { dependsOn(task) }
+  }
 }
 
 publishing {

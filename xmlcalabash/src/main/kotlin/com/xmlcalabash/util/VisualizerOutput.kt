@@ -1,6 +1,7 @@
 package com.xmlcalabash.util
 
 import com.xmlcalabash.XmlCalabash
+import com.xmlcalabash.XmlCalabashBuilder
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.io.DocumentWriter
@@ -18,7 +19,7 @@ import java.io.PrintStream
 import javax.xml.transform.Source
 import javax.xml.transform.sax.SAXSource
 
-class VisualizerOutput(val xmlCalabash: XmlCalabash, val description: XProcDescription, val outputDirectory: String) {
+class VisualizerOutput(val builder: XmlCalabashBuilder, val xmlCalabash: XmlCalabash, val description: XProcDescription, val outputDirectory: File) {
     companion object {
         val resolverPrefix = "https://xmlcalabash.com/xsl/"
         val defaultStyle = "/com/xmlcalabash/graphstyle.xsl"
@@ -31,6 +32,8 @@ class VisualizerOutput(val xmlCalabash: XmlCalabash, val description: XProcDescr
     private var cleanupPerformed = false
     private val debug = xmlCalabash.config.debug
     private val logging = xmlCalabash.config.messageReporter
+    private val graphStyle = builder.graphStyle.getOrDefault()
+    private val graphviz = builder.graphviz.getOrDefault()
 
     fun xml() {
         try {
@@ -104,8 +107,8 @@ class VisualizerOutput(val xmlCalabash: XmlCalabash, val description: XProcDescr
             writeNode("${outputDirectory}pipeline.xml", builder.result)
         }
 
-        if (xmlCalabash.config.graphStyle != null) {
-            val source = SAXSource(InputSource(xmlCalabash.config.graphStyle!!.toString()))
+        if (graphStyle != null) {
+            val source = SAXSource(InputSource(graphStyle!!.toString()))
             transformDescription(source, ".xml")
         }
     }
@@ -179,7 +182,7 @@ class VisualizerOutput(val xmlCalabash: XmlCalabash, val description: XProcDescr
 
     private fun graphviz(path: String, basename: String) {
         val rt = Runtime.getRuntime()
-        val graphviz = xmlCalabash.config.graphviz!!.absolutePath
+        val graphviz = graphviz!!.absolutePath
 
         val dotFile = File("${path}${basename}.dot")
         val svgFile = File("${path}${basename}.svg")
@@ -235,11 +238,11 @@ class VisualizerOutput(val xmlCalabash: XmlCalabash, val description: XProcDescr
             return
         }
 
-        if (!outputDirectory.endsWith("/")) {
-            throw IllegalStateException("Output directory does not end with /: ${outputDirectory}")
+        if (!outputDirectory.exists() && !outputDirectory.isDirectory()) {
+            throw IllegalStateException("Output directory is not a directory: ${outputDirectory.absolutePath}")
         }
 
-        val root = File(outputDirectory)
+        val root = outputDirectory
         val index = root.resolve("index.html")
         if (index.exists() && !index.delete()) {
             throw IllegalStateException("Failed to erase ${index}")

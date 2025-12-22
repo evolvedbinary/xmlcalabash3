@@ -1,0 +1,8 @@
+<cc:xml-calabash xmlns:cc="https://xmlcalabash.com/ns/configuration">
+  <cc:namespace prefix="ex" uri="http://example.com/ns"/>
+  <cc:pipeline href="/opt/pipelines/pipe.xpl">
+    <cc:option name="ex:opt" content-type="application/json">
+      { "a": 1 }
+    </cc:option>
+  </cc:pipeline>
+</cc:xml-calabash>

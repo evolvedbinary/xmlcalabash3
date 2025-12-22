@@ -1,0 +1,5 @@
+<cc:xml-calabash xmlns:cc="https://xmlcalabash.com/ns/configuration">
+  <cc:pipeline href="/opt/pipelines/pipe.xpl">
+    <cc:input port="source" content-type="text/plain">Hello, world.</cc:input>
+  </cc:pipeline>
+</cc:xml-calabash>

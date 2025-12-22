@@ -1,9 +1,10 @@
 package com.xmlcalabash.app
 
+import com.xmlcalabash.config.XmlCalabashInput
+import com.xmlcalabash.XmlCalabashBuilder
+import com.xmlcalabash.config.XmlCalabashOutput
 import com.xmlcalabash.exceptions.XProcError
-import com.xmlcalabash.exceptions.XProcException
 import com.xmlcalabash.io.MediaType
-import com.xmlcalabash.namespace.*
 import com.xmlcalabash.util.AssertionsLevel
 import com.xmlcalabash.util.ExtensionName
 import com.xmlcalabash.util.UriUtils
@@ -33,7 +34,7 @@ class CommandLine private constructor(val args: Array<out String>) {
         /** The name of "standard input".
          * The string "-" is used to represent `stdin`.
          */
-        val STDIO_NAME = "-"
+        const val STDIO_NAME = "-"
 
         /** The URI used to represent "standard output".
          * Outputs are sent to URIs, generally `file:` URIs, this URI is magic and represents
@@ -43,278 +44,93 @@ class CommandLine private constructor(val args: Array<out String>) {
 
         /**
          * Parse a list of arguments.
-         *
-         * The caller must check the [errors] property. If it is empty, the parse was successful.
          */
-        fun parse(args: Array<out String>): CommandLine {
+        fun parse(args: Array<out String>): XmlCalabashBuilder {
             val cli = CommandLine(args)
-            cli.parse()
-            return cli
+            return cli.parse()
         }
     }
 
+    private lateinit var builder: XmlCalabashBuilder
     private val validCommands = listOf("version", "run", "help", "info")
-    private var _command: String? = null
-    private var _config: File? = null
-    private var _pipelineGraphs: String? = null
-    private var _licensed = true
-    private var _pipe: Boolean? = null
-    private var _debug: Boolean? = null
-    private var _debugger: Boolean? = null
-    private var _visualizer: String? = null
-    private val _visualizerOptions = mutableMapOf<String,String>()
-    private var _stacktrace = false
-    private var _verbosity: Verbosity? = null
-    private var _explainErrors = false
-    private var _assertions: AssertionsLevel? = null
     private var _help = false
-    private var _trace: File? = null
-    private var _traceDocuments: File? = null
-    private var _errors = mutableListOf<XProcException>()
-    internal var _inputs = mutableMapOf<String, MutableList<Pair<URI,MediaType>>>()
-    internal var _outputs = mutableMapOf<String, OutputFilename>()
-    private var _options = mutableMapOf<String,List<String>>()
-    private var _namespaces = mutableMapOf<String, NamespaceUri>()
-    private var _initializers = mutableListOf<String>()
-    private var _pipelineUri: URI? = null
-    private var _step: String? = null
-    private val _xmlSchemas = mutableListOf<URI>()
-    private var _validationMode = ValidationMode.DEFAULT
-    private var _useLocationHints: Boolean? = null
-    private var _tryNamespaces: Boolean? = null
-    private val _xmlCatalogs = mutableListOf<URI>()
-    private var _nogo = false
-    private var _mimetypeExtension: String? = null
-    private var _serialization = mutableMapOf<String,MutableMap<String, String>>()
-    private var _extensions = mutableSetOf<ExtensionName>()
-
-    /** The command.
-     *
-     * One of "run", "version", or "help". The run command is implied
-     * if no explicit command is provided.
-     */
-    val command: String
-        get() = _command ?: "run"
-
-    /** The configuration file specified. */
-    val config: File?
-        get() = _config
-
-    /** The pipeline graph output directory. */
-    val pipelineGraphs: String?
-        get() {
-            if (_pipelineGraphs == null) {
-                return null
-            }
-            if (_pipelineGraphs != null && _pipelineGraphs!!.endsWith("/")) {
-                return _pipelineGraphs
-            }
-            return "${_pipelineGraphs}/"
-        }
-
-    /** Enable licensed features?
-     *
-     * Setting licensed to false will disable licensed features in Saxon PE and Saxon EE.
-     */
-    val licensed: Boolean
-        get() = _licensed
-
-    /** Enable Unix-style pipeline processing of stdin and stdout? */
-    val pipe: Boolean?
-        get() = _pipe
-
-    /** Enable debugging output? */
-    val debug: Boolean?
-        get() = _debug
-
-    /** Print a stack (step) trace on error? */
-    val stacktrace: Boolean
-        get() = _stacktrace
-
-    /** How chatty shall we be? */
-    val verbosity: Verbosity?
-        get() = _verbosity
-
-    /** Shall we try to explain errors? */
-    val explainErrors: Boolean
-        get() = _explainErrors
-
-    /** Did we select a visualizer? */
-    val visualizer: String?
-        get() = _visualizer
-
-    /** Did it have options? */
-    val visualizerOptions: Map<String,String>
-        get() = _visualizerOptions
-
-    /** Evaluate assertions? */
-    val assertions: AssertionsLevel?
-        get() = _assertions
-
-    /** Display command line help instructions?
-     *
-     * If this is true, a summary of the command line options will be presented,
-     * but no pipeline will be run.
-     */
-    val help: Boolean
-        get() = _help || _command == "help"
-
-    /** Did any parse errors occur? */
-    val errors: List<XProcException>
-        get() = _errors
-
-    /** Did the user specify a trace output file? */
-    val trace: File?
-        get() = _trace
-
-    /** Did the user specify a trace documents directory? */
-    val traceDocuments: File?
-        get() = _traceDocuments
-
-    /** Enable the debugger? */
-    val debugger: Boolean?
-        get() = _debugger
-
-    /** The pipeline inputs.
-     * <p>The inputs are a map from input port name to a (list of) URI(s).</p>
-     */
-    val inputs: Map<String,List<Pair<URI,MediaType>>>
-        get() = _inputs
-
-    /** The pipeline outputs.
-     * <p>The outputs are a map from output port name to output filenames.
-     * The [OutputFilename] class is responsible for determining how multiple outputs
-     * on a single port are serialized.</p>
-     */
-    val outputs: Map<String,OutputFilename>
-        get() = _outputs
-
-    /** The pipeline options.
-     * <p>This is a map from option names to values. The option names must be QNames
-     * expressed as <code><a href="https://www.w3.org/TR/xpath-31/#doc-xpath31-EQName">EQName</a></code>s
-     * or using namespace bindings provided by the <code>--namespace</code> options.</p>
-     * <p>If the value begins with a <code>?</code>, the value after the leading question mark
-     * will be evaluated as an XPath expression and the resulting value becomes the value of the option.
-     * Otherwise, the value of the option is the string value as an <code>xs:untypedAtomic</code>.</p>
-     * <p>If an option is given multiple times, it will have a value that is the sequence of values
-     * provided.</p>
-     */
-    val options: Map<String, List<String>>
-        get() = _options
-
-    /** The serialization options.
-     * <p>This is a map from ports to a map of serialization parameter name/value pairs.
-     * The serialization parameter names must be QNames expressed as
-     * <code><a href="https://www.w3.org/TR/xpath-31/#doc-xpath31-EQName">EQName</a></code>s
-     * or using namespace bindings provided by the <code>--namespace</code> options.</p>
-     * <p>If the value begins with a <code>?</code>, the value after the leading question mark
-     * will be evaluated as an XPath expression and the resulting value becomes the value of the option.
-     * Otherwise, the value of the option is the string value as an <code>xs:untypedAtomic</code>.</p>
-     * <p>If the port name is '*' it refers to the primary output port.
-     */
-    val serializationParameters: Map<String,Map<String,String>>
-        get() = _serialization
-
-    /** In-scope namespace declarations for argument parsing. */
-    val namespaces: Map<String, NamespaceUri>
-        get() = _namespaces
-
-    /** Function initializers (--init initializers for Saxon) */
-    val initializers: List<String>
-        get() = _initializers
-
-    /** The URI of the pipeline or library containing the pipeline to run. */
-    val pipelineUri: URI?
-        get() = _pipelineUri
-
-    /** The step (in a library) to run.
-     * <p>If the [pipelineUri] is an <code>p:library</code>, the [step] option identifies
-     * a step in the library to run. The step is identified by name, not by type.</p>
-     */
-    val step: String?
-        get() = _step
-
-    /** The validation mode. */
-    val validationMode: ValidationMode
-        get() = _validationMode
-
-    /** Try namespace URIs for schemas? */
-    val tryNamespaces: Boolean?
-        get() = _tryNamespaces
-
-    /** Use location hints for schemas? */
-    val useLocationHints: Boolean?
-        get() = _useLocationHints
-
-    /** XML Schema documents. */
-    val xmlSchemas: List<URI>
-        get() = _xmlSchemas
-
-    /** Catalog files specified on the command line. */
-    val xmlCatalogs: List<URI>
-        get() = _xmlCatalogs
-
-    /** Compile and possibly graph the pipeline but don't actually run it. */
-    val nogo: Boolean
-        get() = _nogo
-
-    /** The extension to check if the `info mimetype` command is used. */
-    val mimetypeExtension: String?
-        get() = _mimetypeExtension
-
-    val extensions: Set<ExtensionName>
-        get() = _extensions
+    private val seenNamespaces = mutableSetOf<String>()
 
     private val arguments = listOf(
-        ArgumentDescription("--input", listOf("-i"), ArgumentType.STRING) { it -> parseInput(it) },
-        ArgumentDescription("--output", listOf("-o"), ArgumentType.STRING) { it -> parseOutput(it) },
-        ArgumentDescription("--namespace", listOf("-ns"), ArgumentType.STRING) { it -> parseNamespace(it) },
-        ArgumentDescription("--xml-schema", listOf("--xsd"), ArgumentType.URI) { it -> parseXmlSchema(it) },
-        ArgumentDescription("--validation-mode", listOf("--val"), ArgumentType.STRING, "strict") { it -> parseValidationMode(it) },
-        ArgumentDescription("--use-location-hints", listOf("--hints"), ArgumentType.BOOLEAN, "true") { it -> _useLocationHints = it == "true" },
-        ArgumentDescription("--try-namespaces", listOf("--try-ns"), ArgumentType.BOOLEAN, "true") { it -> _tryNamespaces = it == "true" },
-        ArgumentDescription("--catalog", listOf(), ArgumentType.URI) { it -> parseCatalog(it) },
-        ArgumentDescription("--init", listOf(), ArgumentType.STRING) { it -> _initializers.add(it) },
-        ArgumentDescription("--configuration", listOf("-c", "--config"), ArgumentType.EXISTING_FILE) { it -> _config = File(it) },
-        ArgumentDescription("--step", listOf("-s"), ArgumentType.STRING) { it -> _step = it },
-        ArgumentDescription("--graphs", listOf(), ArgumentType.DIRECTORY) { it -> _pipelineGraphs = it },
-        ArgumentDescription("--licensed", listOf(), ArgumentType.BOOLEAN, "true") { it -> _licensed = it == "true" },
-        ArgumentDescription("--pipe", listOf(), ArgumentType.BOOLEAN, "true") { it -> _pipe = it == "true" },
-        ArgumentDescription("--debug", listOf("-D"), ArgumentType.BOOLEAN, "true") { it -> _debug = it == "true" },
-        ArgumentDescription("--debugger", listOf(), ArgumentType.BOOLEAN, "true") { it -> _debugger = it == "true" },
-        ArgumentDescription("--explain", listOf(), ArgumentType.BOOLEAN, "true") { it -> _explainErrors = it == "true" },
-        ArgumentDescription("--help", listOf(), ArgumentType.BOOLEAN, "true") { it -> _help = it == "true" },
-        ArgumentDescription("--trace", listOf(), ArgumentType.FILE) { it -> _trace = File(it) },
-        ArgumentDescription("--nogo", listOf(), ArgumentType.BOOLEAN, "true") { it -> _nogo = it == "true" },
-        ArgumentDescription("--trace-documents", listOf("--trace-docs"), ArgumentType.DIRECTORY) { it -> _traceDocuments = File(it) },
-        ArgumentDescription("--stacktrace", listOf("--stack-trace"), ArgumentType.BOOLEAN, "true") { it -> _stacktrace = it == "true" },
-        ArgumentDescription("--extension", listOf("-X"), ArgumentType.STRING) { it -> parseExtensionName(it) },
+        ArgumentDescription("--input", listOf("-i"), ArgumentType.STRING) {
+            parseInput(it) },
+        ArgumentDescription("--output", listOf("-o"), ArgumentType.STRING) {
+            parseOutput(it) },
+        ArgumentDescription("--namespace", listOf("-ns"), ArgumentType.STRING) {
+            parseNamespace(it) },
+        ArgumentDescription("--xml-schema", listOf("--xsd"), ArgumentType.URI) {
+            parseXmlSchema(it) },
+        ArgumentDescription("--validation-mode", listOf("--val"), ArgumentType.STRING, "strict") {
+            parseValidationMode(it) },
+        ArgumentDescription("--use-location-hints", listOf("--hints"), ArgumentType.BOOLEAN, "true") {
+            builder.useLocationHints.set(it == "true") },
+        ArgumentDescription("--try-namespaces", listOf("--try-ns"), ArgumentType.BOOLEAN, "true") {
+            builder.tryNamespaces.set(it == "true") },
+        ArgumentDescription("--catalog", listOf(), ArgumentType.URI) {
+            parseCatalog(it) },
+        ArgumentDescription("--init", listOf(), ArgumentType.STRING) {
+            builder.initializers.add(Pair(it, false)) },
+        ArgumentDescription("--configuration", listOf("-c", "--config"), ArgumentType.EXISTING_FILE) {
+            builder.configurationFile.set(File(it)) },
+        ArgumentDescription("--step", listOf("-s"), ArgumentType.STRING) {
+            builder.step.set(it) },
+        ArgumentDescription("--graphs", listOf(), ArgumentType.DIRECTORY) {
+            builder.graphs.set(File(it)) },
+        ArgumentDescription("--licensed", listOf(), ArgumentType.BOOLEAN, "true") {
+            builder.licensed.set(it == "true") },
+        ArgumentDescription("--pipe", listOf(), ArgumentType.BOOLEAN, "true") {
+            builder.pipedMode.set(it == "true") },
+        ArgumentDescription("--debug", listOf("-D"), ArgumentType.BOOLEAN, "true") {
+            builder.debug.set(it == "true") },
+        ArgumentDescription("--debugger", listOf(), ArgumentType.BOOLEAN, "true") {
+            builder.debugger.set(it == "true") },
+        ArgumentDescription("--explain", listOf(), ArgumentType.BOOLEAN, "true") {
+            builder.explainErrors.set(it == "true") },
+        ArgumentDescription("--help", listOf(), ArgumentType.BOOLEAN, "true") {
+            _help = it == "true" },
+        ArgumentDescription("--trace", listOf(), ArgumentType.FILE) {
+            builder.trace.set(File(it)) },
+        ArgumentDescription("--nogo", listOf(), ArgumentType.BOOLEAN, "true") {
+            builder.go.set(it != "true") },
+        ArgumentDescription("--trace-documents", listOf("--trace-docs"), ArgumentType.DIRECTORY) {
+            builder.traceDocuments.set(File(it)) },
+        ArgumentDescription("--stacktrace", listOf("--stack-trace"), ArgumentType.BOOLEAN, "true") {
+            builder.stacktrace.set(it == "true") },
+        ArgumentDescription("--extension", listOf("-X"), ArgumentType.STRING) {
+            parseExtensionName(it) },
         ArgumentDescription("--verbosity", listOf("-V"),
-            ArgumentType.STRING, "info", listOf("trace", "debug", "info", "warn", "error")) { it ->
-            _verbosity = when(it) {
+            ArgumentType.STRING, "info", listOf("trace", "debug", "info", "warn", "error")) {
+            builder.verbosity.set(when(it) {
                 "error" -> Verbosity.ERROR
                 "warn" -> Verbosity.WARN
                 "info" -> Verbosity.INFO
                 "debug" -> Verbosity.DEBUG
                 "trace" -> Verbosity.TRACE
                 else -> Verbosity.INFO
-            }},
+            })},
         ArgumentDescription("--assertions", listOf(),
-            ArgumentType.STRING, "warn", listOf("ignore", "warn", "warning", "error")) { it ->
-            _assertions = when(it) {
+            ArgumentType.STRING, "warn", listOf("ignore", "warn", "warning", "error")) {
+            builder.assertions.set(when(it) {
                 "ignore" -> AssertionsLevel.IGNORE
                 "warn", "warning" -> AssertionsLevel.WARNING
                 "error" -> AssertionsLevel.ERROR
                 else -> AssertionsLevel.IGNORE
-            }},
+            })},
         ArgumentDescription("--visualizer", listOf("--vis"),
-            ArgumentType.STRING, "plain", emptyList()) { it -> parseVisualizer(it) }
+            ArgumentType.STRING, "plain", emptyList()) { parseVisualizer(it) }
         )
 
-    private fun parse() {
+    private fun parse(): XmlCalabashBuilder {
+        builder = XmlCalabashBuilder()
+
         if (args.isEmpty()) {
-            _command = "help"
-            return
+            builder.command.set("help")
+            return builder
         }
 
         for (opt in args) {
@@ -337,48 +153,41 @@ class CommandLine private constructor(val args: Array<out String>) {
 
                     var value = suppliedValue ?: arg.default
                     if (value == null) {
-                        _errors.add(XProcError.xiCliValueRequired(option).exception())
-                        continue
+                        throw XProcError.xiCliValueRequired(option).exception()
                     }
 
                     if (arg.valid.isNotEmpty() && !arg.valid.contains(value)) {
-                        _errors.add(XProcError.xiCliInvalidValue(option, value).exception())
-                        continue
+                        throw XProcError.xiCliInvalidValue(option, value).exception()
                     }
 
                     when (arg.type) {
                         ArgumentType.STRING -> Unit
                         ArgumentType.BOOLEAN -> {
                             if (value != "true" && value != "false") {
-                                _errors.add(XProcError.xiCliInvalidValue(option, value).exception())
-                                continue
+                                throw XProcError.xiCliInvalidValue(option, value).exception()
                             }
                         }
                         ArgumentType.FILE -> {
                             val file = File(value)
                             if (file.exists() && !file.isFile) {
-                                _errors.add(XProcError.xiCliInvalidValue(option, value).exception())
-                                continue
+                                throw XProcError.xiCliInvalidValue(option, value).exception()
                             }
                         }
                         ArgumentType.EXISTING_FILE -> {
                             val file = File(value)
                             if (!file.exists() || !file.isFile || !file.canRead()) {
-                                _errors.add(XProcError.xiCliInvalidValue(option, value).exception())
-                                continue
+                                throw XProcError.xiCliInvalidValue(option, value).exception()
                             }
                         }
                         ArgumentType.DIRECTORY -> {
                             val file = File(value)
                             if (!file.exists()) {
                                 if (!file.mkdirs()) {
-                                    _errors.add(XProcError.xiCliInvalidValue(option, value).exception())
-                                    continue
+                                    throw XProcError.xiCliInvalidValue(option, value).exception()
                                 }
                             }
                             if (!file.isDirectory) {
-                                _errors.add(XProcError.xiCliInvalidValue(option, value).exception())
-                                continue
+                                throw XProcError.xiCliInvalidValue(option, value).exception()
                             }
                         }
                         ArgumentType.URI -> {
@@ -386,11 +195,7 @@ class CommandLine private constructor(val args: Array<out String>) {
                         }
                     }
 
-                    try {
-                        arg.process(value)
-                    } catch (ex: XProcException) {
-                        _errors.add(ex)
-                    }
+                    arg.process(value)
 
                     break
                 }
@@ -398,7 +203,7 @@ class CommandLine private constructor(val args: Array<out String>) {
 
             if (!processed) {
                 if (option.startsWith("-")) {
-                    _errors.add(XProcError.xiCliUnrecognizedOption(option).exception())
+                    throw XProcError.xiCliUnrecognizedOption(option).exception()
                 } else if (opt.contains("=")) {
                     if (opt.startsWith("!")) {
                         parseSerializationParam(opt)
@@ -406,42 +211,34 @@ class CommandLine private constructor(val args: Array<out String>) {
                         parseOptionParam(opt)
                     }
                 } else {
-                    if (_pipelineUri != null) {
-                        _errors.add(XProcError.xiCliMoreThanOnePipeline(_pipelineUri!!.toString(), opt).exception())
+                    if (builder.pipelineUri.isSet) {
+                        throw XProcError.xiCliMoreThanOnePipeline(builder.pipelineUri.get()!!.toString(), opt).exception()
                     } else {
                         val cmd = isCommand(opt)
                         if (cmd != null) {
-                            _command = cmd
+                            builder.command.set(cmd)
                         } else {
-                            _pipelineUri = UriUtils.resolve(opt)
+                            builder.command.set("run")
+                            builder.pipelineUri.set(UriUtils.resolve(opt))
                         }
                     }
                 }
             }
         }
 
-        if (_debug == true && (verbosity == null || verbosity!! > Verbosity.DEBUG)) {
-            _verbosity = Verbosity.DEBUG
+        if (builder.debug.isSet && builder.debug.get()!!) {
+            builder.verbosity.set(Verbosity.DEBUG)
         }
 
-        for ((prefix, namespace) in mapOf(
-            "cx" to NsCx.namespace,
-            "p" to NsP.namespace,
-            "xs" to NsXs.namespace,
-            "fn" to NsFn.namespace,
-            "map" to NsFn.mapNamespace,
-            "array" to NsFn.arrayNamespace,
-            "math" to NsFn.mathNamespace,
-            "saxon" to NsSaxon.namespace,
-            "xml" to NsXml.namespace)) {
-            if (!_namespaces.containsKey(prefix)) {
-                _namespaces[prefix] = namespace
-            }
+        if (_help) {
+            builder.command.set("help")
         }
+
+        return builder
     }
 
     private fun isCommand(opt: String): String? {
-        if (_command == null) {
+        if (!builder.command.isSet) {
             if (opt == "version") {
                 return "info-version"
             }
@@ -450,18 +247,19 @@ class CommandLine private constructor(val args: Array<out String>) {
             }
         }
 
-        if (_command == "info") {
-            when (opt) {
-                "version" -> return "info-version"
-                "mimetype" -> return "info-mimetype"
-                "mimetypes" -> return "info-mimetypes"
-                else -> return null
+        val command = builder.command.get()
+        if (command == "info") {
+            return when (opt) {
+                "version" -> "info-version"
+                "mimetype" -> "info-mimetype"
+                "mimetypes" -> "info-mimetypes"
+                else -> null
             }
         }
 
-        if (_mimetypeExtension == null &&  _command == "info-mimetype") {
-            _mimetypeExtension = opt
-            return _command
+        if (!builder.commandOptions.isSet && command == "info-mimetype") {
+            builder.commandOptions.add(opt)
+            return command
         }
 
         return null
@@ -489,23 +287,25 @@ class CommandLine private constructor(val args: Array<out String>) {
             port = port.substring(index + 1).trim()
         }
 
-        if (!_inputs.containsKey(port)) {
-            _inputs.put(port, mutableListOf())
-        }
-        if (href == STDIO_NAME) {
-            _inputs[port]!!.add(Pair(STDIO_URI, contentType))
+        val inputs = mutableListOf<XmlCalabashInput>()
+        inputs.addAll(builder.inputs.get(port) ?: mutableListOf())
+        val input = if (href == STDIO_NAME) {
+            XmlCalabashInput(STDIO_URI, contentType)
         } else {
-            _inputs[port]!!.add(Pair(UriUtils.resolve(href), contentType))
+            XmlCalabashInput(UriUtils.resolve(href), contentType)
         }
+        inputs.add(input)
+        builder.inputs.put(port, inputs)
     }
 
     private fun parseOutput(arg: String) {
         // -i:port=path
         val (port, filename) = split(arg, "output", "*anonymous")
-        if (_outputs.containsKey(port)) {
+        val output = builder.outputs.get(port)
+        if (output != null) {
             throw XProcError.xiCliDuplicateOutputFile(filename).exception()
         }
-        _outputs[port] = OutputFilename(filename)
+        builder.outputs.put(port, XmlCalabashOutput(filename))
     }
 
     private fun parseNamespace(arg: String) {
@@ -522,42 +322,43 @@ class CommandLine private constructor(val args: Array<out String>) {
             arg
         }
 
-        if (_namespaces.containsKey(prefix)) {
+        if (seenNamespaces.contains(prefix)) {
             throw XProcError.xiCliDuplicateNamespace(prefix).exception()
         }
 
-        _namespaces[prefix] = NamespaceUri.of(uri)
+        seenNamespaces.add(prefix)
+        builder.namespaces.put(prefix, NamespaceUri.of(uri))
     }
 
     private fun parseXmlSchema(arg: String) {
         val uri = URI(arg)
         if (uri.isAbsolute) {
-            _xmlSchemas.add(uri)
+            builder.xmlSchemas.add(uri)
         } else {
-            _xmlSchemas.add(UriUtils.cwdAsUri().resolve(uri))
+            builder.xmlSchemas.add(UriUtils.resolve(uri))
         }
     }
 
     private fun parseCatalog(arg: String) {
         val uri = URI(arg)
         if (uri.isAbsolute) {
-            _xmlCatalogs.add(uri)
+            builder.xmlCatalogs.add(uri)
         } else {
-            _xmlCatalogs.add(UriUtils.cwdAsUri().resolve(uri))
+            builder.xmlCatalogs.add(UriUtils.cwdAsUri().resolve(uri))
         }
     }
 
     private fun parseValidationMode(arg: String) {
         when (arg) {
-            "strict" -> _validationMode = ValidationMode.STRICT
-            "lax" -> _validationMode = ValidationMode.LAX
+            "strict" -> builder.validationMode.set(ValidationMode.STRICT)
+            "lax" -> builder.validationMode.set(ValidationMode.LAX)
             else -> throw XProcError.xiCliInvalidValue("--validation-mode", arg).exception()
         }
     }
 
     private fun parseExtensionName(arg: String) {
         when (arg) {
-            "eager-uri-resolution" -> _extensions.add(ExtensionName.EAGER_URI_RESOLUTION)
+            "eager-uri-resolution" -> builder.extensions.add(ExtensionName.EAGER_URI_RESOLUTION)
             else -> throw XProcError.xiCliInvalidValue("--extension-name", arg).exception()
         }
     }
@@ -575,17 +376,18 @@ class CommandLine private constructor(val args: Array<out String>) {
             opt
         }
 
-        val map = _serialization[port] ?: mutableMapOf<String,String>()
+        val map = mutableMapOf<String, String>()
+        map.putAll(builder.outputSerialization.get(port) ?: emptyMap())
         map[name] = value
-        _serialization[port] = map
+        builder.outputSerialization.put(port, map)
     }
 
     private fun parseOptionParam(arg: String) {
         val (name, value) = split(arg, "option")
-        val values = mutableListOf<String>()
-        values.addAll(_options[name] ?: emptyList())
+        val values = mutableListOf<Any>()
+        values.addAll(builder.options.get(name) ?: emptyList())
         values.add(value)
-        _options[name] = values
+        builder.options.put(name, values)
     }
 
     private fun parseVisualizer(arg: String) {
@@ -602,6 +404,7 @@ class CommandLine private constructor(val args: Array<out String>) {
         }
 
         // Cheap and cheerful. And keep it that way.
+        val voptions = mutableMapOf<String, String>()
         if (opts.trim().isNotEmpty()) {
             for (nvpair in opts.split(";")) {
                 val eqpos = nvpair.indexOf("=")
@@ -610,24 +413,28 @@ class CommandLine private constructor(val args: Array<out String>) {
                 }
                 val key = nvpair.substring(0, eqpos).trim()
                 val value = nvpair.substring(eqpos + 1).trim()
-                _visualizerOptions[key] = value
+                voptions[key] = value
             }
         }
 
-        _visualizer = if (name in listOf("silent", "plain", "detail")) {
-            name
-        } else {
+        if (name !in listOf("silent", "plain", "detail")) {
             throw XProcError.xiCliInvalidValue("--visualizer", arg).exception()
+        }
+
+        builder.visualizerName.set(name)
+        if (voptions.isEmpty()) {
+            builder.visualizerName.options = null
+        } else {
+            builder.visualizerName.options = voptions
         }
     }
 
-    internal inner class ArgumentDescription(val name: String,
-                                    val synonyms: List<String>,
-                                    val type: ArgumentType,
-                                    val default: String? = null,
-                                    val valid: List<String> = listOf(),
-                                    val process: (String) -> Unit)
-
+    internal class ArgumentDescription(val name: String,
+                                       val synonyms: List<String>,
+                                       val type: ArgumentType,
+                                       val default: String? = null,
+                                       val valid: List<String> = listOf(),
+                                       val process: (String) -> Unit)
     internal enum class ArgumentType {
         STRING, URI, FILE, EXISTING_FILE, DIRECTORY, BOOLEAN
     }

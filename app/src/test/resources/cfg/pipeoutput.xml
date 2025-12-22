@@ -1,0 +1,5 @@
+<cc:xml-calabash xmlns:cc="https://xmlcalabash.com/ns/configuration">
+  <cc:pipeline href="/opt/pipelines/pipe.xpl">
+    <cc:output port="result" filespec="out%02d.xml"/>
+  </cc:pipeline>
+</cc:xml-calabash>

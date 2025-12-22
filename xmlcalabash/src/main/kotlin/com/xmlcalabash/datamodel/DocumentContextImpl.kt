@@ -10,23 +10,16 @@ import net.sf.saxon.s9api.Processor
 import net.sf.saxon.s9api.XPathCompiler
 import net.sf.saxon.s9api.XdmNode
 import java.net.URI
-import kotlin.collections.iterator
 
-class DocumentContextImpl(private val saxonConfig: SaxonConfiguration): DocumentContext {
+class DocumentContextImpl(override val processor: Processor): DocumentContext {
     private var _location: Location = Location.NULL
     private val _inscopeNamespaces = mutableMapOf<String, NamespaceUri>()
-    override val processor = saxonConfig.processor
 
-    /*
+    constructor(config: SaxonConfiguration): this(config.processor)
+
     constructor(node: XdmNode): this(node.processor) {
         updateWith(node)
     }
-
-    constructor(processor: Processor, location: Location, nsBindings: Map<String,NamespaceUri>): this(processor) {
-        _location = location
-        _inscopeNamespaces.putAll(nsBindings)
-    }
-     */
 
     override val location: Location
         get() = _location
@@ -37,28 +30,32 @@ class DocumentContextImpl(private val saxonConfig: SaxonConfiguration): Document
     override val inscopeNamespaces: Map<String, NamespaceUri> = _inscopeNamespaces
 
     override fun copy(): DocumentContext {
-        val context = DocumentContextImpl(saxonConfig)
+        val context = DocumentContextImpl(processor)
         context._location = _location
         context._inscopeNamespaces.putAll(_inscopeNamespaces)
         return context
     }
 
     override fun copy(newConfig: SaxonConfiguration): DocumentContext {
-        val context = DocumentContextImpl(newConfig)
+        return copy(newConfig.processor)
+    }
+
+    override fun copy(newProcessor: Processor): DocumentContext {
+        val context = DocumentContextImpl(processor)
         context._location = _location
         context._inscopeNamespaces.putAll(_inscopeNamespaces)
         return context
     }
 
     override fun with(location: Location): DocumentContext {
-        val context = DocumentContextImpl(saxonConfig)
+        val context = DocumentContextImpl(processor)
         context._location = location
         context._inscopeNamespaces.putAll(_inscopeNamespaces)
         return context
     }
 
     override fun with(prefix: String, uri: NamespaceUri): DocumentContext {
-        val context = DocumentContextImpl(saxonConfig)
+        val context = DocumentContextImpl(processor)
         context._location = location
         context._inscopeNamespaces.putAll(_inscopeNamespaces)
         context._inscopeNamespaces[prefix] = uri

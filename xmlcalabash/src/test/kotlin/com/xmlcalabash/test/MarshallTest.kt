@@ -1,7 +1,7 @@
 package com.xmlcalabash.test
 
-import com.xmlcalabash.XmlCalabashBuilder
 import com.xmlcalabash.config.StepConfiguration
+import com.xmlcalabash.XmlCalabashBuilder
 import com.xmlcalabash.documents.DocumentProperties
 import com.xmlcalabash.documents.XProcBinaryDocument
 import com.xmlcalabash.exceptions.XProcError

@@ -1,0 +1,7 @@
+<cc:xml-calabash xmlns:cc="https://xmlcalabash.com/ns/configuration">
+  <cc:inline trim-whitespace="true"/>
+  <cc:system-property name="CATDEBUG" value="4"/>
+  <cc:system-property name="xxx" value="yyy"/>
+  <cc:visualizer name="plain" thing="value" cc:other="no-namespaces"/>
+  <cc:threading count="7"/>
+</cc:xml-calabash>

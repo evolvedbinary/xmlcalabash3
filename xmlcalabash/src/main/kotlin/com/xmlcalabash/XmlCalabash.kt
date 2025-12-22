@@ -1,5 +1,6 @@
 package com.xmlcalabash
 
+import com.xmlcalabash.XmlCalabashBuilder
 import com.xmlcalabash.datamodel.CompileEnvironment
 import com.xmlcalabash.datamodel.PipelineBuilder
 import com.xmlcalabash.parsers.xpl.XplParser

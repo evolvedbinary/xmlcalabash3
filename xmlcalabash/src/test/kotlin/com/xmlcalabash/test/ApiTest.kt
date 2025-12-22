@@ -1,8 +1,8 @@
 package com.xmlcalabash.test
 
 import com.xmlcalabash.XmlCalabash
-import com.xmlcalabash.XmlCalabashBuilder
 import com.xmlcalabash.api.MessageReporter
+import com.xmlcalabash.XmlCalabashBuilder
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.io.DocumentManager
 import com.xmlcalabash.io.MediaType
@@ -79,13 +79,13 @@ class ApiTest {
 
     @Test
     fun runIdentityWithCustomDocumentManager() {
-        val xmlcalabashBuilder = XmlCalabashBuilder()
+        val invocation = XmlCalabashBuilder()
         
         val resolver = XMLResolver()
         val manager = DocumentManager(resolver)
-        xmlcalabashBuilder.setDocumentManager(manager)
+        invocation.documentManager.set(manager)
 
-        val xmlcalabash = xmlcalabashBuilder.build()
+        val xmlcalabash = invocation.build()
         processor = xmlcalabash.saxonConfiguration.processor
 
         val parser = xmlcalabash.newXProcParser()
@@ -151,8 +151,8 @@ class ApiTest {
         val reporter = MyMessageReporter(printer)
 
         val xmlcalabashBuilder = XmlCalabashBuilder()
-        xmlcalabashBuilder.setMessagePrinter(printer)
-        xmlcalabashBuilder.setMessageReporter(reporter)
+        xmlcalabashBuilder.messagePrinter.set(printer)
+        xmlcalabashBuilder.messageReporter.set(reporter)
 
         val xmlcalabash = xmlcalabashBuilder.build()
         processor = xmlcalabash.saxonConfiguration.processor
@@ -179,8 +179,8 @@ class ApiTest {
         val reporter = MyMessageReporter(printer)
 
         val xmlcalabashBuilder = XmlCalabashBuilder()
-        xmlcalabashBuilder.setMessagePrinter(printer)
-        xmlcalabashBuilder.setMessageReporter(reporter)
+        xmlcalabashBuilder.messagePrinter.set(printer)
+        xmlcalabashBuilder.messageReporter.set(reporter)
 
         val xmlcalabash = xmlcalabashBuilder.build()
         processor = xmlcalabash.saxonConfiguration.processor

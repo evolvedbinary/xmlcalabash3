@@ -1,0 +1,9 @@
+<cc:xml-calabash xmlns:cc="https://xmlcalabash.com/ns/configuration"
+                 saxon-configuration="/path/to/saxonConfig.xml"
+                 licensed="true"
+                 verbosity="warn"
+                 piped-io="true"
+                 try-namespaces="true"
+                 use-location-hints="false"
+                 validation-mode="lax"
+                 default-xquery-processor="http://example.com"/>

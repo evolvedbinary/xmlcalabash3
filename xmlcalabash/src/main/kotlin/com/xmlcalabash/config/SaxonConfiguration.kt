@@ -5,8 +5,6 @@ import com.xmlcalabash.datamodel.XProcFunctionLibrary
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.exceptions.XProcException
 import com.xmlcalabash.functions.*
-import com.xmlcalabash.namespace.NsCx
-import com.xmlcalabash.namespace.NsP
 import com.xmlcalabash.spi.Configurer
 import net.sf.saxon.Configuration
 import net.sf.saxon.functions.FunctionLibrary

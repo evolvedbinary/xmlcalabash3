@@ -34,17 +34,17 @@ class RdfLoader(): ContentTypeLoader, ContentTypeLoaderProvider {
         )
     }
 
-    override fun load(context: StepConfiguration, uri: URI?, inputStream: InputStream, contentType: MediaType, inputCharset: Charset?): XProcDocument {
+    override fun load(context: StepConfiguration, uri: URI?, stream: InputStream, contentType: MediaType, charset: Charset?): XProcDocument {
         val lang = RdfConverter.rdfLang(contentType)
-        val stream = if (lang == Lang.RDFTHRIFT) {
-            inputStream
+        val rdfStream = if (lang == Lang.RDFTHRIFT) {
+            stream
         } else {
-            val input = DocumentLoader.readTextStream(inputStream, inputCharset)
+            val input = BasicDocumentLoader.readTextStream(stream, charset)
             ByteArrayInputStream(input.toByteArray(StandardCharsets.UTF_8))
         }
 
         val dataset = DatasetFactory.create()
-        val parser = RDFParser.create().base(uri?.toString()).source(stream).lang(lang).build()
+        val parser = RDFParser.create().base(uri?.toString()).source(rdfStream).lang(lang).build()
         parser.parse(dataset)
 
         val writer = RDFWriter.create().source(dataset).lang(Lang.RDFTHRIFT).build()

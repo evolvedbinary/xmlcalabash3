@@ -178,7 +178,31 @@ executable. Making SVG diagrams of pipelines or graphs requires Graphviz.</para>
 <para>The XSL stylesheet that will be used to style pipeline and graph output.</para>
 </listitem>
 </varlistentry>
+<varlistentry><term><tag class="attribute">output</tag> (directory)</term>
+<listitem>
+<para>The default location for Graphviz output. Must be a directory.</para>
+</listitem>
+</varlistentry>
 </variablelist>
+</section>
+
+<section xml:id="cc.initializer">
+<info>
+<?db filename="cc-initializer"?>
+<title>cc:initializer</title>
+</info>
+
+<para>Loads an extension class.</para>
+
+<rng-pattern schema="../../build/xml-calabash.rng"
+             name="cc.initializer"/>
+
+<para>XML Calabash will attempt to instantiate the named class and pass it to
+Saxon during initialization.</para>
+
+<para>If <tag class="attribute">ignore-errors</tag> is false, failing to load
+the class will throw an exception.</para>
+
 </section>
 
 <section xml:id="cc.inline">
@@ -266,6 +290,30 @@ server metadata) that end with
 <code>application/xml</code> content type.</para>
 </section>
 
+<section xml:id="cc.namespace">
+<info>
+<?db filename="cc-namespace"?>
+<title>cc:namespace</title>
+</info>
+
+<para>Define additional namespace bindings for command line and configuration
+file option values.</para>
+
+<rng-pattern schema="../../build/xml-calabash.rng"
+             name="cc.namespace"/>
+
+<para>This option updates the set of namespaces that XML Calabash uses when evaluating options
+passed on the command line or in the configuration file. This includes both the option names
+and the expressions that define them.</para>
+
+<important>
+<para>This setting has no effect on the in-scope namespaces within a pipeline or
+within the documents accessed by the pipeline. This is exclusively about evaluating the
+names and values of options before the pipeline begins executing.</para>
+</important>
+
+</section>
+
 <section xml:id="cc.paged-media">
 <info>
 <?db filename="cc-paged-media"?>
@@ -303,7 +351,95 @@ and
 <tag>p:xsl-formatter</tag>
 in the <citetitle xlink:href="../../reference/current">Reference Guide</citetitle>
 for details.</para>
+</section>
 
+<section xml:id="cc.pipeline">
+<info>
+<?db filename="cc-pipeline"?>
+<title>cc:pipeline</title>
+</info>
+
+<para>Define a default pipeline.</para>
+
+<rng-pattern schema="../../build/xml-calabash.rng"
+             name="cc.pipeline"/>
+
+<para>If no pipeline is supplied on the command line, the pipeline identified by the
+<tag class="attribute">href</tag> attribute will be run. If a <tag class="attribute">step</tag>
+is specified, then the pipeline must be a <tag>p:library</tag>; the named step will
+be executed.</para>
+
+<para>A pipeline can also provide default inputs, outputs, and options. Each of these
+applies <emphasis>only</emphasis> if an anternative input, output, or option is specified
+on the command line.</para>
+
+<section xml:id="cc.input">
+<info>
+<?db filename="cc-input"?>
+<title>cc:input</title>
+</info>
+
+<para>Define a set of default pipeline inputs.</para>
+
+<rng-pattern schema="../../build/xml-calabash.rng"
+             name="cc.input"/>
+
+<para>If <tag class="attribute">href</tag> is specified, the document identified by that
+URI will be loaded. The <tag class="attribute">content-type</tag> and
+<tag class="attribute">encoding</tag> attributes are forbidden in this case.</para>
+
+<para>Alternatively, the input may be provided inline. The 
+<tag class="attribute">content-type</tag> and <tag class="attribute">encoding</tag> attributes
+determine how the content will be parsed. This is analagous to how <tag>p:inline</tag>
+wroks.</para>
+
+<note>
+<para>The inline trim-whitespace flag does not apply to inputs in the configuration
+file.</para>
+</note>
+
+</section>
+
+<section xml:id="cc.output">
+<info>
+<?db filename="cc-output"?>
+<title>cc:output</title>
+</info>
+
+<para>Define a set of default pipeline outputs.</para>
+
+<rng-pattern schema="../../build/xml-calabash.rng"
+             name="cc.output"/>
+
+<para>The format of the <tag class="attribute">filespec</tag> attribute
+is discussed in the section about the <link linkend="cli-output">--output</link> option.
+</para>
+
+</section>
+
+<section xml:id="cc.option">
+<info>
+<?db filename="cc-option"?>
+<title>cc:option</title>
+</info>
+
+<para>Define a set of default pipeline options.</para>
+
+<rng-pattern schema="../../build/xml-calabash.rng"
+             name="cc.option"/>
+
+<para>Exactly one of <tag class="attribute">value</tag>, <tag class="attribute">select</tag>
+or inline content must be provided. If <tag class="attribute">value</tag> is specified, it
+will be used as the (untyped atomic) value for the option. 
+If <tag class="attribute">select</tag> is specified, it
+will be treated as an XPath expression and evaluated to obtain the value. The expression
+is evaluated without a context item.</para>
+
+<para>If the value is provided inline. The <tag
+class="attribute">content-type</tag> and <tag class="attribute">encoding</tag>
+attributes determine how the content will be parsed. This is analagous to how
+<tag>p:inline</tag> wroks.</para>
+</section>
 </section>
 
 <section xml:id="cc.proxy">
@@ -600,12 +736,6 @@ thread per processor will be allocated.</para>
 </listitem>
 </varlistentry>
 </variablelist>
-
-<para>Alternatively, the XML Schema document (or documents) can be children of
-the <tag>cc:xml-schema</tag> element. The RELAX NG grammar for configuration
-files will allow any element as a child of <tag>cc:xml-schema</tag>, but in practice
-only <tag>xsd:schema</tag> elements are allowed.
-</para>
 </section>
 
 <section xml:id="cc.xquery-processor">
