@@ -125,33 +125,40 @@ class TestDriver(val testOptions: TestOptions, val exclusions: Map<String, Strin
         // licensed/unlicensed
         // eager/notEager
         val builder = XmlCalabashBuilder()
-        builder.setDebug(testOptions.debug)
+        builder.debug.set(testOptions.debug)
 
-        val eagerLicensed = builder
-            .setLicensed(true)
-            .setEagerEvaluation(true)
-            .setUniqueInlineUris(false)
-            .setAssertions(AssertionsLevel.WARNING)
-            .setMessageReporter(BufferingMessageReporter(100, NopMessageReporter()))
-            .setGraphviz(File("/opt/homebrew/bin/dot")) // FIXME:
-            .build()
+        val eagerLicensedInvocation = XmlCalabashBuilder()
+        eagerLicensedInvocation.licensed.set(true)
+        eagerLicensedInvocation.eagerEvaluation.set(true)
+        eagerLicensedInvocation.uniqueInlineUris.set(false)
+        eagerLicensedInvocation.assertions.set(AssertionsLevel.WARNING)
+        eagerLicensedInvocation.messageReporter.set(BufferingMessageReporter(100, NopMessageReporter()))
+        eagerLicensedInvocation.graphviz.set(File("/opt/homebrew/bin/dot"))
+        eagerLicensedInvocation.update(builder)
+        val eagerLicensed = eagerLicensedInvocation.build()
 
-        val lazyLicensed = builder
-            .setEagerEvaluation(false)
-            .setMessageReporter(BufferingMessageReporter(100, NopMessageReporter()))
-            .build()
+        val lazyLicensedInvocation = XmlCalabashBuilder()
+        lazyLicensedInvocation.eagerEvaluation.set(false)
+        lazyLicensedInvocation.uniqueInlineUris.set(false)
+        lazyLicensedInvocation.messageReporter.set(BufferingMessageReporter(100, NopMessageReporter()))
+        lazyLicensedInvocation.update(builder)
+        val lazyLicensed = lazyLicensedInvocation.build()
 
-        val eagerUnlicensed = builder
-            .setLicensed(false)
-            .setEagerEvaluation(true)
-            .setMessageReporter(BufferingMessageReporter(100, NopMessageReporter()))
-            .build()
+        val eagerUnlicensedInvocation = XmlCalabashBuilder()
+        eagerUnlicensedInvocation.licensed.set(true)
+        eagerUnlicensedInvocation.eagerEvaluation.set(true)
+        eagerUnlicensedInvocation.uniqueInlineUris.set(false)
+        eagerUnlicensedInvocation.messageReporter.set(BufferingMessageReporter(100, NopMessageReporter()))
+        eagerUnlicensedInvocation.update(builder)
+        val eagerUnlicensed = eagerUnlicensedInvocation.build()
 
-        val lazyUnlicensed = XmlCalabashBuilder()
-            .setLicensed(false)
-            .setEagerEvaluation(false)
-            .setMessageReporter(BufferingMessageReporter(100, NopMessageReporter()))
-            .build()
+        val lazyUnlicensedInvocation = XmlCalabashBuilder()
+        lazyUnlicensedInvocation.licensed.set(false)
+        lazyUnlicensedInvocation.eagerEvaluation.set(false)
+        lazyUnlicensedInvocation.uniqueInlineUris.set(false)
+        lazyUnlicensedInvocation.messageReporter.set(BufferingMessageReporter(100, NopMessageReporter()))
+        lazyUnlicensedInvocation.update(builder)
+        val lazyUnlicensed = lazyUnlicensedInvocation.build()
 
         val saxonConfig = eagerLicensed.saxonConfiguration
         println("Running tests with ${saxonConfig.processor.saxonEdition} version ${saxonConfig.processor.saxonProductVersion}")
@@ -161,16 +168,16 @@ class TestDriver(val testOptions: TestOptions, val exclusions: Map<String, Strin
 
         var width = 0
         for (testFile in allTests) {
-            var case = loadTest(lazyLicensed, testFile)
+            var case = loadTest(lazyUnlicensedInvocation, lazyLicensed, testFile)
             if (case.features.contains("no-psvi-support")) {
                 if (case.features.contains("eager-eval")) {
-                    case = loadTest(eagerUnlicensed, testFile)
+                    case = loadTest(eagerUnlicensedInvocation, eagerUnlicensed, testFile)
                 } else {
-                    case = loadTest(lazyUnlicensed, testFile)
+                    case = loadTest(lazyUnlicensedInvocation, lazyUnlicensed, testFile)
                 }
             } else {
                 if (case.features.contains("eager-eval")) {
-                    case = loadTest(eagerLicensed, testFile)
+                    case = loadTest(eagerLicensedInvocation, eagerLicensed, testFile)
                 }
             }
 
@@ -258,8 +265,8 @@ class TestDriver(val testOptions: TestOptions, val exclusions: Map<String, Strin
         }
     }
 
-    private fun loadTest(xmlCalabash: XmlCalabash, testFile: File): TestCase {
-        val case = TestCase(xmlCalabash, testOptions, testFile)
+    private fun loadTest(builder: XmlCalabashBuilder, xmlCalabash: XmlCalabash, testFile: File): TestCase {
+        val case = TestCase(builder, xmlCalabash, testOptions, testFile)
         case.load()
         return case
     }

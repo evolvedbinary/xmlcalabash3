@@ -1,9 +1,9 @@
 package com.xmlcalabash.test;
 
 import com.xmlcalabash.XmlCalabash;
-import com.xmlcalabash.XmlCalabashBuilder;
 import com.xmlcalabash.api.MessageReporter;
 import com.xmlcalabash.config.ConfigurationLoader;
+import com.xmlcalabash.XmlCalabashBuilder;
 import com.xmlcalabash.datamodel.DeclareStepInstruction;
 import com.xmlcalabash.documents.DocumentProperties;
 import com.xmlcalabash.documents.XProcDocument;
@@ -90,8 +90,7 @@ public class JavaApiTest {
     }
 
     private XmlCalabash setupXmlCalabash() {
-        XmlCalabashBuilder builder = new XmlCalabashBuilder();
-        XmlCalabash xmlCalabash = builder.build();
+        XmlCalabash xmlCalabash = (new XmlCalabashBuilder()).build();
         processor = xmlCalabash.getSaxonConfiguration().getProcessor();
         return xmlCalabash;
     }
@@ -116,13 +115,13 @@ public class JavaApiTest {
 
     @Test
     public void runIdentityWithCustomDocumentManager() {
-        XmlCalabashBuilder builder = new XmlCalabashBuilder();
+        XmlCalabashBuilder invocation = new XmlCalabashBuilder();
 
         XMLResolver resolver = new XMLResolver();
         DocumentManager manager = new DocumentManager(resolver);
-        builder.setDocumentManager(manager);
+        invocation.getDocumentManager().set(manager);
 
-        XmlCalabash xmlCalabash = builder.build();
+        XmlCalabash xmlCalabash = invocation.build();
         processor = xmlCalabash.getSaxonConfiguration().getProcessor();
 
         XplParser parser = xmlCalabash.newXProcParser();
@@ -198,11 +197,11 @@ public class JavaApiTest {
         MessagePrinter printer = new MyMessagePrinter();
         MessageReporter reporter = new MyMessageReporter(printer);
 
-        XmlCalabashBuilder builder = new XmlCalabashBuilder();
-        builder.setMessagePrinter(printer);
-        builder.setMessageReporter(reporter);
+        XmlCalabashBuilder invocation = new XmlCalabashBuilder();
+        invocation.getMessagePrinter().set(printer);
+        invocation.getMessageReporter().set(reporter);
 
-        XmlCalabash xmlCalabash = builder.build();
+        XmlCalabash xmlCalabash = invocation.build();
         processor = xmlCalabash.getSaxonConfiguration().getProcessor();
 
         XplParser parser = xmlCalabash.newXProcParser();
@@ -226,11 +225,11 @@ public class JavaApiTest {
         MessagePrinter printer = new MyMessagePrinter();
         MessageReporter reporter = new MyMessageReporter(printer);
 
-        XmlCalabashBuilder builder = new XmlCalabashBuilder();
-        builder.setMessagePrinter(printer);
-        builder.setMessageReporter(reporter);
+        XmlCalabashBuilder invocation = new XmlCalabashBuilder();
+        invocation.getMessagePrinter().set(printer);
+        invocation.getMessageReporter().set(reporter);
 
-        XmlCalabash xmlCalabash = builder.build();
+        XmlCalabash xmlCalabash = invocation.build();
         processor = xmlCalabash.getSaxonConfiguration().getProcessor();
 
         XplParser parser = xmlCalabash.newXProcParser();
@@ -255,11 +254,11 @@ public class JavaApiTest {
 
     @Test
     public void loadConfiguration() {
-        XmlCalabashBuilder builder = new XmlCalabashBuilder();
-        ConfigurationLoader loader = new ConfigurationLoader(builder);
-        loader.load(UriUtils.Companion.cwdAsUri().resolve("src/test/resources/configfile.xml"));
+        XmlCalabashBuilder invocation = new XmlCalabashBuilder();
+        ConfigurationLoader loader = new ConfigurationLoader();
+        invocation.update(loader.load(UriUtils.Companion.cwdAsUri().resolve("src/test/resources/configfile.xml")));
 
-        XmlCalabash xmlCalabash = builder.build();
+        XmlCalabash xmlCalabash = invocation.build();
         processor = xmlCalabash.getSaxonConfiguration().getProcessor();
 
         XplParser parser = xmlCalabash.newXProcParser();
@@ -279,9 +278,9 @@ public class JavaApiTest {
 
     @Test
     public void runXsltWithACustomFunction() {
-        XmlCalabashBuilder builder = new XmlCalabashBuilder();
-        builder.addConfigurer(new MyConfigurer());
-        XmlCalabash xmlCalabash = builder.build();
+        XmlCalabashBuilder invocation = new XmlCalabashBuilder();
+        invocation.getConfigurers().add(new MyConfigurer());
+        XmlCalabash xmlCalabash = invocation.build();
 
         processor = xmlCalabash.getSaxonConfiguration().getProcessor();
 
@@ -352,10 +351,10 @@ public class JavaApiTest {
         XMLResolver resolver = new XMLResolver(new XMLResolverConfiguration(catalogFiles));
         DocumentManager manager = new DocumentManager(resolver);
 
-        XmlCalabashBuilder builder = new XmlCalabashBuilder();
-        builder.setDocumentManager(manager);
+        XmlCalabashBuilder invocation = new XmlCalabashBuilder();
+        invocation.getDocumentManager().set(manager);
 
-        XmlCalabash xmlCalabash = builder.build();
+        XmlCalabash xmlCalabash = invocation.build();
         processor = xmlCalabash.getSaxonConfiguration().getProcessor();
 
         XplParser parser = xmlCalabash.newXProcParser();

@@ -1,0 +1,6 @@
+<cc:xml-calabash xmlns:cc="https://xmlcalabash.com/ns/configuration">
+  <cc:catalog href="file:/tmp/catalog1.xml"/>
+  <cc:xml-schema href="file:/tmp/schema1.xsd"/>
+  <cc:catalog href="file:/other/catalog2.xml"/>
+  <cc:xml-schema href="http://example.com/schema.xsd"/>
+</cc:xml-calabash>

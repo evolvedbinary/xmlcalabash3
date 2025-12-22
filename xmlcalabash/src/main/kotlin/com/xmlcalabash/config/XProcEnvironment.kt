@@ -13,7 +13,6 @@ import com.xmlcalabash.runtime.parameters.StepParameters
 import com.xmlcalabash.util.AssertionsLevel
 import net.sf.saxon.s9api.QName
 import java.net.URI
-import javax.activation.MimetypesFileTypeMap
 
 interface XProcEnvironment {
     val episode: String

@@ -317,6 +317,17 @@ open class XProcDocument internal constructor() {
         DocumentWriter(this, out, defProp).write()
     }
 
+    override fun hashCode(): Int {
+        return id.hashCode()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (other is XProcDocument) {
+            return id == other.id
+        }
+        return false
+    }
+
     override fun toString(): String {
         return if (contentType != null) {
             "${contentType} document"

@@ -888,6 +888,17 @@ and those defined by Java using a
 <link xlink:href="https://docs.oracle.com/javase/7/docs/api/javax/activation/MimetypesFileTypeMap.html"
 >.mime.types</link> file or other mechanism.</para>
 
+<para>If the “extension” contains a slash (“/”), the query returns all of the extensions
+that are associated with a mimetype that contains the string provided. For example:</para>
+
+<screen><userinput><prompt>$</prompt> xmlcalabash info mimetype application/xslt</userinput>
+<computeroutput>Filename extensions for content types containing "application/xslt":
+        .xsl is application/xslt+xml
+        .xslt is application/xslt+xml
+Additional mappings may have been defined in the JVM, for example with a .mime.types file.
+See https://docs.oracle.com/javase/7/docs/api/javax/activation/MimetypesFileTypeMap.html
+Use the 'info mimetype &lt;ext&gt;' command to query the content type of a particular &lt;ext&gt;.</computeroutput></screen>
+
 </section>
 </section>
 </chapter>

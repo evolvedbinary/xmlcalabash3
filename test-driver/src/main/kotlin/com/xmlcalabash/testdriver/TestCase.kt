@@ -1,6 +1,7 @@
 package com.xmlcalabash.testdriver
 
 import com.xmlcalabash.XmlCalabash
+import com.xmlcalabash.XmlCalabashBuilder
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.exceptions.XProcException
@@ -33,7 +34,7 @@ import java.util.*
 import java.util.function.Supplier
 import javax.xml.transform.sax.SAXSource
 
-class TestCase(val xmlCalabash: XmlCalabash, val testOptions: TestOptions, val testFile: File) {
+class TestCase(val builder: XmlCalabashBuilder, val xmlCalabash: XmlCalabash, val testOptions: TestOptions, val testFile: File) {
     companion object {
         val isWindows = System.getProperty("os.name").startsWith("Windows")
         val CODE = QName("code")
@@ -53,8 +54,8 @@ class TestCase(val xmlCalabash: XmlCalabash, val testOptions: TestOptions, val t
         val ENCODING = QName("encoding")
     }
 
-    val builder = xmlCalabash.newPipelineBuilder()
-    val testConfig = builder.stepConfig.copy()
+    val pipelineBuilder = xmlCalabash.newPipelineBuilder()
+    val testConfig = pipelineBuilder.stepConfig.copy()
     val messageReporter = testConfig.environment.messageReporter as BufferingMessageReporter
 
     var loaded = false
@@ -144,7 +145,7 @@ class TestCase(val xmlCalabash: XmlCalabash, val testOptions: TestOptions, val t
         }
 
         try {
-            val parser = xmlCalabash.newXProcParser(builder)
+            val parser = xmlCalabash.newXProcParser(pipelineBuilder)
             for ((name, value) in staticOptions) {
                 parser.builder.option(name, value)
             }
@@ -192,9 +193,9 @@ class TestCase(val xmlCalabash: XmlCalabash, val testOptions: TestOptions, val t
 
             if (testOptions.outputGraph != null) {
                 val description = runtime.description()
-                val vis = VisualizerOutput(xmlCalabash, description, testOptions.outputGraph!!)
+                val vis = VisualizerOutput(builder, xmlCalabash, description, File(testOptions.outputGraph!!))
                 vis.xml()
-                if (xmlCalabash.config.graphviz == null) {
+                if (builder.graphviz.get() == null) {
                     logger.warn { "Cannot create SVG descriptions, graphviz is not configured" }
                 } else {
                     vis.svg()
@@ -533,7 +534,7 @@ class TestCase(val xmlCalabash: XmlCalabash, val testOptions: TestOptions, val t
     }
 
     private fun loadOption(option: XdmNode) {
-        val localConfig = builder.stepConfig.copy()
+        val localConfig = pipelineBuilder.stepConfig.copy()
         localConfig.updateWith(option)
         localConfig.updateWith("xs", NsXs.namespace)
 

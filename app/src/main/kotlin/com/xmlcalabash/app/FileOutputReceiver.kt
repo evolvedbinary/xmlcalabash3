@@ -1,6 +1,7 @@
 package com.xmlcalabash.app
 
 import com.xmlcalabash.XmlCalabash
+import com.xmlcalabash.config.XmlCalabashOutput
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.io.DocumentWriter
 import com.xmlcalabash.runtime.api.RuntimePort
@@ -17,7 +18,7 @@ import kotlin.collections.get
 class FileOutputReceiver(xmlCalabash: XmlCalabash,
                          processor: Processor,
                          outputManifold: Map<String,RuntimePort>,
-                         val files: Map<String,OutputFilename>,
+                         val files: Map<String, XmlCalabashOutput>,
                          val stdout: String?
 ): DefaultOutputReceiver(xmlCalabash, processor, outputManifold, outputManifold.keys - files.keys) {
 

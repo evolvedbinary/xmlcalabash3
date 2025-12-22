@@ -1,4 +1,4 @@
-package com.xmlcalabash.app
+package com.xmlcalabash.config
 
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.util.UriUtils
@@ -30,7 +30,7 @@ import java.net.URI
  *
  * @param pattern the pattern string.
  */
-class OutputFilename(val pattern: String) {
+class XmlCalabashOutput(val pattern: String) {
     private val regex = "(%%)|(%[0-9]*[odxX]?)".toRegex()
     private var nextId = 1
     private var currentFilename: String = pattern
@@ -118,5 +118,16 @@ class OutputFilename(val pattern: String) {
         }
 
         return file
+    }
+
+    override fun hashCode(): Int {
+        return pattern.hashCode()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+        other as XmlCalabashOutput
+        return pattern == other.pattern
     }
 }

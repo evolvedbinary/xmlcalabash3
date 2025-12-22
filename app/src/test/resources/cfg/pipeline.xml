@@ -1,0 +1,3 @@
+<cc:xml-calabash xmlns:cc="https://xmlcalabash.com/ns/configuration">
+  <cc:pipeline href="/opt/pipelines/pipe.xpl"/>
+</cc:xml-calabash>

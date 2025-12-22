@@ -1,7 +1,7 @@
 package com.xmlcalabash.api
 
-import com.xmlcalabash.XmlCalabashBuilder
 import com.xmlcalabash.config.ConfigurationLoader
+import com.xmlcalabash.XmlCalabashBuilder
 import com.xmlcalabash.exceptions.XProcException
 import com.xmlcalabash.namespace.NsErr
 import com.xmlcalabash.util.UriUtils
@@ -18,15 +18,16 @@ class RegisterSaxonFunctions(): Initializer {
 
         val libraryUri = System.getProperty("com.xmlcalabash.pipelines")
         if (libraryUri != null) {
-            val builder = XmlCalabashBuilder()
+            val invocation = XmlCalabashBuilder()
 
             val calabashConfig = System.getProperty("com.xmlcalabash.configuration")
             if (calabashConfig != null) {
-                val loader = ConfigurationLoader(builder)
-                loader.load(UriUtils.cwdAsUri().resolve(calabashConfig))
+                val loader = ConfigurationLoader()
+                val configured = loader.load(UriUtils.cwdAsUri().resolve(calabashConfig))
+                invocation.update(configured)
             }
 
-            val xmlCalabash = builder.build(config)
+            val xmlCalabash = invocation.build(config)
             val xplParser = xmlCalabash.newXProcParser()
             try {
                 val library = xplParser.parseLibrary(libraryUri)

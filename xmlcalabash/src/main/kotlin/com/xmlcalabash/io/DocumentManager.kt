@@ -1,5 +1,6 @@
 package com.xmlcalabash.io
 
+import com.xmlcalabash.XmlCalabashBuilder
 import com.xmlcalabash.config.StepConfiguration
 import com.xmlcalabash.documents.DocumentProperties
 import com.xmlcalabash.documents.XProcBinaryDocument
@@ -19,6 +20,7 @@ import org.xml.sax.EntityResolver
 import org.xml.sax.InputSource
 import org.xml.sax.ext.EntityResolver2
 import org.xmlresolver.ResolverConstants
+import org.xmlresolver.ResolverFeature
 import org.xmlresolver.ResourceRequestImpl
 import org.xmlresolver.XMLResolver
 import org.xmlresolver.sources.ResolverSAXSource
@@ -34,6 +36,13 @@ import javax.xml.transform.stream.StreamSource
 
 open class DocumentManager(val resolver: XMLResolver): EntityResolver, EntityResolver2, URIResolver, ResourceResolver, ModuleURIResolver {
     constructor(): this(XMLResolver())
+
+    constructor(builder: XmlCalabashBuilder): this(XMLResolver()) {
+        val catalogs = builder.xmlCatalogs.getOrDefault() ?: emptyList()
+        if (catalogs.isNotEmpty()) {
+            resolver.configuration.setFeature(ResolverFeature.CATALOG_ADDITIONS, catalogs.map { it.toString() })
+        }
+    }
 
     constructor(manager: DocumentManager): this(manager.resolver) {
         prefixMap.putAll(manager.prefixMap)

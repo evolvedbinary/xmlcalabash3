@@ -1,0 +1,7 @@
+<!-- -*- nxml -*- -->
+<cc:xml-calabash xmlns:cc="https://xmlcalabash.com/ns/configuration">
+  <cc:pipeline href="a-to-ba.xpl">
+    <cc:input port="source" href="c.xml"/>
+    <cc:option name="wrap" value="c"/>
+  </cc:pipeline>
+</cc:xml-calabash>

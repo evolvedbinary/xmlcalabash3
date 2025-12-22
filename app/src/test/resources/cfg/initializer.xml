@@ -1,0 +1,5 @@
+<cc:xml-calabash xmlns:cc="https://xmlcalabash.com/ns/configuration">
+  <cc:initializer class="one" ignore-errors="true"/>
+  <cc:initializer class="two" ignore-errors="false"/>
+  <cc:initializer class="three"/>
+</cc:xml-calabash>

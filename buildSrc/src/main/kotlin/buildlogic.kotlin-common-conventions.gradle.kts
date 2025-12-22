@@ -7,6 +7,10 @@ plugins {
     id("org.jetbrains.kotlin.jvm")
 }
 
+val saxonGroup = project.findProperty("saxonGroup")
+val saxonArtifact = project.findProperty("saxonArtifact")
+val saxonVersion = project.findProperty("saxonVersion")
+
 repositories {
     mavenLocal()
     mavenCentral()
@@ -44,44 +48,35 @@ configurations.all {
   }
 }
 
-/*
-configurations.configureEach {
-  exclude("net.sf.saxon", "Saxon-HE")
-  exclude("com.saxonica", "Saxon-EE")
-}
-*/
-
 dependencies {
-  implementation("net.sf.saxon:Saxon-HE:${project.findProperty("saxonVersion")}")
-  //implementation("com.saxonica:Saxon-PE:${project.findProperty("saxonVersion")}")
-  //implementation("com.saxonica:Saxon-EE:${project.findProperty("saxonVersion")}")
+  implementation("${saxonGroup}:${saxonArtifact}:${saxonVersion}")
   implementation("org.apache.logging.log4j:log4j-api-kotlin:1.4.0")
 
-  distributionClasspath("net.sf.saxon:Saxon-HE:${project.findProperty("saxonVersion")}")
+  distributionClasspath("${saxonGroup}:${saxonArtifact}:${saxonVersion}")
 
   constraints {
     implementation("net.sf.saxon:Saxon-HE") {
       version {
-        strictly ("${project.findProperty("saxonVersion")}")
+        strictly ("${saxonVersion}")
       }
     }
   }
 
-//  constraints {
-//    implementation("com.saxonica:Saxon-PE") {
-//      version {
-//        strictly ("${project.findProperty("saxonVersion")}")
-//      }
-//    }
-//  }
+  constraints {
+    implementation("com.saxonica:Saxon-PE") {
+      version {
+        strictly ("${saxonVersion}")
+      }
+    }
+  }
 
-//  constraints {
-//    implementation("com.saxonica:Saxon-EE") {
-//      version {
-//        strictly ("${project.findProperty("saxonVersion")}")
-//      }
-//    }
-//  }
+  constraints {
+    implementation("com.saxonica:Saxon-EE") {
+      version {
+        strictly ("${saxonVersion}")
+      }
+    }
+  }
 
   testImplementation("org.junit.jupiter:junit-jupiter:5.10.1")
   testRuntimeOnly("org.junit.platform:junit-platform-launcher")

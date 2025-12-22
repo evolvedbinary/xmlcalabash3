@@ -6,6 +6,7 @@ import com.xmlcalabash.namespace.Ns
 import net.sf.saxon.s9api.QName
 
 class DefaultMessageReporter(nextReporter: MessageReporter? = null): NopMessageReporter(nextReporter) {
+
     override fun report(severity: Verbosity, report: () -> Report) {
         if (severity >= threshold) {
             val reified = report()

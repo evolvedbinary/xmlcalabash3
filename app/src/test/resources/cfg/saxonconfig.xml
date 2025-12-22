@@ -1,0 +1,9 @@
+<cc:xml-calabash xmlns:cc="https://xmlcalabash.com/ns/configuration">
+  <cc:saxon-configuration-property
+      name="http://saxon.sf.net/feature/expandAttributeDefaults"
+      value="true"/>
+  <cc:serialization content-type="application/xml" method="xml" indent="true"/>
+  <cc:serialization content-type="application/json" method="json" indent="false"/>
+  <cc:message-reporter buffer-size="99"/>
+  <cc:xquery-processor name="http://example.com/" host="http://localhost:8234"/>
+</cc:xml-calabash>

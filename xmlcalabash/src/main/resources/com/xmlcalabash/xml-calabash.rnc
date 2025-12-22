@@ -8,7 +8,8 @@ cc.xmlCalabash =
         attribute version { "1.0" }?,
         attribute saxon-configuration { text }?,
         attribute licensed { xsd:boolean }?,
-        attribute verbosity { "trace" | "debug" | "progress" | "info" | "warn" | "error" }?,
+        attribute verbosity { "trace" | "debug" | "info" | "warn" | "error" }?,
+        attribute stacktrace { xsd:boolean }?,
         attribute piped-io { xsd:boolean }?,
         attribute try-namespaces { xsd:boolean }?,
         attribute use-location-hints { xsd:boolean }?,
@@ -17,9 +18,12 @@ cc.xmlCalabash =
         (cc.catalog
         | cc.extension
         | cc.graphviz
+        | cc.initializer
         | cc.inline
         | cc.mimetype
+        | cc.namespace
         | cc.pagedMedia
+        | cc.pipeline
         | cc.proxy
         | cc.saxonConfigurationProperty
         | cc.sendMail
@@ -53,6 +57,13 @@ cc.threading =
         empty
     }
 
+cc.initializer =
+    element cc:initializer {
+        attribute class { text },
+        attribute ignore-errors { xsd:boolean }?,
+        empty
+    }
+
 cc.inline =
     element cc:inline {
         attribute trim-whitespace { xsd:boolean },
@@ -69,6 +80,7 @@ cc.graphviz =
     element cc:graphviz {
         attribute dot { text },
         attribute style { text }?,
+        attribute output { text }?,
         empty
     }
 
@@ -145,8 +157,8 @@ cc.visualizer =
 
 cc.xmlSchema =
     element cc:xml-schema {
-        attribute href { xsd:anyURI }?,
-        any-other-name*
+        attribute href { xsd:anyURI },
+        empty
     }
 
 cc.xqueryProcessor =
@@ -162,8 +174,56 @@ cc.catalog =
         empty
     }
 
+cc.pipeline =
+    element cc:pipeline {
+        attribute href { xsd:anyURI },
+        attribute step { xsd:NCName }?,
+        (cc.input | cc.output | cc.option)* 
+    }
+
+cc.input =
+    element cc:input {
+        attribute port { xsd:NCName },
+        attribute href { xsd:anyURI }?,
+        attribute content-type { text }?,
+        attribute encoding { "base64" }?,
+        (text | any-name)?
+    }
+
+cc.output =
+    element cc:output {
+        attribute port { xsd:NCName },
+        attribute filespec { text },
+        empty
+    }
+
+cc.option =
+    element cc:option {
+        attribute name { xsd:QName },
+        # Value and select are mutually exclusive, but the documentation
+        # tableaux doesn't handle that case very well.
+        attribute value { text }?,
+        attribute select { text }?,
+        attribute content-type { text }?,
+        attribute encoding { "base64" }?,
+        (text | any-name)?
+    }
+
+cc.namespace =
+    element cc:namespace {
+        attribute prefix { xsd:NCName },
+        attribute uri { text },
+        empty
+    }
+
 any-other-name =
     element * - cc:* {
+        attribute * { text }*,
+        empty
+    }
+
+any-name =
+    element * {
         attribute * { text }*,
         empty
     }

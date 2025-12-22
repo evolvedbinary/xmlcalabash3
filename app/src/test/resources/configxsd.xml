@@ -1,0 +1,4 @@
+<!-- -*- nxml -*- -->
+<cc:xml-calabash xmlns:cc="https://xmlcalabash.com/ns/configuration">
+  <cc:xml-schema href="testxsd.xsd"/>
+</cc:xml-calabash>

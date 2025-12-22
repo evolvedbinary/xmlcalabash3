@@ -1,764 +1,357 @@
 package com.xmlcalabash
 
 import com.xmlcalabash.api.MessageReporter
+import com.xmlcalabash.config.CfgListValue
+import com.xmlcalabash.config.CfgMapValue
+import com.xmlcalabash.config.CfgValue
 import com.xmlcalabash.config.SaxonConfiguration
+import com.xmlcalabash.config.XmlCalabashInput
+import com.xmlcalabash.config.XmlCalabashOutput
 import com.xmlcalabash.exceptions.DefaultErrorExplanation
 import com.xmlcalabash.exceptions.ErrorExplanation
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.io.DocumentManager
 import com.xmlcalabash.io.MediaType
 import com.xmlcalabash.io.MessagePrinter
-import com.xmlcalabash.namespace.Ns
+import com.xmlcalabash.namespace.NsCx
+import com.xmlcalabash.namespace.NsFn
+import com.xmlcalabash.namespace.NsP
+import com.xmlcalabash.namespace.NsSaxon
+import com.xmlcalabash.namespace.NsXml
+import com.xmlcalabash.namespace.NsXs
 import com.xmlcalabash.spi.Configurer
 import com.xmlcalabash.spi.ConfigurerServiceProvider
 import com.xmlcalabash.spi.PagedMediaManager
 import com.xmlcalabash.spi.PagedMediaServiceProvider
-import com.xmlcalabash.util.*
-import com.xmlcalabash.util.spi.StandardPagedMediaProvider
+import com.xmlcalabash.util.AssertionsLevel
+import com.xmlcalabash.util.DefaultMessagePrinter
+import com.xmlcalabash.util.DefaultMessageReporter
+import com.xmlcalabash.util.ExtensionName
+import com.xmlcalabash.util.Verbosity
 import net.sf.saxon.Configuration
+import net.sf.saxon.om.NamespaceUri
 import net.sf.saxon.s9api.QName
 import net.sf.saxon.s9api.ValidationMode
 import org.apache.logging.log4j.kotlin.logger
-import org.xmlresolver.ResolverFeature
 import java.io.File
 import java.net.URI
-
-/**
- * The builder for constructing an XML Calabash configuration.
- *
- * There's an unfortunate chicken-and-egg problem here. The builder can configure the [DocumentManager] (this
- * allows you to provide your own [DocumentManager] with, perhaps your own [org.xmlresolver.XMLResolver]).
- * But it's also possible (and useful) to be able to configure mime type mappings through the builder.
- * In particular, these may be provided by the [com.xmlcalabash.config.ConfigurationLoader].
- *
- * So the builder needs the document manager and the document manager is configured through the builder.
- * And many users will not need or want to provide a custom [DocumentManager]. So the workaround is that
- * calls to set mimetype mappings are cached by the builder until build time. At build time, the [DocumentManager]
- * is resolved (either it was provided or it's constructed) and those mappings are applied to
- * the [DocumentManager.mimetypesFileTypeMap].
- */
+import kotlin.collections.iterator
 
 class XmlCalabashBuilder {
-    private var saxonConfiguration: SaxonConfiguration? = null
-    private val config = BuiltConfiguration()
+    // XmlCalabashConfiguration
+    val assertions = CfgValue(AssertionsLevel.WARNING)
+    val debug = CfgValue(false)
+    val debugger = CfgValue(false)
+    val documentManager = CfgValue<DocumentManager>()
+    val eagerEvaluation = CfgValue(false)
+    val errorExplanation = CfgValue<ErrorExplanation>()
+    val implicitParameterName = CfgValue<QName>()
+    val inlineTrimWhitespace = CfgValue(false)
+    val licensed = CfgValue(false)
+    val messagePrinter = CfgValue<MessagePrinter>()
+    val messageReporter = CfgValue<MessageReporter>()
+    val other = CfgMapValue<QName, List<Map<QName, String>>>()
+    val pagedMediaManagers = CfgListValue<PagedMediaManager>()
+    val pagedMediaCssProcessors = CfgListValue<URI>()
+    val pagedMediaXslProcessors = CfgListValue<URI>()
+    val configuredXQueryProcessors = CfgMapValue<URI, Map<QName, String>>()
+    val defaultXQueryProcessor = CfgValue<URI>(URI.create("https://saxonica.com/"))
+    val pipedMode = CfgValue(false)
+    val proxies = CfgMapValue<String, String>()
+    val saxonConfigurationFile = CfgValue<File>()
+    val saxonConfigurationProperties = CfgMapValue<String, String>()
+    val sendmail = CfgMapValue<String, String>()
+    val serialization = CfgMapValue<MediaType, Map<QName, String>>()
+    val maxThreadCount = CfgValue(1)
+    val trace = CfgValue<File>()
+    val traceDocuments = CfgValue<File>()
+    val tryNamespaces = CfgValue<Boolean>()
+    val uniqueInlineUris = CfgValue(true)
+    val useLocationHints = CfgValue<Boolean>()
+    val validationMode = CfgValue<ValidationMode>()
+    val verbosity = CfgValue(Verbosity.INFO)
+    val visualizerName = CfgValue("silent")
+    val xmlCatalogs = CfgListValue<URI>()
+    val xmlSchemas = CfgListValue<URI>()
+    val extensions = CfgListValue<ExtensionName>(emptyList())
 
-    internal var _mpt: Double = 0.99999998
-    val mpt: Double
-        get() = _mpt
+    // Pipeline configuration
+    val namespaces = CfgMapValue<String, NamespaceUri>()
+    val command = CfgValue<String>()
+    val commandOptions = CfgListValue<String>()
+    val configurationFile = CfgValue<File>()
+    val inputs = CfgMapValue<String, List<XmlCalabashInput>>()
+    val outputs = CfgMapValue<String, XmlCalabashOutput>()
+    val outputSerialization = CfgMapValue<String, Map<String, String>>()
+    val options = CfgMapValue<String, List<Any>>()
+    val initializers = CfgListValue<Pair<String, Boolean>>()
+    val graphs = CfgValue<File>()
+    val graphStyle = CfgValue<URI>()
+    val graphviz = CfgValue<File>()
+    val explainErrors = CfgValue(false)
+    val stacktrace = CfgValue(false)
+    val go = CfgValue(true)
+    val step = CfgValue<String>()
+    val pipelineUri = CfgValue<URI>()
+    val mimeTypes = CfgMapValue<String, List<String>>()
+    val mpt = CfgValue(0.99999998)
+    val cssFormatter = CfgMapValue<URI, Map<QName, String>>()
+    val xslFormatter = CfgMapValue<URI, Map<QName, String>>()
+    val messageReporterBufferSize = CfgValue(32)
+    val configurers = CfgListValue<Configurer>()
+    val additionalMimeTypeMappings = CfgMapValue<MediaType, Set<String>>()
 
-    internal val mimetypesCache = mutableMapOf<String,MutableSet<String>>()
     private val uninitializedFormatters = mutableSetOf<URI>()
-    private val initializerClasses = mutableListOf<Pair<String,Boolean>>()
-    private val configurers = mutableListOf<Configurer>()
+    private val configurerList = mutableListOf<Configurer>()
 
     init {
-        for (provider in PagedMediaServiceProvider.providers()) {
-            val manager = provider.create()
-            config._pagedMediaManagers.add(manager)
-            uninitializedFormatters.addAll(manager.formatters())
+        for ((prefix, namespace) in mapOf(
+            "cx" to NsCx.namespace,
+            "p" to NsP.namespace,
+            "xs" to NsXs.namespace,
+            "fn" to NsFn.namespace,
+            "map" to NsFn.mapNamespace,
+            "array" to NsFn.arrayNamespace,
+            "math" to NsFn.mathNamespace,
+            "saxon" to NsSaxon.namespace,
+            "xml" to NsXml.namespace
+        )) {
+            namespaces.put(prefix, namespace)
         }
-
-        for (provider in ConfigurerServiceProvider.providers()) {
-            val configurer = provider.create()
-            configurers.add(configurer)
-        }
     }
 
-    fun getAssertions() = config._assertions
-    fun setAssertions(level: AssertionsLevel): XmlCalabashBuilder {
-        logger.debug { "setAssertions: ${level}" }
-        config._assertions = level
-        return this
-    }
-
-    fun getConfigurers(): List<Configurer> {
-        return configurers.toList()
-    }
-    fun addConfigurer(configurer: Configurer): XmlCalabashBuilder {
-        configurers.add(configurer)
-        return this
-    }
-
-    fun getDebug() = config._debug
-    fun setDebug(debug: Boolean): XmlCalabashBuilder {
-        logger.debug { "setDebug ${debug}" }
-        config._debug = debug
-        return this
-    }
-
-    fun getDebugger() = config._debugger
-    fun setDebugger(debugger: Boolean): XmlCalabashBuilder {
-        logger.debug { "setDebugger ${debugger}" }
-        config._debugger = debugger
-        if (debugger) {
-            config._maxThreadCount = 1
-        }
-        return this
-    }
-
-    fun getEagerEvaluation() = config._eagerEvaluation
-    fun setEagerEvaluation(eager: Boolean): XmlCalabashBuilder {
-        logger.debug { "setEagerEvaluation ${eager}" }
-        config._eagerEvaluation = eager
-        return this
-    }
-
-    fun getGraphStyle() = config._graphStyle
-    fun setGraphStyle(style: URI?): XmlCalabashBuilder {
-        logger.debug { "setGraphStyle ${style}" }
-        config._graphStyle = style
-        return this
-    }
-
-    fun getGraphviz() = config._graphviz
-    fun setGraphviz(executable: File?): XmlCalabashBuilder {
-        logger.debug { "setGraphviz ${executable}" }
-        config._graphviz = executable
-        return this
-    }
-
-    fun getImplicitParameterName() = config._implicitParameterName
-    fun setImplicitParameterName(name: QName?): XmlCalabashBuilder {
-        logger.debug { "setImplicitParameterName ${name}" }
-        config._implicitParameterName = name
-        return this
-    }
-
-    fun getInlineTrimeWhitespace() = config._inlineTrimWhitespace
-    fun setInlineTrimWhitespace(trim: Boolean): XmlCalabashBuilder {
-        logger.debug { "setInlineTrimWhitespace ${trim}" }
-        config._inlineTrimWhitespace = trim
-        return this
-    }
-
-    fun getLicensed() = config._licensed
-    fun setLicensed(licensed: Boolean): XmlCalabashBuilder {
-        logger.debug { "setLicensed ${licensed}" }
-        if (config.licensed != licensed) {
-            saxonConfiguration = null
-            config._licensed = licensed
-        }
-        return this
-    }
-
-    fun getMessageBufferSize() = config._messageBufferSize
-    fun setMessageBufferSize(size: Int): XmlCalabashBuilder {
-        logger.debug { "setMessageBufferSize ${size}" }
-        config._messageBufferSize = size
-        return this
-    }
-
-    fun getMessagePrinter() = config._messagePrinter
-    fun setMessagePrinter(printer: MessagePrinter): XmlCalabashBuilder {
-        logger.debug { "setMessagePrinter ${printer}" }
-        config._messagePrinter = printer
-        if (config._messageReporter != null) {
-            config.messageReporter.setMessagePrinter(printer)
-        }
-        return this
-    }
-
-    fun getMessageReporter() = config._messageReporter
-    fun setMessageReporter(reporter: MessageReporter): XmlCalabashBuilder {
-        logger.debug { "setMessageReporter ${reporter}" }
-        config._messageReporter = reporter
-        if (config._messagePrinter != null) {
-            reporter.setMessagePrinter(config.messagePrinter)
-        }
-        return this
-    }
-
-    /**
-     * Add mapping from mime types to filename extensions.
-     *
-     * These mappings will be applied to the [DocumentManager.mimetypesFileTypeMap] at build time.
-     * The extensions should not include the leading ".": `listOf("txt", "text")` not
-     * `listOf(".txt", ".text")`.
-     */
-    fun addMimeType(contentType: String, extensions: List<String>) {
-        val ext = mimetypesCache[contentType] ?: mutableSetOf()
-        ext.addAll(extensions)
-        mimetypesCache[contentType] = ext
-    }
-
-    fun getErrorExplanation() = config.errorExplanation
-    fun setErrorExplanation(explanation: ErrorExplanation): XmlCalabashBuilder {
-        logger.debug { "setErrorExplanation ${explanation}" }
-        config._errorExplanation = explanation
-        return this
-    }
-
-    fun getDocumentManager() = config.documentManager
-    fun setDocumentManager(manager: DocumentManager): XmlCalabashBuilder {
-        logger.debug { "setDocumentManager ${manager}" }
-        config._documentManager = manager
-        return this
-    }
-
-    fun getOther() = config._other.toMap()
-    fun setOther(other: Map<QName, List<Map<QName, String>>>): XmlCalabashBuilder {
-        logger.debug { "setOther ${other.keys}" }
-        config._other.clear()
-        config._other.putAll(other)
-        return this
-    }
-
-    fun addOther(other: QName, properties: Map<QName, String>): XmlCalabashBuilder {
-        logger.debug { "addOther ${other}" }
-        val otherProperties = mutableListOf<Map<QName, String>>()
-        config._other[other]?.let { otherProperties.addAll(it) }
-        otherProperties.add(properties)
-        config._other[other] = otherProperties.toList()
-        return this
-    }
-
-    fun addPagedMediaCssProcessor(cssFormatter: URI, properties: Map<QName, String>): XmlCalabashBuilder {
-        logger.debug { "addPagedMediaCssProcessor ${cssFormatter}" }
-        config._pagedMediaCssProcessors.add(cssFormatter)
-
-        if (cssFormatter == StandardPagedMediaProvider.genericCssFormatter) {
-            if (properties.isNotEmpty()) {
-                throw XProcError.xiForbiddenConfigurationAttributes(cssFormatter).exception()
-            }
-        } else {
-            uninitializedFormatters.remove(cssFormatter)
-            for (manager in config._pagedMediaManagers) {
-                if (manager.formatterSupported(cssFormatter)) {
-                    manager.configure(cssFormatter, properties)
-                }
-            }
-        }
-
-        return this
-    }
-
-    fun getConfiguredXQueryProcessors(): Map<URI, Map<QName, String>> {
-        return config._xqueryProcessors
-    }
-
-    fun configureXQueryProcessor(implementation: URI, properties: Map<QName, String>): XmlCalabashBuilder {
-        logger.debug { "configureXQueryProcessor ${implementation}" }
-        val map = mutableMapOf<QName, String>()
-        if (config._xqueryProcessors.containsKey(implementation)) {
-            map.putAll(config._xqueryProcessors[implementation]!!)
-        }
-        map.putAll(properties)
-        config._xqueryProcessors[implementation] = map
-
-        return this
-    }
-
-    fun getDefaultXQueryProcessor() = config._defaultXQueryProcessor
-    fun setDefaultXQueryProcessor(name: URI): XmlCalabashBuilder {
-        logger.debug { "setDefaultXQueryProcessor ${name}" }
-        config._defaultXQueryProcessor = name
-        return this
-    }
-
-
-    fun addPagedMediaXslProcessor(xslFormatter: URI, properties: Map<QName, String>): XmlCalabashBuilder {
-        logger.debug { "addPagedMediaXslProcessor ${xslFormatter}" }
-        config._pagedMediaXslProcessors.add(xslFormatter)
-
-        if (xslFormatter == StandardPagedMediaProvider.genericXslFormatter) {
-            if (properties.isNotEmpty()) {
-                throw XProcError.xiForbiddenConfigurationAttributes(xslFormatter).exception()
-            }
-        } else {
-            uninitializedFormatters.remove(xslFormatter)
-            for (manager in config._pagedMediaManagers) {
-                if (manager.formatterSupported(xslFormatter)) {
-                    manager.configure(xslFormatter, properties)
-                }
-            }
-        }
-
-        return this
-    }
-
-    fun getPipe() = config._pipe
-    fun setPipe(pipe: Boolean): XmlCalabashBuilder {
-        logger.debug { "setPipe ${pipe}" }
-        config._pipe = pipe
-        return this
-    }
-
-    fun getProxies() = config._proxies.toMap()
-    fun setProxies(proxies: Map<String, String>): XmlCalabashBuilder {
-        logger.debug { "setProxies ${proxies}" }
-        config._proxies.clear()
-        config._proxies.putAll(proxies)
-        return this
-    }
-
-    fun addProxy(scheme: String, uri: String): XmlCalabashBuilder {
-        logger.debug { "addProxy ${scheme}=${uri}" }
-        config._proxies[scheme] = uri
-        return this
-    }
-
-    fun getSaxonConfiguration() = config._saxonConfigurationFile
-    fun setSaxonConfigurationFile(configFile: File?): XmlCalabashBuilder {
-        logger.debug { "setSaxonConfigurationFile ${configFile}" }
-        saxonConfiguration = null
-        config._saxonConfigurationFile = configFile
-        if (configFile != null && !configFile.exists()) {
-            throw XProcError.xiConfigurationInvalid(configFile.absolutePath, "file does not exist: ${configFile}").exception()
-        }
-        return this
-    }
-
-    fun getSaxonConfigurationProperties() = config._saxonConfigurationProperties.toMap()
-    fun setSaxonConfigurationProperties(properties: Map<String,String>): XmlCalabashBuilder {
-        logger.debug { "setSaxonConfigurationProperties ${properties}" }
-        saxonConfiguration = null
-        config._saxonConfigurationProperties.clear()
-        config._saxonConfigurationProperties.putAll(properties)
-        return this
-    }
-
-    fun addSaxonConfigurationProperty(name: String, value: String): XmlCalabashBuilder {
-        logger.debug { "addSaxonConfigurationProperty ${name}=${value}" }
-        saxonConfiguration = null
-        config._saxonConfigurationProperties[name] = value
-        return this
-    }
-
-    fun getSendmail() = config._sendmail.toMap()
-    fun setSendmail(properties: Map<String,String>): XmlCalabashBuilder {
-        logger.debug { "setSendmail ${properties}" }
-        config._sendmail.clear()
-        config._sendmail.putAll(properties)
-        return this
-    }
-
-    fun addSendmailProperty(name: String, value: String): XmlCalabashBuilder {
-        logger.debug { "addSendmailProperty ${name}=${value}" }
-        config._sendmail[name] = value
-        return this
-    }
-
-    fun getSerialization() = config._serialization.toMap()
-    fun setSerialization(properties: Map<MediaType, Map<QName, String>>): XmlCalabashBuilder {
-        logger.debug { "setSerialization ${properties.keys}" }
-        config._serialization.clear()
-        config._serialization.putAll(properties)
-        return this
-    }
-
-    fun addSerialization(contentType: MediaType, properties: Map<QName, String>): XmlCalabashBuilder {
-        logger.debug { "addSerialization ${contentType}" }
-        config._serialization[contentType] = properties
-        return this
-    }
-
-    fun addSerializationProperty(contentType: MediaType, property: QName, value: String): XmlCalabashBuilder {
-        logger.debug { "addSerializationProperty ${contentType}: ${property}=${value}" }
-        val props = mutableMapOf<QName, String>()
-        config._serialization[contentType]?.let { props.putAll(it) }
-        props[property] = value
-        config._serialization[contentType] = props
-        return this
-    }
-
-    fun getMaxThreadCount() = config._maxThreadCount
-    fun setMaxThreadCount(size: Int): XmlCalabashBuilder {
-        logger.debug { "setMaxThreadCount ${size}" }
-        val pcount = Runtime.getRuntime().availableProcessors()
-        if (size > 0) {
-            if (config._debug) {
-                config._maxThreadCount = 1
-                logger.debug { "Using the debugger requires single threaded operation" }
-            } else {
-                if (size > pcount) {
-                    logger.debug { "Upper limit for thread count is ${pcount}" }
-                    config._maxThreadCount = pcount
-                } else {
-                    config._maxThreadCount = size
-                }
-            }
-        } else {
-            logger.warn { "Ignoring absurd thread count: ${size}" }
-        }
-        return this
-    }
-
-    fun getTrace() = config._trace
-    fun setTrace(trace: File?): XmlCalabashBuilder {
-        logger.debug { "setTrace ${trace}" }
-        config._trace = trace
-        return this
-    }
-
-    fun getTraceDocuments() = config._traceDocuments
-    fun setTraceDocuments(traceDocuments: File?): XmlCalabashBuilder {
-        logger.debug { "setTraceDocuments ${traceDocuments}" }
-        config._traceDocuments = traceDocuments
-        return this
-    }
-
-    fun getTryNamespaces() = config._tryNamespaces
-    fun setTryNamespaces(namespaces: Boolean): XmlCalabashBuilder {
-        logger.debug { "setTryNamespaces ${namespaces}" }
-        config._tryNamespaces = namespaces
-        return this
-    }
-
-    fun getUniqueInlineUris() = config._uniqueInlineUris
-    fun setUniqueInlineUris(uniqueInlineUris: Boolean): XmlCalabashBuilder {
-        logger.debug { "setUniqueInlineUris ${uniqueInlineUris}" }
-        config._uniqueInlineUris = uniqueInlineUris
-        return this
-    }
-
-    fun getUseLocationHints() = config._useLocationHints
-    fun setUseLocationHints(locationHints: Boolean): XmlCalabashBuilder {
-        logger.debug { "setUseLocationHints ${locationHints}" }
-        config._useLocationHints = locationHints
-        return this
-    }
-
-    fun getValidationMode() = config._validationMode
-    fun setValidationMode(mode: ValidationMode): XmlCalabashBuilder {
-        logger.debug { "setValidationMode ${mode}" }
-        config._validationMode = mode
-        return this
-    }
-
-    fun getVerbosity() = config._verbosity
-    fun setVerbosity(verbosity: Verbosity): XmlCalabashBuilder {
-        logger.debug { "setVerbosity ${verbosity}" }
-        config._verbosity = verbosity
-        return this
-    }
-
-    fun getVisualizer() = config._visualizer
-    fun setVisualizer(visualizer: String, properties: Map<String,String>): XmlCalabashBuilder {
-        if (visualizer in listOf("silent", "plain", "detail")) {
-            logger.debug { "setVisualizer ${visualizer}" }
-            config._visualizer = visualizer
-            config._visualizerProperties.clear()
-            config._visualizerProperties.putAll(properties)
-            return this
-        }
-        throw IllegalArgumentException("Visualizer $visualizer is not supported.")
-    }
-
-    fun getXmlCatalogs() = config._xmlCatalogs
-    fun setXmlCatalogs(catalogs: List<URI>): XmlCalabashBuilder {
-        logger.debug { "setXmlCatalogs ${catalogs}" }
-        config._xmlCatalogs.clear()
-        config._xmlCatalogs.addAll(catalogs)
-        return this
-    }
-
-    fun addXmlCatalog(catalog: URI): XmlCalabashBuilder {
-        logger.debug { "addXmlCatalog ${catalog}" }
-        config._xmlCatalogs.add(catalog)
-        return this
-    }
-
-    fun getXmlSchemaDocuments() = config._xmlSchemaDocuments
-    fun setXmlSchemaDocuments(schemas: List<URI>): XmlCalabashBuilder {
-        logger.debug { "setXmlSchemaDocuments ${schemas}" }
-        saxonConfiguration = null
-        config._xmlSchemaDocuments.clear()
-        config._xmlSchemaDocuments.addAll(schemas)
-        return this
-    }
-
-    fun addXmlSchemaDocument(schema: URI): XmlCalabashBuilder {
-        logger.debug { "addXmlSchemaDocument ${schema}" }
-        saxonConfiguration = null
-        config._xmlSchemaDocuments.add(schema)
-        return this
-    }
-
-    fun addInitializer(className: String, ignoreErrors: Boolean = false): XmlCalabashBuilder {
-        logger.debug { "addInitializer ${className}" }
-        initializerClasses.add(Pair(className, ignoreErrors))
-        return this
-    }
-
-    fun getExtensions() = config._extensions
-    fun enableExtension(name: ExtensionName): XmlCalabashBuilder {
-        logger.debug { "enableExtension ${name}" }
-        config._extensions.add(name)
-        return this
+    fun addMimeTypeMapping(contentType: MediaType, extensions: Set<String>) {
+        val allext = mutableSetOf<String>()
+        allext.addAll(additionalMimeTypeMappings.get(contentType) ?: emptySet())
+        allext.addAll(extensions)
+        additionalMimeTypeMappings.put(contentType, allext)
     }
 
     fun build(): XmlCalabash {
-        val config = commonBuild()
+        synchronized(this) {
+            commonBuild()
+            val xconfig = InvokedConfiguration(this)
 
-        val initializers = mutableMapOf<String, Boolean>()
-        for (pair in initializerClasses) {
-            initializers[pair.first] = pair.second
+            val configInit = mutableMapOf<String, Boolean>()
+            // It feels like this configuration should go somewhere else...but since
+            // CoffeeSacks is now bundled, try to initialize it for the user...
+            configInit["org.nineml.coffeesacks.RegisterCoffeeSacks"] = true
+            for (pair in initializers.getOrDefault() ?: emptyList()) {
+                configInit[pair.first] = pair.second
+            }
+            val saxonConfiguration = SaxonConfiguration.newInstance(xconfig.licensed, xconfig.saxonConfigurationFile?.toURI(),
+                xconfig.saxonConfigurationProperties, xconfig.xmlSchemas, configInit, configurerList)
+            saxonConfiguration.configuration.resourceResolver = xconfig.documentManager
+            xconfig._saxonConfiguration = saxonConfiguration
+
+            if (xconfig.xmlSchemas.isNotEmpty()
+                && !saxonConfiguration.configuration.isLicensedFeature(Configuration.LicenseFeature.SCHEMA_VALIDATION)) {
+                logger.warn { "Schema validation feature is not enabled, ignoring configured schemas" }
+            }
+
+            for (manager in xconfig.pagedMediaManagers) {
+                for (formatter in manager.formatters()) {
+                    if (formatter in uninitializedFormatters) {
+                        manager.configure(formatter, emptyMap())
+                    }
+                }
+            }
+
+            return XmlCalabash(xconfig)
         }
-
-        val saxonConfiguration = SaxonConfiguration.newInstance(config.licensed, config.saxonConfigurationFile?.toURI(), config.saxonConfigurationProperties, config.xmlSchemaDocuments, initializers, configurers)
-        saxonConfiguration.configuration.resourceResolver = config._documentManager
-        config._saxonConfiguration = saxonConfiguration
-        return init(config)
     }
 
     fun build(configuration: Configuration): XmlCalabash {
-        val config = commonBuild()
+        synchronized(this) {
+            commonBuild()
 
-        if (config.saxonConfigurationFile != null
-            || config.saxonConfigurationProperties.isNotEmpty()
-            || config.xmlSchemaDocuments.isNotEmpty()
-            || initializerClasses.isNotEmpty()) {
-                throw XProcError.xiNoConfigurationAllowed().exception()
+            if (saxonConfigurationFile.getOrDefault() != null
+                || (saxonConfigurationProperties.getOrDefault() ?: emptyMap()).isNotEmpty()
+                || (this@XmlCalabashBuilder.xmlSchemas.getOrDefault() ?: emptyList()).isNotEmpty()
+                || (initializers.getOrDefault() ?: emptyList()).isNotEmpty()) {
+                throw XProcError.Companion.xiNoConfigurationAllowed().exception()
             }
 
-        val saxonConfiguration = SaxonConfiguration.newInstance(configuration)
-        config._saxonConfiguration = saxonConfiguration
-        return init(config)
+            val xconfig = InvokedConfiguration(this)
+            val saxonConfiguration = SaxonConfiguration.Companion.newInstance(configuration)
+            xconfig._saxonConfiguration = saxonConfiguration
+            return XmlCalabash(xconfig)
+        }
     }
 
-    private fun commonBuild(): BuiltConfiguration {
-        for (configurer in configurers) {
-            logger.debug { "Configuring with ${configurer}"}
-            configurer.configure(this)
+    private fun commonBuild() {
+        uninitializedFormatters.clear()
+        configurerList.clear()
+
+        if (command.get() == null) {
+            command.set("help")
         }
 
-        val config = this.config.copy()
-        for ((contentType, extensions) in mimetypesCache) {
-            val ext = extensions.joinToString(" ")
-            logger.debug { "Assigning content type: ${contentType} to ${ext}" }
-            config.documentManager.mimetypesFileTypeMap.addMimeTypes("${contentType} ${ext}")
+        if (messagePrinter.get() == null) {
+            messagePrinter.set(DefaultMessagePrinter())
+        }
+        val printer = messagePrinter.get()!!
+
+        if (messageReporter.get() == null) {
+            val defaultReporter = DefaultMessageReporter()
+            defaultReporter.setThreshold(verbosity.getOrDefault()!!)
+            defaultReporter.setMessagePrinter(printer)
+            messageReporter.set(defaultReporter)
+        }
+        val reporter = messageReporter.get()!!
+
+        if (errorExplanation.get() == null) {
+            errorExplanation.set(DefaultErrorExplanation(reporter))
         }
 
-        return config
-    }
+        if (documentManager.get() == null) {
+            documentManager.set(DocumentManager(this))
+        }
+        val documentManager = documentManager.get()!!
 
-    private fun init(config: BuiltConfiguration): XmlCalabash {
-        mimetypesCache.clear()
-        this.config._messagePrinter = null
-        this.config._messageReporter = null
-        this.config._documentManager = null
-        this.config._errorExplanation = null
-
-        if (config.xmlSchemaDocuments.isNotEmpty()
-            && !config._saxonConfiguration.configuration.isLicensedFeature(Configuration.LicenseFeature.SCHEMA_VALIDATION)) {
-            logger.warn { "Schema validation feature is not enabled, ignored configured schemas" }
+        for ((contentType, exensions) in additionalMimeTypeMappings.getOrDefault() ?: emptyMap()) {
+            documentManager.mimetypesFileTypeMap.addMimeTypes("${contentType} ${extensions}")
         }
 
-        for (manager in config.pagedMediaManagers) {
-            for (formatter in manager.formatters()) {
-                if (formatter in uninitializedFormatters) {
-                    manager.configure(formatter, emptyMap())
+        for (provider in PagedMediaServiceProvider.Companion.providers()) {
+            val manager = provider.create()
+            pagedMediaManagers.add(manager)
+            uninitializedFormatters.addAll(manager.formatters())
+        }
+
+        configurerList.addAll(configurers.getOrDefault() ?: emptyList())
+        for (provider in ConfigurerServiceProvider.Companion.providers()) {
+            val configurer = provider.create()
+            configurerList.add(configurer)
+        }
+
+        if (debug.getOrDefault()!! && verbosity.getOrDefault()!! < Verbosity.DEBUG) {
+            verbosity.set(Verbosity.DEBUG)
+        }
+
+        if (debugger.getOrDefault()!!) {
+            visualizerName.set("silent")
+        }
+
+        if (visualizerName.getOrDefault() !in listOf("silent", "plain", "detail")) {
+            printer.print("Unexpected visualizer: ${visualizerName.getOrDefault()}")
+            visualizerName.set("silent")
+        }
+
+        val docs = traceDocuments.get()
+        if (docs != null) {
+            if (docs.exists() && !docs.isDirectory) {
+                logger.warn { "Trace documents output must be a directory: ${docs.absolutePath}" }
+                traceDocuments.set(null)
+            } else {
+                if (trace.get() == null) {
+                    trace.set(traceDocuments.get()!!.resolve("trace.xml"))
                 }
             }
         }
-
-        return XmlCalabash(config)
     }
 
-    inner class BuiltConfiguration(): XmlCalabashConfiguration {
-        lateinit internal var _saxonConfiguration: SaxonConfiguration
-        internal var _messagePrinter: MessagePrinter? = null
-        internal var _messageReporter: MessageReporter? = null
-        internal var _errorExplanation: ErrorExplanation? = null
-        internal var _documentManager: DocumentManager? = null
+    fun update(props: XmlCalabashBuilder) {
+        assertions.update(props.assertions)
+        debug.update(props.debug)
+        debugger.update(props.debugger)
+        documentManager.update(props.documentManager)
+        eagerEvaluation.update(props.eagerEvaluation)
+        errorExplanation.update(props.errorExplanation)
+        graphStyle.update(props.graphStyle)
+        graphviz.update(props.graphviz)
+        implicitParameterName.update(props.implicitParameterName)
+        inlineTrimWhitespace.update(props.inlineTrimWhitespace)
+        licensed.update(props.licensed)
+        messagePrinter.update(props.messagePrinter)
+        messageReporter.update(props.messageReporter)
+        other.update(props.other)
+        pagedMediaManagers.update(props.pagedMediaManagers)
+        pagedMediaCssProcessors.update(props.pagedMediaCssProcessors)
+        pagedMediaXslProcessors.update(props.pagedMediaXslProcessors)
+        configuredXQueryProcessors.update(props.configuredXQueryProcessors)
+        defaultXQueryProcessor.update(props.defaultXQueryProcessor)
+        pipedMode.update(props.pipedMode)
+        proxies.update(props.proxies)
+        saxonConfigurationFile.update(props.saxonConfigurationFile)
+        saxonConfigurationProperties.update(props.saxonConfigurationProperties)
+        sendmail.update(props.sendmail)
+        serialization.update(props.serialization)
+        maxThreadCount.update(props.maxThreadCount)
+        trace.update(props.trace)
+        traceDocuments.update(props.traceDocuments)
+        tryNamespaces.update(props.tryNamespaces)
+        uniqueInlineUris.update(props.uniqueInlineUris)
+        useLocationHints.update(props.useLocationHints)
+        validationMode.update(props.validationMode)
+        verbosity.update(props.verbosity)
+        visualizerName.update(props.visualizerName)
+        xmlCatalogs.update(props.xmlCatalogs)
+        this@XmlCalabashBuilder.xmlSchemas.update(props.xmlSchemas)
+        extensions.update(props.extensions)
 
-        internal var _assertions = AssertionsLevel.IGNORE
-        internal var _debug = false
-        internal var _debugger = false
-        internal var _eagerEvaluation = false
-        internal var _graphStyle: URI? = null
-        internal var _graphviz: File? = null
-        internal var _implicitParameterName: QName? = Ns.parameters
-        internal var _inlineTrimWhitespace = false
-        internal var _licensed = true
-        internal var _messageBufferSize = 32
-        internal var _mpt: Double = 0.99999998
-        internal val _other = mutableMapOf<QName, List<Map<QName, String>>>()
-        internal val _pagedMediaCssProcessors = mutableListOf<URI>()
-        internal val _pagedMediaManagers = mutableListOf<PagedMediaManager>()
-        internal val _pagedMediaXslProcessors = mutableListOf<URI>()
-        internal val _xqueryProcessors = mutableMapOf<URI, Map<QName, String>>(URI.create("https://saxonica.com") to emptyMap())
-        internal var _defaultXQueryProcessor = URI.create("https://saxonica.com/")
-        internal var _pipe = false
-        internal val _proxies = mutableMapOf<String, String>()
-        internal var _saxonConfigurationFile: File? = null
-        internal val _saxonConfigurationProperties = mutableMapOf<String,String>()
-        internal val _sendmail = mutableMapOf<String, String>()
-        internal val _serialization = mutableMapOf<MediaType, Map<QName,String>>()
-        internal var _maxThreadCount = 1
-        internal var _trace: File? = null
-        internal var _traceDocuments: File? = null
-        internal var _tryNamespaces = false
-        internal var _uniqueInlineUris = true
-        internal var _useLocationHints = false
-        internal var _validationMode = ValidationMode.DEFAULT
-        internal var _verbosity = Verbosity.INFO
-        internal var _visualizer = "silent"
-        internal var _visualizerProperties = mutableMapOf<String,String>()
-        internal val _xmlCatalogs = mutableListOf<URI>()
-        internal val _xmlSchemaDocuments = mutableListOf<URI>()
-        internal val _extensions = mutableSetOf<ExtensionName>()
+        namespaces.update(props.namespaces)
+        command.update(props.command)
+        commandOptions.update(props.commandOptions)
+        configurationFile.update(props.configurationFile)
+        inputs.update(props.inputs)
+        outputs.update(props.outputs)
+        outputSerialization.update(props.outputSerialization)
+        initializers.update(props.initializers)
+        graphs.update(props.graphs)
+        explainErrors.update(props.explainErrors)
+        stacktrace.update(props.stacktrace)
+        go.update(props.go)
+        step.update(props.step)
+        pipelineUri.update(props.pipelineUri)
+        options.update(props.options)
+        mimeTypes.update(props.mimeTypes)
+        mpt.update(props.mpt)
+        cssFormatter.update(props.cssFormatter)
+        xslFormatter.update(props.xslFormatter)
+        messageReporterBufferSize.update(props.messageReporterBufferSize)
+    }
 
+    private class InvokedConfiguration constructor(props: XmlCalabashBuilder): XmlCalabashConfiguration {
+        lateinit var _saxonConfiguration: SaxonConfiguration
         override val saxonConfiguration: SaxonConfiguration
-            get() { return _saxonConfiguration }
+            get() = _saxonConfiguration
 
-        override val messagePrinter: MessagePrinter
-            get() {
-                if (_messagePrinter == null) {
-                    _messagePrinter = DefaultMessagePrinter()
-                }
-                return _messagePrinter!!
-            }
-
-        override val messageReporter: MessageReporter
-            get() {
-                if (_messageReporter == null) {
-                    _messageReporter = DefaultMessageReporter()
-                    _messageReporter!!.setThreshold(verbosity)
-                    _messageReporter!!.setMessagePrinter(messagePrinter)
-                }
-                return _messageReporter!!
-            }
-
-        override val errorExplanation: ErrorExplanation
-            get() {
-                if (_errorExplanation == null) {
-                    _errorExplanation = DefaultErrorExplanation(messageReporter)
-                }
-                return _errorExplanation!!
-            }
-
-        override val documentManager: DocumentManager
-            get() {
-                if (_documentManager == null) {
-                    _documentManager = DocumentManager()
-                }
-                return _documentManager!!
-            }
-
-        override val assertions: AssertionsLevel
-            get() = _assertions
-        override val debug: Boolean
-            get() = _debug
-        override val debugger: Boolean
-            get() = _debugger
-        override val eagerEvaluation
-            get() = _eagerEvaluation
-        override val graphStyle: URI?
-            get() = _graphStyle
-        override val graphviz: File?
-            get() = _graphviz
-        override val implicitParameterName: QName?
-            get() = _implicitParameterName
-        override val inlineTrimWhitespace: Boolean
-            get() = _inlineTrimWhitespace
-        override val licensed: Boolean
-            get() = _licensed
-        override val messageBufferSize: Int
-            get() = _messageBufferSize
-        override val other: Map<QName, List<Map<QName, String>>>
-            get() = _other
-        override val pagedMediaCssProcessors: List<URI>
-            get() = _pagedMediaCssProcessors
-        override val pagedMediaManagers: List<PagedMediaManager>
-            get() = _pagedMediaManagers
-        override val pagedMediaXslProcessors: List<URI>
-            get() = _pagedMediaXslProcessors
-        override val configuredXQueryProcessors: Map<URI, Map<QName, String>>
-            get() = _xqueryProcessors
-        override val defaultXQueryProcessor: URI
-            get() = _defaultXQueryProcessor
-        override val pipe: Boolean
-            get() = _pipe
-        override val proxies: Map<String, String>
-            get() = _proxies
-        override val saxonConfigurationFile: File?
-            get() = _saxonConfigurationFile
-        override val saxonConfigurationProperties: Map<String, String>
-            get() = _saxonConfigurationProperties
-        override val sendmail: Map<String, String>
-            get() = _sendmail
-        override val serialization: Map<MediaType, Map<QName, String>>
-            get() = _serialization
-        override val maxThreadCount: Int
-            get() = _maxThreadCount
-        override val trace: File?
-            get() = _trace
-        override val traceDocuments: File?
-            get() = _traceDocuments
-        override val tryNamespaces: Boolean
-            get() = _tryNamespaces
-        override val uniqueInlineUris: Boolean
-            get() = _uniqueInlineUris
-        override val useLocationHints: Boolean
-            get() = _useLocationHints
-        override val validationMode: ValidationMode
-            get() = _validationMode
-        override val verbosity: Verbosity
-            get() = _verbosity
-        override val visualizer: String
-            get() = _visualizer
-        override val visualizerProperties: Map<String, String>
-            get() = _visualizerProperties
-        override val xmlCatalogs: List<URI>
-            get() = _xmlCatalogs
-        override val xmlSchemaDocuments: List<URI>
-            get() = _xmlSchemaDocuments
-        override val extensions: Set<ExtensionName>
-            get() = _extensions
-
-        internal fun copy(): BuiltConfiguration {
-            val config = BuiltConfiguration()
-            // Not touching saxonConfiguration on purpose!
-            config._messagePrinter = _messagePrinter
-            config._messageReporter = _messageReporter
-            config._documentManager = documentManager
-            config._errorExplanation = errorExplanation
-            config._assertions = _assertions
-            config._debug = _debug
-            config._debugger = _debugger
-            config._eagerEvaluation = _eagerEvaluation
-            config._graphStyle = _graphStyle
-            config._graphviz = _graphviz
-            config._inlineTrimWhitespace = _inlineTrimWhitespace
-            config._licensed = _licensed
-            config._messageBufferSize = _messageBufferSize
-            config._mpt = _mpt
-            config._other.putAll(_other)
-            config._pagedMediaCssProcessors.addAll(_pagedMediaCssProcessors)
-            config._pagedMediaManagers.addAll(_pagedMediaManagers)
-            config._pagedMediaXslProcessors.addAll(_pagedMediaXslProcessors)
-            config._defaultXQueryProcessor = _defaultXQueryProcessor
-            config._xqueryProcessors.putAll(_xqueryProcessors)
-            config._pipe = _pipe
-            config._proxies.putAll(_proxies)
-            config._saxonConfigurationFile = saxonConfigurationFile
-            config._saxonConfigurationProperties.putAll(_saxonConfigurationProperties)
-            config._sendmail.putAll(_sendmail)
-            config._serialization.putAll(_serialization)
-            config._maxThreadCount = _maxThreadCount
-            config._trace = _trace
-            config._traceDocuments = _traceDocuments
-            config._tryNamespaces = _tryNamespaces
-            config._uniqueInlineUris = _uniqueInlineUris
-            config._useLocationHints = _useLocationHints
-            config._validationMode = _validationMode
-            config._verbosity = _verbosity
-            config._visualizer = _visualizer
-            config._visualizerProperties.putAll(_visualizerProperties)
-            config._xmlCatalogs.addAll(_xmlCatalogs)
-            config._xmlSchemaDocuments.addAll(_xmlSchemaDocuments)
-            config._extensions.addAll(_extensions)
-
-            val xmlconfig = config.documentManager.resolver.configuration
-            val catlist = mutableListOf<String>()
-            catlist.addAll(xmlconfig.getFeature(ResolverFeature.CATALOG_FILES))
-            for (cat in config.xmlCatalogs) {
-                catlist.add(cat.toString())
-            }
-            xmlconfig.setFeature(ResolverFeature.CATALOG_FILES, catlist)
-
-            return config
-        }
+        override val documentManager: DocumentManager = props.documentManager.getOrDefault() ?: DocumentManager(props)
+        override val pagedMediaManagers: List<PagedMediaManager> = props.pagedMediaManagers.getOrDefault() ?: emptyList()
+        override val assertions: AssertionsLevel = props.assertions.getOrDefault()!!
+        override val debug: Boolean = props.debug.getOrDefault()!!
+        override val debugger: Boolean = props.debugger.getOrDefault()!!
+        override val eagerEvaluation: Boolean = props.eagerEvaluation.getOrDefault()!!
+        override val errorExplanation: ErrorExplanation = props.errorExplanation.get()!!
+        override val implicitParameterName: QName? = props.implicitParameterName.getOrDefault()
+        override val inlineTrimWhitespace: Boolean = props.inlineTrimWhitespace.getOrDefault()!!
+        override val licensed: Boolean = props.licensed.getOrDefault()!!
+        override val messagePrinter: MessagePrinter = props.messagePrinter.get()!!
+        override val messageReporter: MessageReporter = props.messageReporter.get()!!
+        override val other: Map<QName, List<Map<QName, String>>> = props.other.getOrDefault() ?: emptyMap()
+        override val pagedMediaCssProcessors: List<URI> = props.pagedMediaCssProcessors.getOrDefault() ?: emptyList()
+        override val pagedMediaXslProcessors: List<URI> = props.pagedMediaXslProcessors.getOrDefault() ?: emptyList()
+        override val configuredXQueryProcessors: Map<URI, Map<QName, String>> = props.configuredXQueryProcessors.getOrDefault() ?: emptyMap()
+        override val defaultXQueryProcessor: URI = props.defaultXQueryProcessor.getOrDefault()!!
+        override val pipe: Boolean = props.pipedMode.getOrDefault()!!
+        override val proxies: Map<String, String> = props.proxies.getOrDefault() ?: emptyMap()
+        override val saxonConfigurationFile: File? = props.saxonConfigurationFile.getOrDefault()
+        override val saxonConfigurationProperties: Map<String, String> = props.saxonConfigurationProperties.getOrDefault() ?: emptyMap()
+        override val sendmail: Map<String, String> = props.sendmail.getOrDefault() ?: emptyMap()
+        override val serialization: Map<MediaType, Map<QName, String>> = props.serialization.getOrDefault() ?: emptyMap()
+        override val maxThreadCount: Int = props.maxThreadCount.getOrDefault()!!
+        override val trace: File? = props.trace.getOrDefault()
+        override val traceDocuments: File? = props.traceDocuments.getOrDefault()
+        override val tryNamespaces: Boolean = props.tryNamespaces.getOrDefault() ?: false
+        override val uniqueInlineUris: Boolean = props.uniqueInlineUris.getOrDefault()!!
+        override val useLocationHints: Boolean = props.useLocationHints.getOrDefault() ?: false
+        override val validationMode: ValidationMode = props.validationMode.getOrDefault() ?: ValidationMode.DEFAULT
+        override val verbosity: Verbosity = props.verbosity.getOrDefault()!!
+        override val visualizer: String = props.visualizerName.getOrDefault()!!
+        override val visualizerProperties: Map<String, String> = props.visualizerName.options ?: emptyMap()
+        override val xmlCatalogs: List<URI> = props.xmlCatalogs.getOrDefault() ?: emptyList()
+        override val xmlSchemas: List<URI> = props.xmlSchemas.getOrDefault() ?: emptyList()
+        override val extensions: Set<ExtensionName> = (props.extensions.getOrDefault() ?: emptyList()).toSet()
     }
 }

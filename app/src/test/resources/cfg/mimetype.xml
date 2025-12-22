@@ -1,0 +1,7 @@
+<cc:xml-calabash xmlns:cc="https://xmlcalabash.com/ns/configuration">
+  <cc:mimetype content-type="application/foobar" extensions="foo bar"/>
+  <cc:mimetype content-type="application/barfoo" extensions="barfoo"/>
+  <cc:proxy scheme="http" uri="http://localhost:8888/"/>
+  <cc:proxy scheme="https" uri="http://localhost:7777/"/>
+  <cc:send-mail username="fred" password="sekrit" port="999"/>
+</cc:xml-calabash>

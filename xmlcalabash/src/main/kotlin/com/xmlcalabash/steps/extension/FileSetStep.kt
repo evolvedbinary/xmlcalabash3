@@ -85,6 +85,12 @@ class FileSetStep(): FileStep(NsCx.fileset)  {
     private lateinit var grouping: RootGrouping
 
     override fun run() {
+        synchronized(this) {
+            unsafeRun()
+        }
+    }
+
+    fun unsafeRun() {
         super.run()
 
         val source = queues["source"]!!.firstOrNull()
