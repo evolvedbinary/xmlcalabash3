@@ -45,6 +45,8 @@ plugins {
 }
 
 val saxonVersion = project.properties["saxonVersion"].toString()
+val docbookVersion = project.properties["docbookVersion"].toString()
+val xslTNGversion = project.properties["xslTNGversion"].toString()
 
 val refVersion = (project.findProperty("refVersion")
                       ?: project.findProperty("xmlcalabashVersion")).toString()
@@ -164,8 +166,8 @@ val xmlCalabashVersion = tasks.register<JavaExec>("xmlCalabashVersion") {
     }
     stream.println("\"refVersion\": \"${refVersion}\",")
     stream.println("\"guideVersion\": \"${guideVersion}\",")
-    stream.println("\"docbookVersion\": \"${project.properties["docbookVersion"]}\",")
-    stream.println("\"xslTNGversion\": \"${project.properties["xslTNGversion"]}\"")
+    stream.println("\"docbookVersion\": \"${docbookVersion}\",")
+    stream.println("\"xslTNGversion\": \"${xslTNGversion}\"")
     stream.println("}")
     stream.close()
   }
@@ -186,8 +188,8 @@ val xmlCalabashBuildInfo = tasks.register("xmlCalabashBuildInfo") {
       stream.println("<saxon-version>${saxonVersion}</saxon-version>")
       stream.println("<ref-version>${refVersion}</ref-version>")
       stream.println("<guide-version>${guideVersion}</guide-version>")
-      stream.println("<docbook-version>${project.properties["docbookVersion"]}</docbook-version>")
-      stream.println("<xslTNG-version>${project.properties["xslTNGversion"]}</xslTNG-version>")
+      stream.println("<docbook-version>${docbookVersion}</docbook-version>")
+      stream.println("<xslTNG-version>${xslTNGversion}</xslTNG-version>")
       stream.println("<dependencies>")
 
       for ((step, deps) in ExternalDependencies.steps) {
@@ -335,7 +337,7 @@ val reference = tasks.register<SaxonXsltTask>("reference") {
 }
 
 tasks.register("copyReferenceJarResources") {
-  outputs.dir(project.layout.buildDirectory.dir("reference/current"))
+  outputs.dir(layout.buildDirectory.dir("reference/current"))
 
   val dbjar = configurations.named("transform").get().getFiles()
       .filter { jar -> jar.toString().contains("docbook-xslTNG") }
@@ -357,7 +359,7 @@ tasks.register("copyReferenceJarResources") {
   }
 
   doLast {
-    delete(project.layout.buildDirectory.dir("reference/org"))
+    delete(layout.buildDirectory.dir("reference/org"))
   }
 }
 
@@ -509,7 +511,7 @@ tasks.register("release") {
 }
 
 tasks.register("copyUserguideJarResources") {
-  outputs.dir(project.layout.buildDirectory.dir("userguide/current"))
+  outputs.dir(layout.buildDirectory.dir("userguide/current"))
 
   val dbjar = configurations.named("transform").get().getFiles()
       .filter { jar -> jar.toString().contains("docbook-xslTNG") }
@@ -531,7 +533,7 @@ tasks.register("copyUserguideJarResources") {
   }
 
   doLast {
-    delete(project.layout.buildDirectory.dir("userguide/current/org"))
+    delete(layout.buildDirectory.dir("userguide/current/org"))
   }
 }
 
