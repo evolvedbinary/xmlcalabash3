@@ -8,3 +8,4 @@
 /tests/data
 build/
 saxon-license.lic
+.env
