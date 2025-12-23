@@ -132,11 +132,6 @@ open class CompileEnvironment(override val episode: String,
             }
         }
 
-        for (provider in DocumentResolverServiceProvider.providers()) {
-            val manager = provider.create();
-            manager.configure(documentManager)
-        }
-
         showAssignments = false
     }
 
