@@ -3,6 +3,7 @@ package com.xmlcalabash.steps.extension
 import com.xmlcalabash.XmlCalabashBuildConfig
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
+import com.xmlcalabash.io.DocumentWriter
 import com.xmlcalabash.io.MediaType
 import com.xmlcalabash.namespace.*
 import com.xmlcalabash.steps.AbstractAtomicStep
@@ -25,6 +26,9 @@ import org.xmlunit.diff.Difference
 import org.xmlunit.diff.ElementSelector
 import org.xmlunit.diff.ElementSelectors
 import org.xmlunit.diff.NodeMatcher
+import java.io.ByteArrayOutputStream
+import java.nio.charset.Charset
+import java.nio.charset.StandardCharsets
 
 class XmlUnitStep(): AbstractAtomicStep() {
     companion object {
@@ -115,11 +119,15 @@ class XmlUnitStep(): AbstractAtomicStep() {
             DefaultNodeMatcher(elementSelectorImpl)
         }
 
-        val sourceDoc = DocumentOverNodeInfo.wrap((source.value as XdmNode).underlyingNode) as Document
-        val altDoc = DocumentOverNodeInfo.wrap((alternate.value as XdmNode).underlyingNode) as Document
+        // We can't do this with the Saxon tree model because that model is immutable
+        // and the xmlunit comparitor modifies the tree if you set some options (for example, ignore comments)
+        val sourceStream = ByteArrayOutputStream()
+        DocumentWriter(source, sourceStream).write()
+        val altStream = ByteArrayOutputStream()
+        DocumentWriter(alternate, altStream).write()
 
-        val control = Input.fromDocument(sourceDoc).build()
-        val test = Input.fromDocument(altDoc).build()
+        val control = Input.from(sourceStream.toString(StandardCharsets.UTF_8)).build()
+        val test = Input.from(altStream.toString(StandardCharsets.UTF_8)).build()
 
         var diffBuilder = DiffBuilder.compare(control).withTest(test)
         if (checkFor == "similarity") {
