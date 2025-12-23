@@ -138,6 +138,7 @@ class TestDriver(val testOptions: TestOptions, val exclusions: Map<String, Strin
         val eagerLicensed = eagerLicensedInvocation.build()
 
         val lazyLicensedInvocation = XmlCalabashBuilder()
+        lazyLicensedInvocation.licensed.set(true)
         lazyLicensedInvocation.eagerEvaluation.set(false)
         lazyLicensedInvocation.uniqueInlineUris.set(false)
         lazyLicensedInvocation.messageReporter.set(BufferingMessageReporter(100, NopMessageReporter()))
@@ -145,7 +146,7 @@ class TestDriver(val testOptions: TestOptions, val exclusions: Map<String, Strin
         val lazyLicensed = lazyLicensedInvocation.build()
 
         val eagerUnlicensedInvocation = XmlCalabashBuilder()
-        eagerUnlicensedInvocation.licensed.set(true)
+        eagerUnlicensedInvocation.licensed.set(false)
         eagerUnlicensedInvocation.eagerEvaluation.set(true)
         eagerUnlicensedInvocation.uniqueInlineUris.set(false)
         eagerUnlicensedInvocation.messageReporter.set(BufferingMessageReporter(100, NopMessageReporter()))
@@ -168,7 +169,7 @@ class TestDriver(val testOptions: TestOptions, val exclusions: Map<String, Strin
 
         var width = 0
         for (testFile in allTests) {
-            var case = loadTest(lazyUnlicensedInvocation, lazyLicensed, testFile)
+            var case = loadTest(lazyLicensedInvocation, lazyLicensed, testFile)
             if (case.features.contains("no-psvi-support")) {
                 if (case.features.contains("eager-eval")) {
                     case = loadTest(eagerUnlicensedInvocation, eagerUnlicensed, testFile)

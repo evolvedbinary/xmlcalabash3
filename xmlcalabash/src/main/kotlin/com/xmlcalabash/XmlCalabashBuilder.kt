@@ -21,6 +21,7 @@ import com.xmlcalabash.namespace.NsXml
 import com.xmlcalabash.namespace.NsXs
 import com.xmlcalabash.spi.Configurer
 import com.xmlcalabash.spi.ConfigurerServiceProvider
+import com.xmlcalabash.spi.DocumentResolverServiceProvider
 import com.xmlcalabash.spi.PagedMediaManager
 import com.xmlcalabash.spi.PagedMediaServiceProvider
 import com.xmlcalabash.util.AssertionsLevel
@@ -208,6 +209,11 @@ class XmlCalabashBuilder {
             documentManager.set(DocumentManager(this))
         }
         val documentManager = documentManager.get()!!
+
+        for (provider in DocumentResolverServiceProvider.providers()) {
+            val manager = provider.create();
+            manager.configure(documentManager)
+        }
 
         for ((contentType, exensions) in additionalMimeTypeMappings.getOrDefault() ?: emptyMap()) {
             documentManager.mimetypesFileTypeMap.addMimeTypes("${contentType} ${extensions}")
