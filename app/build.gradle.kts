@@ -45,9 +45,10 @@ dependencies {
                                    "configuration" to "releaseArtifacts")))
 
   implementation(project(":xmlcalabash"))
-  //implementation(project(":ext:existdb")) // No, it requires eXist-db
-  //implementation(project(":ext:basex")) // No, it requires BaseX
-  //implementation(project(":ext:polyglot")) // No, it requires Java 17
+  //implementation(project(":ext:existdb"))   // No, it requires eXist-db
+  //implementation(project(":ext:elemental")) // No, it requires Elemental
+  //implementation(project(":ext:basex"))     // No, it requires BaseX
+  //implementation(project(":ext:polyglot"))  // No, it's niche and has lots of dependencies
 
   ExternalDependencies.of(ExternalDependencies.distributionSteps).forEach {
     stageJars(it) {
