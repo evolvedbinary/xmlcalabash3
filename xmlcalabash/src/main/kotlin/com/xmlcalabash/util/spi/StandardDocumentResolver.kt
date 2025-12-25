@@ -18,6 +18,7 @@ class StandardDocumentResolver: DocumentResolverProvider, DocumentResolver {
         URI("https://xmlcalabash.com/ext/library/diagramming.xpl") to "/com/xmlcalabash/ext/diagramming.xpl",
         URI("https://xmlcalabash.com/ext/library/ebnf-convert.xpl") to "/com/xmlcalabash/ext/ebnf-convert.xpl",
         URI("https://xmlcalabash.com/ext/library/epubcheck.xpl") to "/com/xmlcalabash/ext/epubcheck.xpl",
+        URI("https://xmlcalabash.com/ext/library/expand-templates.xpl") to "/com/xmlcalabash/ext/expand-templates.xpl",
         URI("https://xmlcalabash.com/ext/library/fileset.xpl") to "/com/xmlcalabash/ext/fileset.xpl",
         URI("https://xmlcalabash.com/ext/library/find.xpl") to "/com/xmlcalabash/ext/find.xpl",
         URI("https://xmlcalabash.com/ext/library/json-patch.xpl") to "/com/xmlcalabash/ext/json-patch.xpl",
@@ -25,6 +26,7 @@ class StandardDocumentResolver: DocumentResolverProvider, DocumentResolver {
         URI("https://xmlcalabash.com/ext/library/markup-blitz.xpl") to "/com/xmlcalabash/ext/markup-blitz.xpl",
         URI("https://xmlcalabash.com/ext/library/merge-properties.xpl") to "/com/xmlcalabash/ext/merge-properties.xpl",
         URI("https://xmlcalabash.com/ext/library/metadata-extractor.xpl") to "/com/xmlcalabash/ext/metadata-extractor.xpl",
+        URI("https://xmlcalabash.com/ext/library/pebble.xpl") to "/com/xmlcalabash/ext/pebble.xpl",
         URI("https://xmlcalabash.com/ext/library/pipeline-messages.xpl") to "/com/xmlcalabash/ext/pipeline-messages.xpl",
         URI("https://xmlcalabash.com/ext/library/polyglot.xpl") to "/com/xmlcalabash/ext/polyglot.xpl",
         URI("https://xmlcalabash.com/ext/library/railroad.xpl") to "/com/xmlcalabash/ext/railroad.xpl",
@@ -35,7 +37,6 @@ class StandardDocumentResolver: DocumentResolverProvider, DocumentResolver {
         URI("https://xmlcalabash.com/ext/library/wait-for-update.xpl") to "/com/xmlcalabash/ext/wait-for-update.xpl",
         URI("https://xmlcalabash.com/ext/library/xmlunit.xpl") to "/com/xmlcalabash/ext/xmlunit.xpl",
         URI("https://xmlcalabash.com/ext/library/xpath.xpl") to "/com/xmlcalabash/ext/xpath.xpl",
-        URI("https://xmlcalabash.com/ext/library/expand-templates.xpl") to "/com/xmlcalabash/ext/expand-templates.xpl",
 
         URI("https://exproc.org/library/epubcheck.xpl") to "/com/xmlcalabash/ext/epubcheck.xpl",
         URI("https://exproc.org/library/expand-templates.xpl") to "/com/xmlcalabash/ext/expand-templates.xpl",
