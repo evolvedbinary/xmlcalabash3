@@ -18,9 +18,6 @@ repositories {
 val saxonVersion = project.properties["saxonVersion"].toString()
 val requirePass = project.findProperty("requirePass")?.toString() ?: "true"
 val consoleOutput = project.findProperty("xmlcalabash.testDriver.consoleOutput")?.toString() ?: "false"
-val dep_drewnoakesExtractor = project.findProperty("drewnoakesExtractor").toString()
-val dep_jaxbapi = project.findProperty("jaxbapi").toString()
-val dep_pdfbox = project.findProperty("pdfbox").toString()
 
 val transformation by configurations.creating
 val testrunner by configurations.creating {

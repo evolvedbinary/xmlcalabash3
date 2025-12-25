@@ -27,13 +27,6 @@ val saxonGroup = project.findProperty("saxonGroup")
 val saxonArtifact = project.findProperty("saxonArtifact")
 val saxonVersion = project.findProperty("saxonVersion")
 
-val dep_activation = project.findProperty("activation").toString()
-val dep_drewnoakesExtractor = project.findProperty("drewnoakesExtractor").toString()
-val dep_jaxbapi = project.findProperty("jaxbapi").toString()
-val dep_nineml = project.findProperty("nineml").toString()
-val dep_pdfbox = project.findProperty("pdfbox").toString()
-val dep_slf4j = project.findProperty("slf4j").toString()
-
 val xmlcalabashRelease by configurations.dependencyScope("xmlcalabashRelease")
 
 val stageJars by configurations.creating {
