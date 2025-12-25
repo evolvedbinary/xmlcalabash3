@@ -38,7 +38,7 @@ class VisualizerOutput(val builder: XmlCalabashBuilder, val xmlCalabash: XmlCala
     fun xml() {
         try {
             cleanupOutputDirectory()
-            writeNode("${outputDirectory}pipeline.xml", description.xml())
+            writeNode("${outputDirectory}/pipeline.xml", description.xml())
         } catch (ex: Exception) {
             logging.warn { Report(Verbosity.WARN, "SVG generation failed: ${ex.message}") }
         }
@@ -104,7 +104,7 @@ class VisualizerOutput(val builder: XmlCalabashBuilder, val xmlCalabash: XmlCala
             }
             builder.addEndElement()
             builder.endDocument()
-            writeNode("${outputDirectory}pipeline.xml", builder.result)
+            writeNode("${outputDirectory}/pipeline.xml", builder.result)
         }
 
         if (graphStyle != null) {
@@ -132,14 +132,14 @@ class VisualizerOutput(val builder: XmlCalabashBuilder, val xmlCalabash: XmlCala
 
         for (pipeline in description.pipelines) {
             val result = transform(xsltExec, pipeline,
-                filename = if (store) "${outputDirectory}pipelines/${description.pipelineName(pipeline)}${ext}" else null,
+                filename = if (store) "${outputDirectory}/pipelines/${description.pipelineName(pipeline)}${ext}" else null,
                 params = params)
             styledPipelines.add(result)
         }
 
         for (graph in description.graphs) {
             val result = transform(xsltExec, graph,
-                filename = if (store) "${outputDirectory}graphs/${description.graphName(graph)}${ext}" else null,
+                filename = if (store) "${outputDirectory}/graphs/${description.graphName(graph)}${ext}" else null,
                 params = params)
             styledGraphs.add(result)
         }
@@ -173,10 +173,10 @@ class VisualizerOutput(val builder: XmlCalabashBuilder, val xmlCalabash: XmlCala
 
     private fun graphvizDescription() {
         for (pipeline in description.pipelines) {
-            graphviz("${outputDirectory}pipelines/", description.pipelineName(pipeline))
+            graphviz("${outputDirectory}/pipelines/", description.pipelineName(pipeline))
         }
         for (graph in description.graphs) {
-            graphviz("${outputDirectory}graphs/", description.graphName(graph))
+            graphviz("${outputDirectory}/graphs/", description.graphName(graph))
         }
     }
 
@@ -242,17 +242,16 @@ class VisualizerOutput(val builder: XmlCalabashBuilder, val xmlCalabash: XmlCala
             throw IllegalStateException("Output directory is not a directory: ${outputDirectory.absolutePath}")
         }
 
-        val root = outputDirectory
-        val index = root.resolve("index.html")
+        val index = outputDirectory.resolve("index.html")
         if (index.exists() && !index.delete()) {
             throw IllegalStateException("Failed to erase ${index}")
         }
-        val pipeline = root.resolve("pipeline.xml")
+        val pipeline = outputDirectory.resolve("pipeline.xml")
         if (pipeline.exists() && !pipeline.delete()) {
             throw IllegalStateException("Failed to erase ${pipeline}")
         }
 
-        val pipelinesDir = File("${outputDirectory}pipelines")
+        val pipelinesDir = outputDirectory.resolve("pipelines")
         if (pipelinesDir.exists() && !pipelinesDir.deleteRecursively()) {
             throw IllegalStateException("Failed to erase ${pipelinesDir}")
         }
@@ -260,7 +259,7 @@ class VisualizerOutput(val builder: XmlCalabashBuilder, val xmlCalabash: XmlCala
             throw IllegalStateException("Failed to create ${pipelinesDir}")
         }
 
-        val graphsDir = File("${outputDirectory}/graphs")
+        val graphsDir = outputDirectory.resolve("graphs")
         if (graphsDir.exists() && !graphsDir.deleteRecursively()) {
             throw IllegalStateException("Failed to delete ${graphsDir}")
         }
