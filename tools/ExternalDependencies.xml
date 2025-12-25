@@ -161,6 +161,9 @@
     <group id="org.xmlunit">
       <artifact id="xmlunit-core" version="2.10.3"/>
     </group>
+    <group id="io.pebbletemplates">
+      <artifact id="pebble" version="4.1.0"/>
+    </group>
   </repository>
 
   <kotlin>package com.xmlcalabash.build
@@ -304,6 +307,9 @@ object ExternalDependencies {
     <xmlunit>
       <artifact ref="xmlunit-core"/>
     </xmlunit>
+    <pebble>
+      <artifact ref="pebble"/>
+    </pebble>
   </depends-on>))
 
   val implSteps = listOf("xmlcalabash", "send-mail")

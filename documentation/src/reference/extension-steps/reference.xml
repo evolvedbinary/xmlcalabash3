@@ -26,6 +26,7 @@
 <xi:include href="cx-mathml-to-svg.xml"/>
 <xi:include href="cx-merge-properties.xml"/>
 <xi:include href="cx-metadata-extractor.xml"/>
+<xi:include href="cx-pebble.xml"/>
 <xi:include href="cx-pipeline-messages.xml"/>
 <xi:include href="cx-polyglot.xml"/>
 <xi:include href="cx-plantuml.xml"/>

@@ -1,0 +1,112 @@
+<refentry xmlns:p="http://www.w3.org/ns/xproc"
+          xmlns:e="http://www.w3.org/1999/XSL/Spec/ElementSyntax"
+          xmlns:cxerr="http://xmlcalabash.com/ns/error"
+          xmlns:xi="http://www.w3.org/2001/XInclude"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          xmlns="http://docbook.org/ns/docbook"
+          xml:id="cx-pebble">
+<?db filename="cx-pebble"?>
+<refnamediv>
+  <refname>cx:pebble</refname>
+  <refpurpose>Expands Pebble templates</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv>
+<refsection role="introduction">
+<title>Introduction</title>
+<para>This step processes input with the Pebble templating engine.
+</para>
+</refsection>
+
+<refsection role="step-declaration">
+<title>Step declaration</title>
+<xi:include href="../../../../xmlcalabash/src/main/resources/com/xmlcalabash/ext/pebble.xpl"
+            xpointer="xpath(/*/*[@type='cx:pebble'])"/>
+<?import pebble.xpl?>
+</refsection>
+</refsynopsisdiv>
+
+<refsection>
+<title>Description</title>
+
+<para>This step processes the input document with the
+<link xlink:href="https://pebbletemplates.io/">Pebble templating engine</link>.
+Pebble templates operate on text documents. If the <port>source</port> is
+XML, HTML, XHTML, JSON, YAML, or TOML, it is serialized, processed with Pebble, and then
+re-parsed.</para>
+
+<para>The options are all passed to the Pebble engine.</para>
+
+<variablelist>
+<varlistentry><term><option>context</option></term>
+<listitem>
+<para>The map of name/value pairs used during expansion.
+</para>
+</listitem>
+</varlistentry>
+<varlistentry><term><option>autoEscaping</option></term>
+<listitem>
+<para>Escape potentially unsafe data?</para>
+</listitem>
+</varlistentry>
+<varlistentry><term><option>defaultEscapingStrategy</option></term>
+<listitem>
+<para>Select an escaping strategy: <literal>html</literal>, <literal>js</literal>,
+<literal>css</literal>, or <literal>url_param</literal>.
+</para>
+</listitem>
+</varlistentry>
+<varlistentry><term><option>defaultLocale</option></term>
+<listitem>
+<para>The default locale for templates.
+</para>
+</listitem>
+</varlistentry>
+<varlistentry><term><option>literalDecimalTreatedAsInteger</option></term>
+<listitem>
+<para>Treat decimals as integers (instead of longs).
+</para>
+</listitem>
+</varlistentry>
+<varlistentry><term><option>literalNumbersAsBigDecimals</option></term>
+<listitem>
+<para>Treat literal numbers as big decimals.
+</para>
+</listitem>
+</varlistentry>
+<varlistentry><term><option>maxRenderedSize</option></term>
+<listitem>
+<para>Maximum rendered size of the output. The step will fail if this threshold is exceeded.
+</para>
+</listitem>
+</varlistentry>
+<varlistentry><term><option>newlineTrimming</option></term>
+<listitem>
+<para>By default, the Pebble template engine trims a newline that immediately follows
+a Pebble tag. If this option is <literal>false()</literal>, all newlines are preserved.
+</para>
+</listitem>
+</varlistentry>
+<varlistentry><term><option>prefix</option></term>
+<listitem>
+<para>Filename prefix used when loading external templates.
+</para>
+</listitem>
+</varlistentry>
+<varlistentry><term><option>strictVariables</option></term>
+<listitem>
+<para>If true, reference to a variable name that doesn’t exist will cause the step
+to fail. If false, the reference is replaced by the empty string.
+</para>
+</listitem>
+</varlistentry>
+</variablelist>
+</refsection>
+
+<refsection>
+<title>Document properties</title>
+
+<para>All document properties are preserved.
+</para>
+</refsection>
+</refentry>

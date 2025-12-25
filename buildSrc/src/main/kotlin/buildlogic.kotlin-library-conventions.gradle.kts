@@ -21,7 +21,7 @@ dependencies {
                                  "paged-media-fop", "paged-media-prince",
                                  "railroad", "rdf",
                                  "selenium", "send-mail", "trang", "unique-id",
-                                 "xmlunit")).forEach {
+                                 "xmlunit", "pebble")).forEach {
     implementation(it) {
       exclude(group="net.sf.saxon", module="Saxon-HE")
       exclude(group="com.saxonica", module="Saxon-PE")

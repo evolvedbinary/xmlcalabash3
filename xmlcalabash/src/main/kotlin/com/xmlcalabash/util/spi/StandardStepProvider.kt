@@ -105,6 +105,7 @@ class StandardStepProvider: AtomicStepManager, AtomicStepProvider {
         NsCx.ditaa              to { _: StepParameters? -> DitaaStep() },
         NsCx.ePubCheck          to { _: StepParameters? -> EPubCheckStep(NsCx.namespace) },
         NsCx.ebnfConvert        to { _: StepParameters? -> EbnfConvertStep() },
+        NsCx.pebble             to { _: StepParameters? -> PebbleStep() },
         NsCx.fileset            to { _: StepParameters? -> FileSetStep() },
         NsCx.find               to { _: StepParameters? -> FindStep() },
         NsCx.jsonPatch          to { _: StepParameters? -> JsonPatchStep() },

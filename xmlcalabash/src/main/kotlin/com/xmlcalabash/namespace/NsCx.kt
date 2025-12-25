@@ -136,6 +136,7 @@ object NsCx {
     val mathmlToSvg = QName(namespace, "cx:mathml-to-svg")
     val mergeProperties = QName(namespace, "cx:merge-properties")
     val metadataExtractor = QName(namespace, "cx:metadata-extractor")
+    val pebble = QName(namespace, "cx:pebble")
     val pipelineMessages = QName(namespace, "cx:pipeline-messages")
     val plantuml = QName(namespace, "cx:plantuml")
     val railroad = QName(namespace, "cx:railroad")

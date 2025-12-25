@@ -112,7 +112,9 @@ object ExternalDependencies {
 
         "unique-id" to listOf("com.github.f4b6a3:uuid-creator:6.1.1"),
 
-        "xmlunit" to listOf("org.xmlunit:xmlunit-core:2.10.3"))
+        "xmlunit" to listOf("org.xmlunit:xmlunit-core:2.10.3"),
+
+        "pebble" to listOf("io.pebbletemplates:pebble:4.1.0"))
 
   val implSteps = listOf("xmlcalabash", "send-mail")
   val exclSteps = listOf("polyglot")
