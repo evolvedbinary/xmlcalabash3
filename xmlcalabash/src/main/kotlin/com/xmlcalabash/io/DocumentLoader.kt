@@ -1,8 +1,5 @@
 package com.xmlcalabash.io
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.dataformat.toml.TomlFactory
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.xmlcalabash.config.StepConfiguration
 import com.xmlcalabash.documents.DocumentProperties
 import com.xmlcalabash.documents.XProcDocument
@@ -15,25 +12,16 @@ import com.xmlcalabash.spi.ContentTypeLoader
 import com.xmlcalabash.spi.ContentTypeLoaderServiceProvider
 import com.xmlcalabash.tracing.TraceListener
 import com.xmlcalabash.util.MediaClassification
-import com.xmlcalabash.util.SaxonTreeBuilder
 import com.xmlcalabash.util.UriUtils
-import net.sf.saxon.om.NamespaceUri
-import net.sf.saxon.s9api.*
-import net.sf.saxon.value.BooleanValue
-import nu.validator.htmlparser.common.XmlViolationPolicy
-import nu.validator.htmlparser.dom.HtmlDocumentBuilder
-import org.xml.sax.ErrorHandler
-import org.xml.sax.InputSource
-import org.xml.sax.SAXParseException
+import net.sf.saxon.s9api.QName
+import net.sf.saxon.s9api.SaxonApiException
+import net.sf.saxon.s9api.XdmAtomicValue
+import net.sf.saxon.s9api.XdmValue
 import java.io.*
 import java.net.URI
-import java.nio.ByteBuffer
 import java.nio.charset.Charset
-import java.nio.charset.StandardCharsets
 import java.time.ZoneOffset
 import java.util.*
-import javax.xml.transform.dom.DOMSource
-import javax.xml.transform.sax.SAXSource
 import kotlin.math.min
 
 class DocumentLoader(val stepConfig: StepConfiguration,
