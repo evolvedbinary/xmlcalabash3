@@ -29,8 +29,8 @@ object ExternalDependencies {
             "org.brotli:dec:0.1.2",
             "org.jline:jline:3.30.6",
             "org.jline:jline-terminal-jansi:3.30.6",
-            "org.nineml:coffeefilter:3.2.9",
-            "org.nineml:coffeegrinder:3.2.9",
+            "org.nineml:coffeefilter:3.3.4",
+            "org.nineml:coffeegrinder:3.3.4",
             "org.relaxng:jing:20241231",
             "org.tukaani:xz:1.10",
             "org.xmlresolver:xmlresolver:6.0.19",
@@ -100,8 +100,8 @@ object ExternalDependencies {
             "org.semarglproject:semargl-core:0.7",
             "org.semarglproject:semargl-rdfa:0.7"),
 
-        "selenium" to listOf("org.nineml:coffeegrinder:3.2.9",
-            "org.nineml:coffeefilter:3.2.9",
+        "selenium" to listOf("org.nineml:coffeegrinder:3.3.4",
+            "org.nineml:coffeefilter:3.3.4",
             "org.seleniumhq.selenium:selenium-java:4.34.0"),
 
         "send-mail" to listOf("javax.activation:activation:1.1.1",
