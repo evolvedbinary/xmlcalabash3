@@ -8,6 +8,7 @@ import net.sf.saxon.s9api.QName
 import net.sf.saxon.s9api.XdmNode
 import net.sf.saxon.s9api.XdmValue
 import org.nineml.coffeefilter.InvisibleXml
+import org.nineml.coffeefilter.exceptions.IxmlException
 import org.nineml.coffeegrinder.exceptions.TreeWalkerException
 
 open class InvisibleXmlImpl(val stepConfig: XProcStepConfiguration, val prefer: String) {
@@ -25,14 +26,11 @@ open class InvisibleXmlImpl(val stepConfig: XProcStepConfiguration, val prefer: 
         try {
             return impl.parse(grammar, input, failOnError, parameters)
         } catch (ex: Exception) {
-            if (ex is XProcException) {
-                throw ex
+            when (ex) {
+                is XProcException -> throw ex
+                is IxmlException -> throw stepConfig.exception(XProcError.xcInvalidIxmlGrammar(), ex)
+                else -> throw stepConfig.exception(XProcError.xcInvisibleXmlParseFailed(), ex)
             }
-            // This is a terrible hack; the NineML library really needs to be improved!
-            if (ex is NullPointerException && usingImpl == "nineml") {
-                throw stepConfig.exception(XProcError.xcInvalidIxmlGrammar(), ex)
-            }
-            throw stepConfig.exception(XProcError.xcInvisibleXmlParseFailed(), ex)
         }
     }
 
@@ -42,36 +40,35 @@ open class InvisibleXmlImpl(val stepConfig: XProcStepConfiguration, val prefer: 
         try {
             return impl.parse(grammar, input, failOnError, parameters)
         } catch (ex: Exception) {
-            if (ex is XProcException) {
-                throw ex
-            }
-            // This is a terrible hack; the NineML library really needs to be improved!
-            if (ex is NullPointerException && usingImpl == "nineml") {
-                // We can't get the failed parse from here. So we parse it again. Grumble.
-                val invisibleXml = InvisibleXml()
-                val parser = if (grammar != null) {
-                    invisibleXml.getParserFromIxml(grammar)
-                } else {
-                    invisibleXml.getParser()
-                }
-                if (parser.failedParse != null) {
-                    val builder = stepConfig.processor.newDocumentBuilder()
-                    builder.isLineNumbering = true
-                    val bch = builder.newBuildingContentHandler()
-                    try {
-                        parser.failedParse!!.getTree(bch)
-                        throw stepConfig.exception(XProcError.xcInvalidIxmlGrammar(bch.documentNode))
-                    } catch (_: TreeWalkerException) {
-                        if (parser.exception != null) {
-                            throw stepConfig.exception(XProcError.xcInvalidIxmlGrammar(parser.exception!!.message ?: parser.exception!!.toString()))
-                        }
-                        throw stepConfig.exception(XProcError.xcInvalidIxmlGrammar())
+            when (ex) {
+                is XProcException -> throw ex
+                is IxmlException -> {
+                    // We can't get the failed parse from here. So we parse it again. Grumble.
+                    val invisibleXml = InvisibleXml()
+                    val parser = if (grammar != null) {
+                        invisibleXml.getParserFromIxml(grammar)
+                    } else {
+                        invisibleXml.getParser()
                     }
-                }
+                    if (parser.failedParse != null) {
+                        val builder = stepConfig.processor.newDocumentBuilder()
+                        builder.isLineNumbering = true
+                        val bch = builder.newBuildingContentHandler()
+                        try {
+                            parser.failedParse!!.getTree(bch)
+                            throw stepConfig.exception(XProcError.xcInvalidIxmlGrammar(bch.documentNode))
+                        } catch (_: TreeWalkerException) {
+                            if (parser.exception != null) {
+                                throw stepConfig.exception(XProcError.xcInvalidIxmlGrammar(parser.exception!!.message ?: parser.exception!!.toString()))
+                            }
+                            throw stepConfig.exception(XProcError.xcInvalidIxmlGrammar())
+                        }
+                    }
 
-                throw stepConfig.exception(XProcError.xcInvalidIxmlGrammar(), ex)
+                    throw stepConfig.exception(XProcError.xcInvalidIxmlGrammar(), ex)
+                }
+                else -> throw stepConfig.exception(XProcError.xcInvisibleXmlParseFailed(), ex)
             }
-            throw stepConfig.exception(XProcError.xcInvisibleXmlParseFailed(), ex)
         }
     }
 
