@@ -152,7 +152,7 @@ class RailroadStep(): AbstractAtomicStep() {
 
             val bais = ByteArrayInputStream(baos.toByteArray())
             val docbuilder = stepConfig.processor.newDocumentBuilder()
-            docbuilder.isLineNumbering = true
+            docbuilder.isLineNumbering = stepConfig.xmlCalabashConfig.lineNumbering
             val destination = XdmDestination()
             val svgsource = SAXSource(InputSource(bais))
             docbuilder.parse(svgsource, destination)

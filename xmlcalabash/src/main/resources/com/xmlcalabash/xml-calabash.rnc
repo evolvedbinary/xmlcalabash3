@@ -5,16 +5,17 @@ start = cc.xmlCalabash
 
 cc.xmlCalabash =
     element cc:xml-calabash {
-        attribute version { "1.0" }?,
-        attribute saxon-configuration { text }?,
+        attribute default-xquery-processor { xsd:anyURI }?,
         attribute licensed { xsd:boolean }?,
-        attribute verbosity { "trace" | "debug" | "info" | "warn" | "error" }?,
-        attribute stacktrace { xsd:boolean }?,
+        attribute line-numbering { xsd:boolean }?,
         attribute piped-io { xsd:boolean }?,
+        attribute saxon-configuration { text }?,
+        attribute stacktrace { xsd:boolean }?,
         attribute try-namespaces { xsd:boolean }?,
         attribute use-location-hints { xsd:boolean }?,
         attribute validation-mode { "strict" | "lax" }?,
-        attribute default-xquery-processor { xsd:anyURI }?,
+        attribute verbosity { "trace" | "debug" | "info" | "warn" | "error" }?,
+        attribute version { "1.0" }?,
         (cc.catalog
         | cc.extension
         | cc.graphviz

@@ -262,6 +262,16 @@ class CommandLineTest {
         )).isEmpty())
     }
 
+    // [--line-numbering]
+    @Test
+    fun lineNumberingTest() {
+        val builder = CommandLine.parse(arrayOf("--line-numbering"))
+        val info = BuilderConfiguration(builder)
+        Assertions.assertTrue(info.assertConfiguration(mapOf(
+            "lineNumbering" to true
+        )).isEmpty())
+    }
+
     // [--debug]
     @Test
     fun debugTest() {

@@ -341,7 +341,7 @@ class DocumentConverter(val stepConfig: StepConfiguration,
                 val htmlBuilder = HtmlDocumentBuilder(XmlViolationPolicy.ALTER_INFOSET)
                 val html = htmlBuilder.parse(stream)
                 val builder = doc.context.processor.newDocumentBuilder()
-                builder.isLineNumbering = true
+                builder.isLineNumbering = stepConfig.xmlCalabashConfig.lineNumbering
 
                 if (doc.baseURI != null && doc.baseURI.toString().isNotEmpty()) {
                     builder.baseURI = doc.baseURI!!

@@ -52,7 +52,7 @@ open class InvisibleXmlImpl(val stepConfig: XProcStepConfiguration, val prefer: 
                     }
                     if (parser.failedParse != null) {
                         val builder = stepConfig.processor.newDocumentBuilder()
-                        builder.isLineNumbering = true
+                        builder.isLineNumbering = stepConfig.xmlCalabashConfig.lineNumbering
                         val bch = builder.newBuildingContentHandler()
                         try {
                             parser.failedParse!!.getTree(bch)

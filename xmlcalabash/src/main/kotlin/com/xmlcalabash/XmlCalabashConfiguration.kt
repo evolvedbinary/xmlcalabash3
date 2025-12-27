@@ -27,6 +27,7 @@ interface XmlCalabashConfiguration {
     val implicitParameterName: QName?
     val inlineTrimWhitespace: Boolean
     val licensed: Boolean
+    val lineNumbering: Boolean
     val messagePrinter: MessagePrinter
     val messageReporter: MessageReporter
     val other: Map<QName, List<Map<QName, String>>>

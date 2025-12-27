@@ -57,6 +57,7 @@ class ConfigurationLoader() {
         private val _filespec = QName("filespec")
         private val _ignoreErrors = QName("ignore-errors")
         private val _licensed = QName("licensed")
+        private val _lineNumbering = QName("line-numbering")
         private val _mpt = QName("mpt")
         private val _output = QName("output")
         private val _piped_io = QName("piped-io")
@@ -94,7 +95,6 @@ class ConfigurationLoader() {
 
         val processor = Processor(false)
         val builder = processor.newDocumentBuilder()
-        builder.isLineNumbering = true
         val destination = XdmDestination()
         builder.parse(SAXSource(source), destination)
 
@@ -136,6 +136,7 @@ class ConfigurationLoader() {
         }
 
         root.getAttributeValue(_licensed)?.let { builder.licensed.set(booleanAttribute(it, "licensed")) }
+        root.getAttributeValue(_lineNumbering)?.let { builder.lineNumbering.set(booleanAttribute(it, "lineNumbering")) }
         root.getAttributeValue(_piped_io)?.let { builder.pipedMode.set(booleanAttribute(it, "piped-io")) }
         root.getAttributeValue(_stacktrace)?.let { builder.stacktrace.set(booleanAttribute(it, "stacktrace")) }
         root.getAttributeValue(_verbosity)?.let { builder.verbosity.set(verbosityAttribute(it)) }

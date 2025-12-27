@@ -6,9 +6,11 @@ import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.exceptions.XProcException
 import com.xmlcalabash.namespace.Ns
+import com.xmlcalabash.namespace.NsCx
 import com.xmlcalabash.namespace.NsErr
 import com.xmlcalabash.namespace.NsP
 import net.sf.saxon.s9api.QName
+import net.sf.saxon.s9api.XdmAtomicValue
 import net.sf.saxon.s9api.XdmValue
 import java.net.URI
 
@@ -46,8 +48,12 @@ class PipelineBuilder private constructor(val stepConfig: InstructionConfigurati
         // are XML even if the local system isn't configured that way.
         val properties = DocumentProperties()
         properties.set(Ns.contentType, "application/xml")
+
+        // We *do* need line numbers for pipelines so that we can report error locations!
+        val parameters = mutableMapOf<QName, XdmValue>()
+        parameters.set(NsCx.lineNumbering, XdmAtomicValue(true))
         try {
-            return stepConfig.environment.documentManager.load(uri, stepConfig, properties)
+            return stepConfig.environment.documentManager.load(uri, stepConfig, properties, parameters)
         } catch (ex: XProcException) {
             if (ex.error.code == NsErr.xd(11)) {
                 throw ex.error.with(NsErr.xs(52)).exception()

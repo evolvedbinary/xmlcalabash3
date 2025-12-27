@@ -1023,7 +1023,7 @@ class SeleniumStep(): AbstractAtomicStep() {
         }
 
         val builder = stepConfig.processor.newDocumentBuilder()
-        builder.isLineNumbering = true
+        builder.isLineNumbering = stepConfig.xmlCalabashConfig.lineNumbering
         val bytes = ByteArrayInputStream(tree.tree.asXML().toByteArray(StandardCharsets.UTF_8))
         val source = SAXSource(InputSource(bytes))
         val xdmDestination = XdmDestination()

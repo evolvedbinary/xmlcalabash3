@@ -61,6 +61,7 @@ class BuilderConfiguration(config: XmlCalabashBuilder) {
         "inlineTrimWhitespace" to config.inlineTrimWhitespace.getOrDefault(),
         "inputs" to config.inputs.getOrDefault(),
         "licensed" to config.licensed.getOrDefault(),
+        "lineNumbering" to config.lineNumbering.getOrDefault(),
         "maxThreadCount" to config.maxThreadCount.getOrDefault(),
         "messagePrinter" to config.messagePrinter.getOrDefault(),
         "messageReporter" to config.messageReporter.getOrDefault(),
@@ -128,6 +129,7 @@ class BuilderConfiguration(config: XmlCalabashBuilder) {
                 "go" -> true
                 "inlineTrimWhitespace" -> false
                 "licensed" -> false
+                "lineNumbering" -> false
                 "maxThreadCount" -> 1
                 "messageReporterBufferSize" -> 32
                 "mpt" -> 0.99999998

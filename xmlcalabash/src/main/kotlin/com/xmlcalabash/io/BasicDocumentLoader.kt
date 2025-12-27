@@ -8,6 +8,7 @@ import com.xmlcalabash.documents.DocumentProperties
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.namespace.Ns
+import com.xmlcalabash.namespace.NsCx
 import com.xmlcalabash.util.MediaClassification
 import com.xmlcalabash.util.SaxonTreeBuilder
 import net.sf.saxon.om.NamespaceUri
@@ -133,7 +134,7 @@ class BasicDocumentLoader(val href: URI?,
         val parseOptions = saveParseOptions.withErrorHandler(errorHandler)
         processor.underlyingConfiguration.parseOptions = parseOptions
         val builder = processor.newDocumentBuilder()
-        builder.isLineNumbering = true
+        builder.isLineNumbering = parameters[NsCx.lineNumbering]?.underlyingValue?.effectiveBooleanValue() ?: false
 
         val validating = if (parameters[Ns.dtdValidate] != null) {
             val value = parameters[Ns.dtdValidate]!!.underlyingValue
@@ -179,10 +180,8 @@ class BasicDocumentLoader(val href: URI?,
         val htmlBuilder = HtmlDocumentBuilder(XmlViolationPolicy.ALTER_INFOSET)
         val html = htmlBuilder.parse(stream)
         val builder = processor.newDocumentBuilder()
-        builder.isLineNumbering = true
-        if (uri != null) {
-            builder.baseURI = uri
-        }
+        builder.isLineNumbering = parameters[NsCx.lineNumbering]?.underlyingValue?.effectiveBooleanValue() ?: false
+        uri?.let { builder.baseURI = it }
         val xdm = builder.build(DOMSource(html))
         return XProcDocument.ofXml(xdm, DocumentContextImpl(xdm), properties)
     }

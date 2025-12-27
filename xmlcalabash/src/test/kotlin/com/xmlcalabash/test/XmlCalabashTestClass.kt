@@ -27,7 +27,6 @@ open class XmlCalabashTestClass {
 
     fun fromString(stepConfig: StepConfiguration, xml: String, properties: DocumentProperties, parameters: Map<QName, XdmValue>): XProcDocument {
         val builder = stepConfig.processor.newDocumentBuilder()
-        builder.isLineNumbering = true
         val bais = ByteArrayInputStream(xml.toByteArray())
         val input = InputSource(bais)
         input.systemId = stepConfig.baseUri?.toString()

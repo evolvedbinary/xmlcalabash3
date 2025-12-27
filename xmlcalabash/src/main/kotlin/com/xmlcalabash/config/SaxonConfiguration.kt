@@ -28,10 +28,6 @@ class SaxonConfiguration private constructor(val licensed: Boolean,
                                              val configurers: List<Configurer>,
                                              private val contextManager: ExecutionContextManager): ExecutionContextManager by contextManager {
     companion object {
-        fun newInstance(licensed: Boolean): SaxonConfiguration {
-            return newInstance(licensed, null, emptyMap(), emptyList(), emptyMap(), emptyList())
-        }
-
         fun newInstance(configuration: Configuration): SaxonConfiguration {
             val licensed = configuration.isLicensedFeature(Configuration.LicenseFeature.SCHEMA_VALIDATION)
             val contextManager: ExecutionContextManager = ExecutionContextImpl()

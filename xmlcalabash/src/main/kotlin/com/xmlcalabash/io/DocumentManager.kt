@@ -137,7 +137,7 @@ open class DocumentManager(val resolver: XMLResolver): EntityResolver, EntityRes
 
         val resolved = resolver.resolve(resp.request);
         if (resolved.inputStream != null) {
-            val loader = DocumentLoader(stepConfig, resolved.resolvedURI, properties, parameters, originalUri)
+            val loader = DocumentLoader(stepConfig, resolved.resolvedURI, newProperties, parameters, originalUri)
             // Generally speaking, the XProc configuration for content types is more accurate and
             // complete than the underlying resolver configuration.
             var ctype = mimetypesFileTypeMap.getContentType(resolved.resolvedURI.toString())
@@ -151,14 +151,14 @@ open class DocumentManager(val resolver: XMLResolver): EntityResolver, EntityRes
             }
 
             // If there's an explicit content type in the document properties, *it* wins.
-            val mtype = properties.contentType ?: MediaType.parse(ctype ?: "application/octet-stream")
+            val mtype = newProperties.contentType ?: MediaType.parse(ctype ?: "application/octet-stream")
 
             var encoding: Charset? = null
             resolved.encoding?.let { encoding = Charset.forName(it) }
             return loader.load(resolved.inputStream, mtype, encoding)
         }
 
-        val loader = DocumentLoader(stepConfig, loadURI, properties, parameters, originalUri)
+        val loader = DocumentLoader(stepConfig, loadURI, newProperties, parameters, originalUri)
         return loader.load()
     }
 
