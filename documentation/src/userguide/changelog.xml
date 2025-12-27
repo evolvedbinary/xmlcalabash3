@@ -13,6 +13,68 @@ See the commits and pull requests on
 finer detail.</para>
 
 <revhistory>
+<revision xml:id="r3033">
+<revnumber>3.0.33</revnumber>
+<date>2025-12-27</date>
+<revdescription>
+<itemizedlist>
+<listitem><para>There are a few substantial changes in this release.</para>
+<orderedlist>
+<listitem><para>XML Calabash now requires Java 17 or later.
+</para></listitem>
+<listitem><para>The <code>XmlCalabashBuilder</code> interface has been
+completely rewritten; that’s going to impact anyone integrating XML
+Calabash into another application.
+</para></listitem>
+<listitem><para>A line numbering option has been added, this changes the
+default setting from “preserve line numbers in constructed documents” to
+“don’t preserve line numbers”. This will save memory and is usually not
+noticeable, though it may have <link linkend="cli-line-numbers">an impact</link>
+on some pipelines.
+</para></listitem>
+</orderedlist>
+</listitem>
+<listitem><para>Closed <cbissue number="477"/>. Upgraded to NineML version 3.3.4.
+</para></listitem>
+<listitem><para>Closed <cbissue number="464"/>. Corrected errors related to namespace
+bindings and option names. Also fixed the bug where an option in a namespace couldn’t
+be set with a shortcut.
+</para></listitem>
+<listitem><para>Closed <cbissue number="460"/>. Leveraging the XML Resolver in the
+document loader makes it possible to refer to resources in a ZIP file.
+</para></listitem>
+<listitem><para>Closed <cbissue number="459"/>. Moved <code>DocumentServiceProvider</code>
+initialization so it isn’t repeated.
+</para></listitem>
+<listitem><para>Closed <cbissue number="454"/>. Added a <code>--line-numbering</code>
+command line option and a corresponding configuration file setting.
+</para></listitem>
+<listitem><para>Closed <cbissue number="439"/>. Fixed (another) typo
+in the error explanations file.
+</para></listitem>
+<listitem><para>Closed <cbissue number="277"/>. Fixed the <tag>cx:xmlunit</tag> step
+by allowing it to construct the models it uses (rather than trying to cleverly
+wrap a DOM around the Saxon tree model).
+</para></listitem>
+<listitem><para>Closed <cbissue number="192"/>. All relevant command line options can
+now be set in the configuration file.
+</para></listitem>
+<listitem><para>Fixed a bug where XML Catalog files provided on the command line were
+apparently not being used.
+</para></listitem>
+<listitem><para>Improved the <code>info mimetype</code> command so that it can lookup 
+extensions for a media type.
+</para></listitem>
+<listitem><para>The documentation claimed that <tag>cc:xml-schema</tag> could have an
+inline schema document. This never worked and the schema and documentation have been
+updated to reflect this.
+</para></listitem>
+<listitem><para>Added a <tag>cx:pebble</tag> extension step to run the Pebble
+templating engine.
+</para></listitem>
+</itemizedlist>
+</revdescription>
+</revision>
 <revision xml:id="r3032">
 <revnumber>3.0.32</revnumber>
 <date>2025-12-14</date>
