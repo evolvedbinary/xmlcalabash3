@@ -6,10 +6,13 @@ import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.io.DocumentWriter
 import com.xmlcalabash.namespace.Ns
+import com.xmlcalabash.namespace.NsCx
 import com.xmlcalabash.steps.AbstractAtomicStep
 import com.xmlcalabash.util.MediaClassification
+import com.xmlcalabash.util.S9Api
 import com.xmlcalabash.xvrl.XvrlReport
 import net.sf.saxon.lib.ErrorReporter
+import net.sf.saxon.lib.Validation
 import net.sf.saxon.s9api.*
 import org.apache.logging.log4j.kotlin.logger
 import org.xml.sax.InputSource
@@ -26,6 +29,7 @@ class ValidateWithDTD(): AbstractValidationStep() {
         super.run()
 
         val parameters = qnameMapBinding(Ns.parameters)
+        val paramLno = parameters[NsCx.lineNumbering]?.underlyingValue?.effectiveBooleanValue() ?: false
 
         report = XvrlReport.newInstance(stepConfig, xvrlParameters(parameters))
         report.metadata.creator(stepConfig.saxonConfig.environment.productName,
@@ -33,6 +37,9 @@ class ValidateWithDTD(): AbstractValidationStep() {
 
         source = queues["source"]!!.first()
         source.baseURI?.let { report.metadata.document(it) }
+
+        val docElem = S9Api.documentElement(source.value as XdmNode)
+        val inputLno = docElem.underlyingNode.lineNumber >= 1
 
         val assertValid = booleanBinding(Ns.assertValid) ?: true
 
@@ -63,10 +70,13 @@ class ValidateWithDTD(): AbstractValidationStep() {
         try {
             val parser = stepConfig.processor.newDocumentBuilder()
             parser.isDTDValidation = true
-            parser.isLineNumbering = true
 
             val sconfig = stepConfig.saxonConfig.processor.underlyingConfiguration
-            val options = sconfig.parseOptions.withErrorReporter(MyErrorReporter())
+            val options = sconfig.parseOptions
+                .withErrorReporter(MyErrorReporter())
+                .withDTDValidationMode(Validation.STRICT)
+                .withLineNumbering(stepConfig.xmlCalabashConfig.lineNumbering || paramLno || inputLno)
+
             sconfig.parseOptions = options
 
             val destination = XdmDestination()

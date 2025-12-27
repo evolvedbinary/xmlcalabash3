@@ -90,7 +90,8 @@ public class JavaApiTest {
     }
 
     private XmlCalabash setupXmlCalabash() {
-        XmlCalabash xmlCalabash = (new XmlCalabashBuilder()).build();
+        XmlCalabashBuilder builder = new XmlCalabashBuilder();
+        XmlCalabash xmlCalabash = builder.build();
         processor = xmlCalabash.getSaxonConfiguration().getProcessor();
         return xmlCalabash;
     }

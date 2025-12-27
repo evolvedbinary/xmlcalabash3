@@ -44,7 +44,7 @@ class InvisibleXmlNineML(stepConfig: XProcStepConfiguration): InvisibleXmlImpl(s
         val doc = parser.parse(input)
 
         val builder = stepConfig.processor.newDocumentBuilder()
-        builder.isLineNumbering = true
+        builder.isLineNumbering = stepConfig.xmlCalabashConfig.lineNumbering
         val bch = builder.newBuildingContentHandler()
         doc.getTree(bch)
         val tree = bch.documentNode

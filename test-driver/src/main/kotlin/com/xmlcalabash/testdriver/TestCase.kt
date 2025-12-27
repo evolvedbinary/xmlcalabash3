@@ -100,7 +100,6 @@ class TestCase(val builder: XmlCalabashBuilder, val xmlCalabash: XmlCalabash, va
 
         loaded = true
         val builder = xmlCalabash.saxonConfiguration.processor.newDocumentBuilder()
-        builder.isLineNumbering = true
         val testXml = builder.build(testFile)
         loadTest(rootElement(testXml))
     }
@@ -489,7 +488,6 @@ class TestCase(val builder: XmlCalabashBuilder, val xmlCalabash: XmlCalabash, va
     private fun loadPipeline(pipeline: XdmNode) {
         val xml = if (pipeline.getAttributeValue(SRC) != null) {
             val builder = testConfig.processor.newDocumentBuilder()
-            builder.isLineNumbering = true
             val fn = pipeline.baseURI.resolve(pipeline.getAttributeValue(SRC))
             val xml = builder.build(SAXSource(InputSource(fn.toString())))
             rootElement(xml)
@@ -510,7 +508,6 @@ class TestCase(val builder: XmlCalabashBuilder, val xmlCalabash: XmlCalabash, va
         val documents = mutableListOf<XdmNode>()
         if (input.getAttributeValue(SRC) != null) {
             val builder = testConfig.processor.newDocumentBuilder()
-            builder.isLineNumbering = true
             val fn = input.baseURI.resolve(input.getAttributeValue(SRC))
             val xml = builder.build(SAXSource(InputSource(fn.toString())))
             documents.add(xml)
@@ -598,7 +595,6 @@ class TestCase(val builder: XmlCalabashBuilder, val xmlCalabash: XmlCalabash, va
     private fun loadSchematron(schema: XdmNode) {
         val xml = if (schema.getAttributeValue(SRC) != null) {
             val builder = testConfig.processor.newDocumentBuilder()
-            builder.isLineNumbering = true
             val fn = schema.baseURI.resolve(schema.getAttributeValue(SRC))
             val xml = builder.build(SAXSource(InputSource(fn.toString())))
             rootElement(xml)
@@ -612,7 +608,6 @@ class TestCase(val builder: XmlCalabashBuilder, val xmlCalabash: XmlCalabash, va
     private fun loadCatalog(catalog: XdmNode) {
         val xml = if (catalog.getAttributeValue(SRC) != null) {
             val builder = testConfig.processor.newDocumentBuilder()
-            builder.isLineNumbering = true
             val fn = catalog.baseURI.resolve(catalog.getAttributeValue(SRC))
             val xml = builder.build(SAXSource(InputSource(fn.toString())))
             rootElement(xml, true).toString()
@@ -626,7 +621,6 @@ class TestCase(val builder: XmlCalabashBuilder, val xmlCalabash: XmlCalabash, va
     private fun loadFileEnvironment(node: XdmNode) {
         val xml = if (node.getAttributeValue(SRC) != null) {
             val builder = testConfig.processor.newDocumentBuilder()
-            builder.isLineNumbering = true
             val fn = node.baseURI.resolve(node.getAttributeValue(SRC))
             val xml = builder.build(SAXSource(InputSource(fn.toString())))
             rootElement(xml)

@@ -57,8 +57,6 @@ open class SaxonTreeBuilder(val processor: Processor) {
     open fun startDocument(baseURI: URI?) {
         destination = XdmDestination()
         pipe = controller.makePipelineConfiguration()
-        // Make sure line numbers get preserved
-        pipe.configuration.setLineNumbering(true);
         receiver = destination.getReceiver(pipe, SerializationProperties())
 
         if (isNamespaceReducing) {

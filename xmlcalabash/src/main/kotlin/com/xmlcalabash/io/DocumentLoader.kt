@@ -157,8 +157,16 @@ class DocumentLoader(val stepConfig: StepConfiguration,
         val lmDate = Date(file.lastModified())
         properties[cx_last_modified] = XdmAtomicValue(lmDate.toInstant().atZone(ZoneOffset.UTC))
 
+        // Because of the slightly hacky dependency on BasicDocumentLoader, make sure
+        // that line numbering is reflected in the parameters...
+        val params = mutableMapOf<QName, XdmValue>()
+        params.putAll(parameters)
+        if (stepConfig.xmlCalabashConfig.lineNumbering && NsCx.lineNumbering !in parameters) {
+            params[NsCx.lineNumbering] = XdmAtomicValue(true)
+        }
+
         try {
-            val basicLoader = BasicDocumentLoader(absURI, stepConfig.processor, stepConfig.documentManager, properties, parameters)
+            val basicLoader = BasicDocumentLoader(absURI, stepConfig.processor, stepConfig.documentManager, properties, params)
             val stream = FileInputStream(file)
             val doc = basicLoader.load(stream, mediaType)
             stream.close()
@@ -236,18 +244,26 @@ class DocumentLoader(val stepConfig: StepConfiguration,
             throw stepConfig.exception(XProcError.xdStepFailed("Can't specify cx:xmlnt parser for non-XML resources"))
         }
 
+        // Because of the slightly hacky dependency on BasicDocumentLoader, make sure
+        // that line numbering is reflected in the parameters...
+        val params = mutableMapOf<QName, XdmValue>()
+        params.putAll(parameters)
+        if (stepConfig.xmlCalabashConfig.lineNumbering && NsCx.lineNumbering !in parameters) {
+            params[NsCx.lineNumbering] = XdmAtomicValue(true)
+        }
+
         try {
              return when (classification) {
                  MediaClassification.XML, MediaClassification.XHTML -> {
                      if (xmlnt == null) {
-                         val loader = BasicDocumentLoader(uri, stepConfig.processor, stepConfig.documentManager, properties, parameters)
+                         val loader = BasicDocumentLoader(uri, stepConfig.processor, stepConfig.documentManager, properties, params)
                          loader.load(stream, mediaType, mediaType.charset())
                      } else {
                          loadXmlnt(uri,  xmlnt == "entities", stream)
                      }
                  }
                  else -> {
-                     val loader = BasicDocumentLoader(absURI, stepConfig.processor, stepConfig.documentManager, properties, parameters)
+                     val loader = BasicDocumentLoader(absURI, stepConfig.processor, stepConfig.documentManager, properties, params)
                      loader.load(stream, mediaType, charset)
                  }
             }

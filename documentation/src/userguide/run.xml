@@ -64,53 +64,93 @@ given, the <command>run</command> command is assumed.</para>
 <cmdsynopsis>
   <command>xmlcalabash</command>
   <arg choice="opt">run</arg>
+
+  <arg rep="norepeat" linkend="cli-assertions">--assertions:<replaceable>level</replaceable></arg>
+  <arg rep="repeat" linkend="cli-catalog">--catalog:<replaceable>catalog-file-uri</replaceable></arg>
+  <sbr/>
   <arg rep="norepeat" linkend="cli-configuration">--configuration:<replaceable>configuration-file</replaceable></arg>
+  <arg rep="norepeat" linkend="cli-debug">--debug</arg>
+  <arg rep="norepeat" linkend="cli-debugger">--debugger</arg>
+  <arg rep="norepeat" linkend="cli-explain">--explain</arg>
   <sbr/>
-  <arg rep="norepeat" linkend="cli-pipe">--pipe</arg>
-  <arg rep="repeat" linkend="cli-input">--input:[<replaceable>type</replaceable>@]<replaceable>port</replaceable>=<replaceable>uri</replaceable></arg>
-  <arg rep="repeat" linkend="cli-output">--output:<replaceable>port</replaceable>=<replaceable>filespec</replaceable></arg>
-  <sbr/>
-  <arg rep="repeat" linkend="cli-namespace">--namespace:<replaceable>prefix</replaceable>=<replaceable>uri</replaceable></arg>
+  <arg rep="repeat" linkend="cli-extension">--extension:<replaceable>name</replaceable></arg>
+  <arg rep="norepeat" linkend="cli-graphs">--graphs:<replaceable>graph-output-directory</replaceable></arg>
+  <arg rep="norepeat" linkend="cli-help">--help</arg>
   <arg rep="repeat" linkend="cli-init">--init:<replaceable>class-name</replaceable></arg>
   <sbr/>
-  <arg rep="norepeat" linkend="cli-graphs">--graphs:<replaceable>graph-output-directory</replaceable></arg>
+  <arg rep="repeat" linkend="cli-input">--input:[<replaceable>type</replaceable>@]<replaceable>port</replaceable>=<replaceable>uri</replaceable></arg>
+  <arg rep="norepeat" linkend="cli-licensed">--licensed</arg>
+  <arg rep="norepeat" linkend="cli-line-numbers">--line-numbers</arg>
+  <arg rep="repeat" linkend="cli-namespace">--namespace:<replaceable>prefix</replaceable>=<replaceable>uri</replaceable></arg>
   <sbr/>
-  <arg rep="norepeat" linkend="cli-verbosity">--verbosity:<replaceable>verbosity</replaceable></arg>
-  <arg rep="norepeat" linkend="cli-explain">--explain</arg>
-  <arg rep="norepeat" linkend="cli-visualizer">--visualizer:<replaceable>name</replaceable></arg>
+  <arg rep="norepeat" linkend="cli-nogo">--nogo</arg>
+  <arg rep="repeat" linkend="cli-output">--output:<replaceable>port</replaceable>=<replaceable>filespec</replaceable></arg>
+  <arg rep="norepeat" linkend="cli-pipe">--pipe</arg>
+  <arg rep="norepeat" linkend="cli-stacktrace">--stacktrace</arg>
+  <arg rep="norepeat" linkend="cli-step">--step:<replaceable>step-name</replaceable></arg>
   <sbr/>
   <arg rep="norepeat" linkend="cli-trace">--trace:<replaceable>output-file</replaceable></arg>
   <arg rep="norepeat" linkend="cli-trace-documents">--trace-documents:<replaceable>output-directory</replaceable></arg>
   <sbr/>
-  <arg rep="norepeat" linkend="cli-assertions">--assertions:<replaceable>level</replaceable></arg>
-  <arg rep="repeat" linkend="cli-extension">--extension:<replaceable>name</replaceable></arg>
-  <sbr/>
-  <arg rep="norepeat" linkend="cli-stacktrace">--stacktrace</arg>
-  <arg rep="norepeat" linkend="cli-licensed">--licensed</arg>
-  <arg rep="norepeat" linkend="cli-debug">--debug</arg>
-  <arg rep="norepeat" linkend="cli-debugger">--debugger</arg>
-  <arg rep="norepeat" linkend="cli-nogo">--nogo</arg>
-  <sbr/>
-  <arg rep="repeat" linkend="cli-catalog">--catalog:<replaceable>catalog-file-uri</replaceable></arg>
-  <arg rep="repeat" linkend="cli-xml-schema">--xml-schema:<replaceable>xml-schema-file-uri</replaceable></arg>
-  <sbr/>
-  <arg rep="norepeat" linkend="cli-validation-mode">--validation-mode:<replaceable>mode</replaceable></arg>
   <arg rep="norepeat" linkend="cli-try-namespaces">--try-namespaces</arg>
   <arg rep="norepeat" linkend="cli-use-location-hints">--use-location-hints</arg>
-  <arg rep="norepeat" linkend="cli-help">--help</arg>
+  <arg rep="norepeat" linkend="cli-validation-mode">--validation-mode:<replaceable>mode</replaceable></arg>
   <sbr/>
-  <arg rep="norepeat" linkend="cli-step">--step:<replaceable>step-name</replaceable></arg>
+  <arg rep="norepeat" linkend="cli-verbosity">--verbosity:<replaceable>verbosity</replaceable></arg>
+  <arg rep="norepeat" linkend="cli-visualizer">--visualizer:<replaceable>name</replaceable></arg>
+  <arg rep="repeat" linkend="cli-xml-schema">--xml-schema:<replaceable>xml-schema-file-uri</replaceable></arg>
+  <sbr/>
   <arg linkend="cli-pipeline"><replaceable>pipeline.xpl</replaceable></arg>
   <arg rep="repeat" linkend="cli-option"><replaceable>option</replaceable>=<replaceable>value</replaceable></arg>
   <arg rep="repeat" linkend="cli-serial"><replaceable>!serialparam</replaceable>=<replaceable>value</replaceable></arg>
 </cmdsynopsis>
 
+<note>
+<para>Starting with XML Calabash 3.0.33, it is possible to set all of the run options
+in a configuration file. If a particular option is specified in the configuration file
+<emphasis>and</emphasis> on the command line, the command line value is used.</para>
+</note>
+
 <para>Where the options and arguments are:</para>
 
 <variablelist>
+
 <varlistentry><term><option>run</option>, selects the run command</term>
 <listitem>
 <para>If the command is omitted, <literal>run</literal> is assumed.</para>
+</listitem>
+</varlistentry>
+
+<varlistentry xml:id="cli-assertions">
+  <term><option>--assertions:<replaceable>level</replaceable></option></term>
+<listitem>
+<para>By default, assertions are disabled. You can enable them by setting
+an appropriate level:</para>
+<variablelist>
+<varlistentry>
+<term><literal>error</literal></term>
+<listitem><para>Schematron reports are output and Schematron errors
+are treated as errors. (They cause the step to throw
+<code>Q{http://xmlcalabash.com/ns/error}XI0041</code>.)</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>warning</literal> (or <literal>warn</literal>)</term>
+<listitem><para>Schematron reports are output and Schematron errors
+are treated as warnings.</para></listitem>
+</varlistentry>
+<varlistentry>
+<term><literal>ignore</literal></term>
+<listitem><para>Assertions are ignored.</para></listitem>
+</varlistentry>
+</variablelist>
+</listitem>
+</varlistentry>
+
+<varlistentry xml:id="cli-catalog">
+  <term><option>--catalog:<replaceable>catalog-file-uri</replaceable></option></term>
+<listitem>
+<para>Adds the specified catalog to the list of XML Catalogs that are used 
+during resource resolution.</para>
 </listitem>
 </varlistentry>
 
@@ -125,14 +165,91 @@ directory and then in your home directory.</para>
 </listitem>
 </varlistentry>
 
-<varlistentry xml:id="cli-pipe">
-  <term><option>--pipe<replaceable>:boolean</replaceable></option>, sets piped mode</term>
+<varlistentry xml:id="cli-debug">
+  <term><option>--debug</option></term>
 <listitem>
-<para>If piped mode is enabled, XML Calabash
-will behave like a Unix pipeline. If there is no binding for the primary input port, it will
-read it from standard input. If there is no binding for the primary output port, it will
-write it to standard output. If not specified, the default setting comes from
-the <option linkend="cc.xml-calabash">piped-io</option> configuration setting.</para>
+<para>The <option>--debug</option> option, the <option>--verbosity</option>
+option, and the configuration of the underlying logging framework are
+interrelated in ways that aren’t entirely ideal. Originally, the <option>--debug</option> option
+dynamically changed the underlying logger configuration, but that isn’t completely
+portable across logging frameworks, so it doesn’t try to do that anymore.</para>
+<para>If you specify <option>--debug</option> the verbosity level will be
+set to at least “debug” and some small details of operation change, for example,
+the intermediate files used to generate graphs are kept rather than deleted.
+Basically, it’s not much different than <option>--verbosity:debug</option>.
+</para>
+<para>Lots more information is available through logging framework, see
+<xref linkend="logging"/> for a more detailed discussion. In particular, if you’re
+trying to understand what the processor is doing,
+<link linkend="logback">configuring</link> the logging back end to emit
+or save “debug” level messages will reveal a lot of detail.
+</para>
+</listitem>
+</varlistentry>
+
+<varlistentry xml:id="cli-debugger">
+  <term><option>--debugger</option></term>
+<listitem>
+<para>Start an interactive debugging session on the pipeline.
+See <xref linkend="debugging"/>.</para>
+</listitem>
+</varlistentry>
+
+<varlistentry xml:id="cli-explain">
+  <term><option>--explain</option>, explain errors</term>
+<listitem>
+<para>Enables error explanations. If error explanations are enabled, when a
+pipeline fails, in addition to the error message, a short explanation of the
+cause will be provided.</para>
+</listitem>
+</varlistentry>
+
+<varlistentry xml:id="cli-extension">
+  <term><option>--extension:<replaceable>name</replaceable></option></term>
+<listitem>
+<para>This option enables the extension named <replaceable>name</replaceable>.
+</para>
+</listitem>
+</varlistentry>
+
+<varlistentry xml:id="cli-graphs">
+  <term><option>--graphs:<replaceable>graph-output-directory</replaceable></option>, SVG graph outputs</term>
+<listitem>
+<para>This option writes hyperlinked SVG descriptions of pipelines, and their <link linkend="graphs">corresponding graphs</link>, to the
+<replaceable>graph-output-directory</replaceable>. The descriptions are “boxes and arrows”
+diagrams of the connections between the steps. One SVG diagram is produced for each declared
+pipeline and its corresponding graph. An HTML index in the
+<replaceable>graph-output-directory</replaceable> makes them easy to browse.
+See <xref linkend="graphs"/> for more details.</para>
+<para>The processor assumes that it “owns” the
+<replaceable>graph-output-directory</replaceable>; it will erase files and directories
+before creating the graph output.</para>
+<note>
+<para>Some browsers have better support for SVG than others. If the diagrams are difficult
+to view, or if links don’t work correctly, a good first step is to try a different
+browser.</para>
+</note>
+</listitem>
+</varlistentry>
+
+<varlistentry xml:id="cli-help">
+  <term><option>--help</option></term>
+<listitem>
+<para>This is equivalent to issuing the <command linkend="run-help">help</command> command.
+It’s provided as an option for convenience.
+</para>
+</listitem>
+</varlistentry>
+
+<varlistentry xml:id="cli-init">
+  <term><option>--init:<replaceable>class-name</replaceable></option>,
+  Saxon configuration initializer</term>
+<listitem>
+<para>Attempts to load and execute the class named <replaceable>class-name</replaceable>, which
+must be available on the class path and must implement the <classname>net.sf.saxon.lib.Initializer</classname>
+interface. (This is analogous to the <literal>-init:</literal> option on the Saxon command line
+API.)
+</para>
 </listitem>
 </varlistentry>
 
@@ -165,6 +282,77 @@ content types.</para>
 type or subtype, or if it’s recognized as a “+xml” or “+json” content type.</para>
 </note>
 
+</listitem>
+</varlistentry>
+
+<varlistentry xml:id="cli-licensed">
+  <term><option>--licensed</option></term>
+<listitem>
+<para>Requests a licensed processor. In practice, a licensed processor is used
+by default, if one is available. However, <option>--licensed:false</option> can be used
+to explicitly request an <emphasis>unlicensed</emphasis> processor when Saxon PE or
+Saxon EE are on the classpath.</para>
+<para>Schema-aware processing requires Saxon EE and a valid Saxon license.</para>
+</listitem>
+</varlistentry>
+
+<varlistentry xml:id="cli-line-numbers">
+  <term><option>--line-numbers</option></term>
+<listitem>
+<para>Preserves line numbers in parsed documents. Prior to version 3.0.33, XML Calabash
+always preserved line numbers, but that makes each tree model larger in memory and they
+are generally unused. There’s one common exception, validation steps
+that operate on the tree model. RELAX NG validation, for example, will only be able to
+show error locations if the initial tree model was constructed with line numbers preserved.
+This can be done selectively with the
+<code xlink:href="https://docs.xmlcalabash.com/reference/current/p-load.html#load-param-line-numbers">cx:line-numbers</code>
+parameter on the <tag>p:load</tag> step (or <tag>p:document</tag>).</para>
+</listitem>
+</varlistentry>
+
+<varlistentry xml:id="cli-namespace">
+  <term><option>--namespace:<replaceable>prefix</replaceable>=<replaceable>uri</replaceable></option>,
+  identifies a namespace binding</term>
+<listitem>
+<para>Binds the specified <replaceable>prefix</replaceable> to the <replaceable>uri</replaceable>.
+This has no effect on the pipeline; these bindings are only used when evaluating
+the <option linkend="cli-step">--step</option> option and in
+expressions used to define <phrase linkend="cli-option">options</phrase>
+and <phrase linkend="cli-serial">serialization parameters</phrase>.
+</para>
+
+<para>The default namespace bindings on the command line are:</para>
+
+<informaltable>
+<tgroup cols="2">
+<colspec colwidth="1*"/>
+<colspec colwidth="5*"/>
+<thead>
+  <row><entry>Prefix</entry><entry>Namespace URI</entry></row>
+</thead>
+<tbody>
+  <row><entry><literal>array</literal></entry><entry><uri>http://www.w3.org/2005/xpath-functions/array</uri></entry></row>
+  <row><entry><literal>cx</literal></entry><entry><uri>http://xmlcalabash.com/ns/extensions</uri></entry></row>
+  <row><entry><literal>fn</literal></entry><entry><uri>http://www.w3.org/2005/xpath-functions</uri></entry></row>
+  <row><entry><literal>map</literal></entry><entry><uri>http://www.w3.org/2005/xpath-functions/map</uri></entry></row>
+  <row><entry><literal>math</literal></entry><entry><uri>http://www.w3.org/2005/xpath-functions/math</uri></entry></row>
+  <row><entry><literal>p</literal></entry><entry><uri>http://www.w3.org/ns/xproc</uri></entry></row>
+  <row><entry><literal>saxon</literal></entry><entry><uri>http://saxon.sf.net/</uri></entry></row>
+  <row><entry><literal>xs</literal></entry><entry><uri>http://www.w3.org/2001/XMLSchema</uri></entry></row>
+</tbody>
+</tgroup>
+</informaltable>
+
+<para>The <option>--namespace</option> option can add to, or change, these bindings.</para>
+
+</listitem>
+</varlistentry>
+
+<varlistentry xml:id="cli-nogo">
+  <term><option>--nogo</option></term>
+<listitem>
+<para>Compile the pipeline, and produce graphs if they’re requested, but don’t actually
+run the pipeline.</para>
 </listitem>
 </varlistentry>
 
@@ -243,74 +431,102 @@ if you want to save the output.</para>
 </listitem>
 </varlistentry>
 
-<varlistentry xml:id="cli-namespace">
-  <term><option>--namespace:<replaceable>prefix</replaceable>=<replaceable>uri</replaceable></option>,
-  identifies a namespace binding</term>
+<varlistentry xml:id="cli-pipe">
+  <term><option>--pipe<replaceable>:boolean</replaceable></option>, sets piped mode</term>
 <listitem>
-<para>Binds the specified <replaceable>prefix</replaceable> to the <replaceable>uri</replaceable>.
-This has no effect on the pipeline; these bindings are only used when evaluating
-the <option linkend="cli-step">--step</option> option and in
-expressions used to define <phrase linkend="cli-option">options</phrase>
-and <phrase linkend="cli-serial">serialization parameters</phrase>.
+<para>If piped mode is enabled, XML Calabash
+will behave like a Unix pipeline. If there is no binding for the primary input port, it will
+read it from standard input. If there is no binding for the primary output port, it will
+write it to standard output. If not specified, the default setting comes from
+the <option linkend="cc.xml-calabash">piped-io</option> configuration setting.</para>
+</listitem>
+</varlistentry>
+
+<varlistentry xml:id="cli-stacktrace">
+  <term><option>--stacktrace</option></term>
+<listitem>
+<para>If the stacktrace option is enabled, a stack trace (really a “step trace”) will
+be printed if the pipeline fails at runtime. This trace will show the step that
+failed and its ancestors.</para>
+</listitem>
+</varlistentry>
+
+<varlistentry xml:id="cli-step">
+  <term><option>--step:<replaceable>step</replaceable></option>, identifies a step</term>
+<listitem>
+<para>The <option>--step</option> option is a little bit overloaded. Its interpretation
+depends on whether or not <link linkend="cli-pipeline">a pipeline</link> is specified.
 </para>
 
-<para>The default namespace bindings on the command line are:</para>
+<para>If a pipeline is specified, it must identify a <tag>p:library</tag>. The value of the
+<option>--step</option> option is interpreted as the <emphasis>name</emphasis> of a step in
+that library. The named step will be run.</para>
 
-<informaltable>
-<tgroup cols="2">
-<colspec colwidth="1*"/>
-<colspec colwidth="5*"/>
-<thead>
-  <row><entry>Prefix</entry><entry>Namespace URI</entry></row>
-</thead>
-<tbody>
-  <row><entry><literal>array</literal></entry><entry><uri>http://www.w3.org/2005/xpath-functions/array</uri></entry></row>
-  <row><entry><literal>cx</literal></entry><entry><uri>http://xmlcalabash.com/ns/extensions</uri></entry></row>
-  <row><entry><literal>fn</literal></entry><entry><uri>http://www.w3.org/2005/xpath-functions</uri></entry></row>
-  <row><entry><literal>map</literal></entry><entry><uri>http://www.w3.org/2005/xpath-functions/map</uri></entry></row>
-  <row><entry><literal>math</literal></entry><entry><uri>http://www.w3.org/2005/xpath-functions/math</uri></entry></row>
-  <row><entry><literal>p</literal></entry><entry><uri>http://www.w3.org/ns/xproc</uri></entry></row>
-  <row><entry><literal>saxon</literal></entry><entry><uri>http://saxon.sf.net/</uri></entry></row>
-  <row><entry><literal>xs</literal></entry><entry><uri>http://www.w3.org/2001/XMLSchema</uri></entry></row>
-</tbody>
-</tgroup>
-</informaltable>
+<para>For example:</para>
 
-<para>The <option>--namespace</option> option can add to, or change, these bindings.</para>
+<screen><prompt>$ </prompt><userinput>xmlcalabash --step:helloWorld examples.xpl …</userinput></screen>
+
+<para>If no pipeline is specified, the value of the <option>--step</option>
+option is interpreted as the <emphasis>type</emphasis> of a step. The (atomic)
+step with the specified type will be run. All of the inputs, outputs, and options
+specified apply to that step.</para>
+
+<para>For example:</para>
+
+<screen><prompt>$ </prompt><userinput>xmlcalabash --step:p:xslt …</userinput></screen>
+
+<para>The <literal>p</literal> and <literal>cx</literal> namespaces are bound by default.
+The <option linkend="cli-namespace">--namespace</option> option can be
+used to change the namespace bindings.</para>
 
 </listitem>
 </varlistentry>
 
-<varlistentry xml:id="cli-init">
-  <term><option>--init:<replaceable>class-name</replaceable></option>,
-  Saxon configuration initializer</term>
+<varlistentry xml:id="cli-trace-documents">
+  <term><option>--trace-documents:<replaceable>output-directory</replaceable></option>, defines a
+runtime trace directory</term>
 <listitem>
-<para>Attempts to load and execute the class named <replaceable>class-name</replaceable>, which
-must be available on the class path and must implement the <classname>net.sf.saxon.lib.Initializer</classname>
-interface. (This is analogous to the <literal>-init:</literal> option on the Saxon command line
-API.)
-</para>
+<para>If the <option>--trace-documents</option> option is given, the runtime trace will
+write a copy of every document that flows through the pipeline into the specified
+directory. These documents are identified in the <option>--trace</option> file.</para>
 </listitem>
 </varlistentry>
 
-<varlistentry xml:id="cli-graphs">
-  <term><option>--graphs:<replaceable>graph-output-directory</replaceable></option>, SVG graph outputs</term>
+<varlistentry xml:id="cli-trace">
+  <term><option>--trace:<replaceable>output-file</replaceable></option>, defines a runtime trace file</term>
 <listitem>
-<para>This option writes hyperlinked SVG descriptions of pipelines, and their <link
-linkend="graphs">corresponding graphs</link>, to the
-<replaceable>graph-output-directory</replaceable>. The descriptions are “boxes and arrows”
-diagrams of the connections between the steps. One SVG diagram is produced for each declared
-pipeline and its corresponding graph. An HTML index in the
-<replaceable>graph-output-directory</replaceable> makes them easy to browse.
-See <xref linkend="graphs"/> for more details.</para>
-<para>The processor assumes that it “owns” the
-<replaceable>graph-output-directory</replaceable>; it will erase files and directories
-before creating the graph output.</para>
-<note>
-<para>Some browsers have better support for SVG than others. If the diagrams are difficult
-to view, or if links don’t work correctly, a good first step is to try a different
-browser.</para>
-</note>
+<para>A runtime trace of the pipeline execution will be written to
+<filename><replaceable>output-file</replaceable></filename>.
+(If the <option>--trace-documents</option> option is given but the 
+<option>--trace</option> option is not, the default output file is
+named <filename>trace.xml</filename> in the 
+<option>--trace-documents</option> output directory.)
+</para>
+<para>For more information about tracking, see <xref linkend="tracing"/>.</para>
+</listitem>
+</varlistentry>
+
+<varlistentry xml:id="cli-try-namespaces">
+  <term><option>--try-namespaces</option></term>
+<listitem>
+<para>This option enables attempting to retrieve a schema using its namespace URI
+during <link linkend="implicit-validation">implicit validation</link>.</para>
+</listitem>
+</varlistentry>
+
+<varlistentry xml:id="cli-use-location-hints">
+  <term><option>--use-location-hints</option></term>
+<listitem>
+<para>This option enables attempting to retrieve a schema using location hints
+during <link linkend="implicit-validation">implicit validation</link>.</para>
+</listitem>
+</varlistentry>
+
+<varlistentry xml:id="cli-validation-mode">
+  <term><option>--validation-mode:<replaceable>mode</replaceable></option></term>
+<listitem>
+<para>This option enables <link linkend="implicit-validation">implicit validation</link>.
+The mode must be either “lax” or “strict”.</para>
 </listitem>
 </varlistentry>
 
@@ -343,15 +559,6 @@ detail is printed about the progress of a running pipeline.</para>
 </variablelist>
 <para>Setting the verbosity also sets the logging level.
 </para>
-</listitem>
-</varlistentry>
-
-<varlistentry xml:id="cli-explain">
-  <term><option>--explain</option>, explain errors</term>
-<listitem>
-<para>Enables error explanations. If error explanations are enabled, when a
-pipeline fails, in addition to the error message, a short explanation of the
-cause will be provided.</para>
 </listitem>
 </varlistentry>
 
@@ -394,193 +601,12 @@ For example: <literal>--visualizer:detail?steps=true;documents=true</literal>.</
 </listitem>
 </varlistentry>
 
-<varlistentry xml:id="cli-trace">
-  <term><option>--trace:<replaceable>output-file</replaceable></option>, defines a runtime trace file</term>
-<listitem>
-<para>A runtime trace of the pipeline execution will be written to
-<filename><replaceable>output-file</replaceable></filename>.
-(If the <option>--trace-documents</option> option is given but the 
-<option>--trace</option> option is not, the default output file is
-named <filename>trace.xml</filename> in the 
-<option>--trace-documents</option> output directory.)
-</para>
-<para>For more information about tracking, see <xref linkend="tracing"/>.</para>
-</listitem>
-</varlistentry>
-
-<varlistentry xml:id="cli-trace-documents">
-  <term><option>--trace-documents:<replaceable>output-directory</replaceable></option>, defines a
-runtime trace directory</term>
-<listitem>
-<para>If the <option>--trace-documents</option> option is given, the runtime trace will
-write a copy of every document that flows through the pipeline into the specified
-directory. These documents are identified in the <option>--trace</option> file.</para>
-</listitem>
-</varlistentry>
-
-<varlistentry xml:id="cli-assertions">
-  <term><option>--assertions:<replaceable>level</replaceable></option></term>
-<listitem>
-<para>By default, assertions are disabled. You can enable them by setting
-an appropriate level:</para>
-<variablelist>
-<varlistentry>
-<term><literal>error</literal></term>
-<listitem><para>Schematron reports are output and Schematron errors
-are treated as errors. (They cause the step to throw
-<code>Q{http://xmlcalabash.com/ns/error}XI0041</code>.)</para></listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>warning</literal> (or <literal>warn</literal>)</term>
-<listitem><para>Schematron reports are output and Schematron errors
-are treated as warnings.</para></listitem>
-</varlistentry>
-<varlistentry>
-<term><literal>ignore</literal></term>
-<listitem><para>Assertions are ignored.</para></listitem>
-</varlistentry>
-</variablelist>
-</listitem>
-</varlistentry>
-
-<varlistentry xml:id="cli-licensed">
-  <term><option>--licensed</option></term>
-<listitem>
-<para>Requests a licensed processor. In practice, a licensed processor is used
-by default, if one is available. However, <option>--licensed:false</option> can be used
-to explicitly request an <emphasis>unlicensed</emphasis> processor when Saxon PE or
-Saxon EE are on the classpath.</para>
-<para>Schema-aware processing requires Saxon EE and a valid Saxon license.</para>
-</listitem>
-</varlistentry>
-
-<varlistentry xml:id="cli-debug">
-  <term><option>--debug</option></term>
-<listitem>
-<para>The <option>--debug</option> option, the <option>--verbosity</option>
-option, and the configuration of the underlying logging framework are
-interrelated in ways that aren’t entirely ideal. Originally, the <option>--debug</option> option
-dynamically changed the underlying logger configuration, but that isn’t completely
-portable across logging frameworks, so it doesn’t try to do that anymore.</para>
-<para>If you specify <option>--debug</option> the verbosity level will be
-set to at least “debug” and some small details of operation change, for example,
-the intermediate files used to generate graphs are kept rather than deleted.
-Basically, it’s not much different than <option>--verbosity:debug</option>.
-</para>
-<para>Lots more information is available through logging framework, see
-<xref linkend="logging"/> for a more detailed discussion. In particular, if you’re
-trying to understand what the processor is doing,
-<link linkend="logback">configuring</link> the logging back end to emit
-or save “debug” level messages will reveal a lot of detail.
-</para>
-</listitem>
-</varlistentry>
-
-<varlistentry xml:id="cli-debugger">
-  <term><option>--debugger</option></term>
-<listitem>
-<para>Start an interactive debugging session on the pipeline.
-See <xref linkend="debugging"/>.</para>
-</listitem>
-</varlistentry>
-
-<varlistentry xml:id="cli-stacktrace">
-  <term><option>--stacktrace</option></term>
-<listitem>
-<para>If the stacktrace option is enabled, a stack trace (really a “step trace”) will
-be printed if the pipeline fails at runtime. This trace will show the step that
-failed and its ancestors.</para>
-</listitem>
-</varlistentry>
-
-<varlistentry xml:id="cli-nogo">
-  <term><option>--nogo</option></term>
-<listitem>
-<para>Compile the pipeline, and produce graphs if they’re requested, but don’t actually
-run the pipeline.</para>
-</listitem>
-</varlistentry>
-
-<varlistentry xml:id="cli-catalog">
-  <term><option>--catalog:<replaceable>catalog-file-uri</replaceable></option></term>
-<listitem>
-<para>Adds the specified catalog to the list of XML Catalogs that are used 
-during resource resolution.</para>
-</listitem>
-</varlistentry>
 <varlistentry xml:id="cli-xml-schema">
   <term><option>--xml-schema:<replaceable>xml-schema-file-uri</replaceable></option></term>
 <listitem>
 <para>Adds the specified XML Schema to the validation context. This schema will
 be available in both <link linkend="implicit-validation">implicit validation</link> and
 when the <tag>p:validate-with-xml-schema</tag> step is used.</para>
-</listitem>
-</varlistentry>
-<varlistentry xml:id="cli-validation-mode">
-  <term><option>--validation-mode:<replaceable>mode</replaceable></option></term>
-<listitem>
-<para>This option enables <link linkend="implicit-validation">implicit validation</link>.
-The mode must be either “lax” or “strict”.</para>
-</listitem>
-</varlistentry>
-<varlistentry xml:id="cli-try-namespaces">
-  <term><option>----try-namespaces</option></term>
-<listitem>
-<para>This option enables attempting to retrieve a schema using its namespace URI
-during <link linkend="implicit-validation">implicit validation</link>.</para>
-</listitem>
-</varlistentry>
-<varlistentry xml:id="cli-use-location-hints">
-  <term><option>--use-location-hints</option></term>
-<listitem>
-<para>This option enables attempting to retrieve a schema using location hints
-during <link linkend="implicit-validation">implicit validation</link>.</para>
-</listitem>
-</varlistentry>
-<varlistentry xml:id="cli-extension">
-  <term><option>--extension:<replaceable>name</replaceable></option></term>
-<listitem>
-<para>This option enables the extension named <replaceable>name</replaceable>.
-</para>
-</listitem>
-</varlistentry>
-<varlistentry xml:id="cli-help">
-  <term><option>--help</option></term>
-<listitem>
-<para>This is equivalent to issuing the <command linkend="run-help">help</command> command.
-It’s provided as an option for convenience.
-</para>
-</listitem>
-</varlistentry>
-
-<varlistentry xml:id="cli-step">
-  <term><option>--step:<replaceable>step</replaceable></option>, identifies a step</term>
-<listitem>
-<para>The <option>--step</option> option is a little bit overloaded. Its interpretation
-depends on whether or not <link linkend="cli-pipeline">a pipeline</link> is specified.
-</para>
-
-<para>If a pipeline is specified, it must identify a <tag>p:library</tag>. The value of the
-<option>--step</option> option is interpreted as the <emphasis>name</emphasis> of a step in
-that library. The named step will be run.</para>
-
-<para>For example:</para>
-
-<screen><prompt>$ </prompt><userinput>xmlcalabash --step:helloWorld examples.xpl …</userinput></screen>
-
-<para>If no pipeline is specified, the value of the <option>--step</option>
-option is interpreted as the <emphasis>type</emphasis> of a step. The (atomic)
-step with the specified type will be run. All of the inputs, outputs, and options
-specified apply to that step.</para>
-
-<para>For example:</para>
-
-<screen><prompt>$ </prompt><userinput>xmlcalabash --step:p:xslt …</userinput></screen>
-
-<para>The <literal>p</literal> and <literal>cx</literal> namespaces are bound by default.
-The <option linkend="cli-namespace">--namespace</option> option can be
-used to change the namespace bindings.</para>
-
 </listitem>
 </varlistentry>
 
@@ -697,7 +723,6 @@ with the QName key “method” with the value “xml” and the QName key “in
 that the step being run has an <emphasis>option</emphasis> named
 <code>serialization</code>. This doesn’t otherwise have any effect on the
 serialization options of any output port.</para>
-
 </listitem>
 </varlistentry>
 
@@ -767,6 +792,7 @@ indentation. Disables indentation on the <literal>secondary</literal> output por
 <para>It is an error if the parameter value is not an atomic value.</para>
 </listitem>
 </varlistentry>
+
 </variablelist>
 </section>
 

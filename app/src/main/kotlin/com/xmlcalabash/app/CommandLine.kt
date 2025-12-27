@@ -57,72 +57,33 @@ class CommandLine private constructor(val args: Array<out String>) {
     private val seenNamespaces = mutableSetOf<String>()
 
     private val arguments = listOf(
-        ArgumentDescription("--input", listOf("-i"), ArgumentType.STRING) {
-            parseInput(it) },
-        ArgumentDescription("--output", listOf("-o"), ArgumentType.STRING) {
-            parseOutput(it) },
-        ArgumentDescription("--namespace", listOf("-ns"), ArgumentType.STRING) {
-            parseNamespace(it) },
-        ArgumentDescription("--xml-schema", listOf("--xsd"), ArgumentType.URI) {
-            parseXmlSchema(it) },
-        ArgumentDescription("--validation-mode", listOf("--val"), ArgumentType.STRING, "strict") {
-            parseValidationMode(it) },
-        ArgumentDescription("--use-location-hints", listOf("--hints"), ArgumentType.BOOLEAN, "true") {
-            builder.useLocationHints.set(it == "true") },
-        ArgumentDescription("--try-namespaces", listOf("--try-ns"), ArgumentType.BOOLEAN, "true") {
-            builder.tryNamespaces.set(it == "true") },
-        ArgumentDescription("--catalog", listOf(), ArgumentType.URI) {
-            parseCatalog(it) },
-        ArgumentDescription("--init", listOf(), ArgumentType.STRING) {
-            builder.initializers.add(Pair(it, false)) },
-        ArgumentDescription("--configuration", listOf("-c", "--config"), ArgumentType.EXISTING_FILE) {
-            builder.configurationFile.set(File(it)) },
-        ArgumentDescription("--step", listOf("-s"), ArgumentType.STRING) {
-            builder.step.set(it) },
-        ArgumentDescription("--graphs", listOf(), ArgumentType.DIRECTORY) {
-            builder.graphs.set(File(it)) },
-        ArgumentDescription("--licensed", listOf(), ArgumentType.BOOLEAN, "true") {
-            builder.licensed.set(it == "true") },
-        ArgumentDescription("--pipe", listOf(), ArgumentType.BOOLEAN, "true") {
-            builder.pipedMode.set(it == "true") },
-        ArgumentDescription("--debug", listOf("-D"), ArgumentType.BOOLEAN, "true") {
-            builder.debug.set(it == "true") },
-        ArgumentDescription("--debugger", listOf(), ArgumentType.BOOLEAN, "true") {
-            builder.debugger.set(it == "true") },
-        ArgumentDescription("--explain", listOf(), ArgumentType.BOOLEAN, "true") {
-            builder.explainErrors.set(it == "true") },
-        ArgumentDescription("--help", listOf(), ArgumentType.BOOLEAN, "true") {
-            _help = it == "true" },
-        ArgumentDescription("--trace", listOf(), ArgumentType.FILE) {
-            builder.trace.set(File(it)) },
-        ArgumentDescription("--nogo", listOf(), ArgumentType.BOOLEAN, "true") {
-            builder.go.set(it != "true") },
-        ArgumentDescription("--trace-documents", listOf("--trace-docs"), ArgumentType.DIRECTORY) {
-            builder.traceDocuments.set(File(it)) },
-        ArgumentDescription("--stacktrace", listOf("--stack-trace"), ArgumentType.BOOLEAN, "true") {
-            builder.stacktrace.set(it == "true") },
-        ArgumentDescription("--extension", listOf("-X"), ArgumentType.STRING) {
-            parseExtensionName(it) },
-        ArgumentDescription("--verbosity", listOf("-V"),
-            ArgumentType.STRING, "info", listOf("trace", "debug", "info", "warn", "error")) {
-            builder.verbosity.set(when(it) {
-                "error" -> Verbosity.ERROR
-                "warn" -> Verbosity.WARN
-                "info" -> Verbosity.INFO
-                "debug" -> Verbosity.DEBUG
-                "trace" -> Verbosity.TRACE
-                else -> Verbosity.INFO
-            })},
-        ArgumentDescription("--assertions", listOf(),
-            ArgumentType.STRING, "warn", listOf("ignore", "warn", "warning", "error")) {
-            builder.assertions.set(when(it) {
-                "ignore" -> AssertionsLevel.IGNORE
-                "warn", "warning" -> AssertionsLevel.WARNING
-                "error" -> AssertionsLevel.ERROR
-                else -> AssertionsLevel.IGNORE
-            })},
-        ArgumentDescription("--visualizer", listOf("--vis"),
-            ArgumentType.STRING, "plain", emptyList()) { parseVisualizer(it) }
+        ArgumentDescription("--assertions", listOf(), ArgumentType.STRING, "warn", listOf("ignore", "warn", "warning", "error")) { parseAssertions(it) },
+        ArgumentDescription("--catalog", listOf(), ArgumentType.URI) { parseCatalog(it) },
+        ArgumentDescription("--configuration", listOf("-c", "--config"), ArgumentType.EXISTING_FILE) { builder.configurationFile.set(File(it)) },
+        ArgumentDescription("--debug", listOf("-D"), ArgumentType.BOOLEAN, "true") { builder.debug.set(it == "true") },
+        ArgumentDescription("--debugger", listOf(), ArgumentType.BOOLEAN, "true") { builder.debugger.set(it == "true") },
+        ArgumentDescription("--explain", listOf(), ArgumentType.BOOLEAN, "true") { builder.explainErrors.set(it == "true") },
+        ArgumentDescription("--extension", listOf("-X"), ArgumentType.STRING) { parseExtensionName(it) },
+        ArgumentDescription("--graphs", listOf(), ArgumentType.DIRECTORY) { builder.graphs.set(File(it)) },
+        ArgumentDescription("--help", listOf(), ArgumentType.BOOLEAN, "true") { _help = it == "true" },
+        ArgumentDescription("--init", listOf(), ArgumentType.STRING) { builder.initializers.add(Pair(it, false)) },
+        ArgumentDescription("--input", listOf("-i"), ArgumentType.STRING) { parseInput(it) },
+        ArgumentDescription("--licensed", listOf(), ArgumentType.BOOLEAN, "true") { builder.licensed.set(it == "true") },
+        ArgumentDescription("--line-numbering", listOf("-l"), ArgumentType.BOOLEAN, "true") { builder.lineNumbering.set(it == "true") },
+        ArgumentDescription("--namespace", listOf("-ns"), ArgumentType.STRING) { parseNamespace(it) },
+        ArgumentDescription("--nogo", listOf(), ArgumentType.BOOLEAN, "true") { builder.go.set(it != "true") },
+        ArgumentDescription("--output", listOf("-o"), ArgumentType.STRING) { parseOutput(it) },
+        ArgumentDescription("--pipe", listOf(), ArgumentType.BOOLEAN, "true") { builder.pipedMode.set(it == "true") },
+        ArgumentDescription("--stacktrace", listOf("--stack-trace"), ArgumentType.BOOLEAN, "true") { builder.stacktrace.set(it == "true") },
+        ArgumentDescription("--step", listOf("-s"), ArgumentType.STRING) { builder.step.set(it) },
+        ArgumentDescription("--trace", listOf(), ArgumentType.FILE) { builder.trace.set(File(it)) },
+        ArgumentDescription("--trace-documents", listOf("--trace-docs"), ArgumentType.DIRECTORY) { builder.traceDocuments.set(File(it)) },
+        ArgumentDescription("--try-namespaces", listOf("--try-ns"), ArgumentType.BOOLEAN, "true") { builder.tryNamespaces.set(it == "true") },
+        ArgumentDescription("--use-location-hints", listOf("--hints"), ArgumentType.BOOLEAN, "true") { builder.useLocationHints.set(it == "true") },
+        ArgumentDescription("--validation-mode", listOf("--val"), ArgumentType.STRING, "strict") { parseValidationMode(it) },
+        ArgumentDescription("--verbosity", listOf("-V"), ArgumentType.STRING, "info", listOf("trace", "debug", "info", "warn", "error")) { parseVerbosity(it) },
+        ArgumentDescription("--visualizer", listOf("--vis"), ArgumentType.STRING, "plain", emptyList()) { parseVisualizer(it) },
+        ArgumentDescription("--xml-schema", listOf("--xsd"), ArgumentType.URI) { parseXmlSchema(it) },
         )
 
     private fun parse(): XmlCalabashBuilder {
@@ -427,6 +388,26 @@ class CommandLine private constructor(val args: Array<out String>) {
         } else {
             builder.visualizerName.options = voptions
         }
+    }
+
+    private fun parseVerbosity(arg: String) {
+        builder.verbosity.set(when(arg) {
+            "error" -> Verbosity.ERROR
+            "warn" -> Verbosity.WARN
+            "info" -> Verbosity.INFO
+            "debug" -> Verbosity.DEBUG
+            "trace" -> Verbosity.TRACE
+            else -> Verbosity.INFO
+        })
+    }
+
+    private fun parseAssertions(arg: String) {
+        builder.assertions.set(when(arg) {
+            "ignore" -> AssertionsLevel.IGNORE
+            "warn", "warning" -> AssertionsLevel.WARNING
+            "error" -> AssertionsLevel.ERROR
+            else -> AssertionsLevel.IGNORE
+        })
     }
 
     internal class ArgumentDescription(val name: String,

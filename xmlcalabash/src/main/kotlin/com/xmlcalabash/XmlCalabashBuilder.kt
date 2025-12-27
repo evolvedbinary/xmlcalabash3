@@ -49,6 +49,7 @@ class XmlCalabashBuilder {
     val implicitParameterName = CfgValue<QName>()
     val inlineTrimWhitespace = CfgValue(false)
     val licensed = CfgValue(false)
+    val lineNumbering = CfgValue(false)
     val messagePrinter = CfgValue<MessagePrinter>()
     val messageReporter = CfgValue<MessageReporter>()
     val other = CfgMapValue<QName, List<Map<QName, String>>>()
@@ -143,9 +144,10 @@ class XmlCalabashBuilder {
             val saxonConfiguration = SaxonConfiguration.newInstance(xconfig.licensed, xconfig.saxonConfigurationFile?.toURI(),
                 xconfig.saxonConfigurationProperties, xconfig.xmlSchemas, configInit, configurerList)
             saxonConfiguration.configuration.resourceResolver = xconfig.documentManager
+            saxonConfiguration.configuration.isLineNumbering = lineNumbering.getOrDefault() == true
             xconfig._saxonConfiguration = saxonConfiguration
 
-            if (xconfig.xmlSchemas.isNotEmpty()
+                if (xconfig.xmlSchemas.isNotEmpty()
                 && !saxonConfiguration.configuration.isLicensedFeature(Configuration.LicenseFeature.SCHEMA_VALIDATION)) {
                 logger.warn { "Schema validation feature is not enabled, ignoring configured schemas" }
             }
@@ -269,6 +271,7 @@ class XmlCalabashBuilder {
         implicitParameterName.update(props.implicitParameterName)
         inlineTrimWhitespace.update(props.inlineTrimWhitespace)
         licensed.update(props.licensed)
+        lineNumbering.update(props.lineNumbering)
         messagePrinter.update(props.messagePrinter)
         messageReporter.update(props.messageReporter)
         other.update(props.other)
@@ -333,6 +336,7 @@ class XmlCalabashBuilder {
         override val implicitParameterName: QName? = props.implicitParameterName.getOrDefault()
         override val inlineTrimWhitespace: Boolean = props.inlineTrimWhitespace.getOrDefault()!!
         override val licensed: Boolean = props.licensed.getOrDefault()!!
+        override val lineNumbering: Boolean = props.lineNumbering.getOrDefault()!!
         override val messagePrinter: MessagePrinter = props.messagePrinter.get()!!
         override val messageReporter: MessageReporter = props.messageReporter.get()!!
         override val other: Map<QName, List<Map<QName, String>>> = props.other.getOrDefault() ?: emptyMap()

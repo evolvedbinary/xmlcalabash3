@@ -90,9 +90,33 @@ are <glossterm>implementation-defined</glossterm>.
   <title>Description</title>
   <para role="external-refs"/>
 
-  <para>The XML Calabash <tag>p:load</tag> step accepts additional parameters to enable
-the <link xlink:href="https://docs.xmlcalabash.com/userguide/current/xmlnt.html">XMLn’t parser</link>.
-  </para>
+  <para>The XML Calabash <tag>p:load</tag> step accepts additional parameters.</para>
+
+<refsection xml:id="load-param-line-numbers">
+<title>Line numbers</title>
+
+<para>The <code>cx:line-numbering</code> parameter allows the pipeline to selectively
+preserve line numbers in the parsed document.</para>
+
+  <variablelist>
+    <varlistentry><term><code>cx:line-numbers</code> (boolean)</term>
+    <listitem>
+      <para>Line numbers are preserved if the parameter has an effective boolean value of true.</para>
+    </listitem>
+    </varlistentry>
+  </variablelist>
+
+<para>Conversely, if line numbering is enabled globally, this parameter can be used to
+selectively disable line numbers.</para>
+
+</refsection>
+
+<refsection xml:id="load-param-xmlnt">
+<title>XMLn’t parser</title>
+
+<para>The <link xlink:href="https://docs.xmlcalabash.com/userguide/current/xmlnt.html">XMLn’t parser</link>
+can be configured with addtional parameters.
+</para>
 
   <variablelist>
     <varlistentry><term><code>cx:xmlnt</code></term>
@@ -122,6 +146,6 @@ the <link xlink:href="https://docs.xmlcalabash.com/userguide/current/xmlnt.html"
       </listitem>
     </varlistentry>
   </variablelist>
-
+</refsection>
 </refsection>
 </refentry>
