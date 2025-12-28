@@ -13,6 +13,28 @@ See the commits and pull requests on
 finer detail.</para>
 
 <revhistory>
+<revision xml:id="r3034">
+<revnumber>3.0.34</revnumber>
+<date>2025-12-28</date>
+<revdescription>
+<itemizedlist>
+<listitem><para>This is a sooner-than-expected release, mostly because the
+documentation is broken in some browsers on some platforms and I think that may
+be intentional (on the part of the browser vendors).
+</para>
+<para>Make sure you read the release notes for 3.0.33 if you haven’t already.
+</para></listitem>
+<listitem><para>Closed <cbissue number="483"/>. If attempting to parse an
+error page from a web server results in well-formedness (or other) errors,
+make sure the original error is reported, not the parsing error.
+</para></listitem>
+<listitem><para>Added support for <link xlink:href="https://exproc.org/">EXProc</link>
+user-contributed pipelines. (The most-recent pipelines and the catalog are included
+in the release, so they can be used without loading the pipeline across the network.)
+</para></listitem>
+</itemizedlist>
+</revdescription>
+</revision>
 <revision xml:id="r3033">
 <revnumber>3.0.33</revnumber>
 <date>2025-12-27</date>
