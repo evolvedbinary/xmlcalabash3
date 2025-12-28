@@ -34,6 +34,7 @@ import net.sf.saxon.om.NamespaceUri
 import net.sf.saxon.s9api.QName
 import net.sf.saxon.s9api.ValidationMode
 import org.apache.logging.log4j.kotlin.logger
+import org.xmlresolver.XMLResolver
 import java.io.File
 import java.net.URI
 import kotlin.collections.iterator
@@ -43,6 +44,7 @@ class XmlCalabashBuilder {
     val assertions = CfgValue(AssertionsLevel.WARNING)
     val debug = CfgValue(false)
     val debugger = CfgValue(false)
+    val xmlResolver = CfgValue<XMLResolver>()
     val documentManager = CfgValue<DocumentManager>()
     val eagerEvaluation = CfgValue(false)
     val errorExplanation = CfgValue<ErrorExplanation>()
@@ -207,8 +209,12 @@ class XmlCalabashBuilder {
             errorExplanation.set(DefaultErrorExplanation(reporter))
         }
 
+        if (xmlResolver.get() == null) {
+            xmlResolver.set(XMLResolver())
+        }
+
         if (documentManager.get() == null) {
-            documentManager.set(DocumentManager(this))
+            documentManager.set(DocumentManager(this, xmlResolver.get()!!))
         }
         val documentManager = documentManager.get()!!
 
@@ -326,7 +332,7 @@ class XmlCalabashBuilder {
         override val saxonConfiguration: SaxonConfiguration
             get() = _saxonConfiguration
 
-        override val documentManager: DocumentManager = props.documentManager.getOrDefault() ?: DocumentManager(props)
+        override val documentManager: DocumentManager = props.documentManager.getOrDefault() ?: DocumentManager(props, props.xmlResolver.getOrDefault() ?: XMLResolver())
         override val pagedMediaManagers: List<PagedMediaManager> = props.pagedMediaManagers.getOrDefault() ?: emptyList()
         override val assertions: AssertionsLevel = props.assertions.getOrDefault()!!
         override val debug: Boolean = props.debug.getOrDefault()!!
