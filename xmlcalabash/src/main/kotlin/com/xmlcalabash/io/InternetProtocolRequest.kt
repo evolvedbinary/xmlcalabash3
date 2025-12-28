@@ -4,7 +4,9 @@ import com.xmlcalabash.config.StepConfiguration
 import com.xmlcalabash.documents.DocumentProperties
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
+import com.xmlcalabash.exceptions.XProcException
 import com.xmlcalabash.namespace.Ns
+import com.xmlcalabash.namespace.NsErr
 import com.xmlcalabash.runtime.ExpressionEvaluator
 import com.xmlcalabash.util.UriUtils
 import net.sf.saxon.om.NamespaceUri
@@ -242,7 +244,17 @@ class InternetProtocolRequest(val stepConfig: StepConfiguration, val uri: URI) {
         response.cookieStore = cookieStore
         response.headers = requestHeaders(httpResult)
         response.report = requestReport(httpResult)
-        return readResponseEntity(httpResult, response)
+
+        try {
+            return readResponseEntity(httpResult, response)
+        } catch (ex: XProcException) {
+            // If trying to read the response failed, but the response code was already a failure
+            // just return the response. (This is likely caused by a broken error document from the server.)
+            if (response.statusCode >= 400) {
+                return response
+            }
+            throw ex
+        }
     }
 
     private fun readResponseEntity(httpResult: HttpResponseEntity, response: InternetProtocolResponse): InternetProtocolResponse {
