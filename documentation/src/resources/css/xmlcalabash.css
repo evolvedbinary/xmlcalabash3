@@ -121,6 +121,7 @@ code.literal {
 /* ============================================================ */
 
 .element-syntax {
+    font-family: monospace;
     padding: 4px;
     line-height: 1.25;
     white-space: nowrap;
