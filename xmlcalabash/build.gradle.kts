@@ -10,6 +10,12 @@ import org.jetbrains.dokka.base.DokkaBaseConfiguration
 import java.net.URI
 import java.net.URL
 import java.io.PrintStream
+import java.io.FileOutputStream
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.zip.ZipFile
+
+import de.undercouch.gradle.tasks.download.Download
 
 buildscript {
   dependencies {
@@ -22,6 +28,7 @@ plugins {
   id("com.xmlcalabash.build.xmlcalabash-build")
   id("com.github.gmazzo.buildconfig") version "5.5.0"
   id("org.jetbrains.dokka") version "1.9.20"
+  id("de.undercouch.download") version "5.6.0"
   id("maven-publish")
 }
 
@@ -43,7 +50,7 @@ dependencies {
 buildConfig {
   className("XmlCalabashBuildConfig")
   packageName("com.xmlcalabash")
-  useKotlinOutput { internalVisibility = false } 
+  useKotlinOutput { internalVisibility = false }
 
   buildConfigField("NAME", xmlbuild.name.get())
   buildConfigField("VERSION", xmlbuild.version.get())
@@ -71,7 +78,7 @@ buildConfig {
     sb.append("\"").append(version).append("\"")
   }
   sb.append(")\n")
-  
+
   buildConfigField("java.util.Map<String,String>", "DEPENDENCIES", sb.toString())
 }
 
@@ -82,6 +89,48 @@ tasks.jar {
 tasks.javadoc {
   if (JavaVersion.current().isJava9Compatible) {
     (options as StandardJavadocDocletOptions).addBooleanOption("html5", true)
+  }
+}
+
+val exprocDownload = tasks.register<Download>("downloadContrib") {
+  outputs.file(layout.buildDirectory.file("exproc-contrib.zip"))
+  src("https://exproc.org/contrib/exproc-contrib.zip")
+  dest(layout.buildDirectory)
+  onlyIf { !layout.buildDirectory.file("exproc-contrib.zip").get().asFile.exists() }
+}
+
+val exprocContribDate = tasks.register("exprocContribDate") {
+  dependsOn(exprocDownload)
+  doLast {
+    val zipFile = ZipFile(layout.buildDirectory.file("exproc-contrib.zip").get().asFile)
+    val maxtime = zipFile.entries().toList().maxByOrNull { it.getTime() }?.getTime()
+    if (maxtime != null) {
+      val fn = "com/xmlcalabash/exproc-contrib-last-modified.txt"
+      val path = layout.buildDirectory.file("exproc-contrib/com/xmlcalabash").get().asFile
+      path.mkdirs()
+      val dt = Date(maxtime)
+      val sdf = SimpleDateFormat("dd MMM yyyy 'at' HH:mm")
+      val ps = PrintStream(FileOutputStream(layout.buildDirectory.file("exproc-contrib/${fn}").get().asFile))
+      ps.println(sdf.format(dt))
+      ps.close()
+    }
+  }
+}
+
+val exprocContrib = tasks.register<Copy>("exprocContrib") {
+  dependsOn(exprocDownload)
+  dependsOn(exprocContribDate)
+  into(layout.buildDirectory.dir("exproc-contrib"))
+  from(zipTree(layout.buildDirectory.file("exproc-contrib.zip"))) {
+    into("org/xmlresolver")
+  }
+}
+
+sourceSets {
+  main {
+    resources {
+      srcDir(exprocContrib)
+    }
   }
 }
 

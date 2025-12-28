@@ -20,13 +20,14 @@ import com.xmlcalabash.io.MediaType
 import com.xmlcalabash.io.MessagePrinter
 import com.xmlcalabash.namespace.Ns
 import com.xmlcalabash.namespace.NsErr
-import com.xmlcalabash.runtime.api.Receiver
 import com.xmlcalabash.spi.DocumentResolverServiceProvider
 import com.xmlcalabash.util.*
 import net.sf.saxon.Configuration
 import net.sf.saxon.s9api.*
 import org.apache.logging.log4j.kotlin.logger
 import org.xml.sax.SAXParseException
+import org.xmlresolver.ResolverFeature
+import org.xmlresolver.XMLResolver
 import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
@@ -68,6 +69,10 @@ class XmlCalabashCli private constructor() {
         }
 
         loadConfiguration(builder.configurationFile.getOrDefault())?.let { builder.update(it) }
+
+        val resolver = XMLResolver()
+        resolver.configuration.setFeature(ResolverFeature.CLASSPATH_CATALOGS, true)
+        builder.xmlResolver.set(resolver)
 
         setupDefaultMessaging()
 
@@ -598,6 +603,14 @@ class XmlCalabashCli private constructor() {
         val proc = stepConfig.processor
         val edition = actualSaxonEdition()
 
+        val stream = XmlCalabash::class.java.getResourceAsStream("/com/xmlcalabash/exproc-contrib-last-modified.txt")
+        val exprocDate = if (stream != null) {
+            val ps = InputStreamReader(stream, Charsets.UTF_8)
+            ps.readLines().firstOrNull()
+        } else {
+            null
+        }
+
         val totThreads = 2.coerceAtLeast(Runtime.getRuntime().availableProcessors())
         val maxThreads = totThreads.coerceAtMost(stepConfig.xmlCalabashConfig.maxThreadCount)
         val deplist = XmlCalabashBuildConfig.DEPENDENCIES.keys.toList().sorted()
@@ -612,6 +625,10 @@ class XmlCalabashCli private constructor() {
             println("VENDOR_URI=${XmlCalabashBuildConfig.VENDOR_URI}")
             println("THREADS=${maxThreads}")
             println("MAX_THREADS=${totThreads}")
+
+            if (exprocDate != null) {
+                println("EXPROC_CONTRIB=${exprocDate}")
+            }
 
             for (ext in xmlCalabash.config.extensions) {
                 println("${ext}=true")
@@ -629,6 +646,10 @@ class XmlCalabashCli private constructor() {
                 stepConfig.messagePrinter.println(" using ${totThreads} threads")
             } else {
                 stepConfig.messagePrinter.println(" using at most ${maxThreads} of ${totThreads} available threads")
+            }
+
+            if (exprocDate != null) {
+                stepConfig.messagePrinter.println("Including EXProc contributed pipelines from ${exprocDate}.")
             }
 
             stepConfig.messagePrinter.println("The default character set is ${stepConfig.messagePrinter.encoding}")

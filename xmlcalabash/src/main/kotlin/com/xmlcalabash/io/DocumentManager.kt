@@ -35,9 +35,7 @@ import javax.xml.transform.sax.SAXSource
 import javax.xml.transform.stream.StreamSource
 
 open class DocumentManager(val resolver: XMLResolver): EntityResolver, EntityResolver2, URIResolver, ResourceResolver, ModuleURIResolver {
-    constructor(): this(XMLResolver())
-
-    constructor(builder: XmlCalabashBuilder): this(XMLResolver()) {
+    constructor(builder: XmlCalabashBuilder, resolver: XMLResolver): this(resolver) {
         val catalogs = builder.xmlCatalogs.getOrDefault() ?: emptyList()
         if (catalogs.isNotEmpty()) {
             resolver.configuration.setFeature(ResolverFeature.CATALOG_ADDITIONS, catalogs.map { it.toString() })
