@@ -456,7 +456,7 @@
         <xsl:value-of select="@class"/>
       </xsl:if>
     </xsl:attribute>
-    <code>
+    <span>
       <xsl:text>&lt;</xsl:text>
 
       <xsl:choose>
@@ -537,7 +537,7 @@
           <xsl:text>&#160;/&gt;</xsl:text>
         </xsl:otherwise>
       </xsl:choose>
-    </code>
+    </span>
   </p>
 </xsl:template>
 
