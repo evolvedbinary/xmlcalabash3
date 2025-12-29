@@ -454,30 +454,44 @@ failed and its ancestors.</para>
 <varlistentry xml:id="cli-step">
   <term><option>--step:<replaceable>step</replaceable></option>, identifies a step</term>
 <listitem>
-<para>The <option>--step</option> option is a little bit overloaded. Its interpretation
-depends on whether or not <link linkend="cli-pipeline">a pipeline</link> is specified.
-</para>
+<para>Interpretation of the <option>--step</option> option depends on whether or not
+<link linkend="cli-pipeline">a pipeline</link> is also specified.</para>
 
-<para>If a pipeline is specified, it must identify a <tag>p:library</tag>. The value of the
-<option>--step</option> option is interpreted as the <emphasis>name</emphasis> of a step in
-that library. The named step will be run.</para>
+<para>If a pipeline is specified:</para>
+
+<orderedlist>
+<listitem><para>The document element of the pipeline must be a <tag>p:library</tag>.
+</para></listitem>
+<listitem><para>If the <replaceable>step</replaceable> value is a string without a “:”,
+it’s interpreted as a name and the <tag>p:declare-step</tag> with that name in the
+library is selected.
+</para></listitem>
+<listitem><para>If the <replaceable>step</replaceable> value contains a “:”, then it
+is interpreted as a QName (resolved against the combined namespace bindings
+provided in the configuration file and on the command line) and the <tag>p:declare-step</tag>
+with that type in the library is selected.
+</para></listitem>
+</orderedlist>
 
 <para>For example:</para>
 
 <screen><prompt>$ </prompt><userinput>xmlcalabash --step:helloWorld examples.xpl …</userinput></screen>
 
-<para>If no pipeline is specified, the value of the <option>--step</option>
-option is interpreted as the <emphasis>type</emphasis> of a step. The (atomic)
-step with the specified type will be run. All of the inputs, outputs, and options
-specified apply to that step.</para>
+<para>If a pipeline <emphasis>is not</emphasis> specified:</para>
+
+<orderedlist>
+<listitem><para>The <replaceable>step</replaceable> value is interpreted as a
+QName (resolved against the combined namespace bindings provided in the
+configuration file and on the command line).
+</para></listitem>
+<listitem><para>The (atomic) step with the specified type will be run. All of
+the inputs, outputs, and options specified apply to that step.
+</para></listitem>
+</orderedlist>
 
 <para>For example:</para>
 
 <screen><prompt>$ </prompt><userinput>xmlcalabash --step:p:xslt …</userinput></screen>
-
-<para>The <literal>p</literal> and <literal>cx</literal> namespaces are bound by default.
-The <option linkend="cli-namespace">--namespace</option> option can be
-used to change the namespace bindings.</para>
 
 </listitem>
 </varlistentry>

@@ -393,8 +393,13 @@ for details.</para>
 
 <para>If no pipeline is supplied on the command line, the pipeline identified by the
 <tag class="attribute">href</tag> attribute will be run. If a <tag class="attribute">step</tag>
-is specified, then the pipeline must be a <tag>p:library</tag>; the named step will
-be executed.</para>
+is specified, then the pipeline must be a <tag>p:library</tag>.
+If the <replaceable>step</replaceable> value is a string without a “:”,
+it’s interpreted as a name and the <tag>p:declare-step</tag> with that name in the
+library is selected; if the <replaceable>step</replaceable> value contains a “:”, then it
+is interpreted as a QName (resolved against the combined namespace bindings
+provided in the configuration file and on the command line) and the <tag>p:declare-step</tag>
+with that type in the library is selected.</para>
 
 <para>A pipeline can also provide default inputs, outputs, and
 options. Each of these applies <emphasis>only</emphasis> if an

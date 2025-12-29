@@ -1702,6 +1702,9 @@ No steps in library (“$1”).
 cxerr:XI0039/2
 No step named “$1” in library (“$2”).
 
+cxerr:XI0039/3
+No step with the type “$1” in library (“$2”).
+
 cxerr:XI0040/1
 Initializer failed: $1
 
