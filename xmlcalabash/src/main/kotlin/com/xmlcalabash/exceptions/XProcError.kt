@@ -502,6 +502,7 @@ open class XProcError protected constructor(val code: QName, val variant: Int, v
         fun xiDocumentNotInCache(href: URI) = internal(38, href)
         fun xiNoPipelineInLibrary(href: String) = internal(Pair(39, 1), href)
         fun xiNoPipelineInLibrary(name: String, href: String) = internal(Pair(39, 2), name, href)
+        fun xiNoPipelineInLibrary(type: QName, href: String) = internal(Pair(39, 3), type, href)
         fun xiInitializerError(message: String) = internal(Pair(40, 1), message)
         fun xiAssertionFailed(message: String) = internal(Pair(41,1), message)
         fun xiAssertionFailed(code: String, message: String) = internal(Pair(41,2), message)

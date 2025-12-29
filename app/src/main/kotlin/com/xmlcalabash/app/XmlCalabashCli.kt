@@ -136,7 +136,12 @@ class XmlCalabashCli private constructor() {
 
             val compStart = System.nanoTime()
             val declstep = if (pipelineUri != null) {
-                xprocParser.parse(pipelineUri, step)
+                val qname = if (step == null) {
+                    null
+                } else {
+                    stepConfig.typeUtils.parseQName(step, builder.namespaces.get()!!)
+                }
+                xprocParser.parse(pipelineUri, qname)
             } else {
                 val type = stepConfig.typeUtils.parseQName(step!!, builder.namespaces.get()!!)
                 constructWrapper(type)

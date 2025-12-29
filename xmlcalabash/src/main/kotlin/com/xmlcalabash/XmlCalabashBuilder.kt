@@ -302,10 +302,15 @@ class XmlCalabashBuilder {
         verbosity.update(props.verbosity)
         visualizerName.update(props.visualizerName)
         xmlCatalogs.update(props.xmlCatalogs)
-        this@XmlCalabashBuilder.xmlSchemas.update(props.xmlSchemas)
+        xmlSchemas.update(props.xmlSchemas)
         extensions.update(props.extensions)
 
-        namespaces.update(props.namespaces)
+        // Namespaces is special; merge them...
+        val nsmap = mutableMapOf<String, NamespaceUri>()
+        namespaces.get()?.let { nsmap.putAll(it) }
+        props.namespaces.get()?.let { nsmap.putAll(it) }
+        namespaces.set(nsmap)
+
         command.update(props.command)
         commandOptions.update(props.commandOptions)
         configurationFile.update(props.configurationFile)

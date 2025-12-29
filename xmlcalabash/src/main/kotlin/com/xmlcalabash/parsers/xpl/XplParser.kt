@@ -33,7 +33,7 @@ class XplParser internal constructor(val builder: PipelineBuilder) {
         return parse(filename, null)
     }
 
-    fun parse(filename: String, stepName: String?): DeclareStepInstruction {
+    fun parse(filename: String, stepName: QName?): DeclareStepInstruction {
         val uri = UriUtils.resolve(filename)
         return parse(uri, stepName)
     }
@@ -42,7 +42,7 @@ class XplParser internal constructor(val builder: PipelineBuilder) {
         return parse(uri, null)
     }
 
-    fun parse(uri: URI, stepName: String?): DeclareStepInstruction {
+    fun parse(uri: URI, stepName: QName?): DeclareStepInstruction {
         val stepContainer = parseUri(uri)
 
         if (errors.isNotEmpty()) {
@@ -56,7 +56,7 @@ class XplParser internal constructor(val builder: PipelineBuilder) {
         return parse(source, null);
     }
 
-    fun parse(source: Source, stepName: String?): DeclareStepInstruction {
+    fun parse(source: Source, stepName: QName?): DeclareStepInstruction {
         val builder = builder.stepConfig.processor.newDocumentBuilder()
         builder.isLineNumbering = true
         val xml = builder.build(source)
@@ -67,7 +67,7 @@ class XplParser internal constructor(val builder: PipelineBuilder) {
         return parse(xml, null)
     }
 
-    fun parse(xml: XdmNode, stepName: String?): DeclareStepInstruction {
+    fun parse(xml: XdmNode, stepName: QName?): DeclareStepInstruction {
         val document = manager.load(xml)
         val uri = xml.baseURI
         val stepContainer = if (document.rootNode is LibraryNode) {
@@ -107,7 +107,7 @@ class XplParser internal constructor(val builder: PipelineBuilder) {
         throw XProcError.xiNotALibrary(uri).exception()
     }
 
-    private fun pipelineForContainer(stepContainer: StepContainerInterface, stepName: String?): DeclareStepInstruction {
+    private fun pipelineForContainer(stepContainer: StepContainerInterface, stepName: QName?): DeclareStepInstruction {
         if (stepContainer is DeclareStepInstruction) {
             return stepContainer
         } else {
@@ -115,11 +115,18 @@ class XplParser internal constructor(val builder: PipelineBuilder) {
             val decl = if (stepName == null) {
                 library.children.filterIsInstance<DeclareStepInstruction>().firstOrNull()
             } else {
-                library.children.filterIsInstance<DeclareStepInstruction>().firstOrNull { it.name == stepName }
+                if (stepName.namespaceUri == NamespaceUri.NULL) {
+                    library.children.filterIsInstance<DeclareStepInstruction>().firstOrNull { it.name == stepName.localName }
+                } else {
+                    library.children.filterIsInstance<DeclareStepInstruction>().firstOrNull { it.type == stepName }
+                }
             }
             if (decl == null) {
                 if (stepName == null) {
                     throw XProcError.xiNoPipelineInLibrary(stepContainer.stepConfig.baseUri?.toString() ?: "-").exception()
+                }
+                if (stepName.namespaceUri == NamespaceUri.NULL) {
+                    throw XProcError.xiNoPipelineInLibrary(stepName.localName, stepContainer.stepConfig.baseUri?.toString() ?: "-").exception()
                 }
                 throw XProcError.xiNoPipelineInLibrary(stepName, stepContainer.stepConfig.baseUri?.toString() ?: "-").exception()
             }

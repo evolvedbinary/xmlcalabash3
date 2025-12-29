@@ -374,6 +374,10 @@ class DeclareStepInstruction(parent: XProcInstruction?, stepConfig: InstructionC
 
     fun runtime(): XProcRuntime {
         synchronized(this) {
+            if (parent is LibraryInstruction) {
+                (parent as LibraryInstruction).validate()
+            }
+
             if (!compiled) {
                 validate()
                 compiled = true
