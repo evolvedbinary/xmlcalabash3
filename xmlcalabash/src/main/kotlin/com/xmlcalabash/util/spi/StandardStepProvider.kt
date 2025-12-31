@@ -162,7 +162,7 @@ class StandardStepProvider: AtomicStepManager, AtomicStepProvider {
 
     override fun createStep(params: StepParameters): () -> XProcStep {
         val constructor = implMap[params.stepType]
-            ?: throw XProcError.Companion.xiNotImplemented("createStep for ${params.stepType}").exception()
+            ?: throw XProcError.xiNotImplemented("createStep for ${params.stepType}").exception()
         return { -> constructor(params) }
     }
 }
