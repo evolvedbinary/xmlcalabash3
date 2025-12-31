@@ -456,6 +456,8 @@ class XplParser internal constructor(val builder: PipelineBuilder) {
         if (name == null) {
             throw decl.stepConfig.exception(XProcError.xsMissingRequiredAttribute(Ns.name))
         }
+        val select = node.attributes[Ns.select]
+            ?: throw decl.stepConfig.exception(XProcError.xsMissingRequiredAttribute(Ns.select))
 
         val withOption = if (decl is RunInstruction) {
             decl.runOption(name)
@@ -468,7 +470,7 @@ class XplParser internal constructor(val builder: PipelineBuilder) {
         val attributeMapping = mutableMapOf<QName, (String) -> Unit>(
             Ns.name to { _ -> },
             Ns.asType to { value -> withOption.asType = stepConfig.typeUtils.parseSequenceType(value) },
-            Ns.select to { value -> withOption.select = XProcExpression.select(stepConfig, value) },
+            Ns.select to { _ -> },
             Ns.collection to { value -> withOption.collection = stepConfig.typeUtils.parseBoolean(value) },
             Ns.href to { value -> withOption.href = XProcExpression.avt(stepConfig, value) },
             Ns.pipe to { value -> withOption.pipe = value },
@@ -480,6 +482,9 @@ class XplParser internal constructor(val builder: PipelineBuilder) {
         }
 
         processAttributes(node, withOption, attributeMapping)
+
+        withOption.select = XProcExpression.select(stepConfig, select,
+            withOption.asType ?: SequenceType.ANY, withOption.collection ?: false)
 
         val elementMapping = mapOf<QName, (ElementNode) -> Unit>(
             NsP.empty to { child -> parseEmpty(withOption, child) },
