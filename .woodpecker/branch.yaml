@@ -12,7 +12,7 @@ steps:
   - name: build-and-test
     image: xmlcalabash-build
     volumes:
-      - builder-home:/home/builder
+      - new-builder-home:/home/builder
     environment:
       LIBRARY_PASSPHRASE:
         from_secret: LIBRARY_PASSPHRASE
@@ -30,14 +30,14 @@ steps:
   - name: setup-gradle
     image: xmlcalabash-build
     volumes:
-      - builder-home:/home/builder
+      - new-builder-home:/home/builder
     commands:
       - cp /home/builder/.gradle/gradle.properties ./build/.gradle/
 
   - name: test-suites
     image: xmlcalabash-build
     volumes:
-      - builder-home:/home/builder
+      - new-builder-home:/home/builder
     environment:
       GRADLE_USER_HOME: ./build/.gradle
     commands:
@@ -46,7 +46,7 @@ steps:
   - name: documentation
     image: xmlcalabash-build
     volumes:
-      - builder-home:/home/builder
+      - new-builder-home:/home/builder
     environment:
       GRADLE_USER_HOME: ./build/.gradle
     commands:
@@ -58,7 +58,7 @@ steps:
   - name: checkout www.xmlcalabash.com
     image: xmlcalabash-build
     volumes:
-      - builder-home:/home/builder
+      - new-builder-home:/home/builder
     commands:
       - cd build
       - git clone ssh://git@codeberg.org/xmlcalabash/www.git
@@ -66,7 +66,7 @@ steps:
   - name: update the current test-suites
     image: xmlcalabash-build
     volumes:
-      - builder-home:/home/builder
+      - new-builder-home:/home/builder
     commands:
       - cd build/www
       - export VERSION=`cat gradle.properties|grep xmlcalabashVersion|cut -f2 -d=`
@@ -76,7 +76,7 @@ steps:
   - name: update the current test-report
     image: xmlcalabash-build
     volumes:
-      - builder-home:/home/builder
+      - new-builder-home:/home/builder
     commands:
       - cd build/www
       - mkdir -p src/main/test-report/current
@@ -87,7 +87,7 @@ steps:
       - event: tag
     image: xmlcalabash-build
     volumes:
-      - builder-home:/home/builder
+      - new-builder-home:/home/builder
     commands:
       - cd build/www
       - mkdir -p src/main/test-report/$CI_COMMIT_TAG
@@ -96,7 +96,7 @@ steps:
   - name: update www.xmlcalabash.com
     image: xmlcalabash-build
     volumes:
-      - builder-home:/home/builder
+      - new-builder-home:/home/builder
     commands:
       - cd build/www
       - git config --global user.email "norm@tovey-walsh.com"
@@ -109,7 +109,7 @@ steps:
   - name: checkout docs.xmlcalabash.com
     image: xmlcalabash-build
     volumes:
-      - builder-home:/home/builder
+      - new-builder-home:/home/builder
     commands:
       - cd build
       - git clone ssh://git@codeberg.org/xmlcalabash/docs.git
@@ -119,7 +119,7 @@ steps:
       - event: tag
     image: xmlcalabash-build
     volumes:
-      - builder-home:/home/builder
+      - new-builder-home:/home/builder
     commands:
       - export VERSION=`cat gradle.properties|grep xmlcalabashVersion|cut -f2 -d=`
       - export SNAPSHOT=`echo $VERSION | grep SNAPSHOT`
@@ -143,7 +143,7 @@ steps:
   - name: publish
     image: xmlcalabash-build
     volumes:
-      - builder-home:/home/builder
+      - new-builder-home:/home/builder
     environment:
       GRADLE_USER_HOME: ./build/.gradle
     commands:

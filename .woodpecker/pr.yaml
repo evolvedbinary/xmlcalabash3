@@ -12,7 +12,7 @@ steps:
   - name: build-and-test
     image: xmlcalabash-build
     volumes:
-      - builder-home:/home/builder
+      - new-builder-home:/home/builder
     environment:
       SMTPSERVER: sendria
       SKIP_EE_TESTS: "true"
@@ -27,14 +27,14 @@ steps:
   - name: setup-gradle
     image: xmlcalabash-build
     volumes:
-      - builder-home:/home/builder
+      - new-builder-home:/home/builder
     commands:
       - cp /home/builder/.gradle/gradle.properties ./build/.gradle/
 
   - name: test-suites
     image: xmlcalabash-build
     volumes:
-      - builder-home:/home/builder
+      - new-builder-home:/home/builder
     environment:
       GRADLE_USER_HOME: ./build/.gradle
     commands:
