@@ -7,6 +7,7 @@ import java.net.HttpURLConnection
 import java.io.File
 import java.io.BufferedReader
 import java.io.FileInputStream
+import java.io.FileOutputStream
 import java.io.PrintStream
 import java.io.InputStreamReader
 import java.io.ByteArrayOutputStream
@@ -798,13 +799,32 @@ for ((example,options) in exampleConfig) {
   }
 }
 
-tasks.register<JavaExec>("dxx") {
-  classpath = configurations.named("deltaxml").get()
-  mainClass = "com.deltaxml.cmdline.PipelinedTextUI"
-  args("compare", "doc-delta",
-       "src/examples/xml/default-input.xml",
-       "build/examples/results/add-attribute-001.xml",
-       "/tmp/out.xml")
+// This is only going to work if you have the git-log-summary script...
+val gitLogSummary = tasks.register<Exec>("git-log-summary.xml") {
+  // I don't know why just making standardOutput a FileOutputStream doesn't work.
+  // But it doesn't...
+  val output = ByteArrayOutputStream()
+  standardOutput = output
+  commandLine("git-log-summary")
+  doLast {
+    val file = FileOutputStream(layout.buildDirectory.file("git-log-summary.xml").get().asFile)
+    file.write(output.toByteArray())
+    file.close()
+  }
+}
+
+tasks.register<JavaExec>("draftChangelog") {
+  inputs.files(gitLogSummary)
+  inputs.file(layout.projectDirectory.file("tools/draft-changelog.xsl"))
+  outputs.file(layout.buildDirectory.file("draft-changelog.xml"))
+
+  classpath = configurations.named("transformation").get()
+  mainClass = "net.sf.saxon.Transform"
+
+  args("-s:${layout.buildDirectory.file("git-log-summary.xml").get().asFile}",
+       "-xsl:${layout.projectDirectory.file("tools/draft-changelog.xsl").asFile}",
+       "-o:${layout.buildDirectory.file("draft-changelog.xml").get().asFile}",
+       "version=${project.findProperty("xmlcalabashVersion").toString()}")
 }
 
 // ============================================================
