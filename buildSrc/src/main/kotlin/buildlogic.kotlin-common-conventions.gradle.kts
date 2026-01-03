@@ -62,22 +62,6 @@ dependencies {
     }
   }
 
-  constraints {
-    implementation("com.saxonica:Saxon-PE") {
-      version {
-        strictly ("${saxonVersion}")
-      }
-    }
-  }
-
-  constraints {
-    implementation("com.saxonica:Saxon-EE") {
-      version {
-        strictly ("${saxonVersion}")
-      }
-    }
-  }
-
   testImplementation("org.junit.jupiter:junit-jupiter:5.10.1")
   testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
