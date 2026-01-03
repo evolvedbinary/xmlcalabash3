@@ -33,7 +33,7 @@ object ExternalDependencies {
             "org.nineml:coffeegrinder:3.3.4",
             "org.relaxng:jing:20241231",
             "org.tukaani:xz:1.10",
-            "org.xmlresolver:xmlresolver:6.0.19",
+            "org.xmlresolver:xmlresolver:6.0.21",
 
             // I was using log4j but httpclient5 uses slf4j.
             // Could I get httpclient5 to use log4j? Maybe. ¯\_(ツ)_/¯
