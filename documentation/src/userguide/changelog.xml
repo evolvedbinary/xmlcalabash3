@@ -13,6 +13,31 @@ See the commits and pull requests on
 finer detail.</para>
 
 <revhistory>
+<revision xml:id="r3035">
+<revnumber>3.0.35</revnumber>
+<date>2026-01-03</date>
+<revdescription>
+<itemizedlist>
+<listitem>
+<para>Closed <cbissue number="492"/>. Remove optional dependencies from the POM.
+</para></listitem>
+<listitem>
+<para>Closed <cbissue number="491"/>.
+When running a pipeline function from outside XML Calabash, copy the catalog
+files from the Saxon configuration into the XML Calabash configuration. This
+allows the pipeline function to use any <literal>-catalogs</literal> specified for Saxon.
+</para></listitem>
+<listitem><para>Closed <cbissue number="489"/>. Allow <tag>p:with-option</tag> to access its collection.
+</para></listitem>
+<listitem><para>Closed <cbissue number="465"/>. When the step option is used,
+make sure its library is validated. Also extends the <option>--step</option>
+option (and the <tag class="attribute">step</tag> attribute on
+<tag>cc:pipeline</tag>) so that it can be either a name or a
+type.
+</para></listitem>
+</itemizedlist>
+</revdescription>
+</revision>
 <revision xml:id="r3034">
 <revnumber>3.0.34</revnumber>
 <date>2025-12-28</date>
