@@ -40,6 +40,11 @@ open class DocumentManager(val resolver: XMLResolver): EntityResolver, EntityRes
         if (catalogs.isNotEmpty()) {
             resolver.configuration.setFeature(ResolverFeature.CATALOG_ADDITIONS, catalogs.map { it.toString() })
         }
+        val mimeTypes = builder.mimeTypes.getOrDefault() ?: emptyMap()
+        val mapping = _mimetypesFileTypeMap as MemoMimetypesFileTypeMap
+        for ((type, extensions) in mimeTypes) {
+            mapping.addMimeTypes("${type} ${extensions.joinToString(" ")}")
+        }
     }
 
     constructor(manager: DocumentManager): this(manager.resolver) {
