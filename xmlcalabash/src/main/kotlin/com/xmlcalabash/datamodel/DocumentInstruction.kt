@@ -105,7 +105,8 @@ class DocumentInstruction private constructor(parent: XProcInstruction): Connect
         if (parameters.canBeResolvedStatically()) {
             docStep._staticOptions[Ns.parameters] = StaticOptionDetails(stepConfig, Ns.parameters, stepConfig.qnameMapType, emptyList(), parameters)
         } else {
-            val exprSteps = parameters.promoteToStep(parent, Ns.parameters, listOf(stepConfig.drp!!), false)
+            val inContext = if (stepConfig.drp != null) { listOf(stepConfig.drp!!) } else { null }
+            val exprSteps = parameters.promoteToStep(parent, Ns.parameters, inContext, false)
             val expr = exprSteps.last()
 
             val wi = docStep.withInput()

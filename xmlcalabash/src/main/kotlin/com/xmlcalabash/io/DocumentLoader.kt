@@ -248,8 +248,10 @@ class DocumentLoader(val stepConfig: StepConfiguration,
         // that line numbering is reflected in the parameters...
         val params = mutableMapOf<QName, XdmValue>()
         params.putAll(parameters)
-        if (stepConfig.xmlCalabashConfig.lineNumbering && NsCx.lineNumbering !in parameters) {
-            params[NsCx.lineNumbering] = XdmAtomicValue(true)
+        if (NsCx.lineNumbering in parameters) {
+            params[NsCx.lineNumbering] = parameters[NsCx.lineNumbering]!!
+        } else {
+            params[NsCx.lineNumbering] = XdmAtomicValue(stepConfig.xmlCalabashConfig.lineNumbering)
         }
 
         try {
