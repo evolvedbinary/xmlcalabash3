@@ -1,0 +1,13 @@
+<!-- -*- nxml -*- -->
+<cc:xml-calabash xmlns:cc="https://xmlcalabash.com/ns/configuration"
+                 default-xquery-processor="http://example.com/default"
+                 licensed="true"
+                 line-numbering="true"
+                 piped-io="true"
+                 saxon-configuration="/path/to/saxon.xml"
+                 stacktrace="true"
+                 try-namespaces="true"
+                 use-location-hints="true"
+                 validation-mode="strict"
+                 verbosity="debug"
+                 version="1.0"/>

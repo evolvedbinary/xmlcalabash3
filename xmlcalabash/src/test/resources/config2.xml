@@ -1,0 +1,10 @@
+<!-- -*- nxml -*- -->
+<cc:xml-calabash xmlns:cc="https://xmlcalabash.com/ns/configuration"
+                 licensed="false"
+                 line-numbering="false"
+                 piped-io="false"
+                 stacktrace="false"
+                 try-namespaces="false"
+                 use-location-hints="false"
+                 validation-mode="lax"
+                 verbosity="warn"/>
