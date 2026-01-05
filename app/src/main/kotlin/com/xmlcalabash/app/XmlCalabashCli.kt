@@ -57,6 +57,9 @@ class XmlCalabashCli private constructor() {
     private lateinit var stepConfig: InstructionConfiguration
     private val serializationParameters = mutableMapOf<String, MutableMap<QName, XdmAtomicValue>>()
     private var sawStdout = false
+    // This is a terrible hack because we try to initialize the SaxonConfiguration before
+    // we've initialized the stepConfig. It would be better refactor this.
+    private var haveStepConfig = false
 
     private fun run(args: Array<out String>) {
         builder = XmlCalabashBuilder()
@@ -91,6 +94,7 @@ class XmlCalabashCli private constructor() {
             xmlCalabash = builder.build()
             val xprocParser = xmlCalabash.newXProcParser()
             stepConfig = xprocParser.builder.stepConfig
+            haveStepConfig = true
             cliExplain = stepConfig.errorExplanation
 
             val command = builder.command.getOrDefault()!!
@@ -577,7 +581,11 @@ class XmlCalabashCli private constructor() {
                             Report(Verbosity.ERROR, error.cause?.message ?: "Unknown error", error.cause!!)
                         }
                     }
-                    stepConfig.xmlCalabashConfig.messageReporter.report(report.severity) { report }
+                    if (haveStepConfig) {
+                        stepConfig.xmlCalabashConfig.messageReporter.report(report.severity) { report }
+                    } else {
+                        cliReporter.report(report.severity) { report }
+                    }
                 }
             }
         }
