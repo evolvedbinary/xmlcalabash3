@@ -1,0 +1,38 @@
+<!-- -*- nxml -*- -->
+<cc:xml-calabash xmlns:cc="https://xmlcalabash.com/ns/configuration">
+  <cc:catalog href="/path/to/catalog.xml"/>
+  <cc:extension name="eager-uri-resolution"/>
+<!--
+  <cc:graphviz dot="/path/to/dot" style="/path/to/style.xsl" output="/path/to/dir"/>
+-->
+  <cc:initializer class="a.b.c" ignore-errors="true"/>
+  <cc:inline trim-whitespace="true"/>
+  <cc:mimetype content-type="application/spoon" extensions="spoon spork"/>
+  <cc:namespace prefix="xyz" uri="http://example.org/ns/xyz"/>
+  <cc:paged-media css-formatter="https://xmlcalabash.com/paged-media/css-formatter/weasyprint"
+                  exePath="/opt/homebrew/bin/weasyprint"/>
+  <cc:pipeline href="/path/to/library.xpl" step="step1">
+    <cc:input port="source" href="/path/to/input.xml" content-type="application/octet-stream"/>
+    <cc:output port="result" filespec="output%02d.bin"/>
+    <cc:option name="optname" value="17"/>
+  </cc:pipeline>
+  <cc:proxy scheme="http" uri="http://localhost:8123"/>
+  <cc:saxon-configuration-property
+      name="http://saxon.sf.net/feature/expandAttributeDefaults"
+      value="true"/>
+  <cc:send-mail username="user" password="sekrit"/>
+  <cc:serialization content-type="application/xml"
+                    indent="true"
+                    omit-xml-declaration="true"/>
+  <cc:system-property name="pname" value="pvalue"/>
+  <cc:message-reporter buffer-size="17"/>
+  <cc:visualizer name="plain" x="y"/>
+  <cc:threading count="4"/>
+  <cc:xml-schema href="/path/to/schema.xsd"/>
+  <cc:xquery-processor name="https://basex.org/"
+                       username="user" password="sekrit"/>
+
+  <x:selenium xmlns:x="https://xmlcalabash.com/ext/ns/selenium"
+              whitelist="http://localhost.*
+                         https://testdata.xmlcalabash.com/.*"/>
+</cc:xml-calabash>

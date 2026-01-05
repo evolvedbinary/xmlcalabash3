@@ -62,7 +62,6 @@ class ConfigurationLoader() {
         private val _output = QName("output")
         private val _piped_io = QName("piped-io")
         private val _stacktrace = QName("stacktrace")
-        private val _console_output_encoding = QName("console-output-encoding")
         private val _saxonConfiguration = QName("saxon-configuration")
         private val _scheme = QName("scheme")
         private val _trimWhitespace = QName("trim-whitespace")
@@ -94,9 +93,9 @@ class ConfigurationLoader() {
         configFile = source.systemId ?: ""
 
         val processor = Processor(false)
-        val builder = processor.newDocumentBuilder()
+        val dbuilder = processor.newDocumentBuilder()
         val destination = XdmDestination()
-        builder.parse(SAXSource(source), destination)
+        dbuilder.parse(SAXSource(source), destination)
 
         val root = S9Api.documentElement(destination.xdmNode)
         if (root.nodeName != ccXmlCalabash) {
@@ -104,17 +103,26 @@ class ConfigurationLoader() {
         }
 
         synchronized(Companion) {
-            this@ConfigurationLoader.builder = XmlCalabashBuilder()
+            builder = XmlCalabashBuilder()
             parse(root)
-            return this@ConfigurationLoader.builder
+            return builder
         }
     }
 
     private fun parse(root: XdmNode) {
         checkAttributes(root, listOf(), listOf(
-            _console_output_encoding, _licensed, _piped_io, _saxonConfiguration,
-            Ns.tryNamespaces, Ns.useLocationHints, Ns.validationMode,
-            _verbosity, Ns.version, _mpt, _defaultXQueryProcessor, _stacktrace))
+            _defaultXQueryProcessor,
+            _licensed,
+            _lineNumbering,
+            _mpt,
+            _piped_io,
+            _saxonConfiguration,
+            _stacktrace,
+            Ns.tryNamespaces,
+            Ns.useLocationHints,
+            Ns.validationMode,
+            _verbosity,
+            Ns.version))
 
         if ((root.getAttributeValue(Ns.version) ?: "1.0") != "1.0") {
             throw XProcError.xiInvalidConfigurationAttributeValue(root.nodeName, Ns.version, root.getAttributeValue(Ns.version)!!).exception()
