@@ -1,0 +1,6 @@
+start = doc
+doc = element doc { title, chapter+ }
+title = element title { text }
+chapter = element chapter { title }
+
+

@@ -56,13 +56,38 @@ The command-line setting takes precedence.</para>
 <para>If <literal>true</literal>, line numbers are preserved in parsed documents.
 Prior to version 3.0.33, XML Calabash always preserved line numbers,
 but that makes each tree model larger in memory and they are generally
-unused. There’s one common exception, validation steps that operate on
+unused. There’s one common exception: validation steps that operate on
 the tree model. RELAX NG validation, for example, will only be able to
 show error locations if the initial tree model was constructed with
 line numbers preserved. This can be done selectively with the
-<code xlink:href="https://docs.xmlcalabash.com/reference/current/p-load.html#load-param-line-numbers">cx:line-numbers</code>
-parameter on the <tag>p:load</tag> step (or
-<tag>p:document</tag>).</para>
+<code xlink:href="/reference/current/p-load.html#load-param-line-numbers">cx:line-numbers</code>
+parameter on the <tag>p:load</tag> step (or <tag>p:document</tag>), for example:</para>
+
+<programlisting language="xml"><![CDATA[<p:document href="some-input.xml"
+            parameters="map{'cx:line-numbering':true()}"/>]]></programlisting>
+
+<note>
+<title>Why is this different in XML Calabash?</title>
+<para>If you’re familiar with using a validation tool from the command line, the
+line numbering distinction made here may be perplexiing. When you run a
+validator on the command line, the validator parses the document. Each element has
+a location and the validator gets those locations. When you parse a document
+with <tag>p:document</tag> or <tag>p:load</tag>, that’s also true. That’s why
+you always get error location information for a well-formedness error, those are
+caught by the parser.</para>
+<para>But if you don’t enable line numbering, the location information is not
+preserved in the tree constructed by the parser. This reduces the amount of
+memory needed to store the tree and, except for a couple of extension functions,
+you can’t usually tell.</para>
+<para>Except that when you pass a document to a validation step, the step starts
+with the tree. If the location information hasn’t been preserved in the tree,
+XML Calabash has no way to inform the validator about the locations of the elements.
+</para>
+<para>Unless you have very large documents or a small amount of memory, it’s
+probably reasonable to just leave line numbering on by default.
+</para>
+</note>
+
 </listitem>
 </varlistentry>
 
