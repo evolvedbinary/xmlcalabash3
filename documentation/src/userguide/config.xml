@@ -30,7 +30,8 @@ in a configuration file. If a particular option is specified in the configuratio
              name="cc.xmlCalabash"/>
 
 <variablelist>
-<varlistentry><term><tag class="attribute">default-xquery-processor</tag> (URI)</term>
+<varlistentry xml:id="att.default-xquery-processor">
+<term><tag class="attribute">default-xquery-processor</tag> (URI)</term>
 <listitem>
 <para>Identifies the default XQuery processor. If unspecified, the default is
 <uri>https://saxonica.com/</uri>, the Saxonica processor. Other processors can be specified,
@@ -818,8 +819,17 @@ BaseX processor can be configured with the name <uri>https://basex.org/</uri>.
 The eXist-db processor can be configured with the name
 <uri>https://exist-db.org/</uri>.</para>
 
-<para>Any attributes other than the name attribute are passed to the processor.
-This may allow the configuration file to provide credentials for accessing a
+<note>
+<para>Providing a <tag>cc:xquery-processor</tag> configuration does not change
+the default XQuery processor. You must use
+<tag class="attribute" linkend="att.default-xquery-processor">default-xquery-processor</tag>
+as well if you wish to change the default.</para>
+</note>
+
+<para>Any attributes other than the name attribute are passed to the processor, but
+may not pass all the way through to the back end processor (there’s no standard API for passing
+arbitrary options to an arbitrary processor).
+In principle, however, allows the configuration file to provide credentials for accessing a
 remote server, for example. The special attribute
 <tag class="attribute">cc:fallback</tag> identifies the URI of the processor to use if
 this processor is unavailable. If not specified, no fallback is provided and attempts
