@@ -104,18 +104,24 @@ class DocumentWriter(val doc: XProcDocument,
             }
         }
 
-        val savesf = docContext.processor.underlyingConfiguration.serializerFactory
-
         if (doc.properties[NsCx.xmlnt] != null) {
-            val prolog = doc.properties[NsCx.xmlnt]!!.underlyingValue.stringValue
-            docContext.processor.underlyingConfiguration.serializerFactory = XmlntSerializerFactory(docContext, prolog)
+            synchronized(docContext.processor.underlyingConfiguration) {
+                val savesf = docContext.processor.underlyingConfiguration.serializerFactory
+                try {
+                    val prolog = doc.properties[NsCx.xmlnt]!!.underlyingValue.stringValue
+                    docContext.processor.underlyingConfiguration.serializerFactory = XmlntSerializerFactory(docContext, prolog)
+                    val serializer = docContext.processor.newSerializer(stream)
+                    setSerializationProperties(serializer)
+                    serializeValue(serializer, doc.value)
+                } finally {
+                    docContext.processor.underlyingConfiguration.serializerFactory = savesf
+                }
+            }
+        } else {
+            val serializer = docContext.processor.newSerializer(stream)
+            setSerializationProperties(serializer)
+            serializeValue(serializer, doc.value)
         }
-
-        val serializer = docContext.processor.newSerializer(stream)
-        setSerializationProperties(serializer)
-        serializeValue(serializer, doc.value)
-
-        docContext.processor.underlyingConfiguration.serializerFactory = savesf
     }
 
     private fun writeJson() {
