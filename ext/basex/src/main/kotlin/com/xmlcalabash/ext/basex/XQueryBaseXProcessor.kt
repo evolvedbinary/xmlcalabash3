@@ -1,5 +1,6 @@
 package com.xmlcalabash.ext.basex
 
+import com.xmlcalabash.documents.XProcBinaryDocument
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.io.DocumentLoader
@@ -11,6 +12,8 @@ import com.xmlcalabash.runtime.XProcStepConfiguration
 import com.xmlcalabash.runtime.api.Receiver
 import com.xmlcalabash.runtime.parameters.RuntimeStepParameters
 import com.xmlcalabash.spi.XQueryProcessor
+import com.xmlcalabash.util.Report
+import com.xmlcalabash.util.Verbosity
 import net.sf.saxon.om.NamespaceUri
 import net.sf.saxon.s9api.QName
 import net.sf.saxon.s9api.XdmValue
@@ -18,16 +21,20 @@ import net.sf.saxon.value.AtomicValue
 import org.basex.api.client.ClientSession
 import org.basex.core.Context
 import org.basex.core.MainOptions
-import org.basex.core.StaticOptions
 import org.basex.core.cmd.Add
 import org.basex.core.cmd.CreateDB
 import org.basex.core.cmd.DropDB
+import org.basex.io.IO
+import org.basex.io.IOContent
 import org.basex.io.serial.Serializer
 import org.basex.io.serial.SerializerOptions
 import org.basex.query.QueryProcessor
+import org.basex.query.util.UriResolver
+import org.basex.query.value.item.Uri
 import org.basex.query.value.type.Type
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import java.net.URI
 import java.nio.charset.StandardCharsets
 import java.util.*
 import kotlin.collections.iterator
@@ -129,6 +136,7 @@ class XQueryBaseXProcessor(): XQueryProcessor {
             }
 
             val qp =  QueryProcessor(query, context)
+            qp.uriResolver(BaseXUriResolver(stepConfig))
 
             bindExternalVariables(qp)
             sendResults(qp)
@@ -203,5 +211,37 @@ class XQueryBaseXProcessor(): XQueryProcessor {
 
     override fun teardown() {
         // nop
+    }
+
+    class BaseXUriResolver(val stepConfig: XProcStepConfiguration): UriResolver {
+        override fun resolve(path: String?, uri: String?, base: Uri?): IO? {
+            if (path == null && base == null) {
+                return null
+            }
+            val uri = if (path == null) {
+                stepConfig.documentManager.lookup(base!!.toJava())
+            } else {
+                stepConfig.documentManager.lookup(URI(path), base!!.toJava())
+            }
+            try {
+                // This is a bit awkward. The document manager will give me an XProcDocument,
+                // but in this instance, I need to coerce that back into a BaseX IO.
+                val doc = stepConfig.documentManager.load(uri, stepConfig)
+                val bytes = if (doc is XProcBinaryDocument) {
+                    doc.binaryValue
+                } else {
+                    val baos = ByteArrayOutputStream()
+                    val writer = DocumentWriter(doc, baos)
+                    writer.write()
+                    baos.toByteArray()
+                }
+
+                return IOContent(bytes, uri.toString())
+            } catch (ex: Exception) {
+                stepConfig.messageReporter.debug { Report(Verbosity.DEBUG, "Failed to resolve ${path} with base URI ${base} for BaseX", ex) }
+            }
+
+            return null
+        }
     }
 }
