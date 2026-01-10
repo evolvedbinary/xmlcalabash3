@@ -3,6 +3,7 @@ package com.xmlcalabash.steps
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.datamodel.DocumentContext
+import com.xmlcalabash.io.MediaType
 import com.xmlcalabash.namespace.Ns
 import com.xmlcalabash.namespace.NsCx
 import com.xmlcalabash.namespace.NsXml
@@ -51,7 +52,9 @@ class WrapStep(): AbstractAtomicStep(), ProcessMatchingNodes {
 
         _matcher = ProcessMatch(stepConfig, this, valueBinding(Ns.match).context.inscopeNamespaces)
         matcher.process(document.value as XdmNode, pattern)
-        receiver.output("result", XProcDocument.ofXml(matcher.result, stepConfig, document.properties))
+
+        val result = XProcDocument.ofXml(matcher.result, stepConfig, document.properties)
+        receiver.output("result", result.with(MediaType.XML))
     }
 
     override fun reset() {
