@@ -23,9 +23,6 @@ import java.net.URI
 import java.nio.charset.StandardCharsets
 
 class RdfaStep(): AbstractRdfStep() {
-    private lateinit var dataset: Dataset
-    private lateinit var model: Model
-
     companion object {
         private val typeMap = mapOf(
             "anyURI" to XSDanyURI,
@@ -77,6 +74,9 @@ class RdfaStep(): AbstractRdfStep() {
             "yearMonthDuration" to XSDyearMonthDuration,
         )
     }
+
+    private lateinit var dataset: Dataset
+    private lateinit var model: Model
 
     override fun run() {
         super.run()

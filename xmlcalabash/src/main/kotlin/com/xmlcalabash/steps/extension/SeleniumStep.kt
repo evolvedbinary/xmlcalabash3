@@ -178,6 +178,8 @@ class SeleniumStep(): AbstractAtomicStep() {
     override fun run() {
         super.run()
 
+        whitelist.clear()
+        whitelisted.clear()
         val config = stepConfig.xmlCalabashConfig.other[selenium] ?: emptyList()
         for (wlist in config) {
             val list = wlist[_whitelist] ?: ""
@@ -200,8 +202,10 @@ class SeleniumStep(): AbstractAtomicStep() {
             S9Api.documentElement(source.value as XdmNode)
         }
 
+        subroutines.clear()
         loadSubroutines(script)
 
+        arguments.clear()
         capabilities = qnameMapBinding(_capabilities)
         val args = options[_arguments]?.value ?: XdmEmptySequence.getInstance()
         val iter = args.iterator()

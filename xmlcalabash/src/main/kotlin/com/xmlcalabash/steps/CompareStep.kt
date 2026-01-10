@@ -29,6 +29,7 @@ open class CompareStep(): AbstractAtomicStep() {
         val method = qnameBinding(Ns.method) ?: Ns.deepEqual
         failIfNotEqual = booleanBinding(Ns.failIfNotEqual) ?: false
 
+        differences.clear()
         if (method == Ns.deepEqual || method == NsFn.deepEqual) {
             deepEqualCompare()
         } else {

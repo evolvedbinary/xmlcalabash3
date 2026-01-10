@@ -28,6 +28,7 @@ class FindStep(): DirectoryListStep() {
     val grep = mutableMapOf<String, XPathSelector>()
 
     override fun run() {
+        xpath.clear()
         if (options.containsKey(_xpath)) {
             val include = valueBinding(_xpath)
             for (item in include.value.iterator()) {
@@ -35,6 +36,7 @@ class FindStep(): DirectoryListStep() {
             }
         }
 
+        jsonPath.clear()
         if (options.containsKey(_jsonPath)) {
             val include = valueBinding(_jsonPath)
             for (item in include.value.iterator()) {
@@ -42,6 +44,7 @@ class FindStep(): DirectoryListStep() {
             }
         }
 
+        grep.clear()
         if (options.containsKey(_grep)) {
             val compiler = stepConfig.newXPathCompiler()
             compiler.declareVariable(_line)

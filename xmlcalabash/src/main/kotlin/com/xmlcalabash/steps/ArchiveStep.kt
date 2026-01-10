@@ -282,6 +282,22 @@ open class ArchiveStep(): AbstractArchiveStep() {
         receiver.output("result", doc)
     }
 
+    override fun reset() {
+        super.reset()
+        archives.clear()
+        archiveMembers.clear()
+        manifest = null
+        command = null
+        defaultMethod = null
+        defaultLevel = null
+        mergeDuplicates = "error"
+        sourceMap.clear()
+        manifestList.clear()
+        extraList.clear()
+        nameMap.clear()
+        origArchiveFiles.clear()
+    }
+
     private fun parseManifest(manifest: XProcDocument): MutableList<ManifestEntry> {
         val entries = mutableListOf<ManifestEntry>()
         val root = S9Api.documentElement(manifest.value as XdmNode)

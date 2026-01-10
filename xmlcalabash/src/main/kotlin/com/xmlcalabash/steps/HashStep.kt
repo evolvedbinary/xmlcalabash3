@@ -21,7 +21,7 @@ open class HashStep(): AbstractAtomicStep(), ProcessMatchingNodes {
     }
 
     var value: ByteArray = byteArrayOf()
-    var algorithm = NsCx.unusedValue
+    lateinit var algorithm: QName
     var parameters = mapOf<QName, XdmValue>()
     var matchPattern = "/*"
     var version: String = ""

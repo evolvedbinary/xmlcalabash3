@@ -18,6 +18,7 @@ open class JsonMergeStep(): AbstractAtomicStep() {
         val inputs = queues["source"]!!
         duplicates = stringBinding(Ns.duplicates) ?: "use-first"
         key = stringBinding(Ns.key) ?: "concat(\"_\",\$p:index)"
+        index = 0
 
         var value = XdmMap()
         for (input in inputs) {

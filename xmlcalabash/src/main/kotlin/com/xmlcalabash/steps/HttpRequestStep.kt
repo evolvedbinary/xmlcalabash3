@@ -18,7 +18,7 @@ import kotlin.math.floor
 open class HttpRequestStep(): AbstractAtomicStep() {
     val documents = mutableListOf<XProcDocument>()
 
-    var href: URI = URI("https://xmlcalabash.com/not/used")
+    lateinit var href: URI
     var method = "GET"
     val serialization = mutableMapOf<QName, XdmValue>()
     val headers = mutableMapOf<String, String>()
@@ -279,13 +279,30 @@ open class HttpRequestStep(): AbstractAtomicStep() {
 
     override fun reset() {
         super.reset()
-        href = URI("https://xmlcalabash.com/not/used")
         method = "GET"
+        serialization.clear()
         headers.clear()
         auth.clear()
         parameters.clear()
-        serialization.clear()
         assert = ".?status-code lt 400"
+
+        httpVersion = null
+        overrideContentType = null
+        acceptMultipart = true
+        overrideContentEncoding = null
+        permitExpiredSslCertificate = false
+        permitUntrustedSslCertificate = false
+        followRedirectCount = -1
+        timeout = null
+        failOnTimeout = false
+        statusOnly = false
+        suppressCookies = false
+        sendBodyAnyway = false
+
+        username = null
+        password = null
+        authmethod = null
+        sendauth = false
     }
 
     override fun toString(): String = "p:http-request"

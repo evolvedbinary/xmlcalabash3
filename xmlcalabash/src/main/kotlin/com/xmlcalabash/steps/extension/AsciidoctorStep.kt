@@ -49,6 +49,8 @@ class AsciidoctorStep(): AbstractAtomicStep() {
         super.run()
 
         val text = queues["source"]!!.first()
+        standalone = false
+        params.clear()
         params.putAll(qnameMapBinding(Ns.parameters))
         attributes = qnameMapBinding(Ns.attributes)
         val backend = stringBinding(_backend)

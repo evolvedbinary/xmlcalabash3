@@ -26,12 +26,6 @@ open class ExpressionStep(val params: ExpressionStepParameters): AbstractAtomicS
     val collection = params.collection
 
     override fun run() {
-        synchronized(LockObject) {
-            unsafeRun()
-        }
-    }
-
-    private fun unsafeRun() {
         super.run()
 
         params.expression.details.error?.let {
@@ -39,6 +33,7 @@ open class ExpressionStep(val params: ExpressionStepParameters): AbstractAtomicS
         }
 
         // Expression steps are unusual in that source may not exist
+        contextItems.clear()
         contextItems.addAll(queues["source"] ?: emptyList())
 
         logger.debug { "  Expression: ${params.expression}" }

@@ -87,9 +87,6 @@ object NsCx {
     val `while` = QName(namespace, "cx:while")
     val until = QName(namespace, "cx:until")
 
-    val unusedValue = QName(namespace, "cx:never-used-for-anything")
-    val fakeOptionName = QName(namespace, "cx:fake-option-name")
-
     val checkSum = QName(namespace, "cx:check-sum")
     val device = QName(namespace, "cx:device")
     val devMajor = QName(namespace, "cx:dev-major")

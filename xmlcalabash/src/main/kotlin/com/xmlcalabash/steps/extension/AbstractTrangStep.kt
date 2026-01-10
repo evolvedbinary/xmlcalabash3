@@ -55,6 +55,17 @@ abstract class AbstractTrangStep(): AbstractAtomicStep() {
     var lineLength = 72
     var indent = 2
 
+    override fun reset() {
+        super.reset()
+        sourceFormat = null
+        resultFormat = null
+        inputOptions.clear()
+        outputOptions.clear()
+        outputEncoding = "UTF-8"
+        lineLength = 72
+        indent = 2
+    }
+
     protected fun parseNamespaces() {
         val namespaceMap = options[_namespaces]!!.value
         if (namespaceMap != XdmEmptySequence.getInstance()) {

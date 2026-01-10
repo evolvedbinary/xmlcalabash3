@@ -25,6 +25,7 @@ open class DirectoryListStep(): FileStep(NsP.directoryList) {
         detailed = booleanBinding(Ns.detailed)!!
         val maxDepth = stringBinding(Ns.maxDepth)!!
 
+        includeFilters.clear()
         if (options.containsKey(Ns.includeFilter)) {
             val include = valueBinding(Ns.includeFilter)
             for (item in include.value.iterator()) {
@@ -32,6 +33,7 @@ open class DirectoryListStep(): FileStep(NsP.directoryList) {
             }
         }
 
+        excludeFilters.clear()
         if (options.containsKey(Ns.excludeFilter)) {
             val exclude = valueBinding(Ns.excludeFilter)
             for (item in exclude.value.iterator()) {

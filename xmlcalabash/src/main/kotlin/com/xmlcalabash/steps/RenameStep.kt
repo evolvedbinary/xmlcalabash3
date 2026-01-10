@@ -9,11 +9,12 @@ import net.sf.saxon.om.AttributeInfo
 import net.sf.saxon.om.AttributeMap
 import net.sf.saxon.om.FingerprintedQName
 import net.sf.saxon.om.NamespaceUri
+import net.sf.saxon.s9api.QName
 import net.sf.saxon.s9api.XdmNode
 
 class RenameStep(): AbstractAtomicStep(), ProcessMatchingNodes {
     var matchPattern = "/*"
-    var newName = NsCx.unusedValue
+    lateinit var newName: QName
     var _matcher: ProcessMatch? = null
     val matcher: ProcessMatch
         get() = _matcher ?: throw RuntimeException("Configuration error...")

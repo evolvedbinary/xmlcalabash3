@@ -28,6 +28,7 @@ class AddXmlBaseStep(): AbstractAtomicStep(), ProcessMatchingNodes {
         super.run()
         document = queues["source"]!!.first()
 
+        baseUriStack.clear()
         all = booleanBinding(Ns.all) ?: false
         relative = booleanBinding(Ns.relative) ?: true
 
