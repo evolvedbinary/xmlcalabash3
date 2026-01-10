@@ -35,9 +35,9 @@
       pipeline:</div>
 
       <xsl:variable name="uri"
-                    select="(if (contains-token(../db:refsection/@role, 'exproc'))
-                             then 'https://xmlcalabash.com/ext/library/'
-                             else 'https://exproc.org/library/')
+                    select="(if (contains-token(../@role, 'exproc'))
+                             then 'https://exproc.org/library/'
+                             else 'https://xmlcalabash.com/ext/library/')
                             || $import"/>
 
       <xsl:variable name="pl" as="element()">
