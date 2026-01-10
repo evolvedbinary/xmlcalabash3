@@ -13,10 +13,6 @@ import net.sf.saxon.s9api.QName
 import java.net.URI
 
 open class XQueryStep(): AbstractAtomicStep() {
-    companion object {
-        val SAXON = URI.create("https://saxonica.com/")
-    }
-
     lateinit var xqueryImpl: XQueryProcessor
     var requestedProcessor: URI? = null
     var fallbackProcessor: URI? = null
@@ -89,6 +85,8 @@ open class XQueryStep(): AbstractAtomicStep() {
     override fun reset() {
         super.reset()
         xqueryImpl.reset()
+        requestedProcessor = null
+        fallbackProcessor = null
     }
 
     override fun teardown() {

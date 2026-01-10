@@ -17,11 +17,12 @@ abstract class AbstractArchiveStep(): AbstractAtomicStep() {
     override fun run() {
         super.run()
 
+        overrideContentTypes.clear()
         if (hasBinding(Ns.overrideContentTypes)) {
-            overrideContentTypes.clear()
             overrideContentTypes.addAll(overrideContentTypes(valueBinding(Ns.overrideContentTypes).value))
         }
 
+        includeFilters.clear()
         if (options.containsKey(Ns.includeFilter)) {
             val include = valueBinding(Ns.includeFilter)
             for (item in include.value.iterator()) {
@@ -29,6 +30,7 @@ abstract class AbstractArchiveStep(): AbstractAtomicStep() {
             }
         }
 
+        excludeFilters.clear()
         if (options.containsKey(Ns.excludeFilter)) {
             val exclude = valueBinding(Ns.excludeFilter)
             for (item in exclude.value.iterator()) {

@@ -23,12 +23,14 @@ open class CssFormatterStep(): AbstractAtomicStep() {
     private val extensionAttributes = mutableMapOf<QName, String>()
 
     override fun extensionAttributes(attributes: Map<QName, String>) {
+        extensionAttributes.clear()
         extensionAttributes.putAll(attributes)
     }
 
     override fun run() {
         super.run()
         document = queues["source"]!!.first()
+        stylesheets.clear()
         stylesheets.addAll(queues["stylesheet"]!!)
 
         val contentType = mediaTypeBinding(Ns.contentType, MediaType.PDF)

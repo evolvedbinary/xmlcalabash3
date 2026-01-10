@@ -95,6 +95,16 @@ class TrangStep(): AbstractTrangStep() {
         tempDirectory.deleteIfExists()
     }
 
+    override fun reset() {
+        super.reset()
+        sources.clear()
+        inputUris.clear()
+        baseUriToFile.clear()
+        fileToBaseUri.clear()
+        includeToFile.clear()
+        rootUriMap.clear()
+    }
+
     private fun translate() {
         val trangInputFormat = trangInputFormat()
         val trangOutputFormat = trangOutputFormat()

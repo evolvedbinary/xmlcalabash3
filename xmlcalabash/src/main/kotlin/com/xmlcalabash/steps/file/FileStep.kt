@@ -29,10 +29,16 @@ abstract class FileStep(val stepType: QName): AbstractAtomicStep() {
     override fun run() {
         super.run()
 
+        overrideContentTypes.clear()
         if (hasBinding(Ns.overrideContentTypes)) {
-            overrideContentTypes.clear()
             overrideContentTypes.addAll(overrideContentTypes(valueBinding(Ns.overrideContentTypes).value))
         }
+    }
+
+    override fun reset() {
+        super.reset()
+        failOnError = true
+        overwrite = false
     }
 
     protected fun fileAttributes(file: File, detailed: Boolean, contentType: MediaType?, parent: File?): AttributeMap {

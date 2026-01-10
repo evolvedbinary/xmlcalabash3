@@ -11,12 +11,10 @@ open class JoinerStep(): AbstractAtomicStep() {
 
     override fun setup(stepConfig: XProcStepConfiguration, receiver: Receiver, stepParams: RuntimeStepParameters) {
         super.setup(stepConfig, receiver, stepParams)
-        for (input in stepParams.inputs.keys) {
-            inputPorts.add(input)
-        }
-        for (output in stepParams.outputs.keys) {
-            outputPorts.add(output)
-        }
+        inputPorts.clear()
+        inputPorts.addAll(stepParams.inputs.keys)
+        outputPorts.clear()
+        outputPorts.addAll(stepParams.outputs.keys)
     }
 
     override fun run() {

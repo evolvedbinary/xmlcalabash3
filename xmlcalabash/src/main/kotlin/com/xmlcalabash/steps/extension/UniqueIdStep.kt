@@ -47,6 +47,7 @@ class UniqueIdStep(): AbstractAtomicStep(), ProcessMatchingNodes {
         parameters.putAll(qnameMapBinding(Ns.parameters))
         flavor = stringBinding(_flavor) ?: "uuid"
         sequential = booleanBinding(_sequential) ?: false
+        identifier = null
 
         when (flavor) {
             "uuid" -> {

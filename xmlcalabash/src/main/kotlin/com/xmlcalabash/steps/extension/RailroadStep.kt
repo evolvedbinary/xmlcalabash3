@@ -62,11 +62,12 @@ class RailroadStep(): AbstractAtomicStep() {
 
         nonterminal = stringBinding(_nonterminal)
         transform = stringBinding(_transformLinks)!!
+        found = false
 
         nullTransform = transform.replace(" ", "") in listOf("'#'||\$p:nonterminal", "\"#\"||\$p:nonterminal")
 
         val pcolor = (stringBinding(_color) ?: "#FFDB4D").trim()
-        var colorOffset = integerBinding(_colorOffset) ?: 0
+        val colorOffset = integerBinding(_colorOffset) ?: 0
         val width = integerBinding(_width) ?: 992
         val recursion = booleanBinding(_eliminateRecursion) ?: true
         val factoring = booleanBinding(_factoring) ?: true

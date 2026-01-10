@@ -20,7 +20,7 @@ import net.sf.saxon.s9api.XdmNode
 import net.sf.saxon.type.BuiltInAtomicType
 
 open class LabelElementsStep(): AbstractAtomicStep(), ProcessMatchingNodes {
-    var matchPattern = "*"
+    lateinit var matchPattern: String
     lateinit var attribute: QName
     lateinit var label: String
     var replace = true
@@ -38,6 +38,7 @@ open class LabelElementsStep(): AbstractAtomicStep(), ProcessMatchingNodes {
         attribute = qnameBinding(Ns.attribute)!!
         label = stringBinding(Ns.label)!!
         replace = booleanBinding(Ns.replace)!!
+        index = 0
 
         _matcher = ProcessMatch(stepConfig, this, valueBinding(Ns.match).context.inscopeNamespaces)
         matcher.process(document.value as XdmNode, matchPattern)

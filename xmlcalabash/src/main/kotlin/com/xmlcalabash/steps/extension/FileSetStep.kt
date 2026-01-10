@@ -80,17 +80,11 @@ class FileSetStep(): FileStep(NsCx.fileset)  {
     var detailed = false
     val includes = mutableListOf<String>()
     val excludes = mutableListOf<String>()
-    private var nsmap = NamespaceMap.emptyMap()
+    private lateinit var nsmap: NamespaceMap
 
     private lateinit var grouping: RootGrouping
 
     override fun run() {
-        synchronized(this) {
-            unsafeRun()
-        }
-    }
-
-    fun unsafeRun() {
         super.run()
 
         val source = queues["source"]!!.firstOrNull()
@@ -116,7 +110,10 @@ class FileSetStep(): FileStep(NsCx.fileset)  {
         errorOnMissingDir = booleanBinding(NsFs.errorOnMissingDir)
         followSymlinks = booleanBinding(NsFs.followSymlinks)
         detailed = booleanBinding(Ns.detailed) ?: false
+        includes.clear()
+        excludes.clear()
 
+        nsmap = NamespaceMap.emptyMap()
         nsmap = nsmap.put("c", NsC.namespace)
         if (detailed) {
             nsmap = nsmap.put("cx", NsCx.namespace)

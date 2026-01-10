@@ -20,6 +20,8 @@ class SetAttributesStep(): AbstractAtomicStep(), ProcessMatchingNodes {
         super.run()
 
         val document = queues["source"]!!.first()
+
+        attributeSet.clear()
         val attrMap = qnameMapBinding(Ns.attributes)
         for ((key, value) in attrMap) {
             forbidNamespaceAttribute(key)

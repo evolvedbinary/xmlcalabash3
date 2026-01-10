@@ -22,6 +22,7 @@ open class XslFormatterStep(): AbstractAtomicStep() {
     private val extensionAttributes = mutableMapOf<QName, String>()
 
     override fun extensionAttributes(attributes: Map<QName, String>) {
+        extensionAttributes.clear()
         extensionAttributes.putAll(attributes)
     }
 

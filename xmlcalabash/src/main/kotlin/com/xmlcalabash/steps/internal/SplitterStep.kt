@@ -10,9 +10,8 @@ open class SplitterStep(): AbstractAtomicStep() {
 
     override fun setup(stepConfig: XProcStepConfiguration, receiver: Receiver, stepParams: RuntimeStepParameters) {
         super.setup(stepConfig, receiver, stepParams)
-        for (output in stepParams.outputs.keys) {
-            outputPorts.add(output)
-        }
+        outputPorts.clear()
+        outputPorts.addAll(stepParams.outputs.keys)
     }
 
     override fun run() {

@@ -23,6 +23,7 @@ open class NamespaceDeleteStep(): AbstractAtomicStep(), ProcessMatchingNodes {
         val prefixes = stringBinding(Ns.prefixes)!!
         val prefixesContext = options[Ns.prefixes]!!.context
 
+        excludeNamespaces.clear()
         for (prefix in prefixes.split("\\s+".toRegex())) {
             val uri = prefixesContext.inscopeNamespaces[prefix]
                 ?: throw stepConfig.exception(XProcError.xcNoNamespaceBindingForPrefix(prefix))

@@ -24,12 +24,16 @@ open class NamespaceRenameStep(): AbstractAtomicStep(), ProcessMatchingNodes {
         super.run()
         val document = queues["source"]!!.first()
 
+        fromNS = NamespaceUri.NULL
         if (uriBinding(Ns.from) != null) {
             fromNS = NamespaceUri.of(stringBinding(Ns.from).toString())
         }
+
+        toNS = NamespaceUri.NULL
         if (uriBinding(Ns.to) != null) {
             toNS = NamespaceUri.of(stringBinding(Ns.to).toString())
         }
+
         applyTo = stringBinding(Ns.applyTo) ?: "all"
 
         _matcher = ProcessMatch(stepConfig, this, stepConfig.inscopeNamespaces)

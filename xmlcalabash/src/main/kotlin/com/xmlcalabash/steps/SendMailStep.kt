@@ -76,7 +76,9 @@ class SendMailStep(): AbstractAtomicStep() {
         // -> host -> mail.smtp.host
         // -> port -> mail.smtp.port
 
+        sources.clear()
         sources.addAll(queues["source"]!!)
+
         val parameters = qnameMapBinding(Ns.parameters)
         serialization = qnameMapBinding(Ns.serialization)
         auth = qnameMapBinding(Ns.auth)

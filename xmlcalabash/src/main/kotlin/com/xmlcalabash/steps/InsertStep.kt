@@ -30,6 +30,8 @@ class InsertStep(): AbstractAtomicStep(), ProcessMatchingNodes {
         super.run()
 
         val document = queues["source"]!!.first()
+
+        insertions.clear()
         insertions.addAll(queues["insertion"]!!)
 
         pattern = stringBinding(Ns.match)!!

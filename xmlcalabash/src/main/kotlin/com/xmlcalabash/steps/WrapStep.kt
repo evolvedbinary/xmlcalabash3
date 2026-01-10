@@ -20,7 +20,7 @@ class WrapStep(): AbstractAtomicStep(), ProcessMatchingNodes {
     val matcher: ProcessMatch
         get() = _matcher ?: throw RuntimeException("Configuration error...")
     private val inGroup = Stack<Boolean>()
-    private var wrapper = NsCx.unusedValue
+    private lateinit var wrapper: QName
     private var groupAdjacent: String? = null
     private var groupAdjacentContext: DocumentContext? = null
     lateinit var attributeMap: AttributeMap
@@ -32,11 +32,13 @@ class WrapStep(): AbstractAtomicStep(), ProcessMatchingNodes {
         val document = queues["source"]!!.first()
         wrapper = qnameBinding(Ns.wrapper)!!
         pattern = stringBinding(Ns.match)!!
+        groupAdjacentContext = null
         groupAdjacent = stringBinding(Ns.groupAdjacent)
         if (groupAdjacent != null) {
             groupAdjacentContext = options[Ns.groupAdjacent]!!.context
         }
 
+        baseUri = null
         val attributeSet = mutableMapOf<QName,String?>()
         val attrMap = qnameMapBinding(Ns.attributes)
         for ((key, value) in attrMap) {
@@ -48,6 +50,7 @@ class WrapStep(): AbstractAtomicStep(), ProcessMatchingNodes {
         }
         attributeMap = stepConfig.typeUtils.attributeMap(attributeSet)
 
+        inGroup.clear()
         inGroup.push(false)
 
         _matcher = ProcessMatch(stepConfig, this, valueBinding(Ns.match).context.inscopeNamespaces)

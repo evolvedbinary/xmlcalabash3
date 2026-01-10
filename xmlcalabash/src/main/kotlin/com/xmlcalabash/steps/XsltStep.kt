@@ -121,6 +121,7 @@ open class XsltStep(): AbstractAtomicStep() {
         forceEmptyGlobalContextItem = false
         primaryDestination = null
         primaryOutputProperties.clear()
+        characterMaps = null
     }
 
     private fun xslt30() {
