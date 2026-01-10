@@ -13,11 +13,48 @@ See the commits and pull requests on
 finer detail.</para>
 
 <revhistory>
+<revision xml:id="r3036">
+<revnumber>3.0.36</revnumber>
+<date>2026-01-10</date>
+<revdescription>
+<itemizedlist spacing="compact">
+<listitem><para>Closed <cbissue number="511"/>. Take  more care with object state to avoid errors
+when steps are used in loops.
+</para></listitem>
+<listitem><para>Closed <cbissue number="510"/>. Fixed incorrect import URIs in the documentation.
+</para></listitem>
+<listitem><para>Closed <cbissue number="508"/>. Make sure <tag>p:wrap</tag> always returns documents
+with the content type <code>application/xml</code>.
+</para></listitem>
+<listitem><para>Closed <cbissue number="506"/>. Make sure that configuration-level changes to the
+serializer are protected from concurrent access.
+</para></listitem>
+<listitem><para>Closed <cbissue number="501"/>. Fixed a couple of bugs associated with
+setting line numbers using parameters; improved the documentation about the line
+numbering configuration. Added tests.
+</para></listitem>
+<listitem><para>Closed <cbissue number="500"/>. Support the line-numbering configuration option
+on the
+<tag xlink:href="https://docs.xmlcalabash.com/userguide/current/configuration.html#cc.xml-calabash"
+>cc:xml-calabash</tag> element.
+</para></listitem>
+<listitem><para>Closed <cbissue number="498"/>. Make sure 
+<tag xlink:href="https://docs.xmlcalabash.com/userguide/current/configuration.html#cc.mimetype"
+>cc:mimetype</tag> elements update the processor correctly.
+</para></listitem>
+<listitem><para>Closed <cbissue number="257"/>. Added a URI resolver to the local BaseX processor;
+attempted to improve the documentation.
+</para></listitem>
+<listitem><para>Updated the XML Resolver to version 6.0.21.
+</para></listitem>
+</itemizedlist>
+</revdescription>
+</revision>
 <revision xml:id="r3035">
 <revnumber>3.0.35</revnumber>
 <date>2026-01-03</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem>
 <para>Closed <cbissue number="492"/>. Remove optional dependencies from the POM.
 </para></listitem>
@@ -42,7 +79,7 @@ type.
 <revnumber>3.0.34</revnumber>
 <date>2025-12-28</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>This is a sooner-than-expected release, mostly because the
 documentation is broken in some browsers on some platforms and I think that may
 be intentional (on the part of the browser vendors).
@@ -64,7 +101,7 @@ in the release, so they can be used without loading the pipeline across the netw
 <revnumber>3.0.33</revnumber>
 <date>2025-12-27</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>There are a few substantial changes in this release.</para>
 <orderedlist>
 <listitem><para>XML Calabash now requires Java 17 or later.
@@ -126,7 +163,7 @@ templating engine.
 <revnumber>3.0.32</revnumber>
 <date>2025-12-14</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>Closed <cbissue number="455"/>. Put the <code>ex:</code> prefix in
 the QName for the <tag>ex:epubcheck</tag> step.
 </para></listitem>
@@ -162,7 +199,7 @@ set to false.
 <revnumber>3.0.31</revnumber>
 <date>2025-12-06</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>Closed <cbissue number="426"/>. It isn’t practical to have step functions
 for atomic steps.
 </para></listitem>
@@ -218,7 +255,7 @@ allowed on <tag>p:declare-step</tag>. A declare step element is not a step invoc
 <revnumber>3.0.30</revnumber>
 <date>2025-11-30</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>Fixed <cbissue number="407"/>. All output ports now appear in the
 result map when a pipeline function is called. If there was no output on a port,
 the map value will be the empty sequence.
@@ -258,7 +295,7 @@ specified on the command line are handled. (Really fixed it this time, I think.)
 <revnumber>3.0.29</revnumber>
 <date>2025-11-29</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>Fixed <cbissue number="391"/>. Corrected catastrophic error in
 command-line option handling.
 </para></listitem>
@@ -269,7 +306,7 @@ command-line option handling.
 <revnumber>3.0.28</revnumber>
 <date>2025-11-28</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>Fixed <cbissue number="383"/>. Fixed how map-valued options are handled on the
 command line.
 </para></listitem>
@@ -293,7 +330,7 @@ option. (Thanks @galtm!).
 <revnumber>3.0.27</revnumber>
 <date>2025-11-26</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>Fixed <cbissue number="372"/>. Added support for the
 <link xlink:href="https://spec.xproc.org/3.1/validation/#validation-common"><literal>c:compile</literal>
 parameter</link> on <tag>p:validate-with-schematron</tag>.
@@ -330,7 +367,7 @@ pipeline functions.
 <revnumber>3.0.26</revnumber>
 <date>2025-11-16</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>Fixed <cbissue number="344"/>. Updated to
 <link xlink:href="https://sinclude.nwalsh.com/">SInclude</link> version 5.6.0. This fixes
 a bug where in-scope namespaces were lost that effected the documentation. Also updated a
@@ -374,7 +411,7 @@ templates in an input document. This is in the EXProc step namespace.
 <revnumber>3.0.25</revnumber>
 <date>2025-11-04</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>Fixed <cbissue number="324"/>. When the polyglot steps fail,
 the underlying exception is now passed back and included in the error output.
 </para></listitem>
@@ -399,7 +436,7 @@ the underlying exception is now passed back and included in the error output.
 <revnumber>3.0.24</revnumber>
 <date>2025-11-01</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>Fixed <cbissue number="304"/>. Reworked the Maven dependencies
 so that Saxon-EE is no longer required. Also removed many of the dependencies
 needed for extension steps (for example, Selenium). All of the dependencies are
@@ -422,7 +459,7 @@ errors related to the buffering message reporter necessary for
 <revnumber>3.0.23</revnumber>
 <date>2025-10-27</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>Fixed <cbissue number="299"/>. My update to use a buffering
 message reporter had the unintended consequence of suppressing all messages.
 I’ve done some emergency API surgery to “fix” it.
@@ -434,7 +471,7 @@ I’ve done some emergency API surgery to “fix” it.
 <revnumber>3.0.22</revnumber>
 <date>2025-10-27</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>Fixed <cbissue number="288"/>. Fix bugs in the handling of
 serialization properties for secondary result documents in <tag>p:xslt</tag>,
 especially character maps.
@@ -463,7 +500,7 @@ reported for a top-level pipeline that contains no steps.
 <revnumber>3.0.21</revnumber>
 <date>2025-10-18</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>Fixed <cbissue number="278"/>. FOP has a completely broken implementation
 of URI resolution against the base URI; worked around that.
 Also added an event listener so that FOP messages are reported.
@@ -499,7 +536,7 @@ if the user attempts to use graph output but hasn’t configured Graphviz.
 <revnumber>3.0.20</revnumber>
 <date>2025-10-05</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>Fixed <cbissue number="258"/>. The <link linkend="xmlnt">XMLn’t parser</link>
 wasn’t recognizing the built-in <code>xml:</code> prefix.
 </para>
@@ -516,7 +553,7 @@ URI instead of the schema URI) in error messages about schema problems.
 <revnumber>3.0.19</revnumber>
 <date>2025-09-28</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>Fixed <cbissue number="249"/>. The command line mechanism
 for setting the content type of a source document only worked for
 <literal>stdin</literal>.</para>
@@ -538,7 +575,7 @@ another step declaration.
 <revnumber>3.0.18</revnumber>
 <date>2025-09-21</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>Fixed <cbissue number="242"/>. Corrected a couple of bugs in
 <tag>p:send-mail</tag>. Generalized the properties that can be set with
 <tag>cc:send-mail</tag>. Improved the documentation and specifically included an
@@ -559,7 +596,7 @@ have been added.
 <revnumber>3.0.17</revnumber>
 <date>2025-09-15</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>Fixed <cbissue number="229"/>. Added tests and documentation for
 running pipelines as functions.
 </para></listitem>
@@ -576,7 +613,7 @@ sections in the external subset, improved some error messages.
 <revnumber>3.0.16</revnumber>
 <date>2025-09-07</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>Fixed <cbissue number="191"/>. Updated the <filename>xmlcalabash.sh</filename>
 script in the distribution to use a POSIX-compliant version of “<code>readlink</code>”.
 </para></listitem>
@@ -590,7 +627,7 @@ script in the distribution to use a POSIX-compliant version of “<code>readlink
 <revnumber>3.0.15</revnumber>
 <date>2025-08-25</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>Fixed <cbissue number="212"/>. The command line application (the “main” class) 
 should now be available from maven as <code>com.xmlcalabash:xmlcalabash:app</code>.
 </para></listitem>
@@ -612,7 +649,7 @@ APIs diverge in the future, it’ll be clear which one is intended.
 <revnumber>3.0.14</revnumber>
 <date>2025-08-17</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>Fixed <cbissue number="202"/>. It is now possible to set
 static parameters on <tag>p:xslt</tag>.
 </para></listitem>
@@ -663,7 +700,7 @@ issue related to the spacebar.
 <revnumber>3.0.13</revnumber>
 <date>2025-08-03</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>Fixed <cbissue number="175"/>. Output filenames had incorrectly formatted
 extensions in the detailed trace listener.
 </para></listitem>
@@ -683,7 +720,7 @@ reference</link>. More improvements can surely be made.
 </para></listitem>
 <listitem><para>Updated dependencies and the way dependencies are managed. Updates:
 </para>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para><code>ch.qos.logback:logback-classic</code> from 1.5.13 to 1.5.18</para></listitem>
 <listitem><para><code>com.fasterxml.jackson.*</code> from 2.18.2 to 2.19.2</para></listitem>
 <listitem><para><code>com.github.f4b6a3:uuid-creator</code> from 6.0.0 to 6.1.1</para></listitem>
@@ -718,7 +755,7 @@ needs fixing before my talk next week. It’s a “.13” release, but you’re 
 <revnumber>3.0.12</revnumber>
 <date>2025-07-27</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>Fixed <cbissue number="163"/> by making sure that the
 default readable port is applied correctly to the <tag>cx:until</tag>
 and <tag>cx:while</tag> steps.
@@ -734,7 +771,7 @@ reference</link>.
 <revnumber>3.0.11</revnumber>
 <date>2025-07-25</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>Fixed <cbissue number="155"/>. Added a language reference
 chapter that includes at least a brief summary of all the XProc elements.
 This also improves the documentation for the XML Calabash extension steps,
@@ -785,7 +822,7 @@ for the option. They’re now better aligned.
 <revnumber>3.0.10</revnumber>
 <date>2025-07-16</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>Fixed <cbissue number="138"/> and <cbissue number="139"/>.
 Data models constructed for non-XML inputs were accidentally using the base URI
 of the static context as their base URI instead of their actual base URI.
@@ -802,7 +839,7 @@ of the static context as their base URI instead of their actual base URI.
 <revnumber>3.0.9</revnumber>
 <date>2025-07-13</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>Fixed <cbissue number="130"/>. Make sure that trace output is
 saved even if the pipeline fails.</para></listitem>
 <listitem><para>Fixed <cbissue number="129"/>. Clarify the error messages for 
@@ -842,7 +879,7 @@ admonitions from the documentation. That’s only a little bit terrifying.
 <revnumber>3.0.8</revnumber>
 <date>2025-06-28</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>Fixed <cbissue number="110"/>, Java 11 should be sufficient
 again. I switched back to the previous method of selecting a toolchain for the
 build. This seems to work, though I can’t really explain why. </para></listitem>
@@ -853,7 +890,7 @@ build. This seems to work, though I can’t really explain why. </para></listite
 <revnumber>3.0.7</revnumber>
 <date>2025-06-28</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>Related to <cbissue number="105"/>, added the
 <link xlink:href="https://docs.xmlcalabash.com/userguide/current/installation.html#extensions"
 >eager-uri-resolution</link> feature.
@@ -871,7 +908,7 @@ to clarify the documentation.
 <revnumber>3.0.6</revnumber>
 <date>2025-06-22</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>Fixed <cbissue number="97"/>. Make sure the base URI is propagated
 into XSLT result documents.
 </para></listitem>
@@ -882,7 +919,7 @@ into XSLT result documents.
 <revnumber>3.0.5</revnumber>
 <date>2025-06-22</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>Fixed <cbissue number="85"/>. Use only the first input as the
 context item when processing a sequence with XSLT 2.0.</para></listitem>
 <listitem><para>Fixed <function>p:urify()</function> so that it passes
@@ -901,7 +938,7 @@ to do the right thing and publish releases with JReleaser.
 <revnumber>3.0.4</revnumber>
 <date>2025-06-18</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>Fixed <cbissue number="77"/>. Escape “[” and “]” in URIs.
 This is the simplest fix for the bug where a file named
 <filename>[Content_Types].xml</filename> in a zip file causes <tag>p:archive-manifest</tag>
@@ -927,7 +964,7 @@ some examples of usage, especially for extension steps.
 <revnumber>3.0.3</revnumber>
 <date>2025-06-15</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>Fixed <cbissue number="64"/>. On Windows, the <function>p:urify()</function>
 function didn’t handle “/C:/path/to/file” correctly.
 </para></listitem>
@@ -962,7 +999,7 @@ construction.
 <revnumber>3.0.2</revnumber>
 <date>2025-06-06</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>Fixed <cbissue number="45"/>. Make sure that the path used for include/exclude
 matching in <tag>p:directory-list</tag> is correct. (Removes a spurious leading “/”.)
 </para></listitem>
@@ -981,7 +1018,7 @@ from the specification.
 <revnumber>3.0.1</revnumber>
 <date>2025-06-05</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>Fixed <cbissue number="33"/>. If no specific XSL processor is requested,
 use FOP by default.
 </para></listitem>
@@ -1022,7 +1059,7 @@ acted like <tag>p:file-move</tag> and removed the originals!
 <date>2025-05-31</date>
 <revdescription>
 <para>The big change here is moving from GitHub to Codeberg.</para>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>Fixed <ghissue number="542"/>. Added support for the
 <tag class="attribute">version</tag> attribute on <tag>cc:xml-calabash</tag>.
 Improved the messages associated with errors in the configuration file.
@@ -1051,7 +1088,7 @@ details in the <tag>p:invisible-xml</tag> step.
 <date>2025-05-25</date>
 <revdescription>
 <para>(The beta6 release never actually got published because I forgot to tag it.)</para>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>Fixed <ghissue number="532"/>. Make sure that user-supplied values
 for static options are used during compilation.
 </para></listitem>
@@ -1077,7 +1114,7 @@ there’s no “bleed through” of the local development environment.
 <para>For some reason, it appears that snapshots aren’t being updated after
 they’re created. The build runs without error, and claims to publish the
 snapshot, but the files on Maven don’t get updated. I don’t know why.</para>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>Fixed <ghissue number="527"/>. Make sure that line numbering
 is enabled for pipelines constructed from a <code>Source</code>.
 </para></listitem>
@@ -1095,7 +1132,7 @@ I hope.
 <revnumber>3.0.0-beta5</revnumber>
 <date>2025-05-21</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>Fixed <ghissue number="521"/>. Make sure that static options
 are evalated with the correct context.
 </para></listitem>
@@ -1113,7 +1150,7 @@ a fairly extensive test case to “prove” it works correctly.
 <revnumber>3.0.0-beta4</revnumber>
 <date>2025-05-20</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>Fixed <ghissue number="515"/>. Allow (API) users to add custom
 Saxon configurers with <classname>XmlCalabashBuilder</classname>.
 </para></listitem>
@@ -1140,7 +1177,7 @@ extensions for <literal>application/xquery</literal> files.
 <revdescription>
 <para>I wasn’t really planning to do another release today, but there are some nice
 usability improvements in here and releases are cheap…</para>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>Fixed <ghissue number="504"/>. Improved the error messages reported
 when stylesheet compilation fails for a <tag>p:xslt</tag> step.
 </para></listitem>
@@ -1168,7 +1205,7 @@ was always reported.)
 <revnumber>3.0.0-beta2</revnumber>
 <date>2025-05-17</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>Fixed <ghissue number="488"/>. Make sure that the document manager
 is used as the resource resolver for step processing.
 </para></listitem>
@@ -1206,7 +1243,7 @@ to 5.4.0 to correct a bug where nested base URIs were not correctly preserved.
 <date>2025-05-11</date>
 <revdescription>
 <para>If I’m going to get a couple of betas out in May, I best get started, eh?</para>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>Fixed <ghissue number="466"/>. The <tag>xsl:message</tag>s
 from stylesheets run with <tag>p:xslt</tag> are output at “info” level. (They were
 accidentally getting discarded in the last few alphas.)
@@ -1257,7 +1294,7 @@ the <option>--explain</option> option is used.
 <revnumber>3.0.0-alpha33</revnumber>
 <date>2025-05-06</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>Fixed <ghissue number="450"/>. Make sure that options passed on the
 command line are promoted as required. (So “true” can be used for an <code>xs:boolean</code> value.)
 Also changed the error code used for option values that don’t match (or can’t
@@ -1291,7 +1328,7 @@ so by default no Java log messages are printed.
 <revnumber>3.0.0-alpha32</revnumber>
 <date>2025-05-05</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>Significant refactoring of message and logging systems.</para>
 <para>There’s more separation between things that are logged through the
 message reporter and things that are only logged to the underlying Java logger.
@@ -1323,7 +1360,7 @@ for HTTP URIs.</para>
 <revnumber>3.0.0-alpha31</revnumber>
 <date>2025-05-03</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>Fixed <ghissue number="434"/>. Improved the conformance of
 <tag>p:import-functions</tag>. Private functions are now excluded and
 nested imports are handled correctly.
@@ -1353,7 +1390,7 @@ on the XVRL schema element.
 <revnumber>3.0.0-alpha30</revnumber>
 <date>2025-04-30</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem>
 <para>The Windows-related fixes in <code>3.0.0-alpha29</code> weren’t wholly
 satisfactory. Some places where those fixes were incomplete have been
@@ -1378,7 +1415,7 @@ requirements, etc.
 <revnumber>3.0.0-alpha29</revnumber>
 <date>2025-04-28</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>This release is a handful of small bug fixes, many related to
 tidying up loose ends in Windows functionality. Essentially all of the test suite
 tests now pass on Windows.
@@ -1396,7 +1433,7 @@ of <tag class="attribute">message</tag> output on steps.
 <revnumber>3.0.0-alpha28</revnumber>
 <date>2025-04-26</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>Made a variety of changes to improve functionality 
 on Windows: make sure files get closed, sort out some edge cases with Windows filenames,
 corrected a few tests that depended on end-of-line characters, fixed a bug in
@@ -1463,7 +1500,7 @@ with correct handling of the base URI when the base URI was explicitly absent.
 <revnumber>3.0.0-alpha27</revnumber>
 <date>2025-04-14</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>The big (as in “sweeping” and arguably a little riskier than
 most recent updates) fix in this release is a substantial refactor of the core
 of the application. This was partly done to clean up the API for creating a
@@ -1483,7 +1520,7 @@ sequence, but the diagram is a lot less cluttered without them.
 <revnumber>3.0.0-alpha26</revnumber>
 <date>2025-03-25</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>Fixed <ghissue number="372"/>. The graph
 visualizer was completely unprepared for connections to option
 expressions.
@@ -1515,7 +1552,7 @@ at least, to the SVG graph styling: curved borders, a few colors.
 <revnumber>3.0.0-alpha25</revnumber>
 <date>2025-03-23</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>Added <tag>cx:trang</tag> and <tag>cx:trang-files</tag> steps.
 </para></listitem>
 <listitem><para>Fixed <ghissue number="361"/>. The regular expression used to match
@@ -1542,7 +1579,7 @@ user-visible effects unless you’re interested in styling the SVG diagrams.
 <revnumber>3.0.0-alpha24</revnumber>
 <date>2025-03-16</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>Fixed <ghissue number="342"/> by detecting errors in expressions at
 run time. Static errors in expressions now generate a warning at compile time and
 a failure at runtime. I’m not convinced that’s exactly right, but it does mean that
@@ -1572,7 +1609,7 @@ to run the pipeline.
 <revnumber>3.0.0-alpha23</revnumber>
 <date>2025-03-09</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>Fixed <ghissue number="350"/> by making the <port>source</port> port
 on <tag>cx:sparql</tag> primary. (That was an oversight in the library that declares the step.)
 </para></listitem>
@@ -1611,7 +1648,7 @@ format, but note that it requires a build of FOP with the sandbox enabled.
 <revnumber>3.0.0-alpha22</revnumber>
 <date>2025-03-02</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>Added support for the <tag>p:message</tag> step.
 </para></listitem>
 <listitem><para>Fixed <ghissue number="308"/> by forbidding the
@@ -1646,7 +1683,7 @@ correct.
 <revnumber>3.0.0-alpha21</revnumber>
 <date>2025-02-22</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>Fixed <ghissue number="286"/>.
 Added a <tag>cx:markup-blitz</tag> step and made it possible to use either
 NineML or Markup Blitz for the <tag>p:invisible-xml</tag> step.
@@ -1713,7 +1750,7 @@ This is functionally the same release.</para>
 <revnumber>3.0.0-alpha19</revnumber>
 <date>2025-02-09</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>Fixed <ghissue number="266"/>.
 The default encoding on Windows is now
 <link xlink:href="https://en.wikipedia.org/wiki/Windows-1252">Windows 1252</link>.
@@ -1768,7 +1805,7 @@ test report; the build environment includes Firefox and Chrome.</para>
 <revnumber>3.0.0-alpha18</revnumber>
 <date>2025-02-02</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>Upgraded to version 6.0.12 of the XML Resolver. This isn’t
 completely backwards compatible with earlier releases, so attempting to use an
 earlier version might not work.</para>
@@ -1804,7 +1841,7 @@ Resolve the Saxon configuration file URI against the base URI of the
 configuration element.</para>
 </listitem>
 <listitem><para>Updates related to recent specification changes:</para>
-  <itemizedlist>
+  <itemizedlist spacing="compact">
   <listitem><para>Added a <tag>p:encode</tag> step.
   </para></listitem>
   <listitem><para>Adjusted the semantics of <tag>p:cast-content-type</tag> so that
@@ -1853,7 +1890,7 @@ output from a compound step wasn’t correctly connected to its input.)</para>
 <revnumber>3.0.0-alpha17</revnumber>
 <date>2025-01-19</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>Fixed
 <link xlink:href="https://github.com/xmlcalabash/xmlcalabash3/issues/189">issue #189</link>.
 Generate an XVRL report for NVDL validation.
@@ -1937,7 +1974,7 @@ it was possible to generate a document that was not namespace well-formed.</para
 <revnumber>3.0.0-alpha16</revnumber>
 <date>2025-01-15</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>Fixed
 <link xlink:href="https://github.com/xmlcalabash/xmlcalabash3/issues/175">issue #175</link>.
 Make sure directories are created before attempting to write files.
@@ -1973,7 +2010,7 @@ distinct graphs for each pipeline with hyperlinks between them.</para>
 <revnumber>3.0.0-alpha15</revnumber>
 <date>2025-01-13</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>Fixed
 <link xlink:href="https://github.com/xmlcalabash/xmlcalabash3/issues/167">issue #167</link>.
 Make sure that the <option linkend="cli-init">--init</option> functions are applied
@@ -1999,7 +2036,7 @@ that this was the cause of #157, but it’s my best guess.)</para>
 <listitem><para>Fixed
 <link xlink:href="https://github.com/xmlcalabash/xmlcalabash3/issues/167">issue #156</link>
 and related knock-on issues, including:</para>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem><para>Make sure that steps wait for all of their option binding inputs.
 (Previous releases worked accidentally in this regard.)
 </para></listitem>
@@ -2082,7 +2119,7 @@ Calabash on Windows.</para>
 <revnumber>3.0.0-alpha14</revnumber>
 <date>2025-01-08</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem>
 <para>Reworked Java versions again. This release attempts to move the
 requirement back to Java 11, except for the “polyglot” steps which require Java 17
@@ -2133,7 +2170,7 @@ default. 🎵sad trombone🎶
 <revnumber>3.0.0-alpha13</revnumber>
 <date>2025-01-07</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem>
 <para>Fixed
 <link xlink:href="https://github.com/xmlcalabash/xmlcalabash3/issues/134">issue #134</link>.
@@ -2197,7 +2234,7 @@ twice if debug verbosity was used.)
 <revnumber>3.0.0-alpha12</revnumber>
 <date>2025-01-05</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem>
 <para>Fixed a bug where lazily evaluated expressions might have the wrong
 in-scope namespaces.</para>
@@ -2233,7 +2270,7 @@ step id. The model command has been extended to print all of the possible ids in
 <revnumber>3.0.0-alpha11</revnumber>
 <date>2025-01-05</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem>
 <para>Tinkered with the timeout and sleep duration options in advance of some
 anticipated specification changes. The sleep duration is now a number of seconds,
@@ -2269,7 +2306,7 @@ being handled correctly.</para>
 <revnumber>3.0.0-alpha10</revnumber>
 <date>2025-01-04</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem>
 <para>This release never actually happened. There was a typo in the build script.
 I opted to bump the version rather than moving a published tag.
@@ -2283,7 +2320,7 @@ I opted to bump the version rather than moving a published tag.
 <revnumber>3.0.0-alpha9</revnumber>
 <date>2025-01-01</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem>
 <para>Fixed
 <link xlink:href="https://github.com/xmlcalabash/xmlcalabash3/issues/92">issue #92</link>.
@@ -2379,7 +2416,7 @@ Added the brotli and xz libraries to the core build.
 <revnumber>3.0.0-alpha8</revnumber>
 <date>2024-12-28</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem>
 <para>Fixed an issue where the command line interface used by the debugger was
 always a “dumb” terminal. It now supports history and editing keys.
@@ -2496,7 +2533,7 @@ for standard step descriptions.
 <revnumber>3.0.0-alpha7</revnumber>
 <date>2024-12-24</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem>
 <para>Added the <link linkend="assertions">Schematron assertions feature</link>.
 </para>
@@ -2533,7 +2570,7 @@ fix.</para>
 <revnumber>3.0.0-alpha6</revnumber>
 <date>2024-12-23</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem>
 <para>Added <link xlink:href="debugging.html">an interactive debugger</link>.</para>
 </listitem>
@@ -2614,7 +2651,7 @@ more predictable APIs.</para>
 <revnumber>3.0.0-alpha5</revnumber>
 <date>2024-12-15</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem>
 <para>Refactored the way context information is maintained both at
 compile time and run time. This is a re-refactor of the refactor I
@@ -2656,7 +2693,7 @@ properties accepted by <function>p:system-property</function> in the
 <revnumber>3.0.0-alpha4</revnumber>
 <date>2024-12-07</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem>
 <para>Resolved the remaining <tag>p:validate-with-json-schema</tag> test failures. Updated
 to <link xlink:href="https://github.com/networknt/json-schema-validator">json-schema-validator</link>
@@ -2706,7 +2743,7 @@ nested comments correctly.</para>
 <revnumber>3.0.0-alpha3</revnumber>
 <date>2024-12-02</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem>
 <para>Fixed
 <link xlink:href="https://github.com/xmlcalabash/xmlcalabash3/issues/9">issue #9</link>,
@@ -2740,7 +2777,7 @@ libraries, for example) would not work correctly.</para>
 <revnumber>3.0.0-alpha2</revnumber>
 <date>2024-11-26</date>
 <revdescription>
-<itemizedlist>
+<itemizedlist spacing="compact">
 <listitem>
 <para>Fixed
 <link xlink:href="https://github.com/xmlcalabash/xmlcalabash3/issues/3">issue #3</link>,
