@@ -92,7 +92,13 @@ class DocumentInstruction private constructor(parent: XProcInstruction): Connect
         if (documentProperties.canBeResolvedStatically()) {
             docStep._staticOptions[Ns.documentProperties] = StaticOptionDetails(stepConfig, Ns.documentProperties, stepConfig.qnameMapType, emptyList(), documentProperties)
         } else {
-            val exprSteps = documentProperties.promoteToStep(parent, Ns.documentProperties, listOf(stepConfig.drp!!), false)
+            val bindings = if (stepConfig.drp == null) {
+                emptyList()
+            } else {
+                listOf(stepConfig.drp!!)
+            }
+
+            val exprSteps = documentProperties.promoteToStep(parent, Ns.documentProperties, bindings, false)
             val expr = exprSteps.last()
 
             val wi = docStep.withInput()
