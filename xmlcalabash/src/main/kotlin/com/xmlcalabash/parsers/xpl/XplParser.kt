@@ -499,6 +499,7 @@ class XplParser internal constructor(val builder: PipelineBuilder) {
 
     private fun parseEmpty(container: BindingContainer, node: ElementNode) {
         val empty = container.empty()
+        empty.stepConfig.updateWith(node.node)
         processAttributes(node, empty, emptyMap())
         processElements(node, empty, emptyMap())
     }
@@ -509,6 +510,8 @@ class XplParser internal constructor(val builder: PipelineBuilder) {
         val dconfig = container.stepConfig.with(Location(node.node))
         val document = container.document(XProcExpression.avt(dconfig, href))
         val stepConfig = document.stepConfig
+
+        stepConfig.updateWith(node.node);
 
         val attributeMapping = mapOf<QName, (String) -> Unit>(
             Ns.href to { _ -> },
@@ -523,6 +526,7 @@ class XplParser internal constructor(val builder: PipelineBuilder) {
 
     private fun parsePipe(container: BindingContainer, node: ElementNode) {
         val pipe = container.pipe()
+        pipe.stepConfig.updateWith(node.node)
 
         val attributeMapping = mapOf<QName, (String) -> Unit>(
             Ns.step to { value -> pipe.step = value },
@@ -536,6 +540,7 @@ class XplParser internal constructor(val builder: PipelineBuilder) {
     private fun parseInline(container: BindingContainer, node: ElementNode) {
         val xml = inlineXml(container.stepConfig, node, node.children.filter { it.useWhen == true })
         val inline = container.inline(xml)
+        inline.stepConfig.updateWith(node.node)
 
         val attributeMapping = mapOf<QName, (String) -> Unit>(
             Ns.documentProperties to { value -> inline.documentProperties = XProcExpression.select(inline.stepConfig, value) },
@@ -556,6 +561,7 @@ class XplParser internal constructor(val builder: PipelineBuilder) {
         }
 
         container.inline(xml)
+        container.stepConfig.updateWith(node.node)
     }
 
     private fun parseImport(instruction: StepContainerInterface, node: ElementNode) {
@@ -577,9 +583,15 @@ class XplParser internal constructor(val builder: PipelineBuilder) {
 
         val container = parseUri(node.href)
 
-        if (container is DeclareStepInstruction) {
-            // Visibility is irrelevant if the parent isn't a p:library
-            container.visibility = Visibility.PUBLIC
+        when (container) {
+            is DeclareStepInstruction -> {
+                // Visibility is irrelevant if the parent isn't a p:library
+                container.visibility = Visibility.PUBLIC
+                container.stepConfig.updateWith(node.node)
+            }
+            is LibraryInstruction -> {
+                container.stepConfig.updateWith(node.node);
+            }
         }
 
         instruction.import(container)
@@ -594,6 +606,7 @@ class XplParser internal constructor(val builder: PipelineBuilder) {
         )
 
         val import = instruction.importFunctions(node.href, contentType, node.namespace)
+        import.stepConfig.updateWith(node.node)
 
         processAttributes(node, import, attributeMapping)
         processElements(node, import, emptyMap())
