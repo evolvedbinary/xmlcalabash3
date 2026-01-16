@@ -22,10 +22,10 @@ class PipelineReceiverProxy(val receiver: Receiver): Consumer {
         if ((docprop.underlyingValue as MapItem).isEmpty) {
             doc.properties.setSerialization(_serialization[port] ?: XdmMap())
         } else {
-            var newmap = doc.properties.getSerialization()
-            val portmap = _serialization[port] ?: XdmMap()
-            for (key in portmap.keySet()) {
-                newmap = newmap.put(key, portmap[key])
+            var newmap = _serialization[port] ?: XdmMap()
+            val docmap = doc.properties.getSerialization()
+            for (key in docmap.keySet()) {
+                newmap = newmap.put(key, docmap[key])
             }
             doc.properties.setSerialization(newmap)
         }
