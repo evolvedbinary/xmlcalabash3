@@ -131,48 +131,56 @@ class BasicDocumentLoader(val href: URI?,
     private fun loadXml(uri: URI?, stream: InputStream): XProcDocument {
         val saveParseOptions = processor.underlyingConfiguration.parseOptions
         val errorHandler = LoaderErrorHandler()
+
+        // Make the cx:line-numbering parameter take precedence over the configuration
         val parseOptions = saveParseOptions.withErrorHandler(errorHandler)
-        processor.underlyingConfiguration.parseOptions = parseOptions
-        val builder = processor.newDocumentBuilder()
-        builder.isLineNumbering = parameters[NsCx.lineNumbering]?.underlyingValue?.effectiveBooleanValue() ?: false
+        val numbering = parameters[NsCx.lineNumbering]?.underlyingValue?.effectiveBooleanValue()
+            ?: parseOptions.isLineNumbering
 
-        val validating = if (parameters[Ns.dtdValidate] != null) {
-            val value = parameters[Ns.dtdValidate]!!.underlyingValue
-            if (value is BooleanValue) {
-                value.booleanValue
-            } else {
-                // FIXME: this isn't testing for only true/false
-                value.stringValue == "true"
-            }
-        } else {
-            false
-        }
+        synchronized(processor.underlyingConfiguration) {
+            processor.underlyingConfiguration.parseOptions = parseOptions.withLineNumbering(numbering)
 
-        builder.isDTDValidation = validating
-        if (!validating && !readExternalSubset) {
-            val cfg = processor.underlyingConfiguration
-            cfg.parseOptions = cfg.parseOptions.withParserFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false)
-        }
+            try {
+                val builder = processor.newDocumentBuilder()
+                builder.isLineNumbering = numbering
 
-        val source = InputSource(stream)
-        if (uri != null) {
-            source.systemId = uri.toString();
-        }
-
-        try {
-            val xdm = builder.build(SAXSource(source))
-            if (errorHandler.errorCount > 0) {
-                if (validating) {
-                    throw XProcError.xdNotDtdValid(errorHandler.message ?: "No message provided").exception()
+                val validating = if (parameters[Ns.dtdValidate] != null) {
+                    val value = parameters[Ns.dtdValidate]!!.underlyingValue
+                    if (value is BooleanValue) {
+                        value.booleanValue
+                    } else {
+                        // FIXME: this isn't testing for only true/false
+                        value.stringValue == "true"
+                    }
+                } else {
+                    false
                 }
-                if (href != null) {
-                    throw XProcError.xdNotWellFormed(href).exception()
+
+                builder.isDTDValidation = validating
+                if (!validating && !readExternalSubset) {
+                    val cfg = processor.underlyingConfiguration
+                    cfg.parseOptions = cfg.parseOptions.withParserFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false)
                 }
-                throw XProcError.xdNotWellFormed().exception()
+
+                val source = InputSource(stream)
+                if (uri != null) {
+                    source.systemId = uri.toString();
+                }
+
+                val xdm = builder.build(SAXSource(source))
+                if (errorHandler.errorCount > 0) {
+                    if (validating) {
+                        throw XProcError.xdNotDtdValid(errorHandler.message ?: "No message provided").exception()
+                    }
+                    if (href != null) {
+                        throw XProcError.xdNotWellFormed(href).exception()
+                    }
+                    throw XProcError.xdNotWellFormed().exception()
+                }
+                return XProcDocument.ofXml(xdm, DocumentContextImpl(xdm), properties)
+            } finally {
+                processor.underlyingConfiguration.parseOptions = saveParseOptions
             }
-            return XProcDocument.ofXml(xdm, DocumentContextImpl(xdm), properties)
-        } finally {
-            processor.underlyingConfiguration.parseOptions = saveParseOptions
         }
     }
 
