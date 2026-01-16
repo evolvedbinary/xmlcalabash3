@@ -1,0 +1,18 @@
+<part xmlns="http://docbook.org/ns/docbook"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      xml:id="other-cx-elements" version="5.2">
+<info>
+  <title>Other extension elements</title>
+</info>
+
+<partintro>
+<para>There are a few elements in the <code>cx:</code> namespace that
+aren’t steps.</para>
+</partintro>
+
+<xi:include href="cx-use-catalog.xml"/>
+<xi:include href="cx-import-schema.xml"/>
+
+</part>
+

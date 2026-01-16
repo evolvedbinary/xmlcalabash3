@@ -1,0 +1,30 @@
+<refentry xmlns:p="http://www.w3.org/ns/xproc"
+          xmlns:e="http://www.w3.org/1999/XSL/Spec/ElementSyntax"
+          xmlns:xi="http://www.w3.org/2001/XInclude"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          xmlns="http://docbook.org/ns/docbook"
+          xml:id="cx-use-catalog">
+<?db filename="cx-use-catalog"?>
+<refnamediv>
+  <refname>cx:use-catalog</refname>
+  <refpurpose>Provides an additional catalog in a pipeline</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv>
+<refsection role="introduction">
+<title>Introduction</title>
+<para><code>&lt;cx:use-catalog href="<replaceable>catalog-uri</replaceable>"/&gt;</code>
+</para>
+</refsection>
+</refsynopsisdiv>
+
+<refsection>
+<title>Description</title>
+<para>If the <tag>cx:use-catalog</tag> element occurs in a <tag>p:pipeinfo</tag>
+element that is a child of <tag>p:declare-step</tag>, the specified catalog will
+be added to the catalog list.</para>
+<para>This additional catalog is present for all steps in the pipeline, not just the
+step in which it occurs.</para>
+</refsection>
+
+</refentry>
