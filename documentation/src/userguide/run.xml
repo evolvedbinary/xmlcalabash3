@@ -80,7 +80,7 @@ given, the <command>run</command> command is assumed.</para>
   <sbr/>
   <arg rep="repeat" linkend="cli-input">--input:[<replaceable>type</replaceable>@]<replaceable>port</replaceable>=<replaceable>uri</replaceable></arg>
   <arg rep="norepeat" linkend="cli-licensed">--licensed</arg>
-  <arg rep="norepeat" linkend="cli-line-numbers">--line-numbers</arg>
+  <arg rep="norepeat" linkend="cli-line-numbering">--line-numbering</arg>
   <arg rep="repeat" linkend="cli-namespace">--namespace:<replaceable>prefix</replaceable>=<replaceable>uri</replaceable></arg>
   <sbr/>
   <arg rep="norepeat" linkend="cli-nogo">--nogo</arg>
@@ -296,8 +296,8 @@ Saxon EE are on the classpath.</para>
 </listitem>
 </varlistentry>
 
-<varlistentry xml:id="cli-line-numbers">
-  <term><option>--line-numbers</option></term>
+<varlistentry xml:id="cli-line-numbering">
+  <term><option>--line-numbering</option></term>
 <listitem>
 <para>Preserves line numbers in parsed documents. Prior to version 3.0.33, XML Calabash
 always preserved line numbers, but that makes each tree model larger in memory and they
@@ -305,7 +305,7 @@ are generally unused. There’s one common exception, validation steps
 that operate on the tree model. RELAX NG validation, for example, will only be able to
 show error locations if the initial tree model was constructed with line numbers preserved.
 This can be done selectively with the
-<code xlink:href="https://docs.xmlcalabash.com/reference/current/p-load.html#load-param-line-numbers">cx:line-numbers</code>
+<code xlink:href="https://docs.xmlcalabash.com/reference/current/p-load.html#load-param-line-numbering">cx:line-numbering</code>
 parameter on the <tag>p:load</tag> step (or <tag>p:document</tag>).</para>
 </listitem>
 </varlistentry>

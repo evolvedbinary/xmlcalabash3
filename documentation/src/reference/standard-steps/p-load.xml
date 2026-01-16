@@ -92,14 +92,14 @@ are <glossterm>implementation-defined</glossterm>.
 
   <para>The XML Calabash <tag>p:load</tag> step accepts additional parameters.</para>
 
-<refsection xml:id="load-param-line-numbers">
-<title>Line numbers</title>
+<refsection xml:id="load-param-line-numbering">
+<title>Line numbering</title>
 
 <para>The <code>cx:line-numbering</code> parameter allows the pipeline to selectively
 preserve line numbers in the parsed document.</para>
 
   <variablelist>
-    <varlistentry><term><code>cx:line-numbers</code> (boolean)</term>
+    <varlistentry><term><code>cx:line-numbering</code> (boolean)</term>
     <listitem>
       <para>Line numbers are preserved if the parameter has an effective boolean value of true.</para>
     </listitem>
