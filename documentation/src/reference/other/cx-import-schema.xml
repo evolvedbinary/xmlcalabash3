@@ -1,0 +1,30 @@
+<refentry xmlns:p="http://www.w3.org/ns/xproc"
+          xmlns:e="http://www.w3.org/1999/XSL/Spec/ElementSyntax"
+          xmlns:xi="http://www.w3.org/2001/XInclude"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          xmlns="http://docbook.org/ns/docbook"
+          xml:id="cx-import-schema">
+<?db filename="cx-import-schema"?>
+<refnamediv>
+  <refname>cx:import-schema</refname>
+  <refpurpose>Add a schema to the Saxon configuration</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv>
+<refsection role="introduction">
+<title>Introduction</title>
+<para><code>&lt;cx:import-schema href="<replaceable>schema-uri</replaceable>"/&gt;</code>
+</para>
+</refsection>
+</refsynopsisdiv>
+
+<refsection>
+<title>Description</title>
+<para>If the <tag>cx:import-schema</tag> element occurs in a <tag>p:pipeinfo</tag>
+element that is a child of <tag>p:declare-step</tag>, the specified schema will
+be added to the Saxon configuration.</para>
+<para>This additional schema is present for all steps in the pipeline, not just the
+step in which it occurs.</para>
+</refsection>
+
+</refentry>
