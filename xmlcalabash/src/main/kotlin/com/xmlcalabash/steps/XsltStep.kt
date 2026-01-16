@@ -379,24 +379,7 @@ open class XsltStep(): AbstractAtomicStep() {
         val props = DocumentProperties()
         if (primaryOutputProperties.isNotEmpty()) {
             if (primaryOutputProperties.containsKey(Ns.useCharacterMaps)) {
-                var characterMap = XdmMap()
-                val mapNames = primaryOutputProperties[Ns.useCharacterMaps] ?: XdmEmptySequence.getInstance()
-                for (index in 0 until mapNames.size()) {
-                    // Why does the value returned have a leading space?
-                    val clarkName = mapNames.itemAt(index).stringValue.trim()
-                    val name =  StructuredQName.fromClarkName(clarkName)
-                    val cmap = characterMaps!!.getCharacterMap(name)
-                    if (cmap != null) {
-                        for (codepoint in cmap.map.keySet()) {
-                            val str = cmap.map.get(codepoint)
-                            val chars = Character.toChars(codepoint)
-                            if (chars.size != 1) {
-                                throw IllegalArgumentException("Codepoint is not a single character: ${codepoint}")
-                            }
-                            characterMap = characterMap.put(XdmAtomicValue("${chars[0]}"), XdmAtomicValue(str))
-                        }
-                    }
-                }
+                val characterMap = resolveCharacterMapNames(primaryOutputProperties[Ns.useCharacterMaps]!!.underlyingValue.stringValue)
                 props.setSerialization(serializationProperties(primaryOutputProperties, characterMap))
             } else {
                 props.setSerialization(serializationProperties(primaryOutputProperties))
@@ -472,6 +455,27 @@ open class XsltStep(): AbstractAtomicStep() {
                 }
             }
         }
+    }
+
+    private fun resolveCharacterMapNames(mapNames: String): XdmMap {
+        var characterMap = XdmMap()
+        val mapList = mapNames.trim().split("\\s+".toRegex()).distinct()
+        for (clarkName in mapList) {
+            val name =  StructuredQName.fromClarkName(clarkName)
+            val cmap = characterMaps!!.getCharacterMap(name)
+            if (cmap != null) {
+                for (codepoint in cmap.map.keySet()) {
+                    val str = cmap.map.get(codepoint)
+                    val chars = Character.toChars(codepoint)
+                    if (chars.size != 1) {
+                        throw IllegalArgumentException("Codepoint is not a single character: ${codepoint}")
+                    }
+                    characterMap = characterMap.put(XdmAtomicValue("${chars[0]}"), XdmAtomicValue(str))
+                }
+            }
+        }
+
+        return characterMap
     }
 
     private fun consumeSecondary(results: List<XdmItem>, uri: URI, serprops: Map<QName,XdmValue>) {
@@ -615,6 +619,12 @@ open class XsltStep(): AbstractAtomicStep() {
                 }
 
                 val xprocProps = mutableMapOf<QName, XdmValue>()
+
+                if (properties.getProperty("use-character-maps") != null) {
+                    var characterMap = resolveCharacterMapNames(properties.getProperty("use-character-maps"))
+                    xprocProps[Ns.useCharacterMaps] = characterMap
+                }
+
                 properties.properties.forEach { (anyName, anyValue) ->
                     val name = anyName.toString()
                     val value = anyValue.toString()
@@ -626,35 +636,8 @@ open class XsltStep(): AbstractAtomicStep() {
                         QName(name)
                     }
 
-                    if (qname == Ns.useCharacterMaps) {
-                        var characterMap = XdmMap()
-                        val mapNames = mutableListOf<String>()
-
-                        // Make a unique list of names
-                        val mapsSeen = mutableSetOf<String>()
-                        for (clarkName in value.trim().split("\\s+".toRegex())) {
-                            if (clarkName !in mapsSeen) {
-                                mapNames.add(clarkName)
-                            }
-                            mapsSeen.add(clarkName)
-                        }
-
-                        for (clarkName in mapNames) {
-                            val name =  StructuredQName.fromClarkName(clarkName)
-                            val cmap = characterMaps!!.getCharacterMap(name)
-                            if (cmap != null) {
-                                for (codepoint in cmap.map.keySet()) {
-                                    val str = cmap.map.get(codepoint)
-                                    val chars = Character.toChars(codepoint)
-                                    if (chars.size != 1) {
-                                        throw IllegalArgumentException("Codepoint is not a single character: ${codepoint}")
-                                    }
-                                    characterMap = characterMap.put(XdmAtomicValue("${chars[0]}"), XdmAtomicValue(str))
-                                }
-                            }
-                        }
-                        xprocProps[qname] = characterMap
-                    } else {
+                    // We've already dealt with character maps above
+                    if (qname != Ns.useCharacterMaps) {
                         val untypedValue = StringConverter.StringToUntypedAtomic().convert(XdmAtomicValue(value).underlyingValue)
                         xprocProps[qname] = XdmAtomicValue.wrap(untypedValue)
                     }
