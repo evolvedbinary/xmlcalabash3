@@ -61,7 +61,7 @@ unused. There’s one common exception: validation steps that operate on
 the tree model. RELAX NG validation, for example, will only be able to
 show error locations if the initial tree model was constructed with
 line numbers preserved. This can be done selectively with the
-<code xlink:href="/reference/current/p-load.html#load-param-line-numbers">cx:line-numbers</code>
+<code xlink:href="/reference/current/p-load.html#load-param-line-numbering">cx:line-numbering</code>
 parameter on the <tag>p:load</tag> step (or <tag>p:document</tag>), for example:</para>
 
 <programlisting language="xml"><![CDATA[<p:document href="some-input.xml"
