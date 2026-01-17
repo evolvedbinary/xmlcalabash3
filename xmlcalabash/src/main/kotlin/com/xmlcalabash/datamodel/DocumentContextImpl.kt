@@ -64,13 +64,8 @@ class DocumentContextImpl(override val processor: Processor): DocumentContext {
 
     override fun updateWith(node: XdmNode) {
         for (ns in node.axisIterator(Axis.NAMESPACE)) {
-            if (node.nodeName.localName != "xml") {
-                if (ns.nodeName == null) {
-                    _inscopeNamespaces[""] = NamespaceUri.of(ns.stringValue)
-                } else {
-                    _inscopeNamespaces[ns.nodeName.localName] = NamespaceUri.of(ns.stringValue)
-                }
-            }
+            val prefix = ns.nodeName?.localName ?: ""
+            _inscopeNamespaces[prefix] = NamespaceUri.of(ns.stringValue)
         }
 
         try {

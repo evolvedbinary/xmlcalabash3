@@ -55,13 +55,8 @@ class ValueUtils {
         fun inscopeNamespaces(node: XdmNode): Map<String, NamespaceUri> {
             val namespaces = mutableMapOf<String, NamespaceUri>()
             for (ns in node.axisIterator(Axis.NAMESPACE)) {
-                if (node.nodeName.localName != "xml") {
-                    if (ns.nodeName == null) {
-                        namespaces[""] = NamespaceUri.of(ns.stringValue)
-                    } else {
-                        namespaces[ns.nodeName.localName] = NamespaceUri.of(ns.stringValue)
-                    }
-                }
+                val prefix = ns.nodeName?.localName ?: ""
+                namespaces[prefix] = NamespaceUri.of(ns.stringValue)
             }
             return namespaces
         }
