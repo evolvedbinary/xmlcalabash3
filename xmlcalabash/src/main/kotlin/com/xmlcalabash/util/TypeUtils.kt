@@ -92,8 +92,9 @@ class TypeUtils(val context: DocumentContext) {
         val inscopeNamespaces = mutableMapOf<String, NamespaceUri>()
         var default = NamespaceUri.NULL
         for (ns in context.axisIterator(Axis.NAMESPACE)) {
-            inscopeNamespaces[ns.nodeName.localName] = NamespaceUri.of(ns.stringValue)
-            if (ns.nodeName.localName == "") {
+            val prefix = ns.nodeName?.localName ?: ""
+            inscopeNamespaces[prefix] = NamespaceUri.of(ns.stringValue)
+            if (prefix == "") {
                 default = NamespaceUri.of(ns.stringValue)
             }
         }
