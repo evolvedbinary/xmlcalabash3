@@ -113,7 +113,7 @@ Calabash into another application.
 <listitem><para>A line numbering option has been added, this changes the
 default setting from “preserve line numbers in constructed documents” to
 “don’t preserve line numbers”. This will save memory and is usually not
-noticeable, though it may have <link linkend="cli-line-numbers">an impact</link>
+noticeable, though it may have <link linkend="cli-line-numbering">an impact</link>
 on some pipelines.
 </para></listitem>
 </orderedlist>
