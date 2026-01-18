@@ -13,6 +13,42 @@ See the commits and pull requests on
 finer detail.</para>
 
 <revhistory>
+<revision xml:id="r3037">
+<revnumber>3.0.37</revnumber>
+<date>2026-01-18</date>
+<revdescription>
+<itemizedlist spacing="compact">
+<listitem><para>Closed <cbissue number="533"/>. Fixed a couple of errors related
+to handling nodes on the namespace axis.
+</para></listitem>
+<listitem><para>Closed <cbissue number="526"/>. Added reference documentation for the
+<tag>cx:use-catalog</tag> and <tag>cx:import-schema</tag> elements.
+</para></listitem>
+<listitem><para>Closed <cbissue number="525"/>. Fixed bugs in the handling of
+<code>use-character-maps</code> with respect to secondary result documents.
+</para></listitem>
+<listitem><para>Closed <cbissue number="522"/>. Made the <code>cx:line-numbering</code>
+parameter take precedence over any underlying Saxon configuration setting.
+</para></listitem>
+<listitem><para>Closed <cbissue number="521"/>. Fixed a bug when promoting a
+<tag>p:document</tag> instruction to a step when it happened not to have a default readable port.
+</para></listitem>
+<listitem><para>Closed <cbissue number="518"/>. Fixed a few places where the namespace
+bindings were not correctly applied in the XPL parser.
+</para></listitem>
+<listitem><para>Closed <cbissue number="517"/>. Added default media type mappings
+for <code>.xhtm</code> and <code>.xhtml</code> to <code>application/xhtml+xml</code>.
+</para></listitem>
+<listitem><para>Closed <cbissue number="516"/>. Correct the error that serialization
+properties in the documents were not taking precedence over properties provided on
+steps.
+</para></listitem>
+<listitem><para>Closed <cbissue number="501"/>. Fixed some confusion in the documentation
+vis-a-vis “line-numbers” vs. “line-numbering”.
+</para></listitem>
+</itemizedlist>
+</revdescription>
+</revision>
 <revision xml:id="r3036">
 <revnumber>3.0.36</revnumber>
 <date>2026-01-10</date>
