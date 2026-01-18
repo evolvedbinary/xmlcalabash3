@@ -106,7 +106,7 @@ open class OptionInstruction(parent: XProcInstruction, name: QName, stepConfig: 
                 throw stepConfig.exception(XProcError.xsRequiredAndDefaulted(name))
             }
             asType = asType ?: stepConfig.typeUtils.parseSequenceType("item()*")
-            select = select!!.cast(asType!!)
+            select = select!!.cast(asType!!, values)
         }
 
         // If an option contains variable references, they can only be to preceding options

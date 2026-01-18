@@ -382,10 +382,22 @@ class XplParser internal constructor(val builder: PipelineBuilder) {
         val stepConfig = option.stepConfig
         stepConfig.updateWith(node.node)
 
+        val values = if (Ns.values in node.attributes) {
+            stepConfig.typeUtils.parseValues(node.attributes[Ns.values]!!)
+        } else {
+            emptyList()
+        }
+
+        val asType = if (Ns.asType in node.attributes) {
+            stepConfig.typeUtils.parseSequenceType(node.attributes[Ns.asType]!!)
+        } else {
+            SequenceType.ANY
+        }
+
         val attributeMapping = mapOf<QName, (String) -> Unit>(
             Ns.name to { _ -> },
-            Ns.asType to { value -> option.asType = stepConfig.typeUtils.parseSequenceType(value) },
-            Ns.values to { value -> option.values = stepConfig.typeUtils.parseValues(value) },
+            Ns.asType to { _ -> option.asType = asType },
+            Ns.values to { _ -> option.values = values },
             Ns.static to { value -> option.static = stepConfig.typeUtils.parseBoolean(value) },
             Ns.required to { value -> option.required = stepConfig.typeUtils.parseBoolean(value) },
             Ns.select to { _ -> },
@@ -395,10 +407,9 @@ class XplParser internal constructor(val builder: PipelineBuilder) {
         if (node.attributes.contains(Ns.select)) {
             // Options on the outermost declare step can be set from the outside...
             if (decl.parent == null && decl.stepConfig.staticBindings.contains(name)) {
-                val asType = option.asType ?: SequenceType.ANY
-                option.select = XProcExpression.constant(stepConfig, decl.stepConfig.staticBindings[name]!!, asType, option.values)
+                option.select = XProcExpression.constant(stepConfig, decl.stepConfig.staticBindings[name]!!, asType, values)
             } else {
-                option.select = XProcExpression.select(stepConfig, node.attributes[Ns.select]!!)
+                option.select = XProcExpression.select(stepConfig, node.attributes[Ns.select]!!, asType, false, values)
             }
         }
 

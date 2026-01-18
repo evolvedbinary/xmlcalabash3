@@ -3,6 +3,7 @@ package com.xmlcalabash.runtime
 import com.xmlcalabash.debugger.CliDebugger
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
+import com.xmlcalabash.exceptions.XProcException
 import com.xmlcalabash.util.TypeUtils
 import com.xmlcalabash.io.DocumentWriter
 import com.xmlcalabash.namespace.Ns
@@ -99,6 +100,8 @@ class XProcPipeline internal constructor(val runtime: XProcRuntime, pipeline: Co
 
         val typedValue = try {
             config.typeUtils.checkType(name, value.value, option.asType, config.inscopeNamespaces, option.values)
+        } catch (ex: XProcException) {
+            throw ex
         } catch (_: Exception) {
             throw XProcError.xdBadType(value.value.toString(), TypeUtils.sequenceTypeToString(option.asType)).exception()
         }
