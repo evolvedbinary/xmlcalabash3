@@ -14,8 +14,8 @@ import com.xmlcalabash.runtime.model.StepModel
 import com.xmlcalabash.steps.internal.ExpressionStep
 import kotlinx.coroutines.*
 import net.sf.saxon.s9api.QName
+import net.sf.saxon.s9api.XdmValue
 import org.apache.logging.log4j.kotlin.logger
-import kotlin.concurrent.thread
 
 abstract class CompoundStep(config: XProcStepConfiguration, compound: CompoundStepModel): AbstractStep(config, compound) {
     companion object {
@@ -91,6 +91,26 @@ abstract class CompoundStep(config: XProcStepConfiguration, compound: CompoundSt
         val runnableMap = mutableMapOf<StepModel, AbstractStep>()
         for ((model, provider) in runnableProviders) {
             val stepRunnable = provider()
+            if (stepRunnable is AtomicStep) {
+                val optMap = mutableMapOf<QName, XdmValue>()
+                var step: CompoundStep? = this
+                while (step != null) {
+                    if (step.staticOptions.isNotEmpty()) {
+                        for ((name, value) in step.staticOptions) {
+                            if (name !in optMap) {
+                                optMap[name] = value.staticValue.evaluate(step.stepConfig)
+                            }
+                        }
+                    }
+                    // The runtimeParent of the top-level declare-step is itself. So that runtimeParent isn't optional.
+                    if (step == step.runtimeParent) {
+                        break
+                    } else {
+                        step = step.runtimeParent
+                    }
+                }
+                stepRunnable.implementation.extensionAttributes(model.extensionAttributes, optMap)
+            }
             runnableMap[model] = stepRunnable
             if (stepRunnable !is CompoundStepHead && stepRunnable !is CompoundStepFoot) {
                 runnables.add(stepRunnable)

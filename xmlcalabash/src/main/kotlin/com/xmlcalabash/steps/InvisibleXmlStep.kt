@@ -5,16 +5,35 @@ import com.xmlcalabash.io.MediaType
 import com.xmlcalabash.namespace.Ns
 import com.xmlcalabash.namespace.NsCx
 import com.xmlcalabash.namespace.NsP
+import com.xmlcalabash.runtime.XProcStepConfiguration
+import com.xmlcalabash.runtime.parameters.RuntimeStepParameters
 import com.xmlcalabash.util.InvisibleXmlImpl
 import com.xmlcalabash.util.MediaClassification
+import com.xmlcalabash.util.SaxonErrorReporter
 import net.sf.saxon.s9api.QName
 import net.sf.saxon.s9api.XdmNode
+import net.sf.saxon.s9api.XdmValue
+import java.net.URI
 
 class InvisibleXmlStep(): AbstractAtomicStep() {
-    private lateinit var extensionAttr: Map<QName, String>
+    private val extensionAttr = mutableMapOf<QName, String>()
+    private lateinit var stepName: String
+    private var cacheGrammar = false
 
-    override fun extensionAttributes(attributes: Map<QName, String>) {
-        extensionAttr = attributes
+    init {
+        expectedExtensionAttributes.addAll(listOf(NsCx.processor, NsCx.cacheGrammar))
+    }
+
+    override fun setup(stepConfig: XProcStepConfiguration, receiver: com.xmlcalabash.runtime.api.Receiver, stepParams: RuntimeStepParameters) {
+        super.setup(stepConfig, receiver, stepParams)
+        stepName = stepParams.stepName
+    }
+
+    override fun extensionAttributes(attributes: Map<QName, String>, staticOptions: Map<QName, XdmValue>) {
+        cacheGrammar = extensionAttributeBooleanValue(attributes, NsCx.cacheGrammar, staticOptions)
+        extensionAttr.clear()
+        extensionAttr.putAll(attributes)
+        extensionAttr.remove(NsCx.cacheGrammar)
     }
 
     override fun run() {
@@ -34,6 +53,7 @@ class InvisibleXmlStep(): AbstractAtomicStep() {
 
         val failOnError = booleanBinding(Ns.failOnError) != false
         val parameters = qnameMapBinding(Ns.parameters)
+        var grammarURI: URI? = null
 
         val grammarText = if (grammar.isEmpty()) {
             null
@@ -42,6 +62,7 @@ class InvisibleXmlStep(): AbstractAtomicStep() {
                 throw stepConfig.exception(XProcError.xcAtMostOneGrammar())
             }
             val theGrammar = grammar.first()
+            grammarURI = theGrammar.baseURI
             val grammarCtc = (theGrammar.contentType ?: MediaType.TEXT).classification()
             if (grammarCtc == MediaClassification.TEXT) {
                 theGrammar.value.underlyingValue.stringValue
@@ -54,6 +75,7 @@ class InvisibleXmlStep(): AbstractAtomicStep() {
             null
         } else {
             val theGrammar = grammar.first()
+            grammarURI = theGrammar.baseURI
             val grammarCtc = (theGrammar.contentType ?: MediaType.XML).classification()
             if (grammarCtc != MediaClassification.XML) {
                 throw IllegalArgumentException("Grammar must be text or XML")
@@ -63,11 +85,12 @@ class InvisibleXmlStep(): AbstractAtomicStep() {
 
         val input = source.value.underlyingValue.stringValue
 
-        val impl = InvisibleXmlImpl(stepConfig, implementation)
+        val impl = InvisibleXmlImpl(stepConfig, implementation, stepName, cacheGrammar)
+
         val xml = if (grammarXml != null) {
-            impl.parse(grammarXml, input, failOnError, parameters)
+            impl.parse(grammarURI, grammarXml, input, failOnError, parameters)
         } else {
-            impl.parse(grammarText, input, failOnError, parameters)
+            impl.parse(grammarURI, grammarText, input, failOnError, parameters)
         }
         receiver.output("result", xml)
     }

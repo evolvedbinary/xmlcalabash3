@@ -6,10 +6,8 @@ import com.xmlcalabash.namespace.NsC
 import com.xmlcalabash.namespace.NsCx
 import com.xmlcalabash.steps.AbstractAtomicStep
 import com.xmlcalabash.util.SaxonTreeBuilder
-import net.sf.saxon.om.AttributeMap
-import net.sf.saxon.om.EmptyAttributeMap
 import net.sf.saxon.s9api.QName
-import org.apache.logging.log4j.kotlin.logger
+import net.sf.saxon.s9api.XdmValue
 
 class OsInfo(): AbstractAtomicStep() {
     companion object {
@@ -27,16 +25,13 @@ class OsInfo(): AbstractAtomicStep() {
 
     var onlyStandardProperties = false
 
-    override fun extensionAttributes(attributes: Map<QName, String>) {
-        super.extensionAttributes(attributes)
-        val value = attributes[NsCx.onlyStandard]
-        if (value != null) {
-            if (value == "true" || value == "false") {
-                onlyStandardProperties = value == "true"
-            } else {
-                stepConfig.debug { "Ignoring unexpected value for cx:only-standard: ${value}"}
-            }
-        }
+    init {
+        expectedExtensionAttributes.addAll(listOf(NsCx.onlyStandard))
+    }
+
+    override fun extensionAttributes(attributes: Map<QName, String>, staticOptions: Map<QName, XdmValue>) {
+        super.extensionAttributes(attributes, staticOptions)
+        onlyStandardProperties = extensionAttributeBooleanValue(attributes, NsCx.onlyStandard, staticOptions)
     }
 
     override fun run() {

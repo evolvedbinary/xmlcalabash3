@@ -10,8 +10,9 @@ import net.sf.saxon.s9api.XdmValue
 import org.nineml.coffeefilter.InvisibleXml
 import org.nineml.coffeefilter.exceptions.IxmlException
 import org.nineml.coffeegrinder.exceptions.TreeWalkerException
+import java.net.URI
 
-open class InvisibleXmlImpl(val stepConfig: XProcStepConfiguration, val prefer: String) {
+open class InvisibleXmlImpl(val stepConfig: XProcStepConfiguration, val prefer: String, val stepName: String, val cacheGrammar: Boolean) {
     companion object {
         private val nineml = mutableListOf<InvisibleXmlImpl?>()
         private val blitz = mutableListOf<InvisibleXmlImpl?>()
@@ -20,11 +21,12 @@ open class InvisibleXmlImpl(val stepConfig: XProcStepConfiguration, val prefer: 
     }
 
     private var usingImpl = ""
-    open fun parse(grammar: XdmNode, input: String, failOnError: Boolean, parameters: Map<QName, XdmValue>): XProcDocument {
+
+    open fun parse(grammarUri: URI?, grammar: XdmNode, input: String, failOnError: Boolean, parameters: Map<QName, XdmValue>): XProcDocument {
         val impl: InvisibleXmlImpl = loadImpl()
 
         try {
-            return impl.parse(grammar, input, failOnError, parameters)
+            return impl.parse(grammarUri, grammar, input, failOnError, parameters)
         } catch (ex: Exception) {
             when (ex) {
                 is XProcException -> throw ex
@@ -34,11 +36,11 @@ open class InvisibleXmlImpl(val stepConfig: XProcStepConfiguration, val prefer: 
         }
     }
 
-    open fun parse(grammar: String?, input: String, failOnError: Boolean, parameters: Map<QName, XdmValue>): XProcDocument {
+    open fun parse(grammarUri: URI?, grammar: String?, input: String, failOnError: Boolean, parameters: Map<QName, XdmValue>): XProcDocument {
         val impl: InvisibleXmlImpl = loadImpl()
 
         try {
-            return impl.parse(grammar, input, failOnError, parameters)
+            return impl.parse(grammarUri, grammar, input, failOnError, parameters)
         } catch (ex: Exception) {
             when (ex) {
                 is XProcException -> throw ex
@@ -153,7 +155,7 @@ open class InvisibleXmlImpl(val stepConfig: XProcStepConfiguration, val prefer: 
 
     private fun loadNineML(): InvisibleXmlImpl? {
         if (nineml.isEmpty()) {
-            val impl = InvisibleXmlNineML(stepConfig)
+            val impl = InvisibleXmlNineML(stepConfig, stepName, cacheGrammar)
             nineml.add(impl)
         }
         return nineml.first()
@@ -161,7 +163,7 @@ open class InvisibleXmlImpl(val stepConfig: XProcStepConfiguration, val prefer: 
 
     private fun loadMarkupBlitz(): InvisibleXmlImpl? {
         if (blitz.isEmpty()) {
-            val impl = InvisibleXmlMarkupBlitz(stepConfig)
+            val impl = InvisibleXmlMarkupBlitz(stepConfig, stepName, cacheGrammar)
             blitz.add(impl)
         }
         return blitz.first()

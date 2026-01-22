@@ -41,5 +41,22 @@ variables for the expression.</para>
 
 <para>The <option>version</option> must be “3.1”, if it is specified.</para>
 
+<refsection>
+<title>Extension attributes</title>
+
+<variablelist>
+<varlistentry><term><tag class="attribute">cx:cache-expression</tag></term>
+<listitem>
+<para>If the <tag class="attribute">cx:cache-expression</tag> attribute is
+<literal>true</literal>, and the XPath expression has a base URI, then that
+expression will be cached. The first time a cached expression is encountered, it
+is compiled and saved. Subsequent uses of that cached expression will reuse the
+previously compiled version.</para>
+<para>See <link xlink:href="/userguide/current/caching-compiled.html">Caching compiled resources</link>
+for more details.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+</refsection>
 </refsection>
 </refentry>

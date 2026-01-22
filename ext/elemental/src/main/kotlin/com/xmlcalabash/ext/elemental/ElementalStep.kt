@@ -1,10 +1,8 @@
 package com.xmlcalabash.ext.elemental
 
 import com.xmlcalabash.namespace.Ns
-import com.xmlcalabash.namespace.Ns.properties
 import com.xmlcalabash.namespace.NsCx
 import com.xmlcalabash.steps.AbstractAtomicStep
-import net.sf.saxon.om.NamespaceUri
 import net.sf.saxon.s9api.QName
 import net.sf.saxon.s9api.XdmValue
 import java.net.URI
@@ -18,6 +16,16 @@ class ElementalStep(): AbstractAtomicStep() {
     }
 
     lateinit var xqueryImpl: XQueryElementalProcessor
+    var cachedQuery = false
+
+    init {
+        expectedExtensionAttributes.addAll(listOf(NsCx.cacheQuery))
+    }
+
+    override fun extensionAttributes(attributes: Map<QName, String>, staticOptions: Map<QName, XdmValue>) {
+        super.extensionAttributes(attributes, staticOptions)
+        cachedQuery = extensionAttributeBooleanValue(attributes, NsCx.cacheQuery, staticOptions)
+    }
 
     override fun run() {
         super.run()
@@ -31,7 +39,7 @@ class ElementalStep(): AbstractAtomicStep() {
 
         xqueryImpl = XQueryElementalProcessor()
 
-        xqueryImpl.setup(stepConfig, receiver, stepParams, config)
+        xqueryImpl.setup(stepConfig, receiver, stepParams, cachedQuery, config)
 
         val qparams = qnameMapBinding(_queryParameters)
         val qproperties = qnameMapBinding(_queryProperties)

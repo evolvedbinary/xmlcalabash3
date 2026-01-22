@@ -7,6 +7,7 @@ import com.xmlcalabash.namespace.Ns
 import com.xmlcalabash.namespace.NsCx
 import com.xmlcalabash.namespace.NsP
 import com.xmlcalabash.runtime.LazyValue
+import com.xmlcalabash.runtime.RuntimeEnvironment
 import com.xmlcalabash.runtime.XProcStepConfiguration
 import com.xmlcalabash.runtime.api.Receiver
 import com.xmlcalabash.runtime.model.AtomicBuiltinStepModel
@@ -54,7 +55,6 @@ open class AtomicStep(config: XProcStepConfiguration, atomic: AtomicBuiltinStepM
         }
 
         implementation.setup(stepConfig, this, params)
-        implementation.extensionAttributes(atomic.extensionAttributes)
     }
 
     override val readyToRun: Boolean

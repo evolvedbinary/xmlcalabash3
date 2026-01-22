@@ -10,6 +10,7 @@ import com.xmlcalabash.exceptions.ErrorExplanation
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.io.DocumentManager
 import com.xmlcalabash.io.MessagePrinter
+import com.xmlcalabash.resourcecache.CompiledResourceCache
 import com.xmlcalabash.runtime.parameters.StepParameters
 import com.xmlcalabash.spi.AtomicStepManager
 import com.xmlcalabash.spi.AtomicStepServiceProvider
@@ -109,6 +110,7 @@ open class CompileEnvironment(override val episode: String,
     override val errorExplanation: ErrorExplanation = xmlCalabash.config.errorExplanation
     override val proxies: Map<String, String> = xmlCalabash.config.proxies.toMap()
     override val assertions: AssertionsLevel = xmlCalabash.config.assertions
+    override val compiledResourceCache = CompiledResourceCache(this)
 
     private val stepManagers = mutableListOf<AtomicStepManager>()
     private val knownAtomicSteps = mutableSetOf<QName>()

@@ -1,9 +1,12 @@
 package com.xmlcalabash.ext.basex
 
 import com.xmlcalabash.namespace.Ns
+import com.xmlcalabash.namespace.NsCx
 import com.xmlcalabash.steps.AbstractAtomicStep
 import net.sf.saxon.s9api.QName
+import net.sf.saxon.s9api.XdmValue
 import java.net.URI
+import kotlin.math.exp
 
 class BaseXStep(): AbstractAtomicStep() {
     companion object {
@@ -11,6 +14,16 @@ class BaseXStep(): AbstractAtomicStep() {
     }
 
     lateinit var xqueryImpl: XQueryBaseXProcessor
+    var cachedQuery = false
+
+    init {
+        expectedExtensionAttributes.addAll(listOf(NsCx.cacheQuery))
+    }
+
+    override fun extensionAttributes(attributes: Map<QName, String>, staticOptions: Map<QName, XdmValue>) {
+        super.extensionAttributes(attributes, staticOptions)
+        cachedQuery = extensionAttributeBooleanValue(attributes, NsCx.cacheQuery, staticOptions)
+    }
 
     override fun run() {
         super.run()
@@ -25,7 +38,7 @@ class BaseXStep(): AbstractAtomicStep() {
 
         xqueryImpl = XQueryBaseXProcessor()
 
-        xqueryImpl.setup(stepConfig, receiver, stepParams, config)
+        xqueryImpl.setup(stepConfig, receiver, stepParams, cachedQuery, config)
 
         val parameters = qnameMapBinding(Ns.parameters)
         val version = stringBinding(Ns.version) ?: "3.1"

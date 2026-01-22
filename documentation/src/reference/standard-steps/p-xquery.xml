@@ -1,10 +1,14 @@
-<?xml version="1.0" encoding="utf-8"?><refentry xmlns="http://docbook.org/ns/docbook" xmlns:p="http://www.w3.org/ns/xproc" xml:id="p-xquery">
+<?xml version="1.0" encoding="utf-8"?>
+<refentry xmlns="http://docbook.org/ns/docbook"
+          xmlns:p="http://www.w3.org/ns/xproc"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          xml:id="p-xquery">
 <?db filename="p-xquery"?>
-   <refnamediv>
-      <refname>p:xquery</refname>
-      <refpurpose>The standard p:xquery step</refpurpose>
-   </refnamediv>
-   <refsynopsisdiv>
+<refnamediv>
+  <refname>p:xquery</refname>
+  <refpurpose>The standard p:xquery step</refpurpose>
+</refnamediv>
+<refsynopsisdiv>
 
 <refsection role="introduction">
 <title>Introduction</title>
@@ -57,5 +61,35 @@ is <glossterm>implementation-dependent</glossterm>.</impl>
 <refsection>
   <title>Description</title>
   <para role="external-refs"/>
+
+<refsection>
+<title>Extension attributes</title>
+
+<variablelist>
+<varlistentry><term><tag class="attribute">cx:cache-query</tag></term>
+<listitem>
+<para>If the <tag class="attribute">cx:cache-query</tag> attribute is
+<literal>true</literal>, and the query expression has a base URI, then that
+query will be cached. The first time a cached expression is encountered, it
+is compiled and saved. Subsequent uses of that cached query will reuse the
+previously compiled version.</para>
+<para>See <link xlink:href="/userguide/current/caching-compiled.html">Caching compiled resources</link>
+for more details.</para>
+</listitem>
+</varlistentry>
+<varlistentry><term><tag class="attribute">cx:processor</tag></term>
+<listitem>
+<para>Specifies the processor to use.</para>
+</listitem>
+</varlistentry>
+<varlistentry><term><tag class="attribute">cx:fallback</tag></term>
+<listitem>
+<para>Specifies the fallback processor, the processor to use if the requested processor
+is unavailable.
+</para>
+</listitem>
+</varlistentry>
+</variablelist>
+</refsection>
 </refsection>
 </refentry>

@@ -55,11 +55,14 @@ class XQueryBaseXProcessor(): XQueryProcessor {
     var username: String? = null
     var password: String? = null
 
-    override fun setup(stepConfig: XProcStepConfiguration, receiver: Receiver, stepParams: RuntimeStepParameters, config: Map<QName, String>) {
+    override fun setup(stepConfig: XProcStepConfiguration, receiver: Receiver, stepParams: RuntimeStepParameters, cacheQuery: Boolean, config: Map<QName, String>) {
         this.stepConfig = stepConfig
         this.receiver = receiver
         this.stepParams = stepParams
         this.config.putAll(config)
+        if (cacheQuery) {
+            stepConfig.debug { "Queries cannot be cached with the BaseX XQuery processor." }
+        }
     }
 
     override fun run(sources: List<XProcDocument>, query: XProcDocument, parameters: Map<QName, XdmValue>, version: String) {
