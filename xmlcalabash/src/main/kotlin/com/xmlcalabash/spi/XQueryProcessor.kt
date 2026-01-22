@@ -8,7 +8,7 @@ import net.sf.saxon.s9api.QName
 import net.sf.saxon.s9api.XdmValue
 
 interface XQueryProcessor {
-    fun setup(stepConfig: XProcStepConfiguration, receiver: Receiver, stepParams: RuntimeStepParameters, config: Map<QName, String>)
+    fun setup(stepConfig: XProcStepConfiguration, receiver: Receiver, stepParams: RuntimeStepParameters, cacheQuery: Boolean, config: Map<QName, String>)
     fun run(sources: List<XProcDocument>, query: XProcDocument, parameters: Map<QName, XdmValue>, version: String)
     fun reset()
     fun teardown()

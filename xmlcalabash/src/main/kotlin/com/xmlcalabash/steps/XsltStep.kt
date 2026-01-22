@@ -7,6 +7,8 @@ import com.xmlcalabash.io.MediaType
 import com.xmlcalabash.namespace.Ns
 import com.xmlcalabash.namespace.NsCx
 import com.xmlcalabash.namespace.NsFn
+import com.xmlcalabash.resourcecache.CompiledResourceType
+import com.xmlcalabash.resourcecache.CompiledXsltResource
 import com.xmlcalabash.runtime.XProcStepConfiguration
 import com.xmlcalabash.runtime.parameters.RuntimeStepParameters
 import com.xmlcalabash.util.*
@@ -50,27 +52,27 @@ open class XsltStep(): AbstractAtomicStep() {
     var terminationError: XProcError? = null
     var forceEmptyGlobalContextItem = false
 
+    private lateinit var stepName: String
+    private var cachedStylesheet = false
+
     private var primaryDestination: Destination? = null
     private var primaryOutputProperties = mutableMapOf<QName, XdmValue>()
     private var characterMaps: CharacterMapIndex? = null
 
+    init {
+        expectedExtensionAttributes.addAll(listOf(NsCx.cacheStylesheet, NsCx.emptyGlobalContext))
+    }
+
     override fun setup(stepConfig: XProcStepConfiguration, receiver: com.xmlcalabash.runtime.api.Receiver, stepParams: RuntimeStepParameters) {
         super.setup(stepConfig, receiver, stepParams)
-        // FIXME: I expect this could be more centrally handled...
+        stepName = stepParams.stepName
         errorReporter = SaxonErrorReporter(stepConfig)
         stepConfig.saxonConfig.configuration.setErrorReporterFactory { config -> errorReporter }
     }
 
-    override fun extensionAttributes(attributes: Map<QName, String>) {
-        super.extensionAttributes(attributes)
-        val value = attributes[NsCx.emptyGlobalContext]
-        if (value != null) {
-            if (value == "true" || value == "false") {
-                forceEmptyGlobalContextItem = value == "true"
-            } else {
-                stepConfig.debug { "Ignoring unexpected value for cx:empty-global-context: ${value}"}
-            }
-        }
+    override fun extensionAttributes(attributes: Map<QName, String>, staticOptions: Map<QName, XdmValue>) {
+        cachedStylesheet = extensionAttributeBooleanValue(attributes, NsCx.cacheStylesheet, staticOptions)
+        forceEmptyGlobalContextItem = extensionAttributeBooleanValue(attributes, NsCx.emptyGlobalContext, staticOptions)
     }
 
     override fun run() {
@@ -178,17 +180,8 @@ open class XsltStep(): AbstractAtomicStep() {
             manager.schemaURIResolver = XsdResolver(stepConfig)
         }
 
-        val compiler = processor.newXsltCompiler()
-        compiler.isSchemaAware = processor.isSchemaAware
-        compiler.errorReporter = errorReporter
-        compiler.resourceResolver = stepConfig.environment.documentManager
-
-        for ((name, value) in staticParameters) {
-            compiler.setParameter(name, value)
-        }
-
         val exec = try {
-            compiler.compile((stylesheet.value as XdmNode).asSource())
+            getCompiledStylesheet()
         } catch (sae: Exception) {
             // Compile time exceptions are caught
             if (goesBang != null) {
@@ -233,7 +226,10 @@ open class XsltStep(): AbstractAtomicStep() {
             throw stepConfig.exception(XProcError.xcXsltCompileError(message, sae, errorReporter.errorMessages))
         }
 
-        val transformer = exec.load30()
+        lateinit var transformer: Xslt30Transformer
+        synchronized(exec) {
+            transformer = exec.load30()
+        }
 
         transformer.setSchemaValidationMode(ValidationMode.DEFAULT)
         transformer.getUnderlyingController().setUnparsedTextURIResolver(unparsedTextURIResolver)
@@ -455,6 +451,34 @@ open class XsltStep(): AbstractAtomicStep() {
                 }
             }
         }
+    }
+
+    private fun getCompiledStylesheet(): XsltExecutable {
+        if (cachedStylesheet && stylesheet.baseURI != null) {
+            if (stepConfig.compiledResourceCache.contains(stepName, stylesheet.baseURI!!)) {
+                val rsrc = stepConfig.compiledResourceCache.get(stepName, stylesheet.baseURI!!)!!
+                if (rsrc.type == CompiledResourceType.XSLT) {
+                    return (rsrc as CompiledXsltResource).exec
+                }
+            }
+        }
+
+        val processor = stepConfig.processor
+        val compiler = processor.newXsltCompiler()
+        compiler.isSchemaAware = processor.isSchemaAware
+        compiler.errorReporter = errorReporter
+        compiler.resourceResolver = stepConfig.environment.documentManager
+
+        for ((name, value) in staticParameters) {
+            compiler.setParameter(name, value)
+        }
+
+        val exec = compiler.compile((stylesheet.value as XdmNode).asSource())
+        if (cachedStylesheet && stylesheet.baseURI != null) {
+           stepConfig.compiledResourceCache.put(stepName, stylesheet.baseURI!!, CompiledXsltResource(exec))
+        }
+
+        return exec
     }
 
     private fun resolveCharacterMapNames(mapNames: String): XdmMap {

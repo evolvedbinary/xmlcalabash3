@@ -44,6 +44,7 @@ portable.</para>
 <xi:include href="assertions.xml"/>
 <xi:include href="xmlnt.xml"/>
 <xi:include href="pception.xml"/>
+<xi:include href="caching.xml"/>
 </part>
 <part xml:id="part-appendixes">
 <title>Appendixes</title>

@@ -3,10 +3,13 @@ package com.xmlcalabash.steps
 import com.xmlcalabash.datamodel.Location
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
+import com.xmlcalabash.exceptions.XProcException
 import com.xmlcalabash.io.DocumentWriter
 import com.xmlcalabash.io.MediaType
 import com.xmlcalabash.namespace.Ns
 import com.xmlcalabash.namespace.NsC
+import com.xmlcalabash.resourcecache.CompiledResourceType
+import com.xmlcalabash.resourcecache.CompiledXQueryResource
 import com.xmlcalabash.runtime.XProcStepConfiguration
 import com.xmlcalabash.runtime.parameters.RuntimeStepParameters
 import com.xmlcalabash.spi.XQueryProcessor
@@ -33,14 +36,16 @@ open class XQuerySaxonProcessor(): XQueryProcessor {
     val parameters = mutableMapOf<QName,XdmValue>()
 
     var goesBang: XProcError? = null
+    var cachedQuery = false
 
     private var primaryDestination: Destination? = null
     private var outputProperties = mutableMapOf<QName, XdmValue>()
 
-    override fun setup(stepConfig: XProcStepConfiguration, receiver: com.xmlcalabash.runtime.api.Receiver, stepParams: RuntimeStepParameters, config: Map<QName, String>) {
+    override fun setup(stepConfig: XProcStepConfiguration, receiver: com.xmlcalabash.runtime.api.Receiver, stepParams: RuntimeStepParameters, cacheQuery: Boolean, config: Map<QName, String>) {
         this.stepConfig = stepConfig
         this.receiver = receiver
         this.stepParams = stepParams
+        cachedQuery = cacheQuery
 
         errorReporter = SaxonErrorReporter(stepConfig)
         stepConfig.saxonConfig.configuration.setErrorReporterFactory { config -> errorReporter }
@@ -113,31 +118,10 @@ open class XQuerySaxonProcessor(): XQueryProcessor {
             manager.schemaURIResolver = XsdResolver(stepConfig)
         }
 
-        val compiler = processor.newXQueryCompiler()
-        compiler.isSchemaAware = processor.isSchemaAware
-        compiler.errorReporter = errorReporter
-        compiler.moduleURIResolver = stepConfig.environment.documentManager
-
         val exec = try {
-            compiler.baseURI = query.baseURI
-            var xquery = query.value.underlyingValue.stringValue
-            if (query.contentClassification == MediaClassification.XML) {
-                val root = try {
-                    S9Api.documentElement(query.value as XdmNode)
-                } catch (ex: IllegalArgumentException) {
-                    throw stepConfig.exception(XProcError.xdStepFailed("XQuery query input is ${query.contentType}, but ${ex.message}"), ex)
-                }
-                if (root.nodeName != NsC.query) {
-                    val baos = ByteArrayOutputStream()
-                    val writer = DocumentWriter(query, baos)
-                    writer[Ns.encoding] = "UTF-8"
-                    writer[Ns.omitXmlDeclaration] = true
-                    writer.write()
-                    xquery = baos.toString(StandardCharsets.UTF_8)
-                }
-            }
-
-            compiler.compile(xquery)
+            getCompiledQuery()
+        } catch (ex: XProcException) {
+            throw ex
         } catch (ex: Exception) {
             underlyingConfig.collectionFinder = collectionFinder
             if (goesBang != null) {
@@ -145,7 +129,11 @@ open class XQuerySaxonProcessor(): XQueryProcessor {
             }
             throw stepConfig.exception(XProcError.xcXQueryCompileError(ex.message ?: "null", ex))
         }
-        val queryEval = exec.load()
+
+        lateinit var queryEval: XQueryEvaluator
+        synchronized(exec) {
+            queryEval = exec.load()
+        }
         queryEval.errorReporter = errorReporter
         queryEval.setUnparsedTextResolver(unparsedTextURIResolver)
 
@@ -178,6 +166,49 @@ open class XQuerySaxonProcessor(): XQueryProcessor {
         } finally {
             underlyingConfig.collectionFinder = collectionFinder
         }
+    }
+
+    private fun getCompiledQuery(): XQueryExecutable {
+        if (cachedQuery) {
+            if (query.baseURI != null && stepConfig.compiledResourceCache.contains(stepParams.stepName, query.baseURI!!)) {
+                val rsrc = stepConfig.compiledResourceCache.get(stepParams.stepName, query.baseURI!!)!!
+                if (rsrc.type == CompiledResourceType.XQUERY) {
+                    return (rsrc as CompiledXQueryResource).exec
+                }
+            }
+        }
+
+        val processor = stepConfig.processor
+        val compiler = processor.newXQueryCompiler()
+        compiler.isSchemaAware = processor.isSchemaAware
+        compiler.errorReporter = errorReporter
+        compiler.moduleURIResolver = stepConfig.environment.documentManager
+        compiler.baseURI = query.baseURI
+
+        var xquery = query.value.underlyingValue.stringValue
+        if (query.contentClassification == MediaClassification.XML) {
+            val root = try {
+                S9Api.documentElement(query.value as XdmNode)
+            } catch (ex: IllegalArgumentException) {
+                throw stepConfig.exception(XProcError.xdStepFailed("XQuery query input is ${query.contentType}, but ${ex.message}"), ex)
+            }
+            if (root.nodeName != NsC.query) {
+                val baos = ByteArrayOutputStream()
+                val writer = DocumentWriter(query, baos)
+                writer[Ns.encoding] = "UTF-8"
+                writer[Ns.omitXmlDeclaration] = true
+                writer.write()
+                xquery = baos.toString(StandardCharsets.UTF_8)
+            }
+        }
+
+        val exec = compiler.compile(xquery)
+
+        if (cachedQuery && query.baseURI != null) {
+            stepConfig.compiledResourceCache.put(stepParams.stepName, query.baseURI!!, CompiledXQueryResource(exec))
+        }
+
+        return exec
     }
 
     inner class MyDestination(var map: MutableMap<QName,XdmValue>): RawDestination() {

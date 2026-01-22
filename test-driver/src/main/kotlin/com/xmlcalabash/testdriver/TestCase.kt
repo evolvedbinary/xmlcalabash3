@@ -165,6 +165,8 @@ class TestCase(val builder: XmlCalabashBuilder, val xmlCalabash: XmlCalabash, va
                 }
             }
 
+            messageReporter.clear()
+
             val treeBuilder = SaxonTreeBuilder(testConfig)
             treeBuilder.startDocument(pipelineXml!!.baseURI)
             treeBuilder.addSubtree(pipelineXml!!)
@@ -214,11 +216,9 @@ class TestCase(val builder: XmlCalabashBuilder, val xmlCalabash: XmlCalabash, va
             val outputReceiver = BufferingReceiver()
             pipeline.receiver = outputReceiver
 
-            if (    testOptions.report != null) {
+            if (testOptions.report != null) {
                 startIO()
             }
-
-            messageReporter.clear()
 
             val start = System.nanoTime()
             try {

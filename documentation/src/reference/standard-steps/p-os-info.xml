@@ -30,5 +30,90 @@
 <refsection>
   <title>Description</title>
   <para role="external-refs"/>
+
+<refsection>
+<title>Extension attributes</title>
+
+<variablelist>
+<varlistentry><term><tag class="attribute">cx:only-standard</tag></term>
+<listitem>
+<para>If the <tag class="attribute">cx:only-standard</tag> attribute is <literal>true</literal>, then
+only standard properties are returned. If it is not present, or has the value <literal>false</literal>,
+then all of the Java System properties are returned. Non-standard properties are returned
+in the <code>cx:</code> namespace.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+
+<para>If <tag class="attribute">cx:only-standard</tag> is <literal>true</literal>, the result
+of <tag>p:os-info</tag> will be something like this:</para>
+
+<programlisting language="xml"><![CDATA[<c:result xmlns:c="http://www.w3.org/ns/xproc-step"
+          os-name="Mac OS X"
+          user-home="/Users/someone"
+          file-separator="/"
+          user-name="someone"
+          path-separator=":"
+          os-version="15.7.3"
+          cwd="/Volumes/Projects/xproc/xmlcalabash3/app"
+          os-architecture="aarch64">
+   <c:environment name="EDITOR"
+                  value="/opt/homebrew/Cellar/emacs-plus@31/31.0.50/bin/emacsclient"/>
+   <c:environment name="EMACSCLIENT"
+                  value="/opt/homebrew/Cellar/emacs-plus@31/31.0.50/bin/emacsclient"/>
+   <c:environment name="HOME" value="/Users/someone"/>
+   <c:environment name="LANG" value="en_US.UTF-8"/>
+   <c:environment name="TEXLIVE" value="/usr/local/texlive/2021"/>
+   <c:environment name="HOMEBREW_CELLAR" value="/opt/homebrew/Cellar"/>
+   <c:environment name="EMACS"
+                  value="/opt/homebrew/Cellar/emacs-plus@31/31.0.50/Emacs.app/Contents/MacOS/Emacs"/>
+   <!-- ... etc ... -->
+</c:result>]]></programlisting>
+
+<para>Without it, it will be something like this:</para>
+
+<programlisting language="xml"><![CDATA[<c:result xmlns:c="http://www.w3.org/ns/xproc-step"
+          xmlns:cx="http://xmlcalabash.com/ns/extensions"
+          cwd="/Volumes/Projects/xproc/xmlcalabash3/app"
+          file-separator="/"
+          os-architecture="aarch64"
+          os-name="Mac OS X"
+          os-version="15.7.3"
+          path-separator=":"
+          user-home="/Users/someone"
+          user-name="someone"
+          cx:apple-awt-application-name="Main"
+          cx:file-encoding="UTF-8"
+          cx:file-separator="/"
+          cx:java-class-path="/Volumes/Projects/…"
+          cx:java-home="/Library/Java/JavaVirtualMachines/jdk-21.0.2.jdk/Contents/Home"
+          cx:java-version-date="2024-01-16"
+          cx:java-version="21.0.2"
+          cx:java-vm-compressedOopsMode="Zero based"
+          cx:stderr-encoding="UTF-8"
+          cx:stdout-encoding="UTF-8"
+          cx:user-home="/Users/someone"
+          cx:user-language="en"
+          cx:user-name="someone"
+          cx:user-timezone="Europe/London"
+          cx:user-variant=""
+          cx:java-class-version="65.0">
+   <!-- lots of additional attributes elided -->
+   <c:environment name="EDITOR"
+                  value="/opt/homebrew/Cellar/emacs-plus@31/31.0.50/bin/emacsclient"/>
+   <c:environment name="EMACSCLIENT"
+                  value="/opt/homebrew/Cellar/emacs-plus@31/31.0.50/bin/emacsclient"/>
+   <c:environment name="HOME" value="/Users/someone"/>
+   <c:environment name="LANG" value="en_US.UTF-8"/>
+   <c:environment name="TEXLIVE" value="/usr/local/texlive/2021"/>
+   <c:environment name="HOMEBREW_CELLAR" value="/opt/homebrew/Cellar"/>
+   <c:environment name="EMACS"
+                  value="/opt/homebrew/Cellar/emacs-plus@31/31.0.50/Emacs.app/Contents/MacOS/Emacs"/>
+   <!-- ... etc ... -->
+</c:result>]]></programlisting>
+
+<para>For consistency, periods in system property names are replaced by hyphens.</para>
+
+</refsection>
 </refsection>
 </refentry>

@@ -10,6 +10,7 @@ import com.xmlcalabash.spi.PagedMediaManager
 import com.xmlcalabash.util.UriUtils
 import com.xmlcalabash.util.spi.StandardPagedMediaProvider
 import net.sf.saxon.s9api.QName
+import net.sf.saxon.s9api.XdmValue
 import java.io.ByteArrayOutputStream
 import java.net.URI
 
@@ -22,7 +23,8 @@ open class CssFormatterStep(): AbstractAtomicStep() {
     private val stylesheets = mutableListOf<XProcDocument>()
     private val extensionAttributes = mutableMapOf<QName, String>()
 
-    override fun extensionAttributes(attributes: Map<QName, String>) {
+    override fun extensionAttributes(attributes: Map<QName, String>, staticOptions: Map<QName, XdmValue>) {
+        super.extensionAttributes(attributes, staticOptions)
         extensionAttributes.clear()
         extensionAttributes.putAll(attributes)
     }

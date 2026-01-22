@@ -1,0 +1,92 @@
+<chapter xmlns="http://docbook.org/ns/docbook"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         xmlns:xi='http://www.w3.org/2001/XInclude'
+         version="5.2" xml:id="caching-compiled">
+<info>
+  <?db filename="caching-compiled"?>
+  <title>Caching compiled resources</title>
+</info>
+
+<para>Some steps have inputs that are compiled before use. An XSLT stylesheet,
+for example, is compiled before it is used to transform an input document.
+Similarly, Invisible XML grammars are compiled and queries passed to the XPath
+or XQuery steps are compiled.</para>
+
+<para>If you are processing many documents with the same stylesheet (grammar, or
+query), you may see a performance benefit in compiling the resource once and
+then subsequently reusing the compiled form.</para>
+
+<para>This can be accomplished by setting an extension attribute to “true” on
+the step:</para>
+
+<informaltable>
+<tgroup cols="2">
+<thead>
+<row>
+  <entry>Step</entry>
+  <entry>Extension attribute</entry>
+</row>
+</thead>
+<tbody>
+<row>
+  <entry><tag>p:invisible-xml</tag></entry>
+  <entry><tag class="attribute">cx:cache-grammar</tag></entry>
+</row>
+<row>
+  <entry><tag>p:xslt</tag></entry>
+  <entry><tag class="attribute">cx:cache-stylesheet</tag></entry>
+</row>
+<row>
+  <entry><tag>p:xquery</tag></entry>
+  <entry><tag class="attribute">cx:cache-query</tag></entry>
+</row>
+<row>
+  <entry><tag>cx:xpath</tag></entry>
+  <entry><tag class="attribute">cx:cache-expression</tag></entry>
+</row>
+<row>
+  <entry><tag>cx:markup-blitz</tag></entry>
+  <entry><tag class="attribute">cx:cache-grammar</tag></entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+
+<para>These attributes can be attribute value templates, but they can only
+reference static options.</para>
+
+<para>In order to be cached, the input must have a URI. The URI is the primary
+key for the cache lookup; however, a cached resource carries with it more than
+just the input source. For example, a compiled stylesheet includes any static
+parameters passed to the compiler, and an Invisible XML grammar includes any
+parsing options provided.</para>
+
+<para>Consequently, you can’t change any of those aspects. For example, on any
+<tag>p:xslt</tag> step that’s reusing a cached grammar, any static parameters
+passed to the step are ignored.</para>
+
+<section xml:id="cache-scope">
+<title>Scope</title>
+
+<para>In principle, the cache could keep track of all the context that is part
+of the compilation, but in practice that would be difficult. Instead, the cache
+is effectively scoped to each individual step. That is, no two distinct instances
+of a step share the same cache.</para>
+
+<para>That means a step in a loop, or a step in a subpipeline that’s called
+several times, can benefit from the cache, but two distinct steps of the same
+type, cannot.</para>
+
+</section>
+
+<section xml:id="cache-management">
+<title>Cache management</title>
+
+<para>There are no mechanisms to clear or invalidate the cache. The cache can be
+avoided by calling a step that doesn’t specify the extension attribute. The same
+source can be cached with a different static parameters or options by changing
+its base URI.
+</para>
+</section>
+
+</chapter>

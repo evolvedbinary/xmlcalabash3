@@ -4,22 +4,28 @@ import com.xmlcalabash.config.ConfigurationLoader
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.namespace.Ns
 import com.xmlcalabash.namespace.NsCx
-import com.xmlcalabash.runtime.XProcStepConfiguration
-import com.xmlcalabash.runtime.parameters.RuntimeStepParameters
 import com.xmlcalabash.spi.XQueryProcessor
 import com.xmlcalabash.spi.XQueryProcessorProvider
 import com.xmlcalabash.spi.XQueryProcessorServiceProvider
 import net.sf.saxon.s9api.QName
+import net.sf.saxon.s9api.XdmValue
 import java.net.URI
 
 open class XQueryStep(): AbstractAtomicStep() {
     lateinit var xqueryImpl: XQueryProcessor
     var requestedProcessor: URI? = null
     var fallbackProcessor: URI? = null
+    var cachedQuery = false
 
-    override fun extensionAttributes(attributes: Map<QName, String>) {
+    init {
+        expectedExtensionAttributes.addAll(listOf(NsCx.processor, NsCx.fallback, NsCx.cacheQuery))
+    }
+
+    override fun extensionAttributes(attributes: Map<QName, String>, staticOptions: Map<QName, XdmValue>) {
+        super.extensionAttributes(attributes, staticOptions)
         attributes[NsCx.processor]?.let { requestedProcessor = URI(it) }
         attributes[NsCx.fallback]?.let { fallbackProcessor = URI(it) }
+        cachedQuery = extensionAttributeBooleanValue(attributes, NsCx.cacheQuery, staticOptions)
     }
 
     override fun run() {
@@ -38,7 +44,7 @@ open class XQueryStep(): AbstractAtomicStep() {
             xqueryImpl = proc.getImplementation()
 
             val pconfig = stepConfig.xmlCalabashConfig.configuredXQueryProcessors[proc.implementationUri] ?: emptyMap()
-            xqueryImpl.setup(stepConfig, receiver, stepParams, pconfig)
+            xqueryImpl.setup(stepConfig, receiver, stepParams, cachedQuery, pconfig)
         } else {
             var processor = stepConfig.xmlCalabashConfig.defaultXQueryProcessor
             var found = false
@@ -48,7 +54,7 @@ open class XQueryStep(): AbstractAtomicStep() {
                 if (proc != null) {
                     xqueryImpl = proc.getImplementation()
                     val pconfig = stepConfig.xmlCalabashConfig.configuredXQueryProcessors[proc.implementationUri] ?: emptyMap()
-                    xqueryImpl.setup(stepConfig, receiver, stepParams, pconfig)
+                    xqueryImpl.setup(stepConfig, receiver, stepParams, cachedQuery, pconfig)
                     found = true
                 } else {
                     attempted.add(processor)

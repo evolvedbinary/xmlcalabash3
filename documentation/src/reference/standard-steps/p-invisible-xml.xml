@@ -68,7 +68,28 @@ extension attribute <tag class="attribute">cx:processor</tag> to
 
 <para>If the Markup Blitz extension step is available, you can also run
 <tag>cx:markup-blitz</tag> instead of <tag>p:invisible-xml</tag>.</para>
+</refsection>
 
+<refsection>
+<title>Extension attributes</title>
+
+<variablelist>
+<varlistentry><term><tag class="attribute">cx:processor</tag></term>
+<listitem>
+<para>To configure the NineML or Markup Blitz processor.</para>
+</listitem>
+</varlistentry>
+<varlistentry><term><tag class="attribute">cx:cache-grammar</tag></term>
+<listitem>
+<para>If the <tag class="attribute">cx:cache-grammar</tag> attribute is <literal>true</literal>,
+and the grammar has a base URI, then that grammar will be cached. The first time a cached grammar
+is encountered, it is compiled and saved. Subsequent uses of that cached grammar will 
+reuse the previously compiled version.</para>
+<para>See <link xlink:href="/userguide/current/caching-compiled.html">Caching compiled resources</link>
+for more details.</para>
+</listitem>
+</varlistentry>
+</variablelist>
 </refsection>
 
 </refsection>

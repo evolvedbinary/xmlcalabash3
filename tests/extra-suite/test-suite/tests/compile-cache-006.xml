@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<t:test expected="pass"
+        xmlns:t="http://xproc.org/ns/testsuite/3.0">
+  <t:info>
+    <t:title>compile-cache-006</t:title>
+    <t:revision-history>
+      <t:revision>
+        <t:date>2026-01-21</t:date>
+        <t:author>
+          <t:name>Norm Tovey-Walsh</t:name>
+        </t:author>
+        <t:description xmlns="http://www.w3.org/1999/xhtml">
+          <p>Created test.</p>
+        </t:description>
+      </t:revision>
+    </t:revision-history>
+  </t:info>
+  <t:description xmlns="http://www.w3.org/1999/xhtml">
+    <p>Tests that the cache is used for iXML grammars with NineML.</p>
+  </t:description>
+  <t:pipeline>
+    <p:declare-step version="3.0"
+                    xmlns:err="http://www.w3.org/ns/xproc-error"
+                    xmlns:cx="http://xmlcalabash.com/ns/extensions"
+                    xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+                    xmlns:s="http://purl.oclc.org/dsdl/schematron"
+                    xmlns:p="http://www.w3.org/ns/xproc">
+      <p:import href="https://xmlcalabash.com/ext/library/pipeline-messages.xpl"/>
+      <p:output port="result"/>
+      <p:option name="cache" static="true" select="'true'"/>
+
+      <p:invisible-xml cx:cache-grammar="{$cache}">
+        <p:with-input port="grammar" href="../documents/grammar.ixml"/>
+        <p:with-input port="source">
+          <p:inline content-type="text/plain">123</p:inline>
+        </p:with-input>
+      </p:invisible-xml>
+
+      <p:invisible-xml name="cached" cx:cache-grammar="{$cache}">
+        <p:with-input port="grammar" href="../documents/grammar.ixml"/>
+        <p:with-input port="source" select="/S/text()"/>
+      </p:invisible-xml>
+
+      <cx:pipeline-messages name="messages" p:depends="cached" level="debug"/>
+
+      <p:wrap-sequence wrapper="wrapper">
+        <p:with-input pipe="@cached @messages"/>
+      </p:wrap-sequence>
+    </p:declare-step>
+  </t:pipeline>
+
+  <t:schematron>
+    <s:schema queryBinding="xslt2"
+              xmlns:s="http://purl.oclc.org/dsdl/schematron">
+      <s:ns prefix="cx" uri="http://xmlcalabash.com/ns/extensions"/>
+      <s:pattern>
+        <s:rule context="/">
+          <s:assert test="wrapper">The document root is not correct.</s:assert>
+          <s:assert test="wrapper/S">No para</s:assert>
+          <s:assert test="wrapper/cx:messages">No messages</s:assert>
+        </s:rule>
+      </s:pattern>
+      <s:pattern>
+        <s:rule context="wrapper/S">
+          <s:assert test=". = '123'">The result is wrong</s:assert>
+        </s:rule>
+      </s:pattern>
+      <s:pattern>
+        <s:rule context="/wrapper/cx:messages">
+          <s:assert test="cx:message[@level='DEBUG'
+                          and @message = 'Using NineML for p:invisible-xml']">
+                    >No caching message.</s:assert>
+          <s:assert test="cx:message[@level='DEBUG'
+                            and matches(@message, 'Caching compiled.*documents/grammar\.ixml')]"
+                    >No caching message.</s:assert>
+          <s:assert test="cx:message[@level='DEBUG'
+                            and matches(@message, 'Using cached.*documents/grammar\.ixml')]"
+                    >No using cached message.</s:assert>
+        </s:rule>
+      </s:pattern>
+    </s:schema>
+  </t:schematron>
+</t:test>

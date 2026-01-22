@@ -5,6 +5,7 @@ import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.io.MediaType
 import com.xmlcalabash.namespace.Ns
+import com.xmlcalabash.namespace.NsCx
 import com.xmlcalabash.namespace.NsXml
 import com.xmlcalabash.namespace.NsXmlns
 import com.xmlcalabash.runtime.LazyValue
@@ -13,7 +14,9 @@ import com.xmlcalabash.runtime.ProcessMatchingNodes
 import com.xmlcalabash.runtime.XProcStepConfiguration
 import com.xmlcalabash.runtime.api.Receiver
 import com.xmlcalabash.runtime.parameters.RuntimeStepParameters
+import com.xmlcalabash.util.AttributeValueTemplate
 import com.xmlcalabash.util.Urify
+import com.xmlcalabash.util.ValueTemplateParser
 import net.sf.saxon.om.NamespaceMap
 import net.sf.saxon.om.NamespaceUri
 import net.sf.saxon.om.NodeInfo
@@ -27,7 +30,6 @@ import java.util.concurrent.ConcurrentMap
 
 abstract class AbstractAtomicStep(): XProcStep {
     companion object {
-        private var _id: Long = 0
         private var vara = QName("a")
         private var varb = QName("b")
     }
@@ -37,7 +39,7 @@ abstract class AbstractAtomicStep(): XProcStep {
     private lateinit var _stepParams: RuntimeStepParameters
     internal val _options = mutableMapOf<QName, LazyValue>()
     internal val _queues: ConcurrentMap<String, List<XProcDocument>> = ConcurrentHashMap()
-    private var _nodeId: Long = -1
+    protected var expectedExtensionAttributes = mutableSetOf<QName>()
 
     val stepParams: RuntimeStepParameters
         get() = _stepParams
@@ -56,11 +58,7 @@ abstract class AbstractAtomicStep(): XProcStep {
         this._stepParams = stepParams
 
         for (port in stepParams.inputs.keys.filter { !it.startsWith("Q{")}) {
-            _queues.put(port, mutableListOf())
-        }
-
-        synchronized(Companion) {
-            _nodeId = ++_id
+            _queues[port] = mutableListOf()
         }
     }
 
@@ -76,8 +74,39 @@ abstract class AbstractAtomicStep(): XProcStep {
         }
     }
 
-    override fun extensionAttributes(attributes: Map<QName, String>) {
-        // nop
+    override fun extensionAttributes(attributes: Map<QName, String>, staticOptions: Map<QName, XdmValue>) {
+        for (name in attributes.keys) {
+            if (name.namespaceUri == NsCx.namespace && !expectedExtensionAttributes.contains(name)) {
+                val stepName = stepParams.stepName
+                val type = stepParams.stepType
+                if (stepName.startsWith("!")) {
+                    stepConfig.info { "Unexpected extension attribute \"${name}\" on ${type} step" }
+                } else {
+                    stepConfig.info { "Unexpected extension attribute \"${name}\" on ${type} step named ${stepName}" }
+                }
+            }
+        }
+    }
+
+    fun extensionAttributeValue(attributes: Map<QName, String>, name: QName, staticOptions: Map<QName, XdmValue>): String? {
+        attributes[name]?.let {
+            val template = ValueTemplateParser.parse(stepConfig, it)
+            val avt = AttributeValueTemplate(template)
+            return avt.evaluate(stepConfig, staticOptions)
+        }
+        return null
+    }
+
+    fun extensionAttributeBooleanValue(attributes: Map<QName, String>, name: QName, staticOptions: Map<QName, XdmValue>): Boolean {
+        val value = extensionAttributeValue(attributes, name, staticOptions)
+        if (value != null) {
+            if (value == "true" || value == "false") {
+                return value == "true"
+            } else {
+                stepConfig.debug { "Ignoring unexpected value for ${name}: ${value}" }
+            }
+        }
+        return false
     }
 
     override fun teardown() {

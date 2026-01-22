@@ -6,10 +6,11 @@ import com.xmlcalabash.runtime.XProcStepConfiguration
 import com.xmlcalabash.runtime.api.Receiver
 import com.xmlcalabash.runtime.parameters.RuntimeStepParameters
 import net.sf.saxon.s9api.QName
+import net.sf.saxon.s9api.XdmValue
 
 interface XProcStep {
     fun setup(stepConfig: XProcStepConfiguration, receiver: Receiver, stepParams: RuntimeStepParameters)
-    fun extensionAttributes(attributes: Map<QName, String>)
+    fun extensionAttributes(attributes: Map<QName, String>, staticOptions: Map<QName, XdmValue>)
 
     fun option(name: QName, binding: LazyValue)
     fun input(port: String, doc: XProcDocument)

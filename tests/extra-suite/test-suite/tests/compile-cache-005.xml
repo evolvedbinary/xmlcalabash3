@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<t:test expected="pass"
+        xmlns:t="http://xproc.org/ns/testsuite/3.0">
+  <t:info>
+    <t:title>compile-cache-005</t:title>
+    <t:revision-history>
+      <t:revision>
+        <t:date>2026-01-21</t:date>
+        <t:author>
+          <t:name>Norm Tovey-Walsh</t:name>
+        </t:author>
+        <t:description xmlns="http://www.w3.org/1999/xhtml">
+          <p>Created test.</p>
+        </t:description>
+      </t:revision>
+    </t:revision-history>
+  </t:info>
+  <t:description xmlns="http://www.w3.org/1999/xhtml">
+    <p>Tests that the cache is used for Saxon XQuery expressions.</p>
+  </t:description>
+  <t:pipeline>
+    <p:declare-step version="3.0"
+                    xmlns:err="http://www.w3.org/ns/xproc-error"
+                    xmlns:cx="http://xmlcalabash.com/ns/extensions"
+                    xmlns:ex="http://example.com/ns/step"
+                    xmlns:p="http://www.w3.org/ns/xproc">
+      <p:import href="https://xmlcalabash.com/ext/library/pipeline-messages.xpl"/>
+      <p:output port="result"/>
+
+      <p:declare-step type="ex:xquery">
+        <p:input port="source" primary="true"/>
+        <p:input port="query"/>
+        <p:output port="result" sequence="true"/>
+        <p:xquery cx:cache-query="true">
+          <p:with-input port="source" pipe="source"/>
+          <p:with-input port="query" pipe="query"/>
+        </p:xquery>
+      </p:declare-step>
+
+      <ex:xquery>
+        <p:with-input port="source">
+          <doc/>
+        </p:with-input>
+        <p:with-input port="query" href="../documents/xpath.txt"/>
+      </ex:xquery>
+
+      <ex:xquery name="xquery" cx:cache-query="true">
+        <p:with-input port="source">
+          <doc>
+            <para>Testing</para>
+          </doc>
+        </p:with-input>
+        <p:with-input port="query" href="../documents/xpath.txt"/>
+      </ex:xquery>
+
+      <cx:pipeline-messages name="messages" p:depends="xquery" level="debug"/>
+
+      <p:wrap-sequence wrapper="wrapper">
+        <p:with-input pipe="@xquery @messages"/>
+      </p:wrap-sequence>
+    </p:declare-step>
+  </t:pipeline>
+
+  <t:schematron>
+    <s:schema queryBinding="xslt2"
+              xmlns:s="http://purl.oclc.org/dsdl/schematron">
+      <s:ns prefix="cx" uri="http://xmlcalabash.com/ns/extensions"/>
+      <s:pattern>
+        <s:rule context="/">
+          <s:assert test="wrapper">The document root is not correct.</s:assert>
+          <s:assert test="wrapper/para">No para</s:assert>
+          <s:assert test="wrapper/cx:messages">No messages</s:assert>
+        </s:rule>
+      </s:pattern>
+      <s:pattern>
+        <s:rule context="wrapper/para">
+          <s:assert test=". = 'Testing'">The para is wrong</s:assert>
+        </s:rule>
+      </s:pattern>
+      <s:pattern>
+        <s:rule context="/wrapper/cx:messages">
+          <s:assert test="cx:message[@level='DEBUG'
+                            and matches(@message, 'Caching compiled.*documents/xpath\.txt')]"
+                    >No caching message.</s:assert>
+          <s:assert test="cx:message[@level='DEBUG'
+                            and matches(@message, 'Using cached.*documents/xpath\.txt')]"
+                    >No using cached message.</s:assert>
+        </s:rule>
+      </s:pattern>
+    </s:schema>
+  </t:schematron>
+</t:test>

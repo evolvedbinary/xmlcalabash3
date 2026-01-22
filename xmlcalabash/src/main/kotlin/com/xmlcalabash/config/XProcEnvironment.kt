@@ -9,6 +9,7 @@ import com.xmlcalabash.datamodel.DeclareStepInstruction
 import com.xmlcalabash.exceptions.ErrorExplanation
 import com.xmlcalabash.io.DocumentManager
 import com.xmlcalabash.io.MessagePrinter
+import com.xmlcalabash.resourcecache.CompiledResourceCache
 import com.xmlcalabash.runtime.parameters.StepParameters
 import com.xmlcalabash.util.AssertionsLevel
 import net.sf.saxon.s9api.QName
@@ -38,6 +39,7 @@ interface XProcEnvironment {
     val messageReporter: MessageReporter
     val proxies: Map<String, String>
     val assertions: AssertionsLevel
+    val compiledResourceCache: CompiledResourceCache
 
     fun atomicStepAvailable(type: QName): Boolean
     fun uniqueName(base: String): String

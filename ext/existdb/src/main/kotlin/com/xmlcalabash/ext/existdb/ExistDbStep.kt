@@ -4,6 +4,8 @@ import com.xmlcalabash.namespace.Ns
 import com.xmlcalabash.namespace.Ns.properties
 import com.xmlcalabash.namespace.NsCx
 import com.xmlcalabash.steps.AbstractAtomicStep
+import com.xmlcalabash.util.AttributeValueTemplate
+import com.xmlcalabash.util.ValueTemplateParser
 import net.sf.saxon.om.NamespaceUri
 import net.sf.saxon.s9api.QName
 import net.sf.saxon.s9api.XdmValue
@@ -18,6 +20,16 @@ class ExistDbStep(): AbstractAtomicStep() {
     }
 
     lateinit var xqueryImpl: XQueryExistDbProcessor
+    var cachedQuery = false
+
+    init {
+        expectedExtensionAttributes.addAll(listOf(NsCx.cacheQuery))
+    }
+
+    override fun extensionAttributes(attributes: Map<QName, String>, staticOptions: Map<QName, XdmValue>) {
+        super.extensionAttributes(attributes, staticOptions)
+        cachedQuery = extensionAttributeBooleanValue(attributes, NsCx.cacheQuery, staticOptions)
+    }
 
     override fun run() {
         super.run()
@@ -31,7 +43,7 @@ class ExistDbStep(): AbstractAtomicStep() {
 
         xqueryImpl = XQueryExistDbProcessor()
 
-        xqueryImpl.setup(stepConfig, receiver, stepParams, config)
+        xqueryImpl.setup(stepConfig, receiver, stepParams, cachedQuery, config)
 
         val qparams = qnameMapBinding(_queryParameters)
         val qproperties = qnameMapBinding(_queryProperties)

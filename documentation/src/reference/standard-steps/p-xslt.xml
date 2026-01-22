@@ -1,10 +1,14 @@
-<?xml version="1.0" encoding="utf-8"?><refentry xmlns="http://docbook.org/ns/docbook" xmlns:p="http://www.w3.org/ns/xproc" xml:id="p-xslt">
+<?xml version="1.0" encoding="utf-8"?>
+<refentry xmlns="http://docbook.org/ns/docbook"
+          xmlns:p="http://www.w3.org/ns/xproc"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          xml:id="p-xslt">
 <?db filename="p-xslt"?>
-   <refnamediv>
-      <refname>p:xslt</refname>
-      <refpurpose>The standard p:xslt step</refpurpose>
-   </refnamediv>
-   <refsynopsisdiv>
+<refnamediv>
+  <refname>p:xslt</refname>
+  <refpurpose>The standard p:xslt step</refpurpose>
+</refnamediv>
+<refsynopsisdiv>
 
 <refsection role="introduction">
 <title>Introduction</title>
@@ -75,5 +79,29 @@
 <refsection>
   <title>Description</title>
   <para role="external-refs"/>
+
+<refsection>
+<title>Extension attributes</title>
+
+<variablelist>
+<varlistentry><term><tag class="attribute">cx:cache-stylesheet</tag></term>
+<listitem>
+<para>If the <tag class="attribute">cx:cache-stylesheet</tag> attribute is
+<literal>true</literal>, and the stylesheet has a base URI, then that
+stylesheet will be cached. The first time a cached stylesheet is encountered, it
+is compiled and saved. Subsequent uses of that cached stylesheet will reuse the
+previously compiled version.</para>
+<para>See <link xlink:href="/userguide/current/caching-compiled.html">Caching compiled resources</link>
+for more details.</para>
+</listitem>
+</varlistentry>
+<varlistentry><term><tag class="attribute">cx:empty-global-context</tag></term>
+<listitem>
+<para>If <tag class="attribute">cx:empty-global-context</tag> is <literal>true</literal>,
+the global context item will be empty, even if there is only one source document.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+</refsection>
 </refsection>
 </refentry>
