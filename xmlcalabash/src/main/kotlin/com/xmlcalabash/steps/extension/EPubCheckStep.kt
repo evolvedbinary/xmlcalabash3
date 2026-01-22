@@ -80,29 +80,29 @@ class EPubCheckStep(val namespace: NamespaceUri): AbstractValidationStep() {
             val text = message.getMessage(*args)
 
             val attr = mutableMapOf<QName, String?>()
-            attr[epub_path] = location?.path?.toString()
+            attr[epub_path] = location?.path
 
             var detection: XvrlDetection? = null
             when (message.severity) {
-                Severity.SUPPRESSED -> reporter.trace { Report(Verbosity.TRACE, text) }
+                Severity.SUPPRESSED -> stepConfig.trace { text }
                 Severity.USAGE -> {
-                    reporter.debug { Report(Verbosity.DEBUG, text) }
+                    stepConfig.debug { text }
                     detection = report.detection("error", "${id}", text, attr)
                 }
                 Severity.ERROR -> {
-                    reporter.error { Report(Verbosity.ERROR, text) }
+                    stepConfig.error { text }
                     detection = report.detection("error", "${id}", text, attr)
                 }
                 Severity.WARNING -> {
-                    reporter.warn { Report(Verbosity.WARN, text) }
+                    stepConfig.warn { text }
                     detection = report.detection("warning", "${id}", text, attr)
                 }
                 Severity.INFO -> {
-                    reporter.info { Report(Verbosity.INFO, text) }
+                    stepConfig.info { text }
                     detection = report.detection("info", "${id}", text, attr)
                 }
                 Severity.FATAL -> {
-                    reporter.error { Report(Verbosity.ERROR, text) }
+                    stepConfig.error { text }
                     detection = report.detection("fatal-error", "${id}", text, attr)
                 }
             }

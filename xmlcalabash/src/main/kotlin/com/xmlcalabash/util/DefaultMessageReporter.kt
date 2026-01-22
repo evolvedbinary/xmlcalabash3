@@ -12,7 +12,7 @@ class DefaultMessageReporter(nextReporter: MessageReporter? = null): NopMessageR
             val reified = report()
             val prefix = StringBuilder()
 
-            when (severity) {
+            when (reified.severity) {
                 Verbosity.TRACE -> prefix.append("Trace")
                 Verbosity.DEBUG -> prefix.append("Debug")
                 Verbosity.INFO -> Unit
@@ -20,7 +20,7 @@ class DefaultMessageReporter(nextReporter: MessageReporter? = null): NopMessageR
                 Verbosity.ERROR -> prefix.append("Error")
             }
 
-            if (severity == Verbosity.WARN || severity == Verbosity.ERROR) {
+            if (reified.severity == Verbosity.WARN || reified.severity == Verbosity.ERROR) {
                 if (reified.location !== Location.NULL) {
                     prefix.append(" at ").append(reified.location.baseUri!!).append(":")
                     if (reified.location.lineNumber > 0) {
@@ -38,7 +38,7 @@ class DefaultMessageReporter(nextReporter: MessageReporter? = null): NopMessageR
             }
 
             try {
-                messagePrinter.println("${prefix}${reified.message}")
+                messagePrinter.println("${prefix}${reified.message()}")
             } catch (ex: Exception) {
                 messagePrinter.println("${prefix} failed to evaluate message: ${ex.message}")
             }

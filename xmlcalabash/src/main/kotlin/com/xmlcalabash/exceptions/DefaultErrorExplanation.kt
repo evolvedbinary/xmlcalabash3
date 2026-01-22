@@ -116,15 +116,15 @@ class DefaultErrorExplanation(val reporter: MessageReporter): ErrorExplanation {
     }
 
     override fun report(error: XProcError) {
-        reporter.error { Report(Verbosity.ERROR,  message(error, true)) }
+        reporter.report(Verbosity.ERROR) { Report(Verbosity.ERROR) { message(error, true) }}
         if (showStacktrace && error.stackTrace.isNotEmpty()) {
-            reporter.error { Report(Verbosity.ERROR, "Stack trace:") }
+            reporter.report(Verbosity.ERROR) { Report(Verbosity.ERROR) { "Stack trace:" } }
             var count = error.stackTrace.size
             for (frame in error.stackTrace) {
                 if (frame.stepName.startsWith('!')) {
-                    reporter.error { Report(Verbosity.ERROR, "\t[${count}] <${frame.stepType}>") }
+                    reporter.report(Verbosity.ERROR) { Report(Verbosity.ERROR) { "\t[${count}] <${frame.stepType}>" } }
                 } else {
-                    reporter.error { Report(Verbosity.ERROR, "\t[${count}] <${frame.stepType} name=\"${frame.stepName}\">") }
+                    reporter.report(Verbosity.ERROR) { Report(Verbosity.ERROR) { "\t[${count}] <${frame.stepType} name=\"${frame.stepName}\">" } }
                 }
                 count--
             }
@@ -143,7 +143,7 @@ class DefaultErrorExplanation(val reporter: MessageReporter): ErrorExplanation {
     override fun reportExplanation(error: XProcError) {
         val message = explanation(error)
         if (message.isNotEmpty()) {
-            reporter.error { Report(Verbosity.ERROR, message, Location.NULL) }
+            reporter.report(Verbosity.ERROR) { Report(Verbosity.ERROR) { message } }
         }
     }
 

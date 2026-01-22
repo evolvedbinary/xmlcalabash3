@@ -7,12 +7,13 @@ import org.apache.logging.log4j.kotlin.logger
 
 class LoggingMessageReporter(nextReporter: MessageReporter? = null): NopMessageReporter(nextReporter) {
     override fun report(severity: Verbosity, report: () -> Report) {
+        val reified = report()
         when (severity) {
-            Verbosity.ERROR -> logger.error(report().message)
-            Verbosity.WARN -> logger.warn(report().message)
-            Verbosity.INFO -> logger.info(report().message)
-            Verbosity.DEBUG -> logger.debug(report().message)
-            Verbosity.TRACE -> logger.trace(report().message)
+            Verbosity.ERROR -> logger.error(reified.message())
+            Verbosity.WARN -> logger.warn(reified.message())
+            Verbosity.INFO -> logger.info(reified.message())
+            Verbosity.DEBUG -> logger.debug(reified.message())
+            Verbosity.TRACE -> logger.trace(reified.message())
         }
         nextReporter?.report(severity, report)
     }

@@ -55,13 +55,13 @@ class PipelineMessagesStep(): AbstractAtomicStep() {
             attributes[Ns.level] = "${message.severity}"
 
             if (messageAttribute) {
-                attributes[Ns.message] = message.message
+                attributes[Ns.message] = message.message()
             }
 
             builder.addStartElement(NsCx.message, stepConfig.typeUtils.attributeMap(attributes))
 
             if (!messageAttribute) {
-                builder.addText(message.message);
+                builder.addText(message.message());
             }
 
             builder.addEndElement()

@@ -10,11 +10,5 @@ interface MessageReporter {
     val threshold: Verbosity
     fun setMessagePrinter(messagePrinter: MessagePrinter)
     fun setThreshold(threshold: Verbosity, applyDownstream: Boolean = true)
-    fun error(report: () -> Report)
-    fun warn(report: () -> Report)
-    fun info(report: () -> Report)
-    fun debug(report: () -> Report)
-    fun trace(report: () -> Report)
-
     fun report(severity: Verbosity, report: () -> Report)
 }

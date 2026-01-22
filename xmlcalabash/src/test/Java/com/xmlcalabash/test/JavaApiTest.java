@@ -32,6 +32,7 @@ import net.sf.saxon.trans.XPathException;
 import net.sf.saxon.value.BooleanValue;
 import net.sf.saxon.value.SequenceType;
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -168,8 +169,8 @@ public class JavaApiTest {
             declareStep.runtime();
         } catch (XProcException ex) {
             Assertions.assertEquals("XS0107", ex.getError().getCode().getLocalName());
-            Assertions.assertEquals(10, ex.getError().getLocation().getLineNumber());
-            Assertions.assertEquals(37, ex.getError().getLocation().getColumnNumber());
+            Assertions.assertEquals(11, ex.getError().getLocation().getLineNumber());
+            Assertions.assertEquals(17, ex.getError().getLocation().getColumnNumber());
         }
     }
 
@@ -431,34 +432,9 @@ public class JavaApiTest {
         }
 
         @Override
-        public void error(@NotNull Function0<? extends @NotNull Report> report) {
-            report(Verbosity.ERROR, report);
-        }
-
-        @Override
-        public void warn(@NotNull Function0<? extends @NotNull Report> report) {
-            report(Verbosity.WARN, report);
-        }
-
-        @Override
-        public void info(@NotNull Function0<? extends @NotNull Report> report) {
-            report(Verbosity.INFO, report);
-        }
-
-        @Override
-        public void debug(@NotNull Function0<? extends @NotNull Report> report) {
-            report(Verbosity.DEBUG, report);
-        }
-
-        @Override
-        public void trace(@NotNull Function0<? extends @NotNull Report> report) {
-            report(Verbosity.TRACE, report);
-        }
-
-        @Override
-        public void report(@NotNull Verbosity severity, @NotNull Function0<? extends @NotNull Report> report) {
+        public void report(@NonNull Verbosity severity, @NotNull Function0<? extends @NotNull Report> report) {
             if (levels.get(severity) >= levels.get(threshold)) {
-                printer.println(report.invoke().getMessage());
+                printer.println(report.invoke().getMessage().invoke());
             }
         }
     }

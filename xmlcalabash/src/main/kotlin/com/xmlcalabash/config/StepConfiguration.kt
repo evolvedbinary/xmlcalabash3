@@ -53,23 +53,23 @@ open class StepConfiguration(val saxonConfig: SaxonConfiguration,
     }
 
     fun error(message: () -> String) {
-        environment.messageReporter.error { Report(Verbosity.ERROR, message(), location) }
+        environment.messageReporter.report(Verbosity.ERROR) { Report(Verbosity.ERROR, message, location) }
     }
 
     fun warn(message: () -> String) {
-        environment.messageReporter.warn { Report(Verbosity.WARN, message(), location) }
+        environment.messageReporter.report(Verbosity.WARN) { Report(Verbosity.WARN, message, location) }
     }
 
     fun info(message: () -> String) {
-        environment.messageReporter.info { Report(Verbosity.INFO, message(), location) }
+        environment.messageReporter.report(Verbosity.INFO) { Report(Verbosity.INFO, message, location) }
     }
 
     fun debug(message: () -> String) {
-        environment.messageReporter.debug { Report(Verbosity.DEBUG, message(), location) }
+        environment.messageReporter.report(Verbosity.DEBUG) { Report(Verbosity.DEBUG, message, location) }
     }
 
     fun trace(message: () -> String) {
-        environment.messageReporter.trace { Report(Verbosity.TRACE, message(), location) }
+        environment.messageReporter.report(Verbosity.TRACE) { Report(Verbosity.TRACE, message, location) }
     }
 
     fun putStepType(type: QName, decl: DeclareStepInstruction) {

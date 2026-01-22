@@ -422,7 +422,7 @@ class TestCase(val builder: XmlCalabashBuilder, val xmlCalabash: XmlCalabash, va
         for (report in reports) {
             builder.addStartElement(NsCx.message, attributeMap(mapOf(
                 Ns.level to "${report.severity}",
-                Ns.message to report.message,
+                Ns.message to report.message(),
                 Ns.date to report.extraDetail[Ns.date]
             )))
             builder.addEndElement()
