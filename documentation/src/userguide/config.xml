@@ -85,7 +85,8 @@ with the tree. If the location information hasn’t been preserved in the tree,
 XML Calabash has no way to inform the validator about the locations of the elements.
 </para>
 <para>Unless you have very large documents or a small amount of memory, it’s
-probably reasonable to just leave line numbering on by default.
+probably reasonable to just enable line numbering by default in a configuration
+file.
 </para>
 </note>
 
