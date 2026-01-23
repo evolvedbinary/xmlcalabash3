@@ -159,8 +159,8 @@ open class XQuerySaxonProcessor(): XQueryProcessor {
             // Generally speaking, we can get more useful information from the error reporter
             val error = errorReporter.errorMessages.lastOrNull()
             val location = error?.location ?: Location.NULL
-            if (ex.message == error?.message) {
-                throw stepConfig.exception(XProcError.xcXQueryEvalError(ex.message ?: "null", location, error?.message), ex)
+            if (ex.message == error?.message()) {
+                throw stepConfig.exception(XProcError.xcXQueryEvalError(ex.message ?: "null", location, error?.message()), ex)
             }
             throw stepConfig.exception(XProcError.xcXQueryEvalError(ex.message ?: "null", location), ex)
         } finally {

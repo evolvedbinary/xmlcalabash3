@@ -421,12 +421,12 @@ class AsciidoctorStep(): AbstractAtomicStep() {
 
             val reporter = stepConfig.environment.messageReporter
             when (logRecord.severity) {
-                Severity.ERROR -> reporter.error { Report(Verbosity.ERROR, sb.toString()) }
-                Severity.FATAL -> reporter.error { Report(Verbosity.ERROR, sb.toString()) }
-                Severity.UNKNOWN -> reporter.error { Report(Verbosity.ERROR, sb.toString()) }
-                Severity.WARN -> reporter.warn { Report(Verbosity.WARN, sb.toString()) }
-                Severity.INFO -> reporter.info { Report(Verbosity.INFO, sb.toString()) }
-                Severity.DEBUG -> reporter.debug { Report(Verbosity.DEBUG, sb.toString()) }
+                Severity.ERROR -> stepConfig.error { sb.toString() }
+                Severity.FATAL -> stepConfig.error { sb.toString() }
+                Severity.UNKNOWN -> stepConfig.error { sb.toString() }
+                Severity.WARN -> stepConfig.warn { sb.toString() }
+                Severity.INFO -> stepConfig.info { sb.toString() }
+                Severity.DEBUG -> stepConfig.debug { sb.toString() }
             }
         }
     }

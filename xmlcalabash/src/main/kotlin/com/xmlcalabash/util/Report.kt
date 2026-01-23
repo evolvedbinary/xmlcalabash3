@@ -9,32 +9,37 @@ import net.sf.saxon.s9api.QName
 import net.sf.saxon.s9api.XmlProcessingError
 import net.sf.saxon.trans.XPathException
 
-open class Report(val severity: Verbosity, val message: String) {
-    constructor(severity: Verbosity, message: String, location: Location): this(severity, message) {
+open class Report(val severity: Verbosity, val message: () -> String) {
+    private var _location: Location = Location.NULL
+    private var _inputLocation: Location = Location.NULL
+    private var _cause: Throwable? = null
+    private var _extraDetail = mutableMapOf<QName,String>()
+
+    constructor(severity: Verbosity, message: () -> String, location: Location): this(severity, message) {
         _location = location
     }
 
-    constructor(severity: Verbosity, message: String, location: Location, inputLocation: Location): this(severity, message) {
-        _location = location
-        _inputLocation = inputLocation
-    }
-
-    constructor(severity: Verbosity, message: String, location: Location, cause: Throwable): this(severity, message) {
-        _location = location
-        _cause = cause
-    }
-
-    constructor(severity: Verbosity, message: String, location: Location, inputLocation: Location, cause: Throwable): this(severity, message) {
+    constructor(severity: Verbosity, message: () -> String, location: Location, inputLocation: Location): this(severity, message) {
         _location = location
         _inputLocation = inputLocation
+    }
+
+    constructor(severity: Verbosity, message: () -> String, location: Location, cause: Throwable): this(severity, message) {
+        _location = location
         _cause = cause
     }
 
-    constructor(severity: Verbosity, message: String, cause: Throwable): this(severity, message) {
+    constructor(severity: Verbosity, message: () -> String, location: Location, inputLocation: Location, cause: Throwable): this(severity, message) {
+        _location = location
+        _inputLocation = inputLocation
         _cause = cause
     }
 
-    constructor(severity: Verbosity, stepConfig: StepConfiguration, message: Message): this(severity, message.toString()) {
+    constructor(severity: Verbosity, message: () -> String, cause: Throwable): this(severity, message) {
+        _cause = cause
+    }
+
+    constructor(severity: Verbosity, stepConfig: StepConfiguration, message: Message): this(severity, { message.toString() }) {
         _location = stepConfig.location
         _inputLocation = Location(message.location)
         message.location.publicId?.let { _extraDetail[Ns.publicIdentifier] = it }
@@ -44,7 +49,7 @@ open class Report(val severity: Verbosity, val message: String) {
     }
     
     constructor(severity: Verbosity, stepConfig: StepConfiguration, error: XmlProcessingError)
-            : this(severity, if (error.cause is XPathException && error.cause.message != null) error.cause.message!! else error.message) {
+            : this(severity, { if (error.cause is XPathException && error.cause.message != null) error.cause.message!! else error.message }) {
         _location = stepConfig.location
         _inputLocation = Location(error.location)
 
@@ -64,11 +69,6 @@ open class Report(val severity: Verbosity, val message: String) {
         }
     }
 
-    private var _location: Location = Location.NULL
-    private var _inputLocation: Location = Location.NULL
-    private var _cause: Throwable? = null
-    private var _extraDetail = mutableMapOf<QName,String>()
-
     val location: Location
         get() = _location
     val inputLocation: Location
@@ -83,6 +83,6 @@ open class Report(val severity: Verbosity, val message: String) {
     }
 
     override fun toString(): String {
-        return message
+        return message()
     }
 }

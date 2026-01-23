@@ -261,14 +261,14 @@ class FoFop(): FoProcessor {
             val message = EventFormatter.format(event);
             when (event.severity) {
                 EventSeverity.FATAL, EventSeverity.ERROR -> {
-                    reporter.error { Report(Verbosity.ERROR, message) }
+                    reporter.report(Verbosity.ERROR) { Report(Verbosity.ERROR) { message } }
                 }
                 EventSeverity.WARN -> {
-                    reporter.warn { Report(Verbosity.WARN, message) }
+                    reporter.report(Verbosity.WARN) { Report(Verbosity.WARN) { message } }
                 }
                 EventSeverity.INFO -> {
                     // One man's info is another man's debug...
-                    reporter.debug { Report(Verbosity.DEBUG, message) }
+                    reporter.report(Verbosity.DEBUG) { Report(Verbosity.DEBUG) { message } }
                 }
             }
         }

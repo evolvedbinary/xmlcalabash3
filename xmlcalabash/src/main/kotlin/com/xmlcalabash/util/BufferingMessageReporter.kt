@@ -19,7 +19,7 @@ class BufferingMessageReporter(maxsize: Int, nextReporter: MessageReporter): Nop
             return _messagePrinter ?: nextReporter!!.messagePrinter
         }
 
-    private val _reports = mutableListOf<Report>()
+    private val _reports = mutableListOf<Pair<Verbosity, () -> Report>>()
 
     private var _maxsize = maxsize
 
@@ -33,7 +33,7 @@ class BufferingMessageReporter(maxsize: Int, nextReporter: MessageReporter): Nop
         }
 
     fun messages(threshold: Verbosity): List<Report> {
-        return _reports.filter { it.severity >= threshold }
+        return _reports.filter { it.first >= threshold }.map { it.second() }
     }
 
     fun clear() {
@@ -43,24 +43,28 @@ class BufferingMessageReporter(maxsize: Int, nextReporter: MessageReporter): Nop
     }
 
     override fun report(severity: Verbosity, report: () -> Report) {
-        val reified = report()
+        val augmentedReport: () -> Report = {
+            val reified = report()
 
-        val dt = LocalDateTime.now().atZone(ZoneId.systemDefault())
-        val dtformatted = dt.format(formatter)
-        val dtz = dt.format(tzformatter)
-        // I really don't understand why there isn't a Z formatter that
-        // always uses the HH:MM format.
-        if (dtz.contains(":")) {
-            reified.addDetail(Ns.date, "${dtformatted}${dtz}")
-        } else {
-            reified.addDetail(Ns.date, "${dtformatted}${dtz.substring(0, 3)}:${dtz.substring(3)}")
+            val dt = LocalDateTime.now().atZone(ZoneId.systemDefault())
+            val dtformatted = dt.format(formatter)
+            val dtz = dt.format(tzformatter)
+            // I really don't understand why there isn't a Z formatter that
+            // always uses the HH:MM format.
+            if (dtz.contains(":")) {
+                reified.addDetail(Ns.date, "${dtformatted}${dtz}")
+            } else {
+                reified.addDetail(Ns.date, "${dtformatted}${dtz.substring(0, 3)}:${dtz.substring(3)}")
+            }
+
+            reified
         }
 
         while (maxsize > 0 && _reports.size >= maxsize) {
             _reports.removeAt(0)
         }
-        _reports.add(reified)
+        _reports.add(Pair(severity, augmentedReport))
 
-        nextReporter?.report(severity) { reified }
+        nextReporter?.report(severity, augmentedReport)
     }
 }

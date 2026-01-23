@@ -4,6 +4,7 @@ import com.xmlcalabash.config.SaxonConfiguration
 import com.xmlcalabash.config.StepConfiguration
 import com.xmlcalabash.datamodel.InstructionConfiguration
 import com.xmlcalabash.datamodel.DocumentContext
+import com.xmlcalabash.resourcecache.CompiledResourceCache
 
 class XProcStepConfiguration(saxonConfig: SaxonConfiguration,
                              context: DocumentContext,
@@ -19,6 +20,12 @@ class XProcStepConfiguration(saxonConfig: SaxonConfiguration,
 
         return xconfig
     }
+
+    // Why is this necessary? I think there's a bit of a tangle here...
+    override val compiledResourceCache: CompiledResourceCache
+        get() {
+            return environment.compiledResourceCache
+        }
 
     override fun copy(): XProcStepConfiguration {
         val xconfig = XProcStepConfiguration(saxonConfig, context, environment as RuntimeEnvironment)

@@ -203,7 +203,7 @@ class XmlCalabashCli private constructor() {
             }
 
             if (!builder.go.getOrDefault()!!) {
-                stepConfig.messageReporter.debug { Report(Verbosity.DEBUG, "Execution suppressed with --nogo") }
+                stepConfig.debug { "Execution suppressed with --nogo" }
                 exitProcess(0)
             }
 
@@ -373,7 +373,7 @@ class XmlCalabashCli private constructor() {
     }
 
     private fun warn(message: () -> String) {
-        cliReporter.warn { Report(Verbosity.WARN, message(), Location.NULL) }
+        cliReporter.report(Verbosity.WARN) { Report(Verbosity.WARN, message) }
     }
 
     private fun implicitContentType(types: List<MediaType>?): MediaType {
@@ -575,10 +575,10 @@ class XmlCalabashCli private constructor() {
                             }
                             sb.append(sep)
                             sb.append(cause.message ?: "Unknown error")
-                            Report(Verbosity.ERROR, sb.toString(), error.cause!!)
+                            Report(Verbosity.ERROR, { sb.toString() }, error.cause!!)
                         }
                         else -> {
-                            Report(Verbosity.ERROR, error.cause?.message ?: "Unknown error", error.cause!!)
+                            Report(Verbosity.ERROR, { error.cause?.message ?: "Unknown error" }, error.cause!!)
                         }
                     }
                     if (haveStepConfig) {

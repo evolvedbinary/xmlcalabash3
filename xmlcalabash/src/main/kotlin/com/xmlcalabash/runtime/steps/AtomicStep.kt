@@ -219,7 +219,8 @@ open class AtomicStep(config: XProcStepConfiguration, atomic: AtomicBuiltinStepM
 
     override fun run() {
         if (message != null) {
-            stepConfig.info { "${message}" }
+            val infoMessage = "{$message}"
+            stepConfig.info { infoMessage }
             message = null
         }
 

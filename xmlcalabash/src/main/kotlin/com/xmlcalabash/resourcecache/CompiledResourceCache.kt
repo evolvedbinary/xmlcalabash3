@@ -18,7 +18,7 @@ class CompiledResourceCache(val environment: CompileEnvironment) {
     fun get(name: String, resource: URI): CompiledResource? {
         val key = key(name, resource)
         synchronized(cache) {
-            environment.messageReporter.debug { Report(Verbosity.DEBUG, "Using cached resource: ${key}") }
+            environment.messageReporter.report(Verbosity.DEBUG) { Report(Verbosity.DEBUG) { "Using cached resource: ${key}" } }
             return cache[key]
         }
     }
@@ -29,7 +29,7 @@ class CompiledResourceCache(val environment: CompileEnvironment) {
             if (cache.containsKey(key)) {
                 throw IllegalStateException("Resource already exists")
             }
-            environment.messageReporter.debug { Report(Verbosity.DEBUG, "Caching compiled resource: ${key}") }
+            environment.messageReporter.report(Verbosity.DEBUG) { Report(Verbosity.DEBUG) { "Caching compiled resource: ${key}" } }
             cache[key] = rsrc
         }
     }

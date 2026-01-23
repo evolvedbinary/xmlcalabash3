@@ -37,7 +37,6 @@ import java.io.ByteArrayOutputStream
 import java.net.URI
 import java.nio.charset.StandardCharsets
 import java.util.*
-import kotlin.collections.iterator
 
 class XQueryBaseXProcessor(): XQueryProcessor {
     lateinit var stepConfig: XProcStepConfiguration
@@ -241,7 +240,7 @@ class XQueryBaseXProcessor(): XQueryProcessor {
 
                 return IOContent(bytes, uri.toString())
             } catch (ex: Exception) {
-                stepConfig.messageReporter.debug { Report(Verbosity.DEBUG, "Failed to resolve ${path} with base URI ${base} for BaseX", ex) }
+                stepConfig.messageReporter.report(Verbosity.DEBUG) { Report(Verbosity.DEBUG, { "Failed to resolve ${path} with base URI ${base} for BaseX" }, ex) }
             }
 
             return null

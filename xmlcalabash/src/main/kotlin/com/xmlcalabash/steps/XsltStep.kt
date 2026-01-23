@@ -217,7 +217,7 @@ open class XsltStep(): AbstractAtomicStep() {
                     }
                     sb.append(": ")
                 }
-                sb.append(error.message)
+                sb.append(error.message())
                 sb.toString()
             } else {
                 sae.message ?: "(no message)"
@@ -363,10 +363,10 @@ open class XsltStep(): AbstractAtomicStep() {
                 when (ex.errorCode) {
                     NsFn.errXTDE0040 -> throw stepConfig.exception(XProcError.xcXsltNoTemplate(templateName!!), ex)
                     else -> {
-                        if (ex.message == error?.message) {
+                        if (ex.message == error?.message()) {
                             throw stepConfig.exception(XProcError.xcXsltRuntimeError(ex.message!!, location), ex)
                         }
-                        throw stepConfig.exception(XProcError.xcXsltRuntimeError(ex.message!!, location, error?.message), ex)
+                        throw stepConfig.exception(XProcError.xcXsltRuntimeError(ex.message!!, location, error?.message()), ex)
                     }
                 }
             }

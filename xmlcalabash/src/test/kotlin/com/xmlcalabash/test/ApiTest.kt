@@ -237,29 +237,9 @@ class ApiTest {
             _messagePrinter = messagePrinter
         }
 
-        override fun error(report: () -> Report) {
-            report(Verbosity.ERROR, report)
-        }
-
-        override fun warn(report: () -> Report) {
-            report(Verbosity.WARN, report)
-        }
-
-        override fun info(report: () -> Report) {
-            report(Verbosity.INFO, report)
-        }
-
-        override fun debug(report: () -> Report) {
-            report(Verbosity.DEBUG, report)
-        }
-
-        override fun trace(report: () -> Report) {
-            report(Verbosity.TRACE, report)
-        }
-
         override fun report(severity: Verbosity, report: () -> Report) {
             if (severity >= _threshold) {
-                println(report().message)
+                println(report().message())
             }
         }
     }

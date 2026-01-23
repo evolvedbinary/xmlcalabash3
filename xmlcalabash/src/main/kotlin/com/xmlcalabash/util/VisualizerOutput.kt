@@ -40,7 +40,7 @@ class VisualizerOutput(val builder: XmlCalabashBuilder, val xmlCalabash: XmlCala
             cleanupOutputDirectory()
             writeNode("${outputDirectory}/pipeline.xml", description.xml())
         } catch (ex: Exception) {
-            logging.warn { Report(Verbosity.WARN, "SVG generation failed: ${ex.message}") }
+            logging.report(Verbosity.WARN) { Report(Verbosity.WARN) { "SVG generation failed: ${ex.message}" } }
         }
     }
 
@@ -70,7 +70,7 @@ class VisualizerOutput(val builder: XmlCalabashBuilder, val xmlCalabash: XmlCala
         try {
             do_svg()
         } catch (ex: Exception) {
-            logging.warn { Report(Verbosity.WARN, "SVG generation failed: ${ex.message}") }
+            logging.report(Verbosity.WARN) { Report(Verbosity.WARN) { "SVG generation failed: ${ex.message}" } }
         }
     }
 
@@ -194,18 +194,18 @@ class VisualizerOutput(val builder: XmlCalabashBuilder, val xmlCalabash: XmlCala
             val errorReader = BufferedReader(InputStreamReader(process.errorStream))
             var line = errorReader.readLine()
             while (line != null) {
-                logging.debug { Report(Verbosity.DEBUG, "ERR: $line") }
+                logging.report(Verbosity.DEBUG) { Report(Verbosity.DEBUG) { "ERR: $line" } }
                 line = errorReader.readLine()
             }
 
             val outputReader = BufferedReader(InputStreamReader(process.inputStream))
             line = outputReader.readLine()
             while (line != null) {
-                logging.debug { Report(Verbosity.DEBUG, "OUT: $line") }
+                logging.report(Verbosity.DEBUG) { Report(Verbosity.DEBUG) { "OUT: $line" } }
                 line = outputReader.readLine()
             }
 
-            logging.warn { Report(Verbosity.WARN, "Graph generation failed for $basename") }
+            logging.report(Verbosity.WARN) { Report(Verbosity.WARN) { "Graph generation failed for ${basename}" } }
         }
 
         val styleStream = VisualizerOutput::class.java.getResourceAsStream(graphvizSvg)
