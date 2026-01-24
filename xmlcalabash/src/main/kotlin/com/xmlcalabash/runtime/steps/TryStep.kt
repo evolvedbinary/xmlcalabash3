@@ -165,8 +165,12 @@ open class TryStep(config: XProcStepConfiguration, compound: CompoundStepModel):
                 builder.addEndElement()
             }
 
-            if (error.details.isNotEmpty() && error.details[0] is XProcDocument) {
-                builder.addSubtree((error.details[0] as XProcDocument).value)
+            if (error.details.isNotEmpty()) {
+                for (doc in error.details) {
+                    if (doc is XProcDocument) {
+                        builder.addSubtree(doc.value)
+                    }
+                }
             }
 
             if (error.stackTrace.isNotEmpty()) {
