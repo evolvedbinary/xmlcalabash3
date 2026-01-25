@@ -27,7 +27,6 @@ class MetadataExtractorStep(): AbstractAtomicStep() {
             if (assertMetadata) {
                 throw ex
             }
-            receiver.output("result", XProcDocument.ofEmpty(stepConfig))
         }
     }
 
