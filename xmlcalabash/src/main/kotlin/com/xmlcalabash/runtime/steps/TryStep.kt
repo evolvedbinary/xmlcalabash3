@@ -9,6 +9,7 @@ import com.xmlcalabash.runtime.XProcStepConfiguration
 import com.xmlcalabash.runtime.model.CompoundStepModel
 import com.xmlcalabash.util.SaxonTreeBuilder
 import net.sf.saxon.om.NamespaceMap
+import net.sf.saxon.om.NamespaceUri
 import org.apache.logging.log4j.kotlin.logger
 
 open class TryStep(config: XProcStepConfiguration, compound: CompoundStepModel): CompoundStep(config, compound) {
@@ -98,13 +99,19 @@ open class TryStep(config: XProcStepConfiguration, compound: CompoundStepModel):
     }
 
     private fun errorDocument(step: AbstractStep, exception: Exception): XProcDocument {
+        var codePrefix = ""
         var nsmap = NamespaceMap.emptyMap()
         nsmap = nsmap.put("c", NsC.namespace)
         nsmap = nsmap.put("cx", NsCx.namespace)
 
         if (exception is XProcException) {
-            if (exception.error.code.prefix.isNotEmpty()) {
-                nsmap = nsmap.put(exception.error.code.prefix, exception.error.code.namespaceUri)
+            if (exception.error.code.namespaceUri != NamespaceUri.NULL) {
+                codePrefix = if (exception.error.code.prefix == "") {
+                    "errpfx"
+                } else {
+                    exception.error.code.prefix
+                }
+                nsmap = nsmap.put(codePrefix, exception.error.code.namespaceUri)
             }
             val type = exception.error.stackTrace[0]?.stepType
             if (type != null) {
@@ -124,7 +131,13 @@ open class TryStep(config: XProcStepConfiguration, compound: CompoundStepModel):
             val error = exception.error
             attr["name"] = error.stackTrace[0]?.stepName
             attr["type"] = error.stackTrace[0]?.stepType.toString()
-            attr["code"] = error.code.toString()
+
+            if (codePrefix == "") {
+                attr["code"] = error.code.toString()
+            } else {
+                attr["code"] = "${codePrefix}:${error.code.localName}"
+            }
+
             attr["href"] = error.location.baseUri?.toString()
             if (error.location.lineNumber > 0) {
                 attr["line"] = error.location.lineNumber.toString()
