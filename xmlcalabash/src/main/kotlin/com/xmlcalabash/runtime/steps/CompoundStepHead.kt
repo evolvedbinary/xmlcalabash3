@@ -203,7 +203,7 @@ class CompoundStepHead(config: XProcStepConfiguration, val parent: CompoundStep,
         }
 
         if (showMessage && message != null) {
-            val infoMessage = "{$message}"
+            val infoMessage = "${message}"
             stepConfig.info { infoMessage }
             message = null
             showMessage = false
