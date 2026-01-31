@@ -147,5 +147,48 @@ can be configured with addtional parameters.
     </varlistentry>
   </variablelist>
 </refsection>
+
+<refsection xml:id="load-param-xml-attributes">
+<title>xml:* attributes in HTML parsing</title>
+
+<para>The underlying HTML parser used by XML Calabash renames attributes in the XML
+namespace. This appears to be a consequence of attempting to avoid namespace qualified
+attributes in HTML. It’s unnecessary and almost always inconvenient for attributes in the XML
+namespace. By default, starting in
+version 3.0.38, XML Calabash “fixes” them so that they’re back in the XML namespace.</para>
+
+<para>The <code>cx:xml-attributes</code> parameter can be used to
+specify an alternate mapping. (Mapping to <code>xmlU00003A<replaceable>name</replaceable></code>
+will restore the parser mapping.)
+</para>
+
+<variablelist>
+  <varlistentry><term><code>cx:xml-attributes</code> (map)</term>
+    <listitem>
+      <para>The keys in the map are the local names of attributes that might appear
+      in the XML namespace (<code>base</code>, <code>space</code>, …).</para>
+      <para>The value for each key specifies how it should be mapped:</para>
+      <variablelist>
+        <varlistentry><term><code>xml:<replaceable>name</replaceable></code></term>
+        <listitem><para>Use the attribute name <code>xml:<replaceable>name</replaceable></code>.
+      This is the default for each <code><replaceable>name</replaceable></code> attribute.</para>
+        </listitem></varlistentry>
+        <varlistentry><term><code><replaceable>name</replaceable></code></term>
+        <listitem><para>Use the attribute name <code><replaceable>name</replaceable></code>.
+        It is not possible to specify a QName, this must be an NCName.</para>
+        </listitem></varlistentry>
+        <varlistentry><term><code>()</code></term>
+        <listitem><para>If the value is the empty sequence, the attribute is discarded.</para>
+        </listitem></varlistentry>
+      </variablelist>
+    </listitem>
+  </varlistentry>
+  </variablelist>
+
+<note>
+<para>This parameter applies only when parsing HTML; it is otherwise ignored.</para>
+</note>
+
+</refsection>
 </refsection>
 </refentry>

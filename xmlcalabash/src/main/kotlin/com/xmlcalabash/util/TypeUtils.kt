@@ -77,6 +77,30 @@ class TypeUtils(val context: DocumentContext) {
             val occur = asType.occurrenceIndicator.toString()
             return "${baseType}${occur}"
         }
+
+        fun asMap(inputMap: XdmMap): Map<QName, XdmValue> {
+            val map = mutableMapOf<QName, XdmValue>()
+            for (key in inputMap.keySet()) {
+                val value = inputMap.get(key)
+                val qvalue = key.underlyingValue
+                val qkey = if (qvalue is QNameValue) {
+                    QName(qvalue.prefix, qvalue.namespaceURI.toString(), qvalue.localName)
+                } else {
+                    throw RuntimeException("Expected map of QName keys")
+                }
+                map.put(qkey, value)
+            }
+            return map
+        }
+
+        fun asGenericMap(inputMap: XdmMap): Map<XdmAtomicValue, XdmValue> {
+            val map = mutableMapOf<XdmAtomicValue, XdmValue>()
+            for (key in inputMap.keySet()) {
+                val value = inputMap.get(key)
+                map[key] = value
+            }
+            return map
+        }
     }
 
     fun parseBoolean(bool: String): Boolean {
@@ -207,27 +231,11 @@ class TypeUtils(val context: DocumentContext) {
     }
 
     fun asMap(inputMap: XdmMap): Map<QName, XdmValue> {
-        val map = mutableMapOf<QName, XdmValue>()
-        for (key in inputMap.keySet()) {
-            val value = inputMap.get(key)
-            val qvalue = key.underlyingValue
-            val qkey = if (qvalue is QNameValue) {
-                QName(qvalue.prefix, qvalue.namespaceURI.toString(), qvalue.localName)
-            } else {
-                throw RuntimeException("Expected map of QName keys")
-            }
-            map.put(qkey, value)
-        }
-        return map
+        return TypeUtils.asMap(inputMap)
     }
 
     fun asGenericMap(inputMap: XdmMap): Map<XdmAtomicValue, XdmValue> {
-        val map = mutableMapOf<XdmAtomicValue, XdmValue>()
-        for (key in inputMap.keySet()) {
-            val value = inputMap.get(key)
-            map[key] = value
-        }
-        return map
+        return TypeUtils.asGenericMap(inputMap)
     }
 
     fun asXdmArray(inputArray: ArrayItem): XdmArray {

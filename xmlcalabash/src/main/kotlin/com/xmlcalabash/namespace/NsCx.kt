@@ -154,5 +154,6 @@ object NsCx {
     val xmlUnit = QName(namespace, "cx:xmlunit")
     val xmlnt = QName(namespace, "cx:xmlnt")
     val xmlntStartchar = QName(namespace, "cx:xmlnt-startchar")
+    val xmlAttributes = QName(namespace, "cx:xml-attributes")
     val xpath = QName(namespace, "cx:xpath")
 }
