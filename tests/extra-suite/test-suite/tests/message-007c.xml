@@ -2,19 +2,10 @@
 <t:test expected="pass"
         xmlns:t="http://xproc.org/ns/testsuite/3.0">
   <t:info>
-    <t:title>message-007</t:title>
+    <t:title>message-007c</t:title>
     <t:revision-history>
       <t:revision>
-        <t:date>20265-01-31</t:date>
-        <t:author>
-          <t:name>Norm Tovey-Walsh</t:name>
-        </t:author>
-        <t:description xmlns="http://www.w3.org/1999/xhtml">
-          <p>Corrected the test; it wasn’t testing what it thought it was testing.</p>
-        </t:description>
-      </t:revision>
-      <t:revision>
-        <t:date>2025-08-24</t:date>
+        <t:date>2026-01-31</t:date>
         <t:author>
           <t:name>Norm Tovey-Walsh</t:name>
         </t:author>
@@ -25,12 +16,13 @@
     </t:revision-history>
   </t:info>
   <t:description xmlns="http://www.w3.org/1999/xhtml">
-    <p>Tests that message on a step inside p:catch works.</p>
+    <p>Tests another AVT issue.</p>
   </t:description>
   <t:pipeline>
     <p:declare-step version="3.0"
                     xmlns:err="http://www.w3.org/ns/xproc-error"
                     xmlns:cx="http://xmlcalabash.com/ns/extensions"
+                    xmlns:xs="http://www.w3.org/2001/XMLSchema" 
                     xmlns:c="http://www.w3.org/ns/xproc-step"
                     xmlns:s="http://purl.oclc.org/dsdl/schematron"
                     xmlns:p="http://www.w3.org/ns/xproc">
@@ -43,8 +35,8 @@
 
       <p:try name="dep">
         <p:output port="result"/>
-        <!-- This is a lexical error in the value of code -->
-        <p:error code="Q{}bang"/>
+        <!-- This error code will be "local", without a prefix because that's how QNames are serialized -->
+        <p:error code="{QName('http://example.com/', 'local')}"/>
         <p:catch>
           <p:output port="result"/>
           <p:identity message="Element is {node-name(/*)}"/>
@@ -79,8 +71,7 @@
       </s:pattern>
       <s:pattern>
         <s:rule context="wrapper/c:errors/c:error">
-          <s:assert test="@code = 'err:XS0107'">Error code is wrong</s:assert>
-          <s:assert test="cx:cause = 'lexical analysis failed'">Error reason is wrong</s:assert>
+          <s:assert test="@code = 'local'">Error code is wrong</s:assert>
         </s:rule>
       </s:pattern>
     </s:schema>

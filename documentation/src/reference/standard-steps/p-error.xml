@@ -27,5 +27,97 @@ step.</para>
 <refsection>
   <title>Description</title>
   <para role="external-refs"/>
+
+<para>The <tag class="attribute">code</tag> must be a QName. QName values
+and attribute value templates interact in some perhaps surprising ways.</para>
+
+<itemizedlist>
+<listitem>
+<para>This is an error:</para>
+
+<programlisting language="xml"><![CDATA[<p:error code="Q{http://example.com/}local"/>]]></programlisting>
+
+<para>Interpreted as an attribute value template, that’s lexically incorrect.</para>
+
+</listitem>
+<listitem>
+<para>This is either an error or probably an unexpected result:</para>
+
+<programlisting language="xml"><![CDATA[<p:error code="{Q{http://example.com/}local}"/>]]></programlisting>
+
+<para>That sets the value of <tag class="attribute">code</tag> to the string value
+of the element that matches the XPath expression “<code>child::Q{http://example.com/}local</code>” in the context
+document. If there is no context document, or if there are no elements
+that match the expression, or if multiple elements match the
+expression, that’s an error. If exactly one element matches the
+expression, it’s an error unless its string value happens to conform
+lexically to a QName.</para>
+</listitem>
+
+<listitem>
+<para>This isn’t an error, but the namespace is ignored:</para>
+
+<programlisting language="xml"><![CDATA[<p:error code="{fn:QName('http://example.com/', 'local')}"/>]]></programlisting>
+
+<para>The string value (all attribute value templates are resolved to string values)
+of a QName without a prefix is just the local name, <code>local</code>. So this result
+is the same as <code>code="local"</code>.</para>
+</listitem>
+
+<listitem>
+<para>This may be correct, but it’s also possible for it to raise an error or produce
+an incorrect code:</para>
+
+<programlisting language="xml"><![CDATA[<p:error code="{fn:QName('http://example.com/', 'ex:local')}"/>]]></programlisting>
+
+<para>The string value of the attribute value template is <code>ex:local</code>. If there’s
+an in-scope namespace binding for the <code>ex:</code> prefix, that will be used 
+<emphasis>regardless</emphasis> of whether or not it is bound to <uri>http://example.com/</uri>.
+If there is no in-scope namespace binding for <code>ex:</code>, it is an error.</para>
+</listitem>
+
+<listitem>
+<para>This works:</para>
+
+<programlisting language="xml"><![CDATA[<p:error xmlns:ex="http://example.com/" code="ex:local"/>]]></programlisting>
+
+<para>The string value of the attribute value template is <code>ex:local</code> and
+the in-scope namespace binding for <code>ex:</code> is <uri>http://example.com/</uri>.</para>
+</listitem>
+
+<listitem>
+<para>This works:</para>
+
+<programlisting language="xml"><![CDATA[<p:error>
+  <p:with-option name="code" select="QName('http://example.com/', 'local')"/>
+</p:error>]]></programlisting>
+
+<para>The value of the <option>code</option> option is computed without ever passing the
+result through a string value.</para>
+</listitem>
+
+<listitem>
+<para>This works:</para>
+
+<programlisting language="xml"><![CDATA[<p:error code="Q{{http://example.com/}}local"/>]]></programlisting>
+
+<para>The string value is <code>Q{http://example.com/}local</code> which is a lexical
+representation of a QName.</para>
+</listitem>
+</itemizedlist>
+
+<para>Generally speaking, an option with a type of <code>xs:QName</code> is best set using
+<tag>p:with-option</tag> or using an attribute value template that includes a
+prefix that is known to be bound to the correct URI.</para>
+
+<note>
+<para>In the <tag>c:errors</tag> document produced by
+<tag>p:error</tag>, the namespace prefix for the <option>code</option>
+value is usually, but not necessarily, the same as the prefix used in
+the pipeline document. (If the code is in a namespace, but no prefix
+is provided, a unique prefix will be created so that the lexical form
+in the <tag>c:error</tag> is always a lexical QName.)</para>
+</note>
+
 </refsection>
 </refentry>
