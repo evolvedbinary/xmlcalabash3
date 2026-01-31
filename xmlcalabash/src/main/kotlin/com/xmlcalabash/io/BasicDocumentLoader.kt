@@ -9,16 +9,17 @@ import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.namespace.Ns
 import com.xmlcalabash.namespace.NsCx
+import com.xmlcalabash.namespace.NsXml
 import com.xmlcalabash.util.MediaClassification
+import com.xmlcalabash.util.SaxAttributes
 import com.xmlcalabash.util.SaxonTreeBuilder
+import com.xmlcalabash.util.TypeUtils
 import net.sf.saxon.om.NamespaceUri
 import net.sf.saxon.s9api.*
 import net.sf.saxon.value.BooleanValue
 import nu.validator.htmlparser.common.XmlViolationPolicy
-import nu.validator.htmlparser.dom.HtmlDocumentBuilder
-import org.xml.sax.ErrorHandler
-import org.xml.sax.InputSource
-import org.xml.sax.SAXParseException
+import nu.validator.htmlparser.sax.HtmlParser
+import org.xml.sax.*
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
@@ -26,7 +27,6 @@ import java.net.URI
 import java.nio.ByteBuffer
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
-import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.sax.SAXSource
 
 class BasicDocumentLoader(val href: URI?,
@@ -185,12 +185,22 @@ class BasicDocumentLoader(val href: URI?,
     }
 
     private fun loadHtml(uri: URI?, stream: InputStream): XProcDocument {
-        val htmlBuilder = HtmlDocumentBuilder(XmlViolationPolicy.ALTER_INFOSET)
-        val html = htmlBuilder.parse(stream)
         val builder = processor.newDocumentBuilder()
         builder.isLineNumbering = parameters[NsCx.lineNumbering]?.underlyingValue?.effectiveBooleanValue() ?: false
         uri?.let { builder.baseURI = it }
-        val xdm = builder.build(DOMSource(html))
+
+        val xdmContentHandler = builder.newBuildingContentHandler()
+        val contentHandler = HtmlContentHandler(xdmContentHandler)
+
+        val parser = HtmlParser(XmlViolationPolicy.ALTER_INFOSET)
+        parser.contentHandler = contentHandler
+
+        val source = InputSource(stream)
+        source.systemId = uri.toString();
+
+        parser.parse(source)
+
+        val xdm = xdmContentHandler.documentNode
         return XProcDocument.ofXml(xdm, DocumentContextImpl(xdm), properties)
     }
 
@@ -285,7 +295,6 @@ class BasicDocumentLoader(val href: URI?,
         return readTextStream(stream, suppliedCharset)
     }
 
-
     private class LoaderErrorHandler(): ErrorHandler {
         var errorCount = 0
         var message: String? = null
@@ -306,6 +315,110 @@ class BasicDocumentLoader(val href: URI?,
                 message = exception.message
             }
             errorCount++
+        }
+    }
+
+    private inner class HtmlContentHandler(val handler: ContentHandler): ContentHandler {
+        val options = if (NsCx.xmlAttributes in parameters) {
+            val map = mutableMapOf<String, XdmValue>()
+            for ((key, value) in TypeUtils.asGenericMap(parameters[NsCx.xmlAttributes] as XdmMap)) {
+                map[key.underlyingValue.stringValue] = value
+            }
+            map
+        } else {
+            emptyMap()
+        }
+
+        override fun setDocumentLocator(locator: Locator?) {
+            handler.setDocumentLocator(locator)
+        }
+
+        override fun startDocument() {
+            handler.startDocument()
+        }
+
+        override fun endDocument() {
+            handler.endDocument()
+        }
+
+        override fun startPrefixMapping(prefix: String?, uri: String?) {
+            handler.startPrefixMapping(prefix, uri)
+        }
+
+        override fun endPrefixMapping(prefix: String?) {
+            handler.endPrefixMapping(prefix)
+        }
+
+        override fun startElement(uri: String?, localName: String?, qName: String?, atts: Attributes?) {
+            var newAtts: Attributes? = atts
+            if (atts != null) {
+                var copy = false
+                for (pos in 0 until atts.length) {
+                    val name = atts.getLocalName(pos)
+                    if (name.startsWith("xmlU00003A")) {
+                        copy = true
+                        break;
+                    }
+                }
+                if (copy) {
+                    val saxAtts = SaxAttributes()
+                    for (pos in 0 until atts.length) {
+                        val ns = atts.getURI(pos)
+                        val local = atts.getLocalName(pos)
+                        val qname = atts.getQName(pos)
+                        val value = atts.getValue(pos)
+                        if (local.startsWith("xmlU00003A")) {
+                            val realName = local.substring(10)
+                            if (realName in options) {
+                                if (options[realName]!! == XdmEmptySequence.getInstance()) {
+                                    // discard this attribute
+                                } else {
+                                    val mapping = options[realName]!!.underlyingValue.stringValue
+                                    if (mapping.startsWith("xml:")) {
+                                        val local = mapping.substring(4)
+                                        if (local == "" || ":" in local) {
+                                            throw IllegalArgumentException("Invalid attribute name: ${mapping}")
+                                        }
+                                        saxAtts.addAttribute(NsXml.namespace.toString(), local, mapping, value)
+                                    } else {
+                                        if (mapping == "" || ":" in mapping) {
+                                            throw IllegalArgumentException("Invalid attribute name: ${mapping}")
+                                        }
+                                        saxAtts.addAttribute("", mapping, mapping, value)
+                                    }
+                                }
+                            } else {
+                                saxAtts.addAttribute(NsXml.namespace.toString(), realName, "xml:${realName}", value)
+                            }
+                        } else {
+                            saxAtts.addAttribute(ns, local, qname, value)
+                        }
+                    }
+                    newAtts = saxAtts
+                }
+            }
+
+            handler.startElement(uri, localName, qName, newAtts)
+        }
+
+        override fun endElement(uri: String?, localName: String?, qName: String?) {
+            handler.endElement(uri, localName, qName)
+        }
+
+        override fun characters(ch: CharArray?, start: Int, length: Int) {
+            handler.characters(ch, start, length)
+        }
+
+        override fun ignorableWhitespace(ch: CharArray?, start: Int, length: Int) {
+            handler.ignorableWhitespace(ch, start, length)
+        }
+
+        override fun processingInstruction(target: String?, data: String?) {
+            handler.processingInstruction(target, data)
+        }
+
+        override fun skippedEntity(name: String?) {
+            handler.skippedEntity(name)
         }
     }
 }
