@@ -13,6 +13,48 @@ See the commits and pull requests on
 finer detail.</para>
 
 <revhistory>
+<revision xml:id="r3038">
+<revnumber>3.0.38</revnumber>
+<date>2026-01-31</date>
+<revdescription>
+<itemizedlist spacing="compact">
+<listitem><para>Closed <cbissue number="553"/>. Repair damage done to <code>xml:*</code>
+attributes by the Validator.nu parser. It maps them all to names
+without colons. Added <code>cx:xml-attributes</code> to the
+<option>parameters</option> option for <tag>p:load</tag> (and
+consequently, <tag>p:document</tag>) to control the mapping, if
+necessary.
+</para></listitem>
+<listitem><para>Closed <cbissue number="552"/>. The release build is now based on Java 11.
+Java 17 was causing integration problems.
+</para></listitem>
+<listitem><para>Closed <cbissue number="548"/>. If <tag>cx:metadata-extractor</tag>
+fails, it should not write anything to the result port. (It was writing an empty
+document.)
+</para></listitem>
+<listitem><para>Closed <cbissue number="547"/>. Clarified the handling of QName values in
+attribute value templates (specifically on <tag>p:error</tag>). Improved the
+<tag>p:try</tag> step so that it adds a namespace binding if necessary for the
+error code.
+</para></listitem>
+<listitem><para>Closed <cbissue number="545"/>. Support passing multiple documents
+to <tag>p:catch</tag> on the <port>error</port> port.
+</para></listitem>
+<listitem><para>Closed <cbissue number="541"/>. Tidy up the <code>MessageReporter</code>
+interface. It’s better, but I think further improvements are possible.
+</para></listitem>
+<listitem><para>Closed <cbissue number="540"/>. Improved wording vis-a-vis the line-numbering option.
+</para></listitem>
+<listitem><para>Closed <cbissue number="536"/>. Fixed bugs related to type checking
+against the <code>values</code> list associated with an option.
+</para></listitem>
+<listitem><para>Added the ability to cache compiled resources (stylesheets, queries,
+grammars. See <link xlink:href="https://docs.xmlcalabash.com/userguide/current/caching-compiled.html">Caching
+compiled resources</link>.
+</para></listitem>
+</itemizedlist>
+</revdescription>
+</revision>
 <revision xml:id="r3037">
 <revnumber>3.0.37</revnumber>
 <date>2026-01-18</date>
