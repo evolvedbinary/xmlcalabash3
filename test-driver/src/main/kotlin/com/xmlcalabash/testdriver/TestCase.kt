@@ -3,6 +3,7 @@ package com.xmlcalabash.testdriver
 import com.xmlcalabash.XmlCalabash
 import com.xmlcalabash.XmlCalabashBuilder
 import com.xmlcalabash.documents.XProcDocument
+import com.xmlcalabash.exceptions.DefaultErrorExplanation
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.exceptions.XProcException
 import com.xmlcalabash.namespace.Ns
@@ -52,6 +53,8 @@ class TestCase(val builder: XmlCalabashBuilder, val xmlCalabash: XmlCalabash, va
         val HIDDEN = QName("hidden")
         val EXECUTABLE = QName("executable")
         val ENCODING = QName("encoding")
+
+        private val showErrorExplanations = false;
     }
 
     val pipelineBuilder = xmlCalabash.newPipelineBuilder()
@@ -228,6 +231,24 @@ class TestCase(val builder: XmlCalabashBuilder, val xmlCalabash: XmlCalabash, va
             } catch (e: Exception) {
                 elapsedSeconds = (System.nanoTime() - start) / 1e9
                 endIO()
+
+                if (showErrorExplanations && e is XProcException) {
+                    val printer = DefaultMessagePrinter()
+                    printer.println("")
+                    printer.println("${testFile}:")
+                    printer.println("************************************************************")
+                    val reporter = DefaultMessageReporter()
+                    reporter.setMessagePrinter(printer)
+                    val explain = DefaultErrorExplanation(reporter)
+                    explain.report(e.error)
+                    for (report in e.error.reports) {
+                        explain.reporter.messagePrinter.println("  ${report}")
+                    }
+                    printer.println("------------------------------------------------------------")
+                    explain.reportExplanation(e.error)
+                    printer.println("************************************************************")
+                }
+
                 throw e
             }
 
