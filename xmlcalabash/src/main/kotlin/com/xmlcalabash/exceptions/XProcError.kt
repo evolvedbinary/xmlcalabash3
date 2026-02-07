@@ -195,6 +195,7 @@ open class XProcError protected constructor(val code: QName, val variant: Int, e
         fun xdDoesNotExist(path: String, message: String) = dynamic(Pair(11, 1), path, message)
         fun xdIsNotReadable(path: String, message: String) = dynamic(Pair(11, 2), path, message)
         fun xdIsNotWriteable(path: String, message: String) = dynamic(Pair(11, 3), path, message)
+        fun xdDoesNotExist(message: String) = dynamic(Pair(11, 4), message)
         fun xdInvalidQName(name: String) = dynamic(Pair(15, 1), name)
         fun xdNoBindingInScope(message: String) = dynamic(Pair(15, 2), message)
         fun xdInvalidSelection(name: QName) = dynamic(Pair(16, 1), name)
@@ -618,7 +619,6 @@ open class XProcError protected constructor(val code: QName, val variant: Int, e
             val error = XProcError(code, variant, errorLocation,location, *details)
             error._moreDetails.addAll(moreDetails)
             error._reports.addAll(reports)
-            println("ERR IN: ${error.inputLocation}")
             return error
         }
         return this

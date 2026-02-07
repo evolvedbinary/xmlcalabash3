@@ -9,7 +9,6 @@ import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.io.DocumentManager
 import com.xmlcalabash.namespace.Ns
-import com.xmlcalabash.steps.AbstractAtomicStep
 import com.xmlcalabash.util.S9Api
 import com.xmlcalabash.util.XmlToSax
 import net.sf.saxon.om.NamespaceUri
