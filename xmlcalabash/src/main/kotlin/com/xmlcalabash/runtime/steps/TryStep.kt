@@ -1,16 +1,19 @@
 package com.xmlcalabash.runtime.steps
 
 import com.xmlcalabash.documents.XProcDocument
-import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.exceptions.XProcException
 import com.xmlcalabash.namespace.NsC
 import com.xmlcalabash.namespace.NsCx
+import com.xmlcalabash.namespace.NsFn
 import com.xmlcalabash.runtime.XProcStepConfiguration
 import com.xmlcalabash.runtime.model.CompoundStepModel
+import com.xmlcalabash.util.S9Api
 import com.xmlcalabash.util.SaxonTreeBuilder
 import net.sf.saxon.om.NamespaceMap
 import net.sf.saxon.om.NamespaceUri
-import org.apache.logging.log4j.kotlin.logger
+import net.sf.saxon.s9api.QName
+import net.sf.saxon.s9api.SaxonApiException
+import net.sf.saxon.trans.XPathException
 
 open class TryStep(config: XProcStepConfiguration, compound: CompoundStepModel): CompoundStep(config, compound) {
     override fun run() {
@@ -98,27 +101,57 @@ open class TryStep(config: XProcStepConfiguration, compound: CompoundStepModel):
         }
     }
 
+    private fun getPrefix(map: Map<String,NamespaceUri>, uri: NamespaceUri, pref: String): String {
+        for ((key, value) in map) {
+            if (uri == value) {
+                return key
+            }
+        }
+        if (pref in map) {
+            return S9Api.uniquePrefix(map.keys)
+        }
+        return pref
+    }
+
     private fun errorDocument(step: AbstractStep, exception: Exception): XProcDocument {
         var codePrefix = ""
-        var nsmap = NamespaceMap.emptyMap()
-        nsmap = nsmap.put("c", NsC.namespace)
-        nsmap = nsmap.put("cx", NsCx.namespace)
+        var causeCode: QName? = null
+
+        // There's some risk of namespace collisions here; should work around that but not today
+        val bindings = mutableMapOf<String, NamespaceUri>()
+        bindings["c"] = NsC.namespace
+        bindings["cx"] = NsCx.namespace
+        bindings["fnerr"] = NsFn.errorNamespace
 
         if (exception is XProcException) {
-            if (exception.error.code.namespaceUri != NamespaceUri.NULL) {
-                codePrefix = if (exception.error.code.prefix == "") {
-                    "errpfx"
-                } else {
-                    exception.error.code.prefix
-                }
-                nsmap = nsmap.put(codePrefix, exception.error.code.namespaceUri)
-            }
             val type = exception.error.stackTrace[0]?.stepType
             if (type != null) {
                 if (type.prefix.isNotEmpty()) {
-                    nsmap = nsmap.put(type.prefix, type.namespaceUri)
+                    bindings[type.prefix] = type.namespaceUri
                 }
             }
+
+            if (exception.error.code.namespaceUri != NamespaceUri.NULL) {
+                val pfx = if (exception.error.code.prefix == "") "errpfx" else exception.error.code.prefix
+                codePrefix = getPrefix(bindings, exception.error.code.namespaceUri, pfx)
+                bindings[codePrefix] = exception.error.code.namespaceUri
+            }
+
+            var cause: Throwable? = exception.cause
+            if (cause is SaxonApiException && cause.cause is XPathException) {
+                cause = cause.cause as XPathException
+            }
+            if (cause is XPathException && cause.errorCodeQName != null) {
+                val pfx = if (cause.errorCodeQName.prefix == "") "cpfx" else cause.errorCodeQName.prefix
+                val causePrefix = getPrefix(bindings, cause.errorCodeQName.namespaceUri, pfx)
+                bindings[causePrefix] = cause.errorCodeQName.namespaceUri
+                causeCode = QName(cause.errorCodeQName.namespaceUri, "${causePrefix}:${cause.errorCodeQName.localPart}")
+            }
+        }
+
+        var nsmap = NamespaceMap.emptyMap()
+        for ((key, value) in bindings) {
+            nsmap = nsmap.put(key, value)
         }
 
         val builder = SaxonTreeBuilder(stepConfig)
@@ -144,6 +177,10 @@ open class TryStep(config: XProcStepConfiguration, compound: CompoundStepModel):
             }
             if (error.errorLocation.columnNumber > 0) {
                 attr["column"] = error.errorLocation.columnNumber.toString()
+            }
+
+            if (causeCode != null) {
+                attr["cause"] = "${causeCode}"
             }
 
             builder.addStartElement(NsC.error, step.stepConfig.typeUtils.stringAttributeMap(attr), nsmap)
