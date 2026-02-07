@@ -127,7 +127,9 @@ open class XQuerySaxonProcessor(): XQueryProcessor {
             if (goesBang != null) {
                 throw goesBang!!.exception()
             }
-            throw stepConfig.exception(XProcError.xcXQueryCompileError(ex.message ?: "null", ex))
+            val err = XProcError.xcXQueryCompileError(ex.message ?: "(no error message)", ex)
+            err.updateReports(errorReporter.errorMessages)
+            throw stepConfig.exception(err, ex)
         }
 
         lateinit var queryEval: XQueryEvaluator

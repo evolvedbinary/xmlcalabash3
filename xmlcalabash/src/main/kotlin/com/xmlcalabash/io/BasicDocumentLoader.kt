@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.toml.TomlFactory
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.xmlcalabash.datamodel.DocumentContextImpl
+import com.xmlcalabash.datamodel.Location
 import com.xmlcalabash.documents.DocumentProperties
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
@@ -16,6 +17,7 @@ import com.xmlcalabash.util.SaxonTreeBuilder
 import com.xmlcalabash.util.TypeUtils
 import net.sf.saxon.om.NamespaceUri
 import net.sf.saxon.s9api.*
+import net.sf.saxon.trans.XPathException
 import net.sf.saxon.value.BooleanValue
 import nu.validator.htmlparser.common.XmlViolationPolicy
 import nu.validator.htmlparser.sax.HtmlParser
@@ -73,6 +75,35 @@ class BasicDocumentLoader(val href: URI?,
 
             return sb.toString()
         }
+
+        val lineNumberRegex = "^.*input on line (\\d+).*$".toRegex()
+        fun lineNumber(msg: String?): Int {
+            val matches = lineNumberRegex.matchEntire(msg ?: "")
+            if (matches != null) {
+                return matches.groupValues[1].toInt()
+            }
+            return -1
+        }
+
+        // This seems marginally better than parsing the message with a regex.
+        // I don't know if it actually is.
+        fun lineAndColumn(ex: Throwable?): Pair<Int,Int> {
+            if (ex != null) {
+                if (ex is SAXParseException) {
+                    return Pair(ex.lineNumber, ex.columnNumber)
+                }
+
+                if (ex is SaxonApiException && ex != ex.cause) {
+                    return lineAndColumn(ex.cause)
+                }
+
+                if (ex is XPathException && ex != ex.cause) {
+                    return lineAndColumn(ex.cause)
+                }
+            }
+
+            return Pair(-1, -1)
+        }
     }
 
     var readExternalSubset = true
@@ -109,10 +140,10 @@ class BasicDocumentLoader(val href: URI?,
                 try {
                     loadXml(href, stream)
                 } catch (ex: SaxonApiException) {
-                    if (href != null) {
-                        throw XProcError.xdNotWellFormed(href).exception(ex)
-                    }
-                    throw XProcError.xdNotWellFormed().exception(ex)
+                    // This is a hack, but I don't see a better way
+                    val lineCol = lineAndColumn(ex)
+                    val err = XProcError.xdNotWellFormed().atInput(Location(href, lineCol.first, lineCol.second))
+                    throw err.exception(ex)
                 }
             }
             MediaClassification.HTML -> loadHtml(href, stream)
@@ -169,13 +200,17 @@ class BasicDocumentLoader(val href: URI?,
 
                 val xdm = builder.build(SAXSource(source))
                 if (errorHandler.errorCount > 0) {
-                    if (validating) {
-                        throw XProcError.xdNotDtdValid(errorHandler.message ?: "No message provided").exception()
+                    val error = if (validating) {
+                        XProcError.xdNotDtdValid(errorHandler.messages.first())
+                    } else {
+                        if (href != null) {
+                            XProcError.xdNotWellFormed(href)
+                        } else {
+                            XProcError.xdNotWellFormed()
+                        }
                     }
-                    if (href != null) {
-                        throw XProcError.xdNotWellFormed(href).exception()
-                    }
-                    throw XProcError.xdNotWellFormed().exception()
+                    val location = Location(href, errorHandler.positions.first().first, errorHandler.positions.first().second)
+                    throw error.atInput(location).exception()
                 }
                 return XProcDocument.ofXml(xdm, DocumentContextImpl(xdm), properties)
             } finally {
@@ -236,7 +271,11 @@ class BasicDocumentLoader(val href: URI?,
             if (pos >= 0) {
                 val epos = ex.message!!.indexOf("}")
                 val key = ex.message!!.substring(pos+21, epos+1)
-                throw XProcError.xdDuplicateKey(key).exception(ex)
+
+                // This is a hack, but I don't see a better way
+                val line = lineNumber(ex.message)
+                val err = XProcError.xdDuplicateKey(key).atInput(Location(href, line, -1))
+                throw err.exception(ex)
             }
 
             if ((ex.message ?: "").startsWith("Invalid JSON")) {
@@ -296,25 +335,23 @@ class BasicDocumentLoader(val href: URI?,
     }
 
     private class LoaderErrorHandler(): ErrorHandler {
-        var errorCount = 0
-        var message: String? = null
+        val messages = mutableListOf<String>()
+        val positions = mutableListOf<Pair<Int, Int>>()
+        val errorCount: Int
+            get() = messages.size
 
         override fun warning(exception: SAXParseException?) {
             // nop
         }
 
         override fun error(exception: SAXParseException?) {
-            if (message == null && exception?.message != null) {
-                message = exception.message
-            }
-            errorCount++
+            messages.add(exception?.message ?: "Unknown error")
+            positions.add(Pair(exception?.lineNumber ?: -1, exception?.columnNumber ?: -1))
         }
 
         override fun fatalError(exception: SAXParseException?) {
-            if (message == null && exception?.message != null) {
-                message = exception.message
-            }
-            errorCount++
+            messages.add(exception?.message ?: "Unknown error")
+            positions.add(Pair(exception?.lineNumber ?: -1, exception?.columnNumber ?: -1))
         }
     }
 

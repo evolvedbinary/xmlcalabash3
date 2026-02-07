@@ -11,6 +11,7 @@ import com.xmlcalabash.namespace.NsErr
 import com.xmlcalabash.namespace.NsXvrl
 import com.xmlcalabash.util.*
 import net.sf.saxon.s9api.*
+import org.apache.jena.sparql.function.library.localname
 import org.xml.sax.InputSource
 import java.io.BufferedReader
 import java.io.ByteArrayOutputStream
@@ -19,9 +20,10 @@ import java.io.InputStreamReader
 import java.nio.charset.StandardCharsets
 import javax.xml.transform.sax.SAXSource
 
-class DefaultErrorExplanation(val reporter: MessageReporter): ErrorExplanation {
+class DefaultErrorExplanation(override val reporter: MessageReporter): ErrorExplanation {
     override var showStacktrace = false
     override var messageWidth = 72;
+    private val initialCwd = UriUtils.cwdAsUri()
     private val nl: String
 
     companion object {
@@ -79,11 +81,20 @@ class DefaultErrorExplanation(val reporter: MessageReporter): ErrorExplanation {
             }
         }
 
+        val relerr = relativeLocation(error.errorLocation)
+        val relinp = relativeLocation(error.inputLocation)
         val sb = StringBuilder()
-        if (error.location != Location.NULL) {
-            sb.append("${error.code} at ${error.location}")
+        if (relerr != null) {
+            sb.append("${error.code} at ${relerr}")
+            if (relinp != null) {
+                sb.append(" (in ${relinp})")
+            }
         } else {
-            sb.append("${error.code}")
+            if (relinp != null) {
+                sb.append("${error.code} in ${relinp}")
+            } else {
+                sb.append("${error.code}")
+            }
         }
 
         if (errorMessage == null) {
@@ -94,10 +105,6 @@ class DefaultErrorExplanation(val reporter: MessageReporter): ErrorExplanation {
             }
         } else {
             sb.append(": ").append(errorMessage)
-        }
-
-        if (error.inputLocation != Location.NULL && error.inputLocation.baseUri != error.location.baseUri) {
-            sb.append("\n").append("   in ${error.inputLocation}")
         }
 
         if (error.throwable != null && error.throwable?.message != null) {
@@ -113,6 +120,20 @@ class DefaultErrorExplanation(val reporter: MessageReporter): ErrorExplanation {
         }
 
         return sb.toString()
+    }
+
+    private fun relativeLocation(location: Location): String? {
+        if (location.baseUri != null) {
+            val rel = UriUtils.makeRelativeTo(initialCwd, location.baseUri).toString()
+            if (location.lineNumber > 0) {
+                if (location.columnNumber > 0) {
+                    return "${rel}:${location.lineNumber}:${location.columnNumber}"
+                }
+                return "${rel}:${location.lineNumber}"
+            }
+            return rel
+        }
+        return null
     }
 
     override fun report(error: XProcError) {

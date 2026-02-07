@@ -17,7 +17,7 @@ class XProcException(val error: XProcError, cause: Throwable? = null): RuntimeEx
         elaborated = true
 
         error.updateAt(type, name)
-        if (error.location == Location.NULL) {
+        if (error.errorLocation == Location.NULL) {
             error.updateAt(location)
         }
 
@@ -37,7 +37,9 @@ class XProcException(val error: XProcError, cause: Throwable? = null): RuntimeEx
     private fun elaborateXPathException(ex: XPathException) {
         if (ex.locator is XPathParser.NestedLocation) {
             val nestloc = ex.locator as XPathParser.NestedLocation
-            error.updateAt(Location(nestloc))
+            error.updateAtInput(Location(nestloc))
+        } else if (ex.locator != null) {
+            error.updateAtInput(Location(ex.locator))
         }
     }
 

@@ -138,12 +138,12 @@ open class TryStep(config: XProcStepConfiguration, compound: CompoundStepModel):
                 attr["code"] = "${codePrefix}:${error.code.localName}"
             }
 
-            attr["href"] = error.location.baseUri?.toString()
-            if (error.location.lineNumber > 0) {
-                attr["line"] = error.location.lineNumber.toString()
+            attr["href"] = error.errorLocation.baseUri?.toString()
+            if (error.errorLocation.lineNumber > 0) {
+                attr["line"] = error.errorLocation.lineNumber.toString()
             }
-            if (error.location.columnNumber > 0) {
-                attr["column"] = error.location.columnNumber.toString()
+            if (error.errorLocation.columnNumber > 0) {
+                attr["column"] = error.errorLocation.columnNumber.toString()
             }
 
             builder.addStartElement(NsC.error, step.stepConfig.typeUtils.stringAttributeMap(attr), nsmap)

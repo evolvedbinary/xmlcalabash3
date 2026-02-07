@@ -149,7 +149,7 @@ class XmlCalabashBuilder {
             saxonConfiguration.configuration.isLineNumbering = lineNumbering.getOrDefault() == true
             xconfig._saxonConfiguration = saxonConfiguration
 
-                if (xconfig.xmlSchemas.isNotEmpty()
+            if (xconfig.xmlSchemas.isNotEmpty()
                 && !saxonConfiguration.configuration.isLicensedFeature(Configuration.LicenseFeature.SCHEMA_VALIDATION)) {
                 logger.warn { "Schema validation feature is not enabled, ignoring configured schemas" }
             }

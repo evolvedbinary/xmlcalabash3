@@ -4,10 +4,12 @@ import com.xmlcalabash.config.StepConfiguration
 import com.xmlcalabash.datamodel.Location
 import com.xmlcalabash.namespace.Ns
 import com.xmlcalabash.namespace.NsSaxon
+import net.sf.saxon.expr.parser.XPathParser
 import net.sf.saxon.s9api.Message
 import net.sf.saxon.s9api.QName
 import net.sf.saxon.s9api.XmlProcessingError
 import net.sf.saxon.trans.XPathException
+import net.sf.saxon.tree.AttributeLocation
 
 open class Report(val severity: Verbosity, val message: () -> String) {
     private var _location: Location = Location.NULL
@@ -61,7 +63,20 @@ open class Report(val severity: Verbosity, val message: () -> String) {
         if (error.errorCode != null) {
             _extraDetail[Ns.code] = "Q{${error.errorCode.namespaceUri}}${error.errorCode.localName}"
         }
-        error.failingExpression?.let { _extraDetail[NsSaxon.expression] = "${error.failingExpression}" }
+
+        if (error.failingExpression != null) {
+            _extraDetail[NsSaxon.expression] = "${error.failingExpression}"
+        } else {
+            if (error.location is XPathParser.NestedLocation
+                && (error.location as XPathParser.NestedLocation).containingLocation is AttributeLocation) {
+                val al = (error.location as XPathParser.NestedLocation).containingLocation as AttributeLocation
+                if (al.elementName != null && al.attributeName != null) {
+                    _extraDetail[NsSaxon.expression] = "${al.elementName}/@${al.attributeName}"
+                }
+            }
+        }
+
+        error.failingExpression?.let { _extraDetail[NsSaxon.expression] = "${it}" }
         error.path?.let { _extraDetail[Ns.path] = it }
         error.terminationMessage?.let { _extraDetail[NsSaxon.terminationMessage] = it }
         if (error.isAlreadyReported) {
@@ -82,7 +97,45 @@ open class Report(val severity: Verbosity, val message: () -> String) {
         _extraDetail[detail] = value
     }
 
+    // Note: This is disconnected from the message localization infrastructure. Alas.
     override fun toString(): String {
-        return message()
+        val code = if (extraDetail[Ns.code] != null) {
+            val s = extraDetail[Ns.code]!!
+            if (s.startsWith("Q{http://www.w3.org/2005/xqt-errors}")) {
+                s.substringAfter("}")
+            } else {
+                s
+            }
+        } else {
+            null
+        }
+
+        val language = when (extraDetail[NsSaxon.hostLanguage]) {
+            "XSLT" -> "XSLT"
+            "XQUERY" -> "XQuery"
+            "XPATH" -> "XPath"
+            "XML_SCHEMA" -> "XML Schema"
+            "XSLT_PATTERN" -> "XSLT Pattern"
+            else -> null
+        }
+
+        val sb = StringBuilder()
+        if (language != null) {
+            sb.append(language).append(" ")
+            if (code != null) {
+                sb.append("error ").append(code)
+            }
+            if (NsSaxon.expression in extraDetail) {
+                sb.append(" in expression").append(extraDetail[NsSaxon.expression]!!)
+            }
+            sb.append(": ")
+        } else {
+            if (code != null) {
+                sb.append("Error ").append(code).append(": ")
+            }
+        }
+
+        sb.append(message())
+        return sb.toString()
     }
 }

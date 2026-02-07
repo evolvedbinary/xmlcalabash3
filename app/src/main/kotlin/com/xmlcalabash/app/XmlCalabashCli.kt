@@ -8,7 +8,6 @@ import com.xmlcalabash.config.ConfigurationLoader
 import com.xmlcalabash.config.XmlCalabashInput
 import com.xmlcalabash.config.XmlCalabashOutput
 import com.xmlcalabash.datamodel.*
-import com.xmlcalabash.datamodel.Location
 import com.xmlcalabash.documents.DocumentProperties
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.DefaultErrorExplanation
@@ -25,7 +24,6 @@ import com.xmlcalabash.util.*
 import net.sf.saxon.Configuration
 import net.sf.saxon.s9api.*
 import org.apache.logging.log4j.kotlin.logger
-import org.xml.sax.SAXParseException
 import org.xmlresolver.ResolverFeature
 import org.xmlresolver.XMLResolver
 import java.io.BufferedReader
@@ -542,61 +540,14 @@ class XmlCalabashCli private constructor() {
         exitProcess(1)
     }
 
-    private fun explainError(errorExplanation: ErrorExplanation, error: XProcException) {
-        errorExplanation.report(error.error)
-
-        when (error.error.code) {
-            NsErr.xc(93) -> { // XSLT compile error
-                // This is kind of awful
-                val reports = error.error.details[2] as List<*>
-                for (anyReport in reports) {
-                    val report = anyReport as Report
-                    stepConfig.xmlCalabashConfig.messageReporter.report(report.severity) { report }
-                }
-            }
-            else -> {
-                val cause = error.cause
-                if (cause != null) {
-                    val report = when (cause) {
-                        is SAXParseException -> {
-                            var sep = ""
-                            val sb = StringBuilder()
-                            if (cause.systemId != null) {
-                                sb.append(cause.systemId!!)
-                                sep = ":"
-                            }
-                            if (cause.lineNumber > 0) {
-                                sb.append(sep).append(cause.lineNumber)
-                                sep = ":"
-                            }
-                            if (cause.columnNumber > 0) {
-                                sb.append(sep).append(cause.columnNumber)
-                                sep = ":"
-                            }
-                            sb.append(sep)
-                            sb.append(cause.message ?: "Unknown error")
-                            Report(Verbosity.ERROR, { sb.toString() }, error.cause!!)
-                        }
-                        else -> {
-                            Report(Verbosity.ERROR, { error.cause?.message ?: "Unknown error" }, error.cause!!)
-                        }
-                    }
-                    if (haveStepConfig) {
-                        stepConfig.xmlCalabashConfig.messageReporter.report(report.severity) { report }
-                    } else {
-                        cliReporter.report(report.severity) { report }
-                    }
-                }
-            }
+    private fun explainError(errorExplanation: ErrorExplanation, ex: XProcException) {
+        errorExplanation.report(ex.error)
+        for (report in ex.error.reports) {
+            errorExplanation.reporter.messagePrinter.println("  ${report}")
         }
 
         if (builder.explainErrors.getOrDefault()!!) {
-            errorExplanation.reportExplanation(error.error)
-        }
-
-        if (error.cause is XProcException) {
-            cliPrinter.println("Caused by:")
-            explainError(errorExplanation, error.cause as XProcException)
+            errorExplanation.reportExplanation(ex.error)
         }
     }
 
