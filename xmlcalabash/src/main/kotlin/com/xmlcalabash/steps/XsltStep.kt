@@ -204,26 +204,18 @@ open class XsltStep(): AbstractAtomicStep() {
                 else -> throw stepConfig.exception(XProcError.xcXsltRuntimeError(sae.message!!))
             }
 
-            val message = if (errorReporter.errorMessages.isNotEmpty()) {
+            val err = if (errorReporter.errorMessages.isNotEmpty()) {
                 val error = errorReporter.errorMessages.first()
-                val sb = StringBuilder()
-                if (error.inputLocation.baseUri != null) {
-                    sb.append(error.inputLocation.baseUri)
-                    if (error.inputLocation.lineNumber > 0) {
-                        sb.append(":").append(error.inputLocation.lineNumber)
-                        if (error.inputLocation.columnNumber > 0) {
-                            sb.append(":").append(error.inputLocation.columnNumber)
-                        }
-                    }
-                    sb.append(": ")
-                }
-                sb.append(error.message())
-                sb.toString()
+                val xerror = XProcError.xcXsltCompileError(error.message(), sae)
+                xerror.updateAt(error.location)
+                xerror.updateAtInput(error.inputLocation)
+                xerror
             } else {
-                sae.message ?: "(no message)"
+                XProcError.xcXsltCompileError(sae.message ?: "(no error message)", sae)
             }
 
-            throw stepConfig.exception(XProcError.xcXsltCompileError(message, sae, errorReporter.errorMessages))
+            err.updateReports(errorReporter.errorMessages)
+            throw stepConfig.exception(err, sae)
         }
 
         lateinit var transformer: Xslt30Transformer
@@ -351,25 +343,22 @@ open class XsltStep(): AbstractAtomicStep() {
             }
         } catch (ex: SaxonApiException) {
             // Generally speaking, we can get more useful information from the error reporter
-            val error = errorReporter.errorMessages.lastOrNull()
-            val location = error?.location ?: com.xmlcalabash.datamodel.Location.NULL
+            val errors = errorReporter.errorMessages
+            val location = errors.firstOrNull()?.location ?: com.xmlcalabash.datamodel.Location.NULL
 
-            if (ex.cause is Error.UserDefinedXPathException || ex.cause is TerminationException) {
-                if (terminationError != null) {
-                    throw terminationError!!.exception(ex)
-                }
-                throw stepConfig.exception(XProcError.xcXsltUserTermination(ex.message ?: "", location), ex)
+            val xerror = if (ex.cause is Error.UserDefinedXPathException || ex.cause is TerminationException) {
+                terminationError ?: XProcError.xcXsltUserTermination(ex.message ?: "")
             } else {
-                when (ex.errorCode) {
-                    NsFn.errXTDE0040 -> throw stepConfig.exception(XProcError.xcXsltNoTemplate(templateName!!), ex)
-                    else -> {
-                        if (ex.message == error?.message()) {
-                            throw stepConfig.exception(XProcError.xcXsltRuntimeError(ex.message!!, location), ex)
-                        }
-                        throw stepConfig.exception(XProcError.xcXsltRuntimeError(ex.message!!, location, error?.message()), ex)
-                    }
+                if (ex.errorCode == NsFn.errXTDE0040) {
+                    XProcError.xcXsltNoTemplate(templateName!!)
+                } else {
+                    XProcError.xcXsltRuntimeError(ex.message ?: "")
                 }
             }
+
+            xerror.updateAt(location)
+            xerror.updateReports(errors)
+            throw stepConfig.exception(xerror, ex);
         }
 
         val props = DocumentProperties()

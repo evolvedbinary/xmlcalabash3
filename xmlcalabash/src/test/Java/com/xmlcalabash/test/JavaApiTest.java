@@ -169,8 +169,8 @@ public class JavaApiTest {
             declareStep.runtime();
         } catch (XProcException ex) {
             Assertions.assertEquals("XS0107", ex.getError().getCode().getLocalName());
-            Assertions.assertEquals(11, ex.getError().getLocation().getLineNumber());
-            Assertions.assertEquals(17, ex.getError().getLocation().getColumnNumber());
+            Assertions.assertEquals(11, ex.getError().getErrorLocation().getLineNumber());
+            Assertions.assertEquals(17, ex.getError().getErrorLocation().getColumnNumber());
         }
     }
 
