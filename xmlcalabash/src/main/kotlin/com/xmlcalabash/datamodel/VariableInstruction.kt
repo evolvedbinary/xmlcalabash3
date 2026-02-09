@@ -11,8 +11,11 @@ open class VariableInstruction(parent: XProcInstruction, name: QName, stepConfig
         if (select == null) {
             throw stepConfig.exception(XProcError.xsMissingRequiredAttribute(Ns.select))
         } else {
-            asType = asType ?: stepConfig.typeUtils.parseSequenceType("item()*")
-            select = select!!.cast(asType!!)
+            if (asType != null) {
+                select = select!!.cast(asType!!)
+            } else {
+                asType = stepConfig.typeUtils.parseSequenceType("item()*")
+            }
         }
 
         super.elaborateInstructions()

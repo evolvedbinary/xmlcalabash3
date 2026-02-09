@@ -12,11 +12,17 @@ import net.sf.saxon.s9api.*
 
 abstract class XProcExpression(val stepConfig: StepConfiguration, val asType: SequenceType, val collection: Boolean, val values: List<XdmAtomicValue>) {
     companion object {
-        fun select(stepConfig: StepConfiguration, select: String, asType: SequenceType = SequenceType.ANY, collection: Boolean = false, values: List<XdmAtomicValue> = emptyList()): XProcSelectExpression {
+        fun select(stepConfig: StepConfiguration,
+                   select: String,
+                   asType: SequenceType = SequenceType.ANY,
+                   collection: Boolean = false,
+                   values: List<XdmAtomicValue> = emptyList(),
+                   syntaxWarning: Boolean = true): XProcSelectExpression {
             val expr = XProcSelectExpression.newInstance(stepConfig, select, asType, collection, values)
             expr._details = XPathExpressionParser(stepConfig).parse(select)
-            if (expr.details.error != null) {
+            if (expr.details.error != null && syntaxWarning) {
                 stepConfig.warn { "Invalid select expression: ${select}: ${expr.details.error?.message ?: "(no explanation)"}" }
+                expr.shownSyntaxWarning = true
                 //throw stepConfig.exception(XProcError.xsXPathStaticError(expr.details.error?.message ?: ""), expr.details.error!!)
             }
             return expr

@@ -213,11 +213,13 @@ class DefaultErrorExplanation(override val reporter: MessageReporter): ErrorExpl
             while (match != null) {
                 val (preamble, token, postamble) = match.destructured
                 val number = token.toInt() - 1
+
+                sb.append(preamble)
                 if (number < details.size) {
-                    message = "${preamble}${stringify(details[number])}${postamble}"
-                } else {
-                    message = "${preamble}${postamble}"
+                    sb.append(stringify(details[number]))
                 }
+
+                message = postamble
                 match = re.find(message)
             }
             sb.append(message)
