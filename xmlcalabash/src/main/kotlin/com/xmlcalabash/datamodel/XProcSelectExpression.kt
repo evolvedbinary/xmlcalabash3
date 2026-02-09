@@ -18,10 +18,11 @@ class XProcSelectExpression private constructor(stepConfig: StepConfiguration, v
         }
     }
 
+    internal var shownSyntaxWarning = false
     internal var requiresValue = false
 
     override fun cast(asType: SequenceType, values: List<XdmAtomicValue>): XProcExpression {
-        return select(stepConfig, select, asType, collection, values)
+        return select(stepConfig, select, asType, collection, values, !shownSyntaxWarning)
     }
 
     override fun xevaluate(runtimeConfig: StepConfiguration): () -> XdmValue {
