@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test
 class XmlCalabashOutputTest {
     @Test
     fun testNotPatterned() {
-        val outfn = XmlCalabashOutput("test.xml")
+        val outfn = XmlCalabashOutput(null, "test.xml")
         Assertions.assertFalse(outfn.isSequential())
         Assertions.assertEquals("test.xml", outfn.nextFile().name)
         Assertions.assertEquals("test.xml", outfn.nextFile().name)
@@ -15,7 +15,7 @@ class XmlCalabashOutputTest {
 
     @Test
     fun testSimplePatternedNoLeadingZeros() {
-        val outfn = XmlCalabashOutput("test%2d.xml")
+        val outfn = XmlCalabashOutput(null, "test%2d.xml")
         Assertions.assertTrue(outfn.isSequential())
         Assertions.assertEquals("test 1.xml", outfn.nextFile().name)
         Assertions.assertEquals("test 2.xml", outfn.nextFile().name)
@@ -23,7 +23,7 @@ class XmlCalabashOutputTest {
 
     @Test
     fun testSimplePatterned() {
-        val outfn = XmlCalabashOutput("test%02d.xml")
+        val outfn = XmlCalabashOutput(null, "test%02d.xml")
         Assertions.assertTrue(outfn.isSequential())
         Assertions.assertEquals("test01.xml", outfn.nextFile().name)
         Assertions.assertEquals("test02.xml", outfn.nextFile().name)
@@ -31,7 +31,7 @@ class XmlCalabashOutputTest {
 
     @Test
     fun testMultiplePatterned() {
-        val outfn = XmlCalabashOutput("test%02d_%x.xml")
+        val outfn = XmlCalabashOutput(null, "test%02d_%x.xml")
         Assertions.assertTrue(outfn.isSequential())
         Assertions.assertEquals("test01_1.xml", outfn.nextFile().name)
         for (index in 2 .. 9) {
@@ -42,7 +42,7 @@ class XmlCalabashOutputTest {
 
     @Test
     fun testLiteralPercent() {
-        val outfn = XmlCalabashOutput("test%%.xml")
+        val outfn = XmlCalabashOutput(null, "test%%.xml")
         Assertions.assertFalse(outfn.isSequential())
         Assertions.assertEquals("test%.xml", outfn.nextFile().name)
         Assertions.assertEquals("test%.xml", outfn.nextFile().name)
@@ -50,7 +50,7 @@ class XmlCalabashOutputTest {
 
     @Test
     fun testBothLiteralPercent() {
-        val outfn = XmlCalabashOutput("test%%%02X%%.xml")
+        val outfn = XmlCalabashOutput(null, "test%%%02X%%.xml")
         Assertions.assertTrue(outfn.isSequential())
         Assertions.assertEquals("test%01%.xml", outfn.nextFile().name)
         for (index in 2 .. 8) {
@@ -62,7 +62,7 @@ class XmlCalabashOutputTest {
 
     @Test
     fun testBothMultiplePatterned() {
-        val outfn = XmlCalabashOutput("test%02d%%%x.xml")
+        val outfn = XmlCalabashOutput(null, "test%02d%%%x.xml")
         Assertions.assertTrue(outfn.isSequential())
         Assertions.assertEquals("test01%1.xml", outfn.nextFile().name)
         for (index in 2 .. 8) {

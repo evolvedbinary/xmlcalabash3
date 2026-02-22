@@ -198,6 +198,18 @@ open class XProcDocument internal constructor() {
             return _properties.contentType
         }
 
+    val encoding: String?
+        get() {
+            val cs = _properties[Ns.encoding]
+            if (cs != null) {
+                return cs.toString()
+            }
+            if (contentClassification == MediaClassification.BINARY) {
+                return null
+            }
+            return "UTF-8"
+        }
+
     val contentClassification: MediaClassification
         get() {
             return _properties.contentType?.classification() ?: MediaClassification.BINARY

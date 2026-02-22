@@ -64,6 +64,10 @@ pre.language-none {
     border-radius: 0.5em;
 }
 
+.cmdsynopsis .arg {
+    white-space: nowrap;
+}
+
 code.literal {
     border: none;
     background-color: inherit;
@@ -78,7 +82,7 @@ code.literal {
     margin-bottom: 0;
 }
 
-.uri {
+.uri, .filename, .option {
     white-space: nowrap;
 }
 

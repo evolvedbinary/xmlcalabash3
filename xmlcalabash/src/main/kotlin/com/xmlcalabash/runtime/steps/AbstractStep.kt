@@ -82,7 +82,8 @@ abstract class AbstractStep(val stepConfig: XProcStepConfiguration, step: StepMo
         if (flange.contentTypes.isNotEmpty()) {
             val mtype = doc.contentType ?: MediaType.ANY
             val match = mtype.matchingMediaType(flange.contentTypes)
-            if (match == null || !match.inclusive) {
+            // If MULTIPART_MIXED is allowed, then anything is allowed
+            if ((match == null || !match.inclusive) && MediaType.MULTIPART_MIXED !in flange.contentTypes) {
                 return XProcError.xdBadInputContentType(port, mtype.toString())
             }
         }

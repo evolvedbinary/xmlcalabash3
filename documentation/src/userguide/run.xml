@@ -64,42 +64,47 @@ given, the <command>run</command> command is assumed.</para>
 <cmdsynopsis>
   <command>xmlcalabash</command>
   <arg choice="opt">run</arg>
-
   <arg rep="norepeat" linkend="cli-assertions">--assertions:<replaceable>level</replaceable></arg>
   <arg rep="repeat" linkend="cli-catalog">--catalog:<replaceable>catalog-file-uri</replaceable></arg>
-  <sbr/>
+<!--  <sbr/>-->
   <arg rep="norepeat" linkend="cli-configuration">--configuration:<replaceable>configuration-file</replaceable></arg>
   <arg rep="norepeat" linkend="cli-debug">--debug</arg>
   <arg rep="norepeat" linkend="cli-debugger">--debugger</arg>
   <arg rep="norepeat" linkend="cli-explain">--explain</arg>
-  <sbr/>
+<!--  <sbr/>-->
   <arg rep="repeat" linkend="cli-extension">--extension:<replaceable>name</replaceable></arg>
   <arg rep="norepeat" linkend="cli-graphs">--graphs:<replaceable>graph-output-directory</replaceable></arg>
   <arg rep="norepeat" linkend="cli-help">--help</arg>
+<!--  <sbr/>-->
   <arg rep="repeat" linkend="cli-init">--init:<replaceable>class-name</replaceable></arg>
-  <sbr/>
-  <arg rep="repeat" linkend="cli-input">--input:[<replaceable>type</replaceable>@]<replaceable>port</replaceable>=<replaceable>uri</replaceable></arg>
+  <arg rep="repeat" linkend="cli-input">--input:[[<replaceable>type</replaceable>@]<replaceable>port</replaceable>=]<replaceable>uri</replaceable></arg>
+  <arg rep="repeat" linkend="cli-input-multiplex">--input-multiplex:<replaceable>uri</replaceable>[?<replaceable>X</replaceable>=<replaceable>Y</replaceable>;…]</arg>
+<!--  <sbr/>-->
   <arg rep="norepeat" linkend="cli-licensed">--licensed</arg>
   <arg rep="norepeat" linkend="cli-line-numbering">--line-numbering</arg>
+  <arg rep="norepeat" linkend="cli-manifest">--manifest[:<replaceable>filename</replaceable>]</arg>
   <arg rep="repeat" linkend="cli-namespace">--namespace:<replaceable>prefix</replaceable>=<replaceable>uri</replaceable></arg>
-  <sbr/>
+<!--  <sbr/>-->
   <arg rep="norepeat" linkend="cli-nogo">--nogo</arg>
-  <arg rep="repeat" linkend="cli-output">--output:<replaceable>port</replaceable>=<replaceable>filespec</replaceable></arg>
+  <arg rep="repeat" linkend="cli-output">--output:[[<replaceable>type</replaceable>@]<replaceable>port</replaceable>=]<replaceable>filespec</replaceable></arg>
+  <arg rep="norepeat" linkend="cli-output-multiplex">--output-multiplex:<replaceable>filename</replaceable></arg>
   <arg rep="norepeat" linkend="cli-pipe">--pipe</arg>
+<!--  <sbr/>-->
   <arg rep="norepeat" linkend="cli-stacktrace">--stacktrace</arg>
   <arg rep="norepeat" linkend="cli-step">--step:<replaceable>step-name</replaceable></arg>
-  <sbr/>
+<!--  <sbr/>-->
+  <arg rep="norepeat" linkend="cli-temporary-files">--temporary-files[:<replaceable>directory</replaceable>]</arg>
   <arg rep="norepeat" linkend="cli-trace">--trace:<replaceable>output-file</replaceable></arg>
   <arg rep="norepeat" linkend="cli-trace-documents">--trace-documents:<replaceable>output-directory</replaceable></arg>
-  <sbr/>
+<!--  <sbr/>-->
   <arg rep="norepeat" linkend="cli-try-namespaces">--try-namespaces</arg>
   <arg rep="norepeat" linkend="cli-use-location-hints">--use-location-hints</arg>
   <arg rep="norepeat" linkend="cli-validation-mode">--validation-mode:<replaceable>mode</replaceable></arg>
-  <sbr/>
+<!--  <sbr/>-->
   <arg rep="norepeat" linkend="cli-verbosity">--verbosity:<replaceable>verbosity</replaceable></arg>
   <arg rep="norepeat" linkend="cli-visualizer">--visualizer:<replaceable>name</replaceable></arg>
   <arg rep="repeat" linkend="cli-xml-schema">--xml-schema:<replaceable>xml-schema-file-uri</replaceable></arg>
-  <sbr/>
+<!--  <sbr/>-->
   <arg linkend="cli-pipeline"><replaceable>pipeline.xpl</replaceable></arg>
   <arg rep="repeat" linkend="cli-option"><replaceable>option</replaceable>=<replaceable>value</replaceable></arg>
   <arg rep="repeat" linkend="cli-serial"><replaceable>!serialparam</replaceable>=<replaceable>value</replaceable></arg>
@@ -281,7 +286,20 @@ content types.</para>
 <para>A content type is “usable” if it is not a negated type, if it doesn’t use wildcards for the
 type or subtype, or if it’s recognized as a “+xml” or “+json” content type.</para>
 </note>
+</listitem>
+</varlistentry>
 
+<varlistentry xml:id="cli-input-multiplex">
+  <term><option>--input-multiplex:<replaceable>uri</replaceable>[?<replaceable>X</replaceable>=<replaceable>Y</replaceable>;…]…</option></term>
+<listitem>
+<para>The <replaceable>uri</replaceable> identified by this option must be a
+MIME-encoded, <literal>multipart/mixed</literal> resource, for example, one
+produced by <option linkend="cli-output-multiplex">--output-multiplex</option>.
+The processor will read and decode the parts, passing each part to the port
+identified by an <code>X-Port</code> header on the body part.</para>
+<para>The URI query parameters can be used to rename ports. For example, adding
+<code>?source=result</code> to the URI will pass parts labeled with the port <literal>result</literal>
+as inputs to the port named <literal>source</literal>.</para>
 </listitem>
 </varlistentry>
 
@@ -307,6 +325,38 @@ show error locations if the initial tree model was constructed with line numbers
 This can be done selectively with the
 <code xlink:href="https://docs.xmlcalabash.com/reference/current/p-load.html#load-param-line-numbering">cx:line-numbering</code>
 parameter on the <tag>p:load</tag> step (or <tag>p:document</tag>).</para>
+</listitem>
+</varlistentry>
+
+<varlistentry xml:id="cli-manifest">
+  <term><option>--manifest[:<replaceable>filename</replaceable>]</option></term>
+<listitem>
+<para>Writes a manifest to <replaceable>filename</replaceable>. The manifest will identify
+all of the outputs written by the pipeline. For example:</para>
+
+<programlisting language="xml"><![CDATA[<cx:manifest xmlns:cx="http://xmlcalabash.com/ns/extensions">
+   <cx:port name="alternate">
+      <cx:output content-type="application/xml" href="file:/tmp/x/alt.xml"/>
+   </cx:port>
+   <cx:port name="result">
+      <cx:output content-type="text/plain" href="file:/tmp/x/result001.txt"/>
+      <cx:output content-type="text/plain" href="file:/tmp/x/result002.txt"/>
+   </cx:port>
+   <cx:port name="spoon"
+            content-type="multipart/mixed"
+            href="file:/tmp/x/out.mime">
+      <cx:part content-type="text/plain"/>
+      <cx:part content-type="image/png"/>
+   </cx:port>
+</cx:manifest>]]></programlisting>
+
+<para>This manifest indicates that the output on the port named <literal>alternate</literal>
+was an XML document written to <filename>/tmp/x/alt.xml</filename>; two documents on the
+output port named <literal>result</literal> were written to <filename>/tmp/x/result001.txt</filename>
+and <filename>/tmp/x/result002.txt</filename>, respectively, and the two documents on the
+output port named <literal>spoon</literal> were written to <filename>/tmp/x/out.mime</filename>
+as a MIME-encoded <literal>multipart/mixed</literal> document (see
+<option linkend="cli-output">--output</option>).</para>
 </listitem>
 </varlistentry>
 
@@ -357,7 +407,7 @@ run the pipeline.</para>
 </varlistentry>
 
 <varlistentry xml:id="cli-output">
-  <term><option>--output:<replaceable>port</replaceable>=<replaceable>filespec</replaceable></option>, identifies
+  <term><option>--output:[[<replaceable>type</replaceable>@]<replaceable>port</replaceable>=<replaceable>]filespec</replaceable></option>, identifies
   an output</term>
 <listitem>
 <para>This option determines how the output to <replaceable>port</replaceable> is stored. If
@@ -428,6 +478,29 @@ redirected isn’t terribly sophisticated and may be wrong in some
 circumstances. It’s safer to explicitly enable piped mode or
 use <option>--output</option> to write to a file
 if you want to save the output.</para>
+
+<para>Alternatively, if <literal>multipart/mixed</literal> is specified as the output
+media type, then all of the documents output on the specified port will be written to a single
+file as a MIME-encoded, multipart result. The only type that may be specified is
+<literal>multipart/mixed</literal> and, if it is, the <replaceable>filespec</replaceable>
+must be a filename without a template.</para>
+</listitem>
+</varlistentry>
+
+<varlistentry xml:id="cli-output-multiplex">
+  <term><option>--output-multiplex:<replaceable>filename</replaceable></option></term>
+<listitem>
+<para>All outputs on otherwise-unspecified ports will be written to
+<replaceable>filename</replaceable> as a
+MIME-encoded, <literal>multipart/mixed</literal> result. This is most often
+used to write <emphasis>all</emphasis> of the outputs to a single result, but
+it can be mixed with other <option linkend="cli-output">--output</option> options.</para>
+<para>For example, running</para>
+
+<screen>xmlcalabash --output:result=primary.xml --output-multiplex:alternates.mime …</screen>
+
+<para>will write the output from the <literal>result</literal> port to <filename>primary.xml</filename>
+and the output from all other ports to <filename>alternates.mime</filename>.</para>
 </listitem>
 </varlistentry>
 
@@ -493,6 +566,33 @@ the inputs, outputs, and options specified apply to that step.
 
 <screen><prompt>$ </prompt><userinput>xmlcalabash --step:p:xslt …</userinput></screen>
 
+</listitem>
+</varlistentry>
+
+<varlistentry xml:id="cli-temporary-files">
+  <term><option>--temporary-files[:<replaceable>directory</replaceable>]</option></term>
+<listitem>
+<para>All outputs on otherwise-unspecified ports will be written to temporary
+files. If <replaceable>directory</replaceable> is specified, they will be in that
+directory, otherwise they will be in the system default temporary directory.
+The processor attempts to give the temporary files meaningful extensions, but the
+MIME type to filename extension mapping is somewhat heuristic.</para>
+
+<para>For example, running</para>
+
+<screen>xmlcalabash --output:result=primary.xml --temporary-files:/tmp/x …</screen>
+
+<para>will write the output from the <literal>result</literal> port to <filename>primary.xml</filename>
+and the output from all other ports to temporary files in the <filename>/tmp/x</filename> directory.</para>
+
+<para>This option is probably most useful with the <option
+linkend="cli-manifest">--manifest</option> option.</para>
+
+<note>
+<para>The processor <emphasis>does not</emphasis> automatically delete these files
+when the pipeline finishes. The user or process running XML Calabash is responsible
+for deleting the files.</para>
+</note>
 </listitem>
 </varlistentry>
 

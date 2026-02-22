@@ -68,14 +68,18 @@ class CommandLine private constructor(val args: Array<out String>) {
         ArgumentDescription("--help", listOf(), ArgumentType.BOOLEAN, "true") { _help = it == "true" },
         ArgumentDescription("--init", listOf(), ArgumentType.STRING) { builder.initializers.add(Pair(it, false)) },
         ArgumentDescription("--input", listOf("-i"), ArgumentType.STRING) { parseInput(it) },
+        ArgumentDescription("--input-multiplex", listOf("-im"), ArgumentType.STRING) { parseInput(it, true) },
         ArgumentDescription("--licensed", listOf(), ArgumentType.BOOLEAN, "true") { builder.licensed.set(it == "true") },
         ArgumentDescription("--line-numbering", listOf("-l"), ArgumentType.BOOLEAN, "true") { builder.lineNumbering.set(it == "true") },
+        ArgumentDescription("--manifest", listOf("-m"), ArgumentType.STRING) { parseManifest(it) },
         ArgumentDescription("--namespace", listOf("-ns"), ArgumentType.STRING) { parseNamespace(it) },
         ArgumentDescription("--nogo", listOf(), ArgumentType.BOOLEAN, "true") { builder.go.set(it != "true") },
         ArgumentDescription("--output", listOf("-o"), ArgumentType.STRING) { parseOutput(it) },
+        ArgumentDescription("--output-multiplex", listOf("-om"), ArgumentType.STRING) { parseOutput(it, true) },
         ArgumentDescription("--pipe", listOf(), ArgumentType.BOOLEAN, "true") { builder.pipedMode.set(it == "true") },
         ArgumentDescription("--stacktrace", listOf("--stack-trace"), ArgumentType.BOOLEAN, "true") { builder.stacktrace.set(it == "true") },
         ArgumentDescription("--step", listOf("-s"), ArgumentType.STRING) { builder.step.set(it) },
+        ArgumentDescription("--temporary-files", listOf("-temp"), ArgumentType.STRING, "") { parseTemporaryFiles(it) },
         ArgumentDescription("--trace", listOf(), ArgumentType.FILE) { builder.trace.set(File(it)) },
         ArgumentDescription("--trace-documents", listOf("--trace-docs"), ArgumentType.DIRECTORY) { builder.traceDocuments.set(File(it)) },
         ArgumentDescription("--try-namespaces", listOf("--try-ns"), ArgumentType.BOOLEAN, "true") { builder.tryNamespaces.set(it == "true") },
@@ -96,7 +100,7 @@ class CommandLine private constructor(val args: Array<out String>) {
 
         for (opt in args) {
             val pos = opt.indexOf(':')
-            val option = if (pos >= 0) {
+            var option = if (pos >= 0) {
                 opt.substring(0, pos)
             } else {
                 opt
@@ -104,7 +108,15 @@ class CommandLine private constructor(val args: Array<out String>) {
             val suppliedValue = if (pos >= 0) {
                 opt.substring(pos + 1)
             } else {
-                null
+                // special case for --input and --output
+                val eqpos = opt.indexOf('=')
+                if (option.startsWith("--input=") || option.startsWith("--output=")
+                    || option.startsWith("-i=") || option.startsWith("-o=")) {
+                    option = opt.substring(0, eqpos)
+                    opt.substring(eqpos)
+                } else {
+                    null
+                }
             }
 
             var processed = false
@@ -228,45 +240,125 @@ class CommandLine private constructor(val args: Array<out String>) {
 
     private fun split(arg: String, type: String, defaultName: String? = null): Pair<String, String> {
         val pos = arg.indexOf("=")
-        if (pos <= 0) {
+        if (pos < 0) {
+            throw XProcError.xiCliMalformedOption(type, arg).exception()
+        }
+        if (pos == 0) {
             if (defaultName != null) {
-                return Pair(defaultName, arg)
+                return Pair(defaultName, arg.substring(pos+1).trim())
             }
             throw XProcError.xiCliMalformedOption(type, arg).exception()
         }
         return Pair(arg.substring(0, pos).trim(), arg.substring(pos + 1).trim())
     }
 
-    private fun parseInput(arg: String) {
+    private fun parseInput(arg: String, multiplex: Boolean = false) {
         // -i:contentType@port=path
-        val (portspec, href) = split(arg, "input", "*anonymous")
-        var port = portspec
+        // -i=path
+        val (portspec, href) = split(arg, "input", "")
+        var port: String? = portspec
         var contentType = MediaType.ANY
         if (portspec.contains("@")) {
             val index = portspec.indexOf("@")
             contentType = MediaType.parse(portspec.substring(0, index))
-            port = port.substring(index + 1).trim()
+            port = port!!.substring(index + 1).trim()
         }
 
-        val inputs = mutableListOf<XmlCalabashInput>()
-        inputs.addAll(builder.inputs.get(port) ?: mutableListOf())
-        val input = if (href == STDIO_NAME) {
-            XmlCalabashInput(STDIO_URI, contentType)
-        } else {
-            XmlCalabashInput(UriUtils.resolve(href), contentType)
+        if (multiplex) {
+            if (contentType != MediaType.MULTIPART_MIXED && contentType != MediaType.ANY) {
+                throw XProcError.xiCliInvalidInputMediaType(contentType.toString()).exception()
+            }
+
+            val pos = arg.indexOf("?")
+            val href = when (pos) {
+                -1 -> arg
+                0 -> throw XProcError.xiCliMalformedOption("input", arg).exception()
+                else -> arg.substring(0, pos)
+            }
+
+            val input = if (href == STDIO_NAME) {
+                XmlCalabashInput(null, STDIO_URI, MediaType.MULTIPART_MIXED)
+            } else {
+                XmlCalabashInput(null, UriUtils.resolve(href), MediaType.MULTIPART_MIXED)
+            }
+
+            input.multiplex = true
+            if (pos > 0) {
+                // I think the user wants to write source=result, meaning that the source port should
+                // come from the port labeled result. Of course, in reality, what I want in the mapping
+                // is result=source, rename result to source...
+                val maplist = arg.substring(pos+1).split(";")
+                for (map in maplist) {
+                    if (map.trim().isEmpty()) {
+                        continue
+                    }
+                    val mapping = map.split("=")
+                    if (mapping.size != 2 || mapping[0].isEmpty() || mapping[1].isEmpty()) {
+                        throw XProcError.xiCliMalformedOption("input", arg).exception()
+                    }
+                    // ...that's why this is "backwards".
+                    input.multiplexMapping[mapping[1]] = mapping[0]
+                }
+            }
+
+            builder.inputs.add(input)
+            return
         }
-        inputs.add(input)
-        builder.inputs.put(port, inputs)
+
+        if (port == "") {
+            port = null
+        }
+
+        val input = if (href == STDIO_NAME) {
+            XmlCalabashInput(port, STDIO_URI, contentType)
+        } else {
+            XmlCalabashInput(port, UriUtils.resolve(href), contentType)
+        }
+        builder.inputs.add(input)
     }
 
-    private fun parseOutput(arg: String) {
-        // -i:port=path
-        val (port, filename) = split(arg, "output", "*anonymous")
-        val output = builder.outputs.get(port)
-        if (output != null) {
-            throw XProcError.xiCliDuplicateOutputFile(filename).exception()
+    private fun parseOutput(arg: String, multiplex: Boolean = false) {
+        // -o:contentType@port=path
+
+        if (multiplex) {
+            if ((builder.outputs.getOrDefault() ?: emptyList()).filter { it.multiplex }.isNotEmpty()) {
+                throw XProcError.xiCliOnlyOneOutputMultiplex().exception()
+            }
+
+            val output = XmlCalabashOutput(null, arg, true, true)
+            builder.outputs.add(output)
+            return
         }
-        builder.outputs.put(port, XmlCalabashOutput(filename))
+
+        val (portspec, filename) = split(arg, "output", "")
+        var port: String? = portspec
+        var multipartMixed = multiplex
+        if (portspec.contains("@")) {
+            val index = portspec.indexOf("@")
+            val contentType = portspec.substring(0, index)
+            if (contentType == "multipart/mixed") {
+                multipartMixed = true
+            } else {
+                throw XProcError.xiCliInvalidOutputMediaType(contentType).exception()
+            }
+            port = port!!.substring(index + 1).trim()
+        }
+
+        if (port == "") {
+            port = null
+        }
+
+        builder.outputs.add(XmlCalabashOutput(port,filename, multipartMixed, multiplex))
+    }
+
+    private fun parseManifest(arg: String) {
+        // -m:path
+        builder.manifest.set(XmlCalabashOutput(null, arg))
+    }
+
+    private fun parseTemporaryFiles(arg: String) {
+        // --temporary-files:path
+        builder.temporaryFiles.set(arg.trim())
     }
 
     private fun parseNamespace(arg: String) {
@@ -415,7 +507,12 @@ class CommandLine private constructor(val args: Array<out String>) {
                                        val type: ArgumentType,
                                        val default: String? = null,
                                        val valid: List<String> = listOf(),
-                                       val process: (String) -> Unit)
+                                       val process: (String) -> Unit) {
+        override fun toString(): String {
+            return "${name}: ${type}"
+        }
+    }
+
     internal enum class ArgumentType {
         STRING, URI, FILE, EXISTING_FILE, DIRECTORY, BOOLEAN
     }

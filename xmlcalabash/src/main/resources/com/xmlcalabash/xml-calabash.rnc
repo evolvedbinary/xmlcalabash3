@@ -179,7 +179,10 @@ cc.pipeline =
     element cc:pipeline {
         attribute href { xsd:anyURI },
         attribute step { xsd:NCName }?,
-        (cc.input | cc.output | cc.option)* 
+        attribute temporary-files { xsd:anyURI }?,
+        (cc.input | cc.inputMultiplex
+         | cc.output | cc.outputMultiplex | cc.manifest
+         | cc.option)*
     }
 
 cc.input =
@@ -191,10 +194,30 @@ cc.input =
         (text | any-name)?
     }
 
+cc.inputMultiplex =
+    element cc:input-multiplex {
+        attribute href { xsd:anyURI }?,
+        empty
+    }
+
 cc.output =
     element cc:output {
         attribute port { xsd:NCName },
+        attribute content-type { "multipart/mixed" }?,
         attribute filespec { text },
+        empty
+    }
+
+cc.outputMultiplex =
+    element cc:output-multiplex {
+        attribute content-type { "multipart/mixed" }?,
+        attribute href { text },
+        empty
+    }
+
+cc.manifest =
+    element cc:manifest {
+        attribute href { text },
         empty
     }
 

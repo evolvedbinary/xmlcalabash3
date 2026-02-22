@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<t:test expected="pass"
+        xmlns:t="http://xproc.org/ns/testsuite/3.0">
+  <t:info>
+    <t:title>cmdline-003</t:title>
+    <t:revision-history>
+      <t:revision>
+        <t:date>2026-02-22</t:date>
+        <t:author>
+          <t:name>Norm Tovey-Walsh</t:name>
+        </t:author>
+        <t:description xmlns="http://www.w3.org/1999/xhtml">
+          <p>Created test.</p>
+        </t:description>
+      </t:revision>
+    </t:revision-history>
+  </t:info>
+  <t:description xmlns="http://www.w3.org/1999/xhtml">
+    <p>Simple test of the command-line testing framework capturing non-XML.</p>
+  </t:description>
+
+  <t:pipeline src="../pipelines/command-003.xpl"
+              arguments="--pipe --output:multipart/mixed@alternate=output.mime
+                         --output:result=result.xml"/>
+
+  <t:schematron>
+    <s:schema queryBinding="xslt2"
+              xmlns:s="http://purl.oclc.org/dsdl/schematron">
+      <s:pattern>
+        <s:rule context="/">
+          <s:assert test="directory">The root is wrong.</s:assert>
+        </s:rule>
+      </s:pattern>
+      <s:pattern>
+        <s:rule context="/directory">
+          <s:assert test="count(*) = 3">Wrong number of results</s:assert>
+          <s:assert test="mime[@uri='output.mime']">No MIME</s:assert>
+          <s:assert test="file[@uri='_stdout']">No stdout</s:assert>
+          <s:assert test="file[@uri='result.xml']">No result</s:assert>
+        </s:rule>
+      </s:pattern>
+      <s:pattern>
+        <s:rule context="/directory/mime">
+          <s:assert test="count(part) = 1">Wrong number of parts</s:assert>
+          <s:assert test="part[@port='alternate']/body/doc[. = 'alternate']">Alternate is wrong</s:assert>
+        </s:rule>
+      </s:pattern>
+      <s:pattern>
+        <s:rule context="/directory/mime/part[@port='alternate']/headers">
+          <s:assert test="count(header) = 3">Wrong number of headers</s:assert>
+          <s:assert test="header[@name='purpose'] = 'testing'">Purpose header is wrong</s:assert>
+          <s:assert test="header[@name='author'] = 'ndw'">Author header is wrong</s:assert>
+          <s:assert test="header[@name='motto'] = 'Spoon!'">Motto header is wrong</s:assert>
+        </s:rule>
+      </s:pattern>
+      <s:pattern>
+        <s:rule context="/directory/file[@uri='result.xml']">
+          <s:assert test="doc = 'primary'">Result is incorrect</s:assert>
+        </s:rule>
+      </s:pattern>
+      <s:pattern>
+        <s:rule context="/directory/file[@uri='_stdout']">
+          <s:assert test="string(.) = ''">Stdout should be empty</s:assert>
+        </s:rule>
+      </s:pattern>
+    </s:schema>
+  </t:schematron>
+</t:test>

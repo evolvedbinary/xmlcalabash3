@@ -1822,8 +1822,14 @@ The value the serialization parameter $1 must be atomic.
 cxerr:XI0209
 The pipeline has no output port named “$1”.
 
-cxerr:XI0209
+cxerr:XI0210
 The pipeline has no primary output port; serialization port must be named.
+
+cxerr:XI0211
+Invalid output media type: “%1” (only multipart/mixed is allowed).
+
+cxerr:XI0212
+Invalid input media type for multiplexing: “%1” (only multipart/mixed is allowed).
 
 cxerr:XI0213
 Static options cannot be provided after the pipeline has been compiled: “$1”.
@@ -1844,6 +1850,28 @@ File URI ($1) refers to file on a different host: $2.
 In principle, this is a completely valid file: URI, but there’s no standard
 mechanism for referring to files on other hosts. This error is usually
 a typo, file:// instead of file:/ or file:///.
+
+cxerr:XI0218
+Only one multiplex output is allowed.
+
+cxerr:XI0219
+Failed to create directory for temporary files: $1
+
+cxerr:XI0220
+The --output-multiplex option cannot be repeated.
+
+cxerr:XI0221
+Invalid format template in output pattern: “$1”.
+
+cxerr:XI0222
+You cannot specify both --temporary-files and --output-multiplex.
+Both of these options are designed to handle the output from otherwise
+unspecified output ports. They can’t be used together.
+
+cxerr:XI0223
+No output port name given, but pipeline has no primary output port.
+If you specify an --output option without a port name, the pipeline must have a
+primary output port.
 
 cxerr:XI0300
 Negative line and column numbers are not allowed: $1=$2

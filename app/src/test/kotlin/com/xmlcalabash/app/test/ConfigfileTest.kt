@@ -236,7 +236,7 @@ class ConfigfileTest {
         Assertions.assertTrue(info.assertConfiguration(mapOf(
             "command" to "run",
             "pipelineUri" to URI.create("file:/opt/pipelines/pipe.xpl"),
-            "inputs" to mapOf("source" to listOf(XmlCalabashInput(URI.create("http://example.com/"), MediaType.ANY)))
+            "inputs" to listOf(XmlCalabashInput("source", URI.create("http://example.com/"), MediaType.ANY))
         )).isEmpty())
     }
 
@@ -251,7 +251,7 @@ class ConfigfileTest {
         Assertions.assertTrue(info.assertConfiguration(mapOf(
             "command" to "run",
             "pipelineUri" to URI.create("file:/opt/pipelines/pipe.xpl"),
-            "inputs" to mapOf("source" to listOf(XmlCalabashInput(URI.create("file:/tmp/input.xml"), MediaType.ANY)))
+            "inputs" to listOf(XmlCalabashInput("source", URI.create("file:/tmp/input.xml"), MediaType.ANY))
         )).isEmpty())
     }
 
@@ -261,14 +261,14 @@ class ConfigfileTest {
         val info = BuilderConfiguration(config)
 
         // This is a hack...
-        val value = config.inputs.get("source")?.first()?.doc
-        val input = XmlCalabashInput(null, MediaType.XHTML)
+        val value = config.inputs.get()?.filter { it.port == "source" }?.first()?.doc
+        val input = XmlCalabashInput("source", null, MediaType.XHTML)
         input.doc = value
 
         Assertions.assertTrue(info.assertConfiguration(mapOf(
             "command" to "run",
             "pipelineUri" to URI.create("file:/opt/pipelines/pipe.xpl"),
-            "inputs" to mapOf("source" to listOf(input))
+            "inputs" to listOf(input)
         )).isEmpty())
     }
 
@@ -278,14 +278,14 @@ class ConfigfileTest {
         val info = BuilderConfiguration(config)
 
         // This is a hack...
-        val value = config.inputs.get("source")?.first()?.doc
-        val input = XmlCalabashInput(null, MediaType.JSON)
+        val value = config.inputs.get()?.filter { it.port == "source" }?.first()?.doc
+        val input = XmlCalabashInput("source", null, MediaType.JSON)
         input.doc = value
 
         Assertions.assertTrue(info.assertConfiguration(mapOf(
             "command" to "run",
             "pipelineUri" to URI.create("file:/opt/pipelines/pipe.xpl"),
-            "inputs" to mapOf("source" to listOf(input))
+            "inputs" to listOf(input)
         )).isEmpty())
     }
 
@@ -296,7 +296,7 @@ class ConfigfileTest {
         Assertions.assertTrue(info.assertConfiguration(mapOf(
             "command" to "run",
             "pipelineUri" to URI.create("file:/opt/pipelines/pipe.xpl"),
-            "outputs" to mapOf("result" to XmlCalabashOutput("out%02d.xml"))
+            "outputs" to listOf(XmlCalabashOutput("result", "out%02d.xml"))
         )).isEmpty())
     }
 

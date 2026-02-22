@@ -311,7 +311,7 @@ class MediaType private constructor(val mediaType: String, val mediaSubtype: Str
         return MediaType(mediaType, mediaSubtype, suffix, inclusive, newParams.toList())
     }
 
-    fun addParam(name: String, value: String): MediaType {
+    fun withParam(name: String, value: String): MediaType {
         val newParams = mutableListOf<MediaTypeParameter>()
         for (param in parameters) {
             if (param.name != name) {

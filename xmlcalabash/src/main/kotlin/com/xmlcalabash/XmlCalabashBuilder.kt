@@ -1,34 +1,16 @@
 package com.xmlcalabash
 
 import com.xmlcalabash.api.MessageReporter
-import com.xmlcalabash.config.CfgListValue
-import com.xmlcalabash.config.CfgMapValue
-import com.xmlcalabash.config.CfgValue
-import com.xmlcalabash.config.SaxonConfiguration
-import com.xmlcalabash.config.XmlCalabashInput
-import com.xmlcalabash.config.XmlCalabashOutput
+import com.xmlcalabash.config.*
 import com.xmlcalabash.exceptions.DefaultErrorExplanation
 import com.xmlcalabash.exceptions.ErrorExplanation
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.io.DocumentManager
 import com.xmlcalabash.io.MediaType
 import com.xmlcalabash.io.MessagePrinter
-import com.xmlcalabash.namespace.NsCx
-import com.xmlcalabash.namespace.NsFn
-import com.xmlcalabash.namespace.NsP
-import com.xmlcalabash.namespace.NsSaxon
-import com.xmlcalabash.namespace.NsXml
-import com.xmlcalabash.namespace.NsXs
-import com.xmlcalabash.spi.Configurer
-import com.xmlcalabash.spi.ConfigurerServiceProvider
-import com.xmlcalabash.spi.DocumentResolverServiceProvider
-import com.xmlcalabash.spi.PagedMediaManager
-import com.xmlcalabash.spi.PagedMediaServiceProvider
-import com.xmlcalabash.util.AssertionsLevel
-import com.xmlcalabash.util.DefaultMessagePrinter
-import com.xmlcalabash.util.DefaultMessageReporter
-import com.xmlcalabash.util.ExtensionName
-import com.xmlcalabash.util.Verbosity
+import com.xmlcalabash.namespace.*
+import com.xmlcalabash.spi.*
+import com.xmlcalabash.util.*
 import net.sf.saxon.Configuration
 import net.sf.saxon.om.NamespaceUri
 import net.sf.saxon.s9api.QName
@@ -37,7 +19,6 @@ import org.apache.logging.log4j.kotlin.logger
 import org.xmlresolver.XMLResolver
 import java.io.File
 import java.net.URI
-import kotlin.collections.iterator
 
 class XmlCalabashBuilder {
     // XmlCalabashConfiguration
@@ -84,8 +65,10 @@ class XmlCalabashBuilder {
     val command = CfgValue<String>()
     val commandOptions = CfgListValue<String>()
     val configurationFile = CfgValue<File>()
-    val inputs = CfgMapValue<String, List<XmlCalabashInput>>()
-    val outputs = CfgMapValue<String, XmlCalabashOutput>()
+    val inputs = CfgListValue<XmlCalabashInput>()
+    val manifest = CfgValue<XmlCalabashOutput>()
+    val temporaryFiles = CfgValue<String>()
+    val outputs = CfgListValue<XmlCalabashOutput>()
     val outputSerialization = CfgMapValue<String, Map<String, String>>()
     val options = CfgMapValue<String, List<Any>>()
     val initializers = CfgListValue<Pair<String, Boolean>>()
@@ -315,6 +298,8 @@ class XmlCalabashBuilder {
         commandOptions.update(props.commandOptions)
         configurationFile.update(props.configurationFile)
         inputs.update(props.inputs)
+        manifest.update(props.manifest)
+        temporaryFiles.update(props.temporaryFiles)
         outputs.update(props.outputs)
         outputSerialization.update(props.outputSerialization)
         initializers.update(props.initializers)

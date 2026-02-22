@@ -5,8 +5,11 @@ import java.io.FileDescriptor
 import java.io.FileOutputStream
 import java.io.PrintStream
 import java.nio.charset.Charset
+import java.nio.charset.StandardCharsets
 
 class DefaultMessagePrinter() : MessagePrinter {
+    //override val encoding = Charset.forName("windows-1252").name() // testing
+    //override val encoding = StandardCharsets.ISO_8859_1.name() // testing
     override val encoding = Charset.defaultCharset().name()
 
     // You would think that the very nature of a default character set was that it would be...the
