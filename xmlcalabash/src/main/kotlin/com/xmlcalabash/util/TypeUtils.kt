@@ -476,7 +476,7 @@ class TypeUtils(val context: DocumentContext) {
 
             "AS" -> {
                 if (value.underlyingValue is StringValue) {
-                    return value
+                    return XdmAtomicValue(value.underlyingValue.stringValue)
                 }
                 typeName = NsXs.string
             }
