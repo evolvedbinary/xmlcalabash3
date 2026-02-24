@@ -433,6 +433,10 @@ options. Each of these applies <emphasis>only</emphasis> if an
 alternative input, output, or option <emphasis>is not</emphasis>
 specified on the command line.</para>
 
+<para>If <tag class="attribute">temporary-files</tag> is specified,
+all outputs on otherwise-unspecified ports will be written to temporary
+files. See the <option linkend="cli-temporary-files">--temporary-files</option> option.</para>
+
 <para>Although the inputs, outputs, and options are nested inside the <tag>cc:pipeline</tag>
 element, they are independent. The configured defaults apply even when an alternate
 pipeline is specifed on the command line (unless alternative inputs, outputs, or options
@@ -462,7 +466,37 @@ wroks.</para>
 <para>The inline trim-whitespace flag does not apply to inputs in the configuration
 file.</para>
 </note>
+</section>
 
+<section xml:id="cc.input-multiplex">
+<info>
+<?db filename="cc-input-multiplex"?>
+<title>cc:input-multiplex</title>
+</info>
+
+<para>Reads multiplexed input.</para>
+
+<rng-pattern schema="../../build/xml-calabash.rng"
+             name="cc.inputMultiplex"/>
+
+<para>Multiplexed input will be read from <tag class="attribute">href</tag>. See
+the <option linkend="cli-input-multiplex">--input-multiplex</option> option.</para>
+</section>
+
+<section xml:id="cc.manifest">
+<info>
+<?db filename="cc-manifest"?>
+<title>cc:manifest</title>
+</info>
+
+<para>Writes a result manifest.</para>
+
+<rng-pattern schema="../../build/xml-calabash.rng"
+             name="cc.manifest"/>
+
+<para>Writes a manifest to <tag class="attribute">href</tag>. The manifest will
+identify all of the outputs written by the pipeline. See the
+<option linkend="cli-manifest">--manifest</option> option.</para>
 </section>
 
 <section xml:id="cc.output">
@@ -479,7 +513,22 @@ file.</para>
 <para>The format of the <tag class="attribute">filespec</tag> attribute
 is discussed in the section about the <link linkend="cli-output">--output</link> option.
 </para>
+</section>
 
+<section xml:id="cc.output-multiplex">
+<info>
+<?db filename="cc-output-multiplex"?>
+<title>cc:output-multiplex</title>
+</info>
+
+<para>Writes multiplexed output.</para>
+
+<rng-pattern schema="../../build/xml-calabash.rng"
+             name="cc.outputMultiplex"/>
+
+<para>All outputs on otherwise-unspecified ports will be written to
+<tag class="attribute">href</tag> as a MIME-encoded, <literal>multipart/mixed</literal>
+document. See the <option linkend="cli-output-multiplex">--output-multiplex</option> option.</para>
 </section>
 
 <section xml:id="cc.option">

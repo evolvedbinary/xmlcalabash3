@@ -5,6 +5,7 @@ import com.xmlcalabash.util.UriUtils
 import com.xmlcalabash.util.Urify
 import java.io.File
 import java.net.URI
+import java.util.UnknownFormatConversionException
 
 /**
  * Describe how output filenames should be constructed.
@@ -30,10 +31,20 @@ import java.net.URI
  *
  * @param pattern the pattern string.
  */
-class XmlCalabashOutput(val pattern: String) {
+open class XmlCalabashOutput(val port: String?, val pattern: String, val multipartMixed: Boolean = false, val multiplex: Boolean = false) {
     private val regex = "(%%)|(%[0-9]*[odxX]?)".toRegex()
     private var nextId = 1
     private var currentFilename: String = pattern
+
+    init {
+        if (multipartMixed && isSequential()) {
+            throw IllegalArgumentException("No pattern is allowed when multipart/mixed output is requested")
+        }
+    }
+
+    fun withPort(port: String): XmlCalabashOutput {
+        return XmlCalabashOutput(port, pattern, multipartMixed, multiplex)
+    }
 
     /**
      * Is this output filename going to produce a sequence of names?
@@ -75,7 +86,11 @@ class XmlCalabashOutput(val pattern: String) {
             if (result.value == "%%") {
                 sb.append("%")
             } else {
-                sb.append(String.format(result.value, nextId))
+                try {
+                    sb.append(String.format(result.value, nextId))
+                } catch (ex: UnknownFormatConversionException) {
+                    throw XProcError.xiCliInvalidTemplate(result.value).exception(ex)
+                }
             }
 
             var nextPos = result.range.last + 1
@@ -121,13 +136,22 @@ class XmlCalabashOutput(val pattern: String) {
     }
 
     override fun hashCode(): Int {
-        return pattern.hashCode()
+        val code = pattern.hashCode() + (3 * multipartMixed.hashCode()) + (5 * multiplex.hashCode())
+        if (port != null) {
+            return code + (11 * port.hashCode())
+        }
+        return code
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
         other as XmlCalabashOutput
-        return pattern == other.pattern
+        return port == other.port && pattern == other.pattern
+                && multipartMixed == other.multipartMixed && multiplex == other.multiplex
+    }
+
+    override fun toString(): String {
+        return "${port ?: ""}: ${pattern}"
     }
 }

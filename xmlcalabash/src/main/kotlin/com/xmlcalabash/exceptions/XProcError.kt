@@ -529,12 +529,21 @@ open class XProcError protected constructor(val code: QName, val variant: Int, e
         fun xiCliSerializationMustBeAtomic(name: QName) = internal(208, name)
         fun xiCliNoOutputPort(name: String) = internal(209, name)
         fun xiCliNoPrimaryOutputPort() = internal(210)
+        fun xiCliInvalidOutputMediaType(type: String) = internal(211, type)
+        fun xiCliInvalidInputMediaType(type: String) = internal(212, type)
 
         fun xiTooLateForStaticOptions(name: QName) = internal(213, name)
         fun xiCliDuplicateNamespace(prefix: String) = internal(214, prefix)
         fun xiMergeDuplicatesError(name: String) = internal(215, name)
         fun xiNotALibrary(uri: URI) = internal(216, uri)
         fun xiFileOnOtherHost(uri: URI, host: String) = internal(217, uri, host);
+
+        fun xiOnlyOneMultiplexOutput() = internal(218)
+        fun xiCannotCreateTempDir(dir: String) = internal(219, dir)
+        fun xiCliOnlyOneOutputMultiplex() = internal(220)
+        fun xiCliInvalidTemplate(template: String) = internal(221, template)
+        fun xiCliConflictingOutputs() = internal(222)
+        fun xiCliNoPrimaryOutputPortForDefault() = internal(223)
 
         fun xiXvrlInvalidValue(name: QName, value: String) = internal(300, name, value)
         fun xiXvrlIllegalMessageName(name: QName) = internal(301, name)

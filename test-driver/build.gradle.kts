@@ -34,6 +34,7 @@ dependencies {
   implementation(project(":ext:polyglot"))
   implementation(project(":ext:basex"))
   implementation(project(":ext:existdb"))
+  implementation(project(":app"))
   implementation("com.saxonica:Saxon-EE:${saxonVersion}")
 
   transformation ("com.saxonica:Saxon-EE:${saxonVersion}")

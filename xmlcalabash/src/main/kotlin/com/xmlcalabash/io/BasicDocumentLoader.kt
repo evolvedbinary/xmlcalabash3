@@ -15,6 +15,7 @@ import com.xmlcalabash.util.MediaClassification
 import com.xmlcalabash.util.SaxAttributes
 import com.xmlcalabash.util.SaxonTreeBuilder
 import com.xmlcalabash.util.TypeUtils
+import com.xmlcalabash.util.UriUtils
 import net.sf.saxon.om.NamespaceUri
 import net.sf.saxon.s9api.*
 import net.sf.saxon.trans.XPathException
@@ -107,30 +108,43 @@ class BasicDocumentLoader(val href: URI?,
     }
 
     var readExternalSubset = true
-
     val properties = DocumentProperties()
-
-    var mediaType = if (properties.has(Ns.contentType)) {
-        MediaType.parse(properties[Ns.contentType]!!.underlyingValue.stringValue)
-    } else {
-        val fileMediaType = if (href != null && documentManager != null) {
-            documentManager.mimetypesFileTypeMap.getContentType(href.toString())
-        } else {
-            "application/xml"
-        }
-        MediaType.parse(fileMediaType)
-    }
+    var mediaType: MediaType
 
     init {
         properties.setAll(initialProperties)
+
+        if (properties.has(Ns.contentType)) {
+            mediaType = MediaType.parse(properties[Ns.contentType]!!.underlyingValue.stringValue)
+            properties[Ns.encoding]?.let { mediaType = mediaType.withParam("charset", it.toString()) }
+        } else {
+            val fileMediaType = if (href != null && documentManager != null) {
+                documentManager.mimetypesFileTypeMap.getContentType(href.toString())
+            } else {
+                "application/xml"
+            }
+            mediaType = MediaType.parse(fileMediaType)
+        }
+
+        if (properties[Ns.baseUri] == null && href != null) {
+            if (href.isAbsolute) {
+                properties[Ns.baseUri] = href
+            } else {
+                properties[Ns.baseUri] = UriUtils.cwdAsUri().resolve(href)
+            }
+        }
     }
 
-    fun load(stream: InputStream, overrideMediaType: MediaType, charset: Charset? = null): XProcDocument {
+    fun load(stream: InputStream, overrideMediaType: MediaType? = null, overrideCharset: Charset? = null): XProcDocument {
         // If we got here via the InlineInstruction, we may not have started with load(), so we
         // need to make sure that the absURI (which will be used for the base URI of the document)
         // is correct.
 
-        mediaType = overrideMediaType
+        overrideMediaType?.let { mediaType = it }
+
+        var charset = mediaType.charset()
+        overrideCharset?.let { charset = it }
+
         properties[Ns.contentType] = mediaType
 
         val classification = mediaType.classification()

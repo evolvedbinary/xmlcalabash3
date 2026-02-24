@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<t:test expected="pass"
+        xmlns:t="http://xproc.org/ns/testsuite/3.0">
+  <t:info>
+    <t:title>cmdline-002</t:title>
+    <t:revision-history>
+      <t:revision>
+        <t:date>2026-02-22</t:date>
+        <t:author>
+          <t:name>Norm Tovey-Walsh</t:name>
+        </t:author>
+        <t:description xmlns="http://www.w3.org/1999/xhtml">
+          <p>Created test.</p>
+        </t:description>
+      </t:revision>
+    </t:revision-history>
+  </t:info>
+  <t:description xmlns="http://www.w3.org/1999/xhtml">
+    <p>Simple test of the command-line testing framework capturing stdout.</p>
+  </t:description>
+
+  <t:pipeline src="../pipelines/command-001.xpl"
+              arguments="--pipe --output:result=result.xml --output:alternate=-"/>
+
+  <t:schematron>
+    <s:schema queryBinding="xslt2"
+              xmlns:s="http://purl.oclc.org/dsdl/schematron">
+      <s:pattern>
+        <s:rule context="/">
+          <s:assert test="directory">The root is wrong.</s:assert>
+        </s:rule>
+      </s:pattern>
+      <s:pattern>
+        <s:rule context="/directory">
+          <s:assert test="count(file) = 2">Incorrect number of file results</s:assert>
+          <s:assert test="count(*) = count(file)">Non-file results</s:assert>
+          <s:assert test="file[@uri='result.xml']">No result</s:assert>
+          <s:assert test="file[@uri='_stdout']">No stdout</s:assert>
+        </s:rule>
+      </s:pattern>
+      <s:pattern>
+        <s:rule context="/directory/file[@uri='result.xml']">
+          <s:assert test="doc = 'primary'">Incorrect primary result</s:assert>
+        </s:rule>
+      </s:pattern>
+      <s:pattern>
+        <s:rule context="/directory/file[@uri='_stdout']">
+          <s:assert test="doc = 'alternate'">Incorrect alternate result</s:assert>
+        </s:rule>
+      </s:pattern>
+    </s:schema>
+  </t:schematron>
+</t:test>

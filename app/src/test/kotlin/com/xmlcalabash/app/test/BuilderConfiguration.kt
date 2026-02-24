@@ -175,44 +175,31 @@ class BuilderConfiguration(config: XmlCalabashBuilder) {
             when (name) {
                 "inputs" -> {
                     @Suppress("UNCHECKED_CAST")
-                    val expected = value as Map<String, List<XmlCalabashInput>>
+                    val expected = value as List<XmlCalabashInput>
                     @Suppress("UNCHECKED_CAST")
-                    val actual = configValues[name] as Map<String, List<XmlCalabashInput>>
+                    val actual = configValues[name] as List<XmlCalabashInput>
 
                     if (expected.size != actual.size) {
                         diffs.add(name)
                     } else {
-                        for ((port, value) in actual) {
-                            if (port in expected) {
-                                val elist = expected[port]!!
-                                val alist = actual[port]!!
-                                if (elist.size != alist.size) {
-                                    diffs.add(name)
-                                } else {
-                                    for ((index, expected) in elist.withIndex()) {
-                                        if (expected != alist[index]) {
-                                            diffs.add(name)
-                                        }
-                                    }
-
-                                }
-                            } else {
-                                diffs.add(port)
+                        for ((index, value) in actual.withIndex()) {
+                            if (value != expected[index]) {
+                                diffs.add(name)
                             }
                         }
                     }
                 }
                 "outputs" -> {
                     @Suppress("UNCHECKED_CAST")
-                    val expected = value as Map<String, XmlCalabashOutput>
+                    val expected = value as List<XmlCalabashOutput>
                     @Suppress("UNCHECKED_CAST")
-                    val actual = configValues[name] as Map<String, XmlCalabashOutput>
+                    val actual = configValues[name] as List<XmlCalabashOutput>
 
                     if (expected.size != actual.size) {
                         diffs.add(name)
                     } else {
-                        for ((name, value) in actual) {
-                            if (expected[name] != value) {
+                        for ((index, value) in actual.withIndex()) {
+                            if (value != expected[index]) {
                                 diffs.add(name)
                             }
                         }

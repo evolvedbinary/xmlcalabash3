@@ -44,6 +44,9 @@ class ConfigurationLoader() {
         val ccInput = QName(ns, "cc:input")
         val ccOutput = QName(ns, "cc:output")
         val ccOption = QName(ns, "cc:option")
+        val ccManifest = QName(ns, "cc:manifest")
+        val ccInputMultiplex = QName(ns, "cc:input-multiplex")
+        val ccOutputMultiplex = QName(ns, "cc:output-multiplex")
         val ccNamespace = QName(ns, "cc:namespace")
         val ccFallback = QName(ns, "cc:fallback")
         val ccInitializer = QName(ns, "cc:initializer")
@@ -61,6 +64,7 @@ class ConfigurationLoader() {
         private val _mpt = QName("mpt")
         private val _output = QName("output")
         private val _piped_io = QName("piped-io")
+        private val _mime_multipart = QName("mime-multipart")
         private val _stacktrace = QName("stacktrace")
         private val _saxonConfiguration = QName("saxon-configuration")
         private val _scheme = QName("scheme")
@@ -116,6 +120,7 @@ class ConfigurationLoader() {
             _lineNumbering,
             _mpt,
             _piped_io,
+            _mime_multipart,
             _saxonConfiguration,
             _stacktrace,
             Ns.tryNamespaces,
@@ -471,10 +476,11 @@ class ConfigurationLoader() {
     }
 
     private fun parsePipeline(node: XdmNode) {
-        checkAttributes(node, listOf(Ns.href), listOf(Ns.step))
+        checkAttributes(node, listOf(Ns.href), listOf(Ns.step, Ns.temporaryFiles))
         val href = node.baseURI.resolve(node.getAttributeValue(Ns.href)!!)
         builder.pipelineUri.set(href)
         node.getAttributeValue(Ns.step)?.let { builder.step.set(it) }
+        node.getAttributeValue(Ns.temporaryFiles)?.let { builder.temporaryFiles.set(it) }
 
         if (builder.command.getOrDefault() == null) {
             builder.command.set("run")
@@ -485,6 +491,9 @@ class ConfigurationLoader() {
                 ccInput -> parseInput(child)
                 ccOutput -> parseOutput(child)
                 ccOption -> parseOption(child)
+                ccManifest -> parseManifest(child)
+                ccInputMultiplex -> parseInputMultiplex(child)
+                ccOutputMultiplex -> parseOutputMultiplex(child)
                 else -> {
                     throw XProcError.xiUnrecognizedConfigurationProperty(child.nodeName).exception()
                 }
@@ -496,8 +505,6 @@ class ConfigurationLoader() {
         checkAttributes(node, listOf(Ns.port), listOf(Ns.href, Ns.contentType, Ns.encoding))
 
         val port = node.getAttributeValue(Ns.port)!!
-        val list = mutableListOf<XmlCalabashInput>()
-        list.addAll(builder.inputs.get(port) ?: emptyList())
 
         var contentType = MediaType.ANY
         node.getAttributeValue(Ns.contentType)?.let { contentType = MediaType.parse(it) }
@@ -513,16 +520,13 @@ class ConfigurationLoader() {
                 throw XProcError.xiConfigurationInvalid(configFile, "Content cannot be specified for an input href").exception()
             }
 
-            list.add(XmlCalabashInput(href, contentType))
-            builder.inputs.put(port, list)
+            builder.inputs.add(XmlCalabashInput(port, href, contentType))
         } else {
             when (encoding) {
                 null -> {
-                    val xinput = XmlCalabashInput(null, contentType)
+                    val xinput = XmlCalabashInput(port, null, contentType)
                     xinput.doc = parseInlineContent(node, contentType)
-
-                    list.add(xinput)
-                    builder.inputs.put(port, list)
+                    builder.inputs.add(xinput)
                 }
                 "base64" -> {
                     for (child in node.children()) {
@@ -537,7 +541,7 @@ class ConfigurationLoader() {
                     // Assume whitespace is not part of the encoding (it's not part of base64)
                     val cleanText = node.stringValue.replace("\\s+".toRegex(), "")
                     try {
-                        val xinput = XmlCalabashInput(null, contentType)
+                        val xinput = XmlCalabashInput(port, null, contentType)
 
                         val decoder = Base64.getDecoder()
                         val bytes = decoder.decode(cleanText)
@@ -550,8 +554,7 @@ class ConfigurationLoader() {
                         val bais = ByteArrayInputStream(bytes)
                         xinput.doc = loader.load(bais, contentType, contentType.charset())
 
-                        list.add(xinput)
-                        builder.inputs.put(port, list)
+                        builder.inputs.add(xinput)
                     } catch (ex: IllegalArgumentException) {
                         throw XProcException(XProcError.xdBadBase64Input(), ex)
                     }
@@ -569,7 +572,64 @@ class ConfigurationLoader() {
         val port = node.getAttributeValue(Ns.port)!!
         val filespec = node.getAttributeValue(_filespec)!!
 
-        builder.outputs.put(port, XmlCalabashOutput(filespec))
+        builder.outputs.add(XmlCalabashOutput(port, filespec))
+    }
+
+    private fun parseManifest(node: XdmNode) {
+        checkAttributes(node, listOf(Ns.href))
+
+        val href = node.getAttributeValue(Ns.href)!!
+
+        builder.manifest.set(XmlCalabashOutput(null, href))
+    }
+
+    private fun parseInputMultiplex(node: XdmNode) {
+        checkAttributes(node, listOf(Ns.href))
+
+        val uri = node.getAttributeValue(Ns.href)!!
+        val pos = uri.indexOf("?")
+
+        val href = when (pos) {
+            -1 -> uri
+            0 -> throw XProcError.xiConfigurationInvalid(configFile, "Input multiplex must identify a location: ${uri}").exception()
+            else -> uri.substring(0, pos)
+        }
+
+        // - and the stdio URI are constants in CommandLine but that's not available here; they should be put somewhere common
+        val input = if (href == "-") {
+            XmlCalabashInput(null, URI("https://xmlcalabash.com/ns/stdio"), MediaType.MULTIPART_MIXED)
+        } else {
+            XmlCalabashInput(null, UriUtils.resolve(href), MediaType.MULTIPART_MIXED)
+        }
+
+        input.multiplex = true
+        if (pos > 0) {
+            // I think the user wants to write source=result, meaning that the source port should
+            // come from the port labeled result. Of course, in reality, what I want in the mapping
+            // is result=source, rename result to source...
+            val maplist = uri.substring(pos+1).split(";")
+            for (map in maplist) {
+                if (map.trim().isEmpty()) {
+                    continue
+                }
+                val mapping = map.split("=")
+                if (mapping.size != 2 || mapping[0].isEmpty() || mapping[1].isEmpty()) {
+                    throw XProcError.xiCliMalformedOption("input", uri).exception()
+                }
+                // ...that's why this is "backwards".
+                input.multiplexMapping[mapping[1]] = mapping[0]
+            }
+        }
+
+        builder.inputs.add(input)
+    }
+
+    private fun parseOutputMultiplex(node: XdmNode) {
+        checkAttributes(node, listOf(Ns.href))
+
+        val href = node.getAttributeValue(Ns.href)!!
+
+        builder.outputs.add(XmlCalabashOutput(null, href, true, true))
     }
 
     private fun parseOption(node: XdmNode) {

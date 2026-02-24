@@ -140,7 +140,7 @@ class DocumentProperties() {
                 if (serial != null) {
                     val encoding = (serial as XdmMap).get(XdmAtomicValue(Ns.encoding))
                     if (encoding != null) {
-                        ctype = ctype.addParam("charset", encoding.underlyingValue.stringValue)
+                        ctype = ctype.withParam("charset", encoding.underlyingValue.stringValue)
                     }
                 }
                 return ctype

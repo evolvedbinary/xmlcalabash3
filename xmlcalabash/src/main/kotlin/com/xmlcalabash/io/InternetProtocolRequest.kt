@@ -6,7 +6,6 @@ import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.exceptions.XProcException
 import com.xmlcalabash.namespace.Ns
-import com.xmlcalabash.namespace.NsErr
 import com.xmlcalabash.runtime.ExpressionEvaluator
 import com.xmlcalabash.util.UriUtils
 import net.sf.saxon.om.NamespaceUri
@@ -289,7 +288,7 @@ class InternetProtocolRequest(val stepConfig: StepConfiguration, val uri: URI) {
             if (serialization is XdmMap) {
                 val encoding = serialization.get(XdmAtomicValue(Ns.encoding))
                 if (encoding != null) {
-                    val mediaType = response.mediaType!!.addParam("charset", encoding.toString())
+                    val mediaType = response.mediaType!!.withParam("charset", encoding.toString())
                     val mtvalue = XdmAtomicValue(mediaType.toString())
                     val docprop = DocumentProperties(doc.properties)
                     docprop[Ns.contentType] = mtvalue
@@ -511,10 +510,10 @@ class InternetProtocolRequest(val stepConfig: StepConfiguration, val uri: URI) {
             }
 
             val entityBuilder = MultipartEntityBuilder.create()
-            entityBuilder.setMode(HttpMultipartMode.STRICT); // FIXME: make a parameter for this?
+            entityBuilder.setMode(HttpMultipartMode.STRICT) // FIXME: make a parameter for this?
 
             if (contentType.paramValue("boundary") == null) {
-                contentType = contentType.addParam("boundary", "B${java.util.UUID.randomUUID()}")
+                contentType = contentType.withParam("boundary", "B${UUID.randomUUID()}")
             }
 
             val boundary = contentType.paramValue("boundary")!!

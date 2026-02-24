@@ -2,12 +2,17 @@ package com.xmlcalabash.testdriver
 
 import com.xmlcalabash.XmlCalabash
 import com.xmlcalabash.XmlCalabashBuilder
+import com.xmlcalabash.app.XmlCalabashCli
+import com.xmlcalabash.documents.XProcBinaryDocument
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.DefaultErrorExplanation
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.exceptions.XProcException
+import com.xmlcalabash.io.BasicDocumentLoader
+import com.xmlcalabash.io.MimeDocumentLoader
 import com.xmlcalabash.namespace.Ns
 import com.xmlcalabash.namespace.NsCx
+import com.xmlcalabash.namespace.NsXml
 import com.xmlcalabash.namespace.NsXs
 import com.xmlcalabash.util.*
 import net.sf.saxon.Configuration
@@ -19,13 +24,18 @@ import net.sf.saxon.expr.parser.Token
 import net.sf.saxon.om.*
 import net.sf.saxon.s9api.*
 import net.sf.saxon.type.BuiltInAtomicType
+import net.sf.saxon.value.HexBinaryValue
 import org.apache.logging.log4j.kotlin.logger
 import org.xml.sax.InputSource
 import org.xmlresolver.ResolverFeature
 import java.io.*
+import java.net.URI
+import java.net.URLDecoder
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
 import java.nio.file.attribute.FileTime
 import java.nio.file.attribute.PosixFilePermission
 import java.nio.file.attribute.PosixFilePermissions
@@ -34,10 +44,15 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 import java.util.function.Supplier
 import javax.xml.transform.sax.SAXSource
+import kotlin.collections.component1
+import kotlin.collections.component2
+import kotlin.collections.isNotEmpty
+import kotlin.collections.iterator
 
 class TestCase(val builder: XmlCalabashBuilder, val xmlCalabash: XmlCalabash, val testOptions: TestOptions, val testFile: File) {
     companion object {
         val isWindows = System.getProperty("os.name").startsWith("Windows")
+        val ARGUMENTS = QName("arguments")
         val CODE = QName("code")
         val EXPECTED = QName("expected")
         val FEATURES = QName("features")
@@ -54,7 +69,9 @@ class TestCase(val builder: XmlCalabashBuilder, val xmlCalabash: XmlCalabash, va
         val EXECUTABLE = QName("executable")
         val ENCODING = QName("encoding")
 
-        private val showErrorExplanations = false;
+        private val showErrorExplanations = false
+        private val commandLineTempDir = File("/tmp/xmlcalabash.rcl")
+
     }
 
     val pipelineBuilder = xmlCalabash.newPipelineBuilder()
@@ -69,6 +86,7 @@ class TestCase(val builder: XmlCalabashBuilder, val xmlCalabash: XmlCalabash, va
     val errorCodes = mutableListOf<QName>()
     val features = mutableListOf<String>()
     var pipelineXml: XdmNode? = null
+    val pipelineArguments = mutableListOf<String>()
     val inputs = mutableMapOf<String,MutableList<XdmNode>>()
     val options = mutableMapOf<QName,XProcDocument>()
     val staticOptions = mutableMapOf<QName,XProcDocument>()
@@ -143,6 +161,11 @@ class TestCase(val builder: XmlCalabashBuilder, val xmlCalabash: XmlCalabash, va
                 skip("Unwritable directories aren't supported on Windows")
             }
             teardownFileEnvironment()
+            return
+        }
+
+        if (pipelineArguments.isNotEmpty()) {
+            runCommandLine()
             return
         }
 
@@ -362,6 +385,270 @@ class TestCase(val builder: XmlCalabashBuilder, val xmlCalabash: XmlCalabash, va
         }
     }
 
+    private fun runCommandLine() {
+        val args = listOf(pipelineXml!!.baseURI.toString()) + pipelineArguments
+
+        if (commandLineTempDir.exists() && commandLineTempDir.isDirectory) {
+            commandLineTempDir.deleteRecursively()
+        }
+
+        commandLineTempDir.mkdirs()
+        System.setProperty("user.dir", commandLineTempDir.absolutePath)
+
+        val captureOutput = PrintStream(File(commandLineTempDir, "_stdout"))
+        val saveOutput = System.out
+
+        try {
+            // Note: you must specify --pipe on the command line. If you don't, the
+            // default output receiver writes directly to the file with fd=1 and that
+            // circumvents this attempt to set the output.
+            System.setOut(captureOutput)
+            val start = System.nanoTime()
+            XmlCalabashCli.runThrowingException(args.toTypedArray())
+            elapsedSeconds = (System.nanoTime() - start) / 1e9
+        } catch (ex: XProcException) {
+            if (expected == "fail") {
+                var ok = false
+                for (code in errorCodes) {
+                    ok = ok || ex.error.code == code
+                }
+                if (ok) {
+                    pass()
+                } else {
+                    fail(ex.error, errorCodes, messagesXml(messageReporter.messages(Verbosity.TRACE)))
+                }
+            } else {
+                if (singleTest) {
+                    ex.printStackTrace()
+                }
+                fail(ex.error, messagesXml(messageReporter.messages(Verbosity.TRACE)))
+            }
+        } catch (ex: Exception) {
+            if (singleTest) {
+                ex.printStackTrace()
+            }
+            val error = XProcError.internal(999, ex)
+            fail(error, messagesXml(messageReporter.messages(Verbosity.TRACE)))
+        } catch (t: Throwable) {
+            if (singleTest) {
+                t.printStackTrace()
+            }
+            println("CRASH! ${testFile}")
+            fail(messagesXml(messageReporter.messages(Verbosity.TRACE)))
+        } finally {
+            System.setOut(saveOutput)
+        }
+        captureOutput.close()
+
+        if (schematron == null) {
+            return
+        }
+
+        val result = packageDirectory(commandLineTempDir)
+
+        if (singleTest) {
+            println("[0]: ")
+            println(result)
+        }
+
+        val errors = validate(result)
+
+        if (errors.isNotEmpty()) {
+            val bytes = ByteArrayOutputStream()
+            val stream = PrintStream(bytes)
+            stream.println("[0]: ")
+            stream.println(result)
+            stream.println("----------------")
+
+            for (node in errors) {
+                stream.println(node.stringValue)
+            }
+
+            stream.close()
+            stderrOutput += bytes.toString(StandardCharsets.UTF_8)
+            fail(errors, messagesXml(messageReporter.messages(Verbosity.TRACE)))
+        } else {
+            if (expected == "pass") {
+                pass()
+            } else {
+                fail(messagesXml(messageReporter.messages(Verbosity.TRACE)))
+            }
+        }
+    }
+
+    private fun packageDirectory(tempdir: File): XdmNode {
+        val builder = SaxonTreeBuilder(testConfig)
+        builder.startDocument(URI(tempdir.absolutePath + "/"))
+
+        var amap: AttributeMap = EmptyAttributeMap.getInstance()
+        amap = amap.put(attributeInfo(QName(NsXml.namespace,"xml:base"), tempdir.absolutePath + "/"))
+        builder.addStartElement(QName("directory"), amap)
+        Files.walk(Paths.get(tempdir.absolutePath)).use { stream ->
+            stream.filter { path: Path? -> Files.isRegularFile(path) }
+                .forEach { filename: Path? -> processFile(builder, filename!!) }
+        }
+        builder.addEndElement()
+        builder.endDocument()
+        return builder.result
+    }
+
+    private fun processFile(builder: SaxonTreeBuilder, path: Path) {
+        val bytes = path.toFile().readBytes()
+        val text = try {
+            bytes.toString(StandardCharsets.UTF_8)
+        } catch (ex: Exception) {
+            null
+        }
+
+        if (text != null && text.startsWith("Server: ")) {
+            processMime(builder, path, bytes.size)
+            return
+        }
+
+        // Gawd this is awful. I can't be sure the content type will be guessed correctly
+        // from the filename, so we have to try to sniff the content. This is a terrible
+        // idea generally, but it's a test driver, so ...
+        var contentType = "application/octet-stream"
+        if (bytes.size > 8 && bytes[0].toInt() == -119 && bytes[1].toInt() == 80 && bytes[2].toInt() == 78 && bytes[3].toInt() == 71
+            && bytes[4].toInt() == 13 && bytes[5].toInt() == 10 && bytes[6].toInt() == 26 && bytes[7].toInt() == 10) {
+            contentType = "image/png"
+        } else {
+            if (bytes.size == 0) {
+                contentType = "text/plain"
+            } else {
+                if (bytes[0] == '<'.code.toByte()) {
+                    contentType = "application/xml"
+                } else if (bytes[0] == '{'.code.toByte() || bytes[0] == '['.code.toByte()) {
+                    contentType = "application/json"
+                } else {
+                    var binary = false
+                    for (index in 0 until bytes.size.coerceAtMost(1024)) {
+                        val ch = bytes[index].toInt()
+                        if ((ch < 32 && (ch != 10 && ch != 13)) || ch > 126) {
+                            binary = true
+                            break
+                        }
+                    }
+                    if (!binary) {
+                        contentType = "text/plain"
+                    }
+                }
+            }
+        }
+
+        var amap: AttributeMap = EmptyAttributeMap.getInstance()
+
+        val filepath = path.toAbsolutePath().toString().substring(commandLineTempDir.absolutePath.length + 1)
+        amap = amap.put(attributeInfo(QName("uri"), filepath))
+
+        amap = amap.put(attributeInfo(QName("content-type"), contentType))
+        amap = amap.put(attributeInfo(QName("size"), bytes.size.toString()))
+        builder.addStartElement(QName("file"), amap)
+
+        if (contentType == "application/xml") {
+            val destination = XdmDestination()
+            builder.processor.newDocumentBuilder().parse(path.toFile(), destination)
+            builder.addSubtree(destination.xdmNode)
+            builder.addEndElement()
+            return
+        }
+
+        if (contentType.startsWith("text/") || contentType == "application/json") {
+            val stream = path.toFile().inputStream()
+            stream.bufferedReader().use {
+                builder.addText(it.readText())
+            }
+            builder.addEndElement()
+            return
+        }
+
+        val xmlbytes = if (bytes.size > 32) {
+            bytes.slice(IntRange(0, bytes.size.coerceAtMost(32))).toByteArray()
+        } else {
+            bytes
+        }
+
+        builder.addSubtree(XdmAtomicValue.wrap(HexBinaryValue(xmlbytes)))
+        builder.addEndElement()
+    }
+
+    private fun processMime(builder: SaxonTreeBuilder, path: Path, mimeSize: Int) {
+        val mime = MimeDocumentLoader(xmlCalabash)
+        val input = mime.loadMultiplexed(path.toFile().inputStream(), emptyMap())
+
+        var amap: AttributeMap = EmptyAttributeMap.getInstance()
+        val filepath = path.toAbsolutePath().toString().substring(commandLineTempDir.absolutePath.length + 1)
+        amap = amap.put(attributeInfo(QName("uri"), filepath))
+        amap = amap.put(attributeInfo(QName("content-type"), "multipart/mixed"))
+        amap = amap.put(attributeInfo(QName("size"), mimeSize.toString()))
+
+        builder.addStartElement(QName("mime"), amap)
+        for ((port, docs) in input) {
+            for (doc in docs) {
+                amap = EmptyAttributeMap.getInstance()
+                amap = amap.put(attributeInfo(QName("port"), port))
+                doc.baseURI?.let {
+                    amap = amap.put(attributeInfo(QName("uri"), it.toString()))
+                }
+                doc.contentType?.let {
+                    amap = amap.put(attributeInfo(QName("content-type"), it.toString()))
+                }
+
+                if (doc is XProcBinaryDocument) {
+                    amap = amap.put(attributeInfo(QName("size"), doc.binaryValue.size.toString()))
+
+                }
+
+                builder.addStartElement(QName("part"), amap)
+
+                builder.addStartElement(QName("headers"))
+                for ((prop, value) in doc.properties.asMap()) {
+                    if (prop == Ns.baseUri || prop == Ns.contentType) {
+                        continue
+                    }
+
+                    if (prop == Ns.serialization && value is XdmMap && value.isEmptyMap()) {
+                        continue
+                    }
+
+                    amap = EmptyAttributeMap.getInstance()
+                    amap = amap.put(attributeInfo(QName("name"), prop.toString()))
+                    builder.addStartElement(QName("header"), amap)
+
+                    if (value is XdmMap || value is XdmArray) {
+                        val baos = ByteArrayOutputStream()
+                        val serializer = testConfig.processor.newSerializer(baos)
+                        serializer.setOutputProperty(Serializer.Property.METHOD, "json")
+                        serializer.serializeXdmValue(value)
+                        builder.addText(baos.toByteArray().toString(StandardCharsets.UTF_8))
+                    } else {
+                        builder.addSubtree(value)
+                    }
+
+                    builder.addEndElement()
+                }
+                builder.addEndElement()
+
+                builder.addStartElement(QName("body"))
+
+                if (doc is XProcBinaryDocument) {
+                    val xmlbytes = if (doc.binaryValue.size > 32) {
+                        doc.binaryValue.slice(IntRange(0, doc.binaryValue.size.coerceAtMost(32))).toByteArray()
+                    } else {
+                        doc.binaryValue
+                    }
+                    builder.addSubtree(XdmAtomicValue.wrap(HexBinaryValue(xmlbytes)))
+                } else {
+                    builder.addSubtree(doc.value)
+                }
+
+                builder.addEndElement()
+                builder.addEndElement()
+            }
+        }
+        builder.addEndElement()
+    }
+
     private fun startIO() {
         stdoutBais = ByteArrayOutputStream()
         stderrBais = ByteArrayOutputStream()
@@ -393,7 +680,6 @@ class TestCase(val builder: XmlCalabashBuilder, val xmlCalabash: XmlCalabash, va
             println(stdoutOutput)
         }
     }
-
 
     private fun skip(reason: String) {
         status = TestStatus(testFile, "skip", reason)
@@ -514,6 +800,13 @@ class TestCase(val builder: XmlCalabashBuilder, val xmlCalabash: XmlCalabash, va
             rootElement(xml)
         } else {
             rootElementDocument(pipeline)
+        }
+
+        if (pipeline.getAttributeValue(ARGUMENTS) != null) {
+            val args = pipeline.getAttributeValue(ARGUMENTS).split("\\s+".toRegex())
+            for (arg in args) {
+                pipelineArguments.add(URLDecoder.decode(arg, "UTF-8"))
+            }
         }
 
         pipelineXml = xml

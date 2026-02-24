@@ -7,8 +7,10 @@ import com.xmlcalabash.api.MessageReporter
 import com.xmlcalabash.config.ConfigurationLoader
 import com.xmlcalabash.config.XmlCalabashInput
 import com.xmlcalabash.config.XmlCalabashOutput
+import com.xmlcalabash.config.XmlCalabashTempOutput
 import com.xmlcalabash.datamodel.*
 import com.xmlcalabash.documents.DocumentProperties
+import com.xmlcalabash.documents.XProcBinaryDocument
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.DefaultErrorExplanation
 import com.xmlcalabash.exceptions.ErrorExplanation
@@ -17,6 +19,7 @@ import com.xmlcalabash.exceptions.XProcException
 import com.xmlcalabash.io.DocumentLoader
 import com.xmlcalabash.io.MediaType
 import com.xmlcalabash.io.MessagePrinter
+import com.xmlcalabash.io.MimeDocumentLoader
 import com.xmlcalabash.namespace.Ns
 import com.xmlcalabash.namespace.NsErr
 import com.xmlcalabash.spi.DocumentResolverServiceProvider
@@ -27,6 +30,7 @@ import org.apache.logging.log4j.kotlin.logger
 import org.xmlresolver.ResolverFeature
 import org.xmlresolver.XMLResolver
 import java.io.BufferedReader
+import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.InputStreamReader
 import java.text.SimpleDateFormat
@@ -45,6 +49,11 @@ class XmlCalabashCli private constructor() {
             val cli = XmlCalabashCli()
             cli.run(args)
         }
+
+        fun runThrowingException(args: Array<out String>) {
+            val cli = XmlCalabashCli()
+            cli.run(args, true)
+        }
     }
 
     private lateinit var xmlCalabash: XmlCalabash
@@ -59,7 +68,7 @@ class XmlCalabashCli private constructor() {
     // we've initialized the stepConfig. It would be better refactor this.
     private var haveStepConfig = false
 
-    private fun run(args: Array<out String>) {
+    private fun run(args: Array<out String>, throwException: Boolean = false) {
         builder = XmlCalabashBuilder()
 
         try {
@@ -152,41 +161,78 @@ class XmlCalabashCli private constructor() {
             val compEnd = System.nanoTime()
 
             stepConfig.debug { "Elapsed compile time: ${(compEnd - compStart) / 1e9}s" }
-
-            var inputMap = builder.inputs.getOrDefault() ?: emptyMap()
-            var explicitStdin: String? = null
-            for ((port, inputs) in inputMap) {
-                for (input in inputs) {
-                    if (input.href == CommandLine.STDIO_URI) {
-                        explicitStdin = port
+            val primaryInputPort = pipeline.inputManifold.values.filter { it.primary == true }.firstOrNull()?.name
+            val inputList = mutableListOf<XmlCalabashInput>()
+            for (input in builder.inputs.getOrDefault() ?: emptyList()) {
+                if (input.port == null && !input.multiplex) {
+                    if (primaryInputPort == null) {
+                        throw XProcError.xiCliPortNameRequired("input").exception()
                     }
+                    inputList.add(input.withPort(primaryInputPort))
+                } else {
+                    inputList.add(input)
+                }
+            }
+            builder.inputs.set(inputList)
+
+            val explicitStdin: String? = inputList.filter { it.href == CommandLine.STDIO_URI }.firstOrNull()?.port
+            val implicitStdin: String? = if (explicitStdin == null) {
+                if (inputList.filter { it.port == primaryInputPort }.isEmpty()) {
+                    primaryInputPort
+                } else {
+                    null
+                }
+            } else {
+                null
+            }
+
+            val primaryOutputPort = pipeline.outputManifold.values.filter { it.primary == true }.firstOrNull()?.name
+            val outputList = mutableListOf<XmlCalabashOutput>()
+
+            if (outputList.filter { it.multiplex }.size > 1) {
+                throw XProcError.xiOnlyOneMultiplexOutput().exception()
+            }
+
+            for (output in builder.outputs.getOrDefault() ?: emptyList()) {
+                if (output.port == null && !output.multiplex) {
+                    if (primaryOutputPort == null) {
+                        throw XProcError.xiCliNoPrimaryOutputPortForDefault().exception()
+                    }
+                    outputList.add(output.withPort(primaryOutputPort))
+                } else {
+                    outputList.add(output)
+                }
+            }
+            builder.outputs.set(outputList)
+
+            val manifest = builder.manifest.getOrDefault()
+            val outputMultiplex = outputList.filter { it.multiplex }.firstOrNull()
+
+            if (manifest != null && builder.temporaryFiles.getOrDefault() != null) {
+                throw XProcError.xiCliConflictingOutputs().exception()
+            }
+
+            val stdoutPorts = outputList.filter { it.pattern == CommandLine.STDIO_NAME }
+            if (stdoutPorts.isNotEmpty()) {
+                if (stdoutPorts.size > 1) {
+                    throw XProcError.xiAtMostOneStdout().exception()
+                }
+                if (manifest != null && manifest.pattern == CommandLine.STDIO_NAME) {
+                    throw XProcError.xiAtMostOneStdout().exception()
                 }
             }
 
-            var implicitStdin: String? = null
-            if (explicitStdin == null && xmlCalabash.config.pipe) {
-                for ((port, input) in pipeline.inputManifold) {
-                    if (input.primary && port !in inputMap) {
-                        implicitStdin = port
-                    }
+            val explicitStdout: String? = outputList.filter { it.pattern == CommandLine.STDIO_NAME }.firstOrNull()?.port
+            val implicitStdout: String? = if (explicitStdout == null && outputMultiplex == null
+                && builder.temporaryFiles.getOrDefault() == null
+                && (manifest == null || manifest.pattern != CommandLine.STDIO_NAME)) {
+                if (outputList.filter { it.port == primaryOutputPort }.isEmpty()) {
+                    primaryOutputPort
+                } else {
+                    null
                 }
-            }
-
-            var outputMap = builder.outputs.getOrDefault() ?: emptyMap()
-            var explicitStdout: String? = null
-            for ((port, output) in outputMap) {
-                if (output.pattern == CommandLine.STDIO_NAME) {
-                    explicitStdout = port
-                }
-            }
-
-            var implicitStdout: String? = null
-            if (xmlCalabash.config.pipe) {
-                for ((port, output) in pipeline.outputManifold) {
-                    if (output.primary) {
-                        implicitStdout = port
-                    }
-                }
+            } else {
+                null
             }
 
             if (builder.graphs.getOrDefault() != null) {
@@ -207,15 +253,16 @@ class XmlCalabashCli private constructor() {
 
             if (implicitStdin != null) {
                 val ctype = implicitContentType(pipeline.inputManifold[implicitStdin]?.contentTypes)
-                builder.inputs.put(implicitStdin, listOf(XmlCalabashInput(CommandLine.STDIO_URI, ctype)))
-                inputMap = builder.inputs.get()!!
+                val xinput = XmlCalabashInput(implicitStdin,CommandLine.STDIO_URI, ctype)
+                inputList.add(xinput)
+                builder.inputs.add(xinput)
             }
 
             val stdin = if (explicitStdin != null || implicitStdin != null) {
                 val port = explicitStdin ?: implicitStdin!!
                 var ctype = implicitContentType(pipeline.inputManifold[port]?.contentTypes)
 
-                val inputList = inputMap[port]!!
+                val inputList = (builder.inputs.getOrDefault() ?: emptyList()).filter { it.port == port }
                 for (input in inputList) {
                     if (input.href == CommandLine.STDIO_URI) {
                         if (input.contentType != MediaType.ANY) {
@@ -225,31 +272,64 @@ class XmlCalabashCli private constructor() {
                     }
                 }
                 val loader = DocumentLoader(pipeline.config, CommandLine.STDIO_URI)
-                loader.load(System.`in`, ctype)
+                Pair(ctype, loader.load(System.`in`, ctype))
             } else {
                 null
             }
 
-            if ("*anonymous" in inputMap && pipeline.inputManifold.size != 1) {
-                throw XProcError.xiCliPortNameRequired("input").exception()
-            }
-
-            for ((portName, inputs) in inputMap) {
-                val port = if (portName == "*anonymous") {
-                    pipeline.inputManifold.keys.first()
-                } else {
-                    portName
+            for (input in inputList) {
+                if (input.multiplex) {
+                    val mimeProps = DocumentProperties()
+                    mimeProps[Ns.contentType] = MediaType.OCTET_STREAM
+                    val doc = stepConfig.environment.documentManager.load(input.href!!, pipeline.config, mimeProps)
+                    doc as XProcBinaryDocument
+                    val loader = MimeDocumentLoader(xmlCalabash)
+                    val bais = ByteArrayInputStream(doc.binaryValue)
+                    val map= loader.loadMultiplexed(bais, input.multiplexMapping)
+                    for ((port, doclist) in map) {
+                        if (port !in pipeline.inputManifold) {
+                            throw XProcError.xsNoSuchPort(port).exception()
+                        }
+                        for (doc in doclist) {
+                            pipeline.input(port, doc)
+                        }
+                    }
+                    continue
                 }
 
-                for (input in inputs) {
-                    if (input.href == CommandLine.STDIO_URI) {
-                        pipeline.input(port, stdin!!)
-                    } else {
-                        val props = DocumentProperties()
-                        if (input.contentType != MediaType.ANY) {
-                            props[Ns.contentType] = input.contentType.toString()
-                        }
+                val port = input.port!!
+                if (port !in pipeline.inputManifold) {
+                    throw XProcError.xsNoSuchPort(port).exception()
+                }
 
+                if (input.href == CommandLine.STDIO_URI) {
+                    val (ctype, doc) = stdin!!
+                    if (ctype == MediaType.MULTIPART_MIXED) {
+                        val loader = MimeDocumentLoader(xmlCalabash)
+                        val bais = ByteArrayInputStream((doc as XProcBinaryDocument).binaryValue)
+                        for (part in loader.load(bais)) {
+                            pipeline.input(port, part)
+                        }
+                    } else {
+                        pipeline.input(port, doc)
+                    }
+                } else {
+                    val props = DocumentProperties()
+                    if (input.contentType != MediaType.ANY) {
+                        props[Ns.contentType] = input.contentType.toString()
+                    }
+
+                    if (input.contentType == MediaType.MULTIPART_MIXED) {
+                        val mimeProps = DocumentProperties()
+                        mimeProps[Ns.contentType] = MediaType.OCTET_STREAM
+                        val doc = stepConfig.environment.documentManager.load(input.href!!, pipeline.config, mimeProps)
+                        doc as XProcBinaryDocument
+                        val loader = MimeDocumentLoader(xmlCalabash)
+                        val bais = ByteArrayInputStream(doc.binaryValue)
+                        for (doc in loader.load(bais)) {
+                            pipeline.input(port, doc)
+                        }
+                    } else {
                         val doc = if (input.href == null) {
                             input.doc!!.with(input.contentType).with(props)
                         } else {
@@ -260,32 +340,58 @@ class XmlCalabashCli private constructor() {
                 }
             }
 
-            if (implicitStdout != null && implicitStdout !in outputMap) {
-                builder.outputs.put(implicitStdout, XmlCalabashOutput(CommandLine.STDIO_NAME))
-                outputMap = builder.outputs.get()!!
-            }
-
-            if ("*anonymous" in outputMap && pipeline.outputManifold.size != 1) {
-                throw XProcError.xiCliPortNameRequired("output").exception()
+            if (implicitStdout != null) {
+                val output = XmlCalabashOutput(implicitStdout, CommandLine.STDIO_NAME)
+                builder.outputs.add(output)
+                outputList.add(output)
             }
 
             val realOutputs = mutableMapOf<String, XmlCalabashOutput>()
-            for ((portName, output) in outputMap) {
-                val port = if (portName == "*anonymous") {
-                    pipeline.outputManifold.keys.first()
-                } else {
-                    portName
-                }
-                realOutputs[port] = output
+            for (output in outputList.filter { !it.multiplex }) {
+                val port = output.port!!
 
                 if (!pipeline.outputManifold.containsKey(port)) {
                     throw XProcError.xiNoSuchOutputPort(port).exception()
                 }
-                if (output.pattern == "-") {
+
+                realOutputs[port] = output
+                if (output.pattern == CommandLine.STDIO_NAME) {
                     if (sawStdout) {
                         throw XProcError.xiAtMostOneStdout().exception()
                     }
                     sawStdout = true
+                }
+            }
+
+            for (port in pipeline.outputManifold.keys) {
+                if (port !in realOutputs) {
+                    if (outputMultiplex != null) {
+                        realOutputs[port] = outputMultiplex
+                    } else {
+                        val tempdir = builder.temporaryFiles.getOrDefault()
+                        if (tempdir != null) {
+                            if (tempdir.isEmpty()) {
+                                realOutputs[port] = XmlCalabashTempOutput(port, "")
+                            } else {
+                                val td = File(tempdir)
+                                if (td.exists()) {
+                                    if (!td.isDirectory) {
+                                        throw XProcError.xiCannotCreateTempDir(tempdir).exception()
+                                    }
+                                } else {
+                                    if (!File(tempdir).mkdirs()) {
+                                        throw XProcError.xiCannotCreateTempDir(tempdir).exception()
+                                    }
+                                }
+                                realOutputs[port] = XmlCalabashTempOutput(port, tempdir)
+                            }
+                        } else {
+                            if (xmlCalabash.config.pipe) {
+                                throw XProcError.xiCliPortNameRequired("output").exception()
+                            }
+                            realOutputs[port] = XmlCalabashOutput(port, "-")
+                        }
+                    }
                 }
             }
 
@@ -323,12 +429,19 @@ class XmlCalabashCli private constructor() {
                 }
             }
 
-            pipeline.receiver = FileOutputReceiver(xmlCalabash, stepConfig.processor, pipeline.outputManifold, realOutputs, explicitStdout ?: implicitStdout)
+            val receiver = FileOutputReceiver(xmlCalabash, pipeline, realOutputs, manifest)
+            pipeline.receiver = receiver
             tstart = System.nanoTime()
             pipeline.run()
             tend = System.nanoTime()
+            receiver.close()
         } catch (ex: Exception) {
             tend = System.nanoTime()
+
+            if (throwException) {
+                throw ex
+            }
+
             if (ex is XProcException) {
                 if (ex.error.code == NsErr.xi(XProcError.DEBUGGER_ABORT)) {
                     exitProcess(1)

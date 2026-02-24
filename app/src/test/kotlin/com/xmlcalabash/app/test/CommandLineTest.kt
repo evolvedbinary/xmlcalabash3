@@ -60,7 +60,7 @@ class CommandLineTest {
         val builder = CommandLine.parse(arrayOf("--input:source=file:/path/to/doc.xml"))
         val info = BuilderConfiguration(builder)
         Assertions.assertTrue(info.assertConfiguration(mapOf(
-            "inputs" to mapOf("source" to listOf(XmlCalabashInput(URI.create("file:/path/to/doc.xml"), MediaType.ANY)))
+            "inputs" to listOf(XmlCalabashInput("source", URI.create("file:/path/to/doc.xml"), MediaType.ANY))
         )).isEmpty())
     }
 
@@ -70,8 +70,8 @@ class CommandLineTest {
         val builder = CommandLine.parse(arrayOf("--input:source=file:/path/to/doc.xml", "-i:source=file:/path/to/alt.xml"))
         val info = BuilderConfiguration(builder)
         Assertions.assertTrue(info.assertConfiguration(mapOf(
-            "inputs" to mapOf("source" to listOf(XmlCalabashInput(URI.create("file:/path/to/doc.xml"), MediaType.ANY),
-                XmlCalabashInput(URI.create("file:/path/to/alt.xml"), MediaType.ANY)))
+            "inputs" to listOf(XmlCalabashInput("source", URI.create("file:/path/to/doc.xml"), MediaType.ANY),
+                XmlCalabashInput("source", URI.create("file:/path/to/alt.xml"), MediaType.ANY))
         )).isEmpty())
     }
 
@@ -81,8 +81,7 @@ class CommandLineTest {
         val builder = CommandLine.parse(arrayOf("--input:application/html+xml@source=file:/path/to/doc.html"))
         val info = BuilderConfiguration(builder)
         Assertions.assertTrue(info.assertConfiguration(mapOf(
-            "inputs" to mapOf("source" to
-                    listOf(XmlCalabashInput(URI.create("file:/path/to/doc.html"), MediaType.parse("application/html+xml"))))
+            "inputs" to listOf(XmlCalabashInput("source", URI.create("file:/path/to/doc.html"), MediaType.parse("application/html+xml")))
         )).isEmpty())
     }
 
@@ -92,7 +91,7 @@ class CommandLineTest {
         val builder = CommandLine.parse(arrayOf("--output:result=/dev/null"))
         val info = BuilderConfiguration(builder)
         Assertions.assertTrue(info.assertConfiguration(mapOf(
-            "outputs" to mapOf("result" to XmlCalabashOutput("/dev/null"))
+            "outputs" to listOf(XmlCalabashOutput("result", "/dev/null"))
         )).isEmpty())
     }
 
@@ -102,8 +101,8 @@ class CommandLineTest {
         val builder = CommandLine.parse(arrayOf("--output:result=/dev/null", "-o:alt=file:/tmp/out%0d.xml"))
         val info = BuilderConfiguration(builder)
         Assertions.assertTrue(info.assertConfiguration(mapOf(
-            "outputs" to mapOf("result" to XmlCalabashOutput("/dev/null"),
-                "alt" to XmlCalabashOutput("file:/tmp/out%0d.xml"))
+            "outputs" to listOf(XmlCalabashOutput("result", "/dev/null"),
+                XmlCalabashOutput("alt", "file:/tmp/out%0d.xml"))
         )).isEmpty())
     }
 
