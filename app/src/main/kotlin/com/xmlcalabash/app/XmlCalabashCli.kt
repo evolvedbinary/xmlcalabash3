@@ -177,8 +177,13 @@ class XmlCalabashCli private constructor() {
 
             val explicitStdin: String? = inputList.filter { it.href == CommandLine.STDIO_URI }.firstOrNull()?.port
             val implicitStdin: String? = if (explicitStdin == null) {
-                if (inputList.filter { it.port == primaryInputPort }.isEmpty()) {
-                    primaryInputPort
+                if (primaryInputPort != null && inputList.filter { it.port == primaryInputPort }.isEmpty()) {
+                    val rport = pipeline.inputManifold[primaryInputPort]!!
+                    if (rport.defaultBindings.isEmpty()) {
+                        primaryInputPort
+                    } else {
+                        null
+                    }
                 } else {
                     null
                 }
