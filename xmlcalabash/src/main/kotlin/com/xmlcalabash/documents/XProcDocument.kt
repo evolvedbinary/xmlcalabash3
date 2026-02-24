@@ -231,12 +231,12 @@ open class XProcDocument internal constructor() {
 
     open fun with(newValue: XdmValue): XProcDocument {
         // If the document is now just text, update the media type
-        if (ValueUtils.contentClassification(newValue) == MediaType.TEXT && _properties.contentClassification != MediaClassification.TEXT) {
+        if (newValue is XdmNode && ValueUtils.contentClassification(newValue) == MediaType.TEXT && _properties.contentClassification != MediaClassification.TEXT) {
             val newProps = DocumentProperties(_properties)
             newProps[Ns.contentType] = MediaType.TEXT
-            return XProcDocument(newValue, context, newProps)
+            return ofValue(newValue, context, MediaType.TEXT, newProps)
         }
-        return XProcDocument(newValue, context, _properties)
+        return ofValue(newValue, context, contentType, _properties)
     }
 
     open fun with(newValue: ByteArray, baseURI: URI?): XProcDocument {
