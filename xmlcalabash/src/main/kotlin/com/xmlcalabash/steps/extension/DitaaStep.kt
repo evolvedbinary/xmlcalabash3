@@ -92,7 +92,7 @@ class DitaaStep(): AbstractAtomicStep() {
             writer.write(image)
             stream.close()
 
-            receiver.output("result", XProcDocument.ofBinary(baos.toByteArray(), stepConfig, MediaType.PNG, DocumentProperties()))
+            receiver.output("result", XProcDocument.ofBinary(baos.toByteArray(), stepConfig, contentType, DocumentProperties()))
         } catch (ex: Exception) {
             if (ex is XProcException) {
                 throw ex
