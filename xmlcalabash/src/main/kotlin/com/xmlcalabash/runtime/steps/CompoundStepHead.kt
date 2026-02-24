@@ -9,6 +9,7 @@ import com.xmlcalabash.runtime.XProcStepConfiguration
 import com.xmlcalabash.runtime.model.HeadModel
 import com.xmlcalabash.runtime.parameters.RuntimeStepParameters
 import com.xmlcalabash.util.MediaClassification
+import com.xmlcalabash.util.SaxonTreeBuilder
 import com.xmlcalabash.util.SaxonXsdValidator
 import com.xmlcalabash.util.Verbosity
 import net.sf.saxon.s9api.*
@@ -234,8 +235,19 @@ class CompoundStepHead(config: XProcStepConfiguration, val parent: CompoundStep,
                                     if (item is XdmFunctionItem) {
                                         throw stepConfig.exception(XProcError.xdInvalidFunctionSelection())
                                     }
+
+                                    val docitem = if (item is XdmNode && item.nodeKind != XdmNodeKind.DOCUMENT) {
+                                        val builder = SaxonTreeBuilder(stepConfig.processor)
+                                        builder.startDocument(null)
+                                        builder.addSubtree(item)
+                                        builder.endDocument()
+                                        builder.result
+                                    } else {
+                                        item
+                                    }
+
                                     val itemdoc = XProcDocument.ofValue(
-                                        item,
+                                        docitem,
                                         document.context,
                                         document.contentType,
                                         document.properties
