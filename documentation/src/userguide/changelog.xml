@@ -13,6 +13,60 @@ See the commits and pull requests on
 finer detail.</para>
 
 <revhistory>
+<revision xml:id="r3039">
+<revnumber>3.0.39</revnumber>
+<date>2026-02-25</date>
+<revdescription>
+<itemizedlist spacing="compact">
+<listitem><para>Closed <cbissue number="580"/>. Make sure that nodes selected from default
+inputs are documents not, for example, elements.
+</para></listitem>
+<listitem><para>Closed <cbissue number="576"/>. Don’t short circuit type checking for
+<code>xs:string</code> types, convert them to strings properly.
+</para></listitem>
+<listitem><para>Closed <cbissue number="574"/> and <cbissue number="575"/>.
+Refactored output mechanisms to support several new features.
+</para>
+<para>It is now possible to read and write MIME <code>multipart/mixed</code>
+encoded documents as input and output to pipelines. This allows the processor to
+write several documents to the same file in a way that allows them to be
+reliably parsed and reloaded.
+See <option linkend="cli-output">--output</option>,
+<option linkend="cli-input">--input</option>,
+<option linkend="cli-input-multiplex">--input-multiplex</option>,
+<option linkend="cli-output-multiplex">--output-multiplex</option>
+(and <option linkend="cli-temporary-files">--temporary-files</option>
+and <option linkend="cli-manifest">--manifest</option>).
+</para>
+</listitem>
+<listitem><para>Closed <cbissue number="571"/>. Tidy up some warning messages and avoid an
+infinite loop in the error explainer.
+</para></listitem>
+<listitem><para>Closed <cbissue number="568"/>. Added <tag class="attribute">cause</tag>
+to the <tag>c:error</tag> element produced by a <tag>p:catch</tag>.
+</para></listitem>
+<listitem><para>Closed <cbissue number="566"/>. Added tips to the documentation about
+the interaction between the line numbering feature and error messages from several steps.
+</para></listitem>
+<listitem><para>Closed <cbissue number="564"/> and <cbissue number="565"/>. Attempt
+to improve error reporting.
+</para></listitem>
+<listitem><para>Closed <cbissue number="563"/>. Added some error explanation messages that
+were missing.
+</para></listitem>
+<listitem><para>Closed <cbissue number="561"/>. Resolved a few cases where namespace bindings
+could be incorrectly interpreted.
+</para></listitem>
+<listitem><para>Fixed a bug where the <tag>cx:ditaa</tag> step always reported
+the result content type as <code>image/png</code>, irrespective of the content type
+actually selected.
+</para></listitem>
+<listitem><para>Updated several dependencies to the most recent versions including
+SchXslt and NineML.
+</para></listitem>
+</itemizedlist>
+</revdescription>
+</revision>
 <revision xml:id="r3038">
 <revnumber>3.0.38</revnumber>
 <date>2026-01-31</date>
