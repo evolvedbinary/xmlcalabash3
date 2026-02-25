@@ -1,4 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?><refentry xmlns="http://docbook.org/ns/docbook" xmlns:p="http://www.w3.org/ns/xproc" xml:id="p-validate-with-xml-schema">
+<?xml version="1.0" encoding="utf-8"?>
+<refentry xmlns="http://docbook.org/ns/docbook"
+          xmlns:p="http://www.w3.org/ns/xproc"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          xml:id="p-validate-with-xml-schema">
 <?db filename="p-validate-with-xml-schema"?>
 <info>
   <bibliomisc role="version">3.1</bibliomisc>
@@ -50,5 +54,15 @@ on the <port>schemas</port> port are considered when resolving
 <refsection>
   <title>Description</title>
   <para role="external-refs"/>
+
+  <tip>
+    <title>Line numbering</title>
+    <para>If validation errors occur and there are no line numbers in the reported errors,
+    make sure that the line numbering feature is enabled globally
+    <link xlink:href="https://docs.xmlcalabash.com/userguide/current/configuration.html#cc.xml-calabash"
+    >in the configuration</link> or
+    when the validated document
+    <link linkend="load-param-line-numbering">is loaded</link>.</para>
+  </tip>
 </refsection>
 </refentry>
