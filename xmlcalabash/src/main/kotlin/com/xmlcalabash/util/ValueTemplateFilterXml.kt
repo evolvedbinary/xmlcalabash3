@@ -125,17 +125,18 @@ class ValueTemplateFilterXml(val originalNode: XdmNode, val contentType: MediaTy
             XdmNodeKind.ELEMENT -> {
                 var expand = expandText.peek()
 
+                val pInlineAttribute = p_InlineExpandText(node)
                 val inlineAttribute =  if (node.nodeName.namespaceUri == NsP.namespace) {
                     Ns.expandInlineText
                 } else {
-                    NsP.inlineExpandText
+                    pInlineAttribute
                 }
 
                 // Do the attributes before evaluating the new expand-text value because
                 // changing the value only applies to descendants...
                 val attrMap = mutableMapOf<QName, String?>()
                 if (onlyChecking) {
-                    attrMap[NsP.inlineExpandText] = expand.toString()
+                    attrMap[pInlineAttribute] = expand.toString()
                 }
 
                 val nodes = mutableListOf<Pair<XdmValue?,String?>>()
@@ -210,6 +211,28 @@ class ValueTemplateFilterXml(val originalNode: XdmNode, val contentType: MediaTy
             }
             else -> addSubtree(builder, node)
         }
+    }
+
+    private fun p_InlineExpandText(node: XdmNode): QName {
+        var pAvailable = true
+        var pDeclared: String? = null
+        val prefixes = mutableSetOf<String>()
+        for (binding in node.underlyingNode.allNamespaces) {
+            if (binding.prefix == "p") {
+                pAvailable = false
+            }
+            if (binding.namespaceUri == NsP.namespace) {
+                pDeclared = binding.prefix
+            }
+            binding.prefix?.let { prefixes.add(it) }
+        }
+        if (pDeclared != null) {
+            return QName(NsP.namespace, "${pDeclared}:inline-expand-text")
+        }
+        if (pAvailable) {
+            return NsP.inlineExpandText
+        }
+        return QName(NsP.namespace, "${S9Api.uniquePrefix(prefixes)}:inline-expand-text")
     }
 
     private fun filterValueTemplateNodes(config: StepConfiguration, node: XdmNode): List<Pair<XdmValue?,String?>> {
