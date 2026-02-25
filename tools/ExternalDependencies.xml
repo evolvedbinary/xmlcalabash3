@@ -20,9 +20,9 @@
       <artifact id="metadata-extractor" version="2.19.0"/>
     </group>
     <group id="com.fasterxml.jackson.dataformat">
-      <artifact id="jackson-dataformat-csv" version="2.19.2"/>
-      <artifact id="jackson-dataformat-toml" version="2.19.2"/>
-      <artifact id="jackson-dataformat-yaml" version="2.19.2"/>
+      <artifact id="jackson-dataformat-csv" version="2.21.1"/>
+      <artifact id="jackson-dataformat-toml" version="2.21.1"/>
+      <artifact id="jackson-dataformat-yaml" version="2.21.1"/>
     </group>
     <group id="com.github.f4b6a3">
       <artifact id="uuid-creator" version="6.1.1"/>
@@ -31,10 +31,10 @@
       <artifact id="json-patch" version="1.13"/>
     </group>
     <group id="com.jayway.jsonpath">
-      <artifact id="json-path" version="2.9.0"/>
+      <artifact id="json-path" version="2.10.0"/>
     </group>
     <group id="com.networknt">
-      <artifact id="json-schema-validator" version="1.5.8"/>
+      <artifact id="json-schema-validator" version="1.5.9"/>
     </group>
     <group id="com.nwalsh">
       <artifact id="sinclude" version="5.6.0"/>
@@ -49,14 +49,17 @@
       <artifact id="flexmark-all" version="0.64.8"/>
     </group>
     <group id="commons-codec">
-      <artifact id="commons-codec" version="1.19.0"/>
+      <artifact id="commons-codec" version="1.21.0"/>
     </group>
+    <!-- Upgrade requires Java 17 or later -->
     <group id="de.bottlecaps">
       <artifact id="markup-blitz" version="1.9"/>
     </group>
+    <!-- Upgrade requires Java 17 or later -->
     <group id="de.bottlecaps.ebnf-convert">
       <artifact id="ebnf-convert-lib" version="0.72"/>
     </group>
+    <!-- Upgrade requires Java 17 or later -->
     <group id="de.bottlecaps.rr">
       <artifact id="rr-lib" version="2.5"/>
     </group>
@@ -73,10 +76,10 @@
       <artifact id="jaxb-api" version="2.3.1"/>
     </group>
     <group id="net.minidev">
-      <artifact id="json-smart" version="2.5.2"/>
+      <artifact id="json-smart" version="2.6.0"/>
     </group>
     <group id="net.sourceforge.plantuml">
-      <artifact id="plantuml" version="1.2025.4"/>
+      <artifact id="plantuml" version="1.2026.1"/>
     </group>
     <group id="nu.validator">
       <artifact id="htmlparser" version="1.4.16"/>
@@ -89,7 +92,7 @@
       <artifact id="commons-compress" version="1.28.0"/>
     </group>
     <group id="org.apache.httpcomponents.client5">
-      <artifact id="httpclient5" version="5.5"/>
+      <artifact id="httpclient5" version="5.6"/>
     </group>
     <group id="org.apache.jena">
       <artifact id="jena-arq" version="5.5.0"/>
@@ -98,19 +101,19 @@
       <artifact id="jena" version="5.5.0"/>
     </group>
     <group id="org.apache.logging.log4j">
-      <artifact id="log4j-to-slf4j" version="2.25.1"/>
+      <artifact id="log4j-to-slf4j" version="2.25.3"/>
     </group>
     <group id="org.apache.pdfbox">
-      <artifact id="pdfbox" version="3.0.5"/>
-      <artifact id="pdfbox-io" version="3.0.5"/>
-      <artifact id="xmpbox" version="3.0.5"/>
+      <artifact id="pdfbox" version="3.0.6"/>
+      <artifact id="pdfbox-io" version="3.0.6"/>
+      <artifact id="xmpbox" version="3.0.6"/>
     </group>
     <group id="org.apache.xmlgraphics">
       <artifact id="fop" version="2.11"/>
     </group>
     <group id="org.asciidoctor">
-      <artifact id="asciidoctorj-pdf" version="2.3.19"/>
-      <artifact id="asciidoctorj" version="3.0.0"/>
+      <artifact id="asciidoctorj-pdf" version="2.3.23"/>
+      <artifact id="asciidoctorj" version="3.0.1"/>
     </group>
     <group id="org.brotli">
       <artifact id="dec" version="0.1.2"/>
@@ -132,15 +135,15 @@
       <artifact id="jline-terminal-jansi" version="3.30.6"/>
     </group>
     <group id="org.nineml">
-      <artifact id="coffeefilter" version="3.3.4"/>
-      <artifact id="coffeegrinder" version="3.3.4"/>
+      <artifact id="coffeefilter" version="3.3.8"/>
+      <artifact id="coffeegrinder" version="3.3.8"/>
     </group>
     <group id="org.relaxng">
       <artifact id="jing" version="20241231"/>
       <artifact id="trang" version="20241231"/>
     </group>
     <group id="org.seleniumhq.selenium">
-      <artifact id="selenium-java" version="4.34.0"/>
+      <artifact id="selenium-java" version="4.41.0"/>
     </group>
     <group id="org.semarglproject">
       <artifact id="semargl-core" version="0.7"/>
@@ -150,7 +153,7 @@
       <artifact id="slf4j-api" version="2.0.17"/>
     </group>
     <group id="org.tukaani">
-      <artifact id="xz" version="1.10"/>
+      <artifact id="xz" version="1.11"/>
     </group>
     <group id="org.w3c">
       <artifact id="epubcheck" version="5.3.0"/>
@@ -159,10 +162,10 @@
       <artifact id="xmlresolver" version="6.0.21"/>
     </group>
     <group id="org.xmlunit">
-      <artifact id="xmlunit-core" version="2.10.3"/>
+      <artifact id="xmlunit-core" version="2.11.0"/>
     </group>
     <group id="io.pebbletemplates">
-      <artifact id="pebble" version="4.1.0"/>
+      <artifact id="pebble" version="4.1.1"/>
     </group>
   </repository>
 
