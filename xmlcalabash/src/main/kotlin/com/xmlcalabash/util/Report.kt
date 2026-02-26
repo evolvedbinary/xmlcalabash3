@@ -49,9 +49,13 @@ open class Report(val severity: Verbosity, val message: () -> String) {
             _extraDetail[Ns.terminate]
         }
     }
-    
+
     constructor(severity: Verbosity, stepConfig: StepConfiguration, error: XmlProcessingError)
-            : this(severity, { if (error.cause is XPathException && error.cause.message != null) error.cause.message!! else error.message }) {
+            : this(severity, { val msg = if (error.cause is XPathException && error.cause.message != null) error.cause.message!! else error.message
+        // Saxon reports "at line -1" sometimes; that's just ugly
+        // https://saxonica.plan.io/issues/7033
+        msg.replace("at line -1 ", "")
+    }) {
         _location = stepConfig.location
         _inputLocation = Location(error.location)
 
@@ -120,6 +124,13 @@ open class Report(val severity: Verbosity, val message: () -> String) {
         }
 
         val sb = StringBuilder()
+
+        // Don't output the error code for XSLT terminate=yes errors
+        if ((language == null || language == "XSLT") && code == "XTMM9000") {
+            sb.append(message())
+            return sb.toString()
+        }
+
         if (language != null) {
             sb.append(language).append(" ")
             if (code != null) {
