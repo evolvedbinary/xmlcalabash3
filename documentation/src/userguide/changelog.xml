@@ -13,6 +13,17 @@ See the commits and pull requests on
 finer detail.</para>
 
 <revhistory>
+<revision xml:id="r3040">
+<revnumber>3.0.40</revnumber>
+<date>2026-02-26</date>
+<revdescription>
+<itemizedlist spacing="compact">
+<listitem><para>Closed <cbissue number="594"/>. Fixed presentation of <code>xsl:message</code>
+output. (It was really ugly and releases are cheap.)
+</para></listitem>
+</itemizedlist>
+</revdescription>
+</revision>
 <revision xml:id="r3039">
 <revnumber>3.0.39</revnumber>
 <date>2026-02-25</date>
