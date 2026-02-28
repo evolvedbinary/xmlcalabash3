@@ -24,11 +24,54 @@ class UriUtils {
                 return relative
             }
 
+            // You'd think that if they were file: URIs, the easy thing would be to use java.nio.Path's
+            // relativize(), but you'd be wrong. That gets cranky about /c:/path filenames and throws
+            // an exception of the base and relative parts are on different drives on Windows. Bah, humbug.
+
             val normParts = mutableListOf<String>()
             val relativeParts = mutableListOf<String>()
 
             normParts.addAll(path(base.normalize()).split("/"))
             relativeParts.addAll(path(relative.normalize()).split("/"))
+
+            // It doesn't appear to be practical to determine if the filesystem(s) in question are
+            // case sensitive or not. They're URIs, so I'm going to treat them as case sensitive,
+            // except for the drive letter on Windows. That is case-insensitive. I don't have a
+            // solid rationale for that, really, but it's better than calling C: and c: different.
+            if (Urify.isWindows) {
+                if (normParts.isNotEmpty() && normParts[0].length > 1 && normParts[0][1] == ':') {
+                    normParts[0] = normParts[0].uppercase()
+                }
+                if (relativeParts.isNotEmpty() && relativeParts[0].length > 1 && relativeParts[0][1] == ':') {
+                    relativeParts[0] = relativeParts[0].uppercase()
+                }
+            }
+
+            //println("NRT: ${normParts.joinToString(" : ")}")
+            //println("RRT: ${relativeParts.joinToString(" : ")}")
+
+            if (Urify.isWindows) {
+                // X:/path vs. Y:/path
+                if (normParts.isNotEmpty() && relativeParts.isNotEmpty() && normParts[0] != relativeParts[0]) {
+                    // They differ right from the start, no point trying to find a common ancestor
+                    return relative
+                }
+
+                // C:/path vs C:/other
+                if (normParts.size > 1 && relativeParts.size > 1 && normParts[1] != relativeParts[1]) {
+                    // They differ right from the start, no point trying to find a common ancestor
+                    return relative
+                }
+
+            } else {
+                // /path/to/place vs /other/path/to/place
+                // In this case, the first part is always ""
+                if (normParts.size > 1 && relativeParts.size > 1 && normParts[0] == relativeParts[0]
+                    && normParts[0] == "" && normParts[1] != relativeParts[1]) {
+                    // They differ right from the start, no point trying to find a common ancestor
+                    return relative
+                }
+            }
 
             normParts.removeLast()
             val lastPart = relativeParts.removeLast()
@@ -36,6 +79,13 @@ class UriUtils {
             while (normParts.isNotEmpty() && relativeParts.isNotEmpty() && normParts.first() == relativeParts.first()) {
                 normParts.removeFirst()
                 relativeParts.removeFirst()
+            }
+
+            //println("TNT: ${normParts.joinToString(" : ")}")
+            //println("TRT: ${relativeParts.joinToString(" : ")}")
+
+            if (Urify.isWindows && relativeParts.isNotEmpty() && relativeParts[0].length > 1 && relativeParts[0][1] == ':') {
+                return URI(Urify.urify(relativeParts.joinToString("\\")))
             }
 
             if (normParts.isEmpty()) {
@@ -49,7 +99,10 @@ class UriUtils {
             for (part in normParts) {
                 builder.append("../")
             }
-            builder.append(relativeParts.joinToString("/"))
+            if (relativeParts.isNotEmpty()) {
+                builder.append(relativeParts.joinToString("/"))
+                builder.append("/")
+            }
             builder.append(lastPart)
 
             return URI(builder.toString())
