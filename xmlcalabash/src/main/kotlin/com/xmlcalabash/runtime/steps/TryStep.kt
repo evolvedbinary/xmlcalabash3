@@ -211,7 +211,11 @@ open class TryStep(config: XProcStepConfiguration, compound: CompoundStepModel):
 
             if (exception.cause != null && exception.cause!!.message != null) {
                 builder.addStartElement(NsCx.cause)
-                builder.addText(exception.cause!!.message!!)
+                if (exception.cause is XProcException) {
+                    builder.addText(stepConfig.errorExplanation.message((exception.cause as XProcException).error, false))
+                } else {
+                    builder.addText(exception.cause!!.message!!)
+                }
                 builder.addEndElement()
             }
 

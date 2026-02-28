@@ -274,5 +274,23 @@ class S9Api {
             }
             return map
         }
+
+        fun dumpLocations(node: XdmNode, depth: Int = 0) {
+            when (node.nodeKind) {
+                XdmNodeKind.DOCUMENT -> {
+                    for (child in node.children { it.nodeKind == XdmNodeKind.ELEMENT }) {
+                        dumpLocations(child, depth + 1)
+                    }
+                }
+                XdmNodeKind.ELEMENT -> {
+                    println("${"".padStart(depth)}${node.nodeName} :: ${node.lineNumber}, ${node.columnNumber}")
+                    for (child in node.children { it.nodeKind == XdmNodeKind.ELEMENT }) {
+                        dumpLocations(child, depth + 1)
+                    }
+                }
+                else -> Unit
+            }
+        }
+
     }
 }

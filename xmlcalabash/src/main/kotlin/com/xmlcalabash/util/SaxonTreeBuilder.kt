@@ -3,6 +3,7 @@ package com.xmlcalabash.util
 import com.xmlcalabash.config.StepConfiguration
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.datamodel.DocumentContext
+import com.xmlcalabash.exceptions.XProcException
 import com.xmlcalabash.xslt.XsltStylesheet
 import com.xmlcalabash.xslt.stylesheet
 import net.sf.saxon.Controller
@@ -13,6 +14,7 @@ import net.sf.saxon.serialize.SerializationProperties
 import net.sf.saxon.type.SchemaType
 import net.sf.saxon.type.Untyped
 import java.net.URI
+import java.net.URISyntaxException
 
 /* N.B. There's a fundamental problem in here somewhere. In order to preserve base URIs correctly
    when, for example, @xml:base attributes have been deleted. The tree walker has to reset the
@@ -87,6 +89,22 @@ open class SaxonTreeBuilder(val processor: Processor) {
     }
 
     private fun addSubtreeNode(node: XdmNode) {
+        // In theory, we could make this more efficient with `receiver.append()`, but
+        // https://saxonica.plan.io/issues/7034
+        try {
+            addSubtreeNodeByParts(node)
+        } catch (ex: XProcException) {
+            throw ex
+        } catch (ise: IllegalStateException) {
+            if (ise.cause is URISyntaxException) {
+                // The underlyingNode has the baseURI as a string...
+                val badBase = node.underlyingNode.baseURI
+                throw XProcError.xdInvalidUri(node.underlyingNode.baseURI).exception(ise.cause as URISyntaxException)
+            }
+            throw ise
+        }
+
+/*
         if (excludedNamespaces.isNotEmpty()) {
             addSubtreeNodeByParts(node)
         } else {
@@ -98,6 +116,7 @@ open class SaxonTreeBuilder(val processor: Processor) {
                 addSubtreeNodeByParts(node)
             }
         }
+ */
     }
 
     private fun addSubtreeNodeByParts(node: XdmNode) {

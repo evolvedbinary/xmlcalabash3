@@ -126,10 +126,8 @@ class XmlCalabashBuilder {
             for (pair in initializers.getOrDefault() ?: emptyList()) {
                 configInit[pair.first] = pair.second
             }
-            val saxonConfiguration = SaxonConfiguration.newInstance(xconfig.licensed, xconfig.saxonConfigurationFile?.toURI(),
-                xconfig.saxonConfigurationProperties, xconfig.xmlSchemas, configInit, configurerList)
+            val saxonConfiguration = SaxonConfiguration.newInstance(xconfig, configInit, configurerList)
             saxonConfiguration.configuration.resourceResolver = xconfig.documentManager
-            saxonConfiguration.configuration.isLineNumbering = lineNumbering.getOrDefault() == true
             xconfig._saxonConfiguration = saxonConfiguration
 
             if (xconfig.xmlSchemas.isNotEmpty()

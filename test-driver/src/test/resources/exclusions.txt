@@ -1,3 +1,7 @@
+ab-load-002 because I can’t parse a test with an invalid base URI
+ab-store-002 because I can’t parse a test with an invalid base URI
+ab-p-archive-077 because I can’t parse a test with an invalid base URI
+
 ab-p-archive-067 because multiple archives are supported for create
 
 ab-os-exec-005 on Windows because it’s platform dependent
