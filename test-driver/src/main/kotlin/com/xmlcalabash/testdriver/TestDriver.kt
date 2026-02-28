@@ -128,6 +128,7 @@ class TestDriver(val testOptions: TestOptions, val exclusions: Map<String, Strin
         builder.debug.set(testOptions.debug)
 
         val eagerLicensedInvocation = XmlCalabashBuilder()
+        eagerLicensedInvocation.lineNumbering.set(true)
         eagerLicensedInvocation.licensed.set(true)
         eagerLicensedInvocation.eagerEvaluation.set(true)
         eagerLicensedInvocation.uniqueInlineUris.set(false)
@@ -138,6 +139,7 @@ class TestDriver(val testOptions: TestOptions, val exclusions: Map<String, Strin
         val eagerLicensed = eagerLicensedInvocation.build()
 
         val lazyLicensedInvocation = XmlCalabashBuilder()
+        lazyLicensedInvocation.lineNumbering.set(true)
         lazyLicensedInvocation.licensed.set(true)
         lazyLicensedInvocation.eagerEvaluation.set(false)
         lazyLicensedInvocation.uniqueInlineUris.set(false)
@@ -146,6 +148,7 @@ class TestDriver(val testOptions: TestOptions, val exclusions: Map<String, Strin
         val lazyLicensed = lazyLicensedInvocation.build()
 
         val eagerUnlicensedInvocation = XmlCalabashBuilder()
+        eagerUnlicensedInvocation.lineNumbering.set(true)
         eagerUnlicensedInvocation.licensed.set(false)
         eagerUnlicensedInvocation.eagerEvaluation.set(true)
         eagerUnlicensedInvocation.uniqueInlineUris.set(false)
@@ -154,6 +157,7 @@ class TestDriver(val testOptions: TestOptions, val exclusions: Map<String, Strin
         val eagerUnlicensed = eagerUnlicensedInvocation.build()
 
         val lazyUnlicensedInvocation = XmlCalabashBuilder()
+        lazyUnlicensedInvocation.lineNumbering.set(true)
         lazyUnlicensedInvocation.licensed.set(false)
         lazyUnlicensedInvocation.eagerEvaluation.set(false)
         lazyUnlicensedInvocation.uniqueInlineUris.set(false)

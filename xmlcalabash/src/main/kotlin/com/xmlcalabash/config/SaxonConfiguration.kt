@@ -1,5 +1,6 @@
 package com.xmlcalabash.config
 
+import com.xmlcalabash.XmlCalabashConfiguration
 import com.xmlcalabash.datamodel.DeclareStepInstruction
 import com.xmlcalabash.datamodel.XProcFunctionLibrary
 import com.xmlcalabash.exceptions.XProcError
@@ -21,6 +22,7 @@ import java.net.URI
 import javax.xml.transform.sax.SAXSource
 
 class SaxonConfiguration private constructor(val licensed: Boolean,
+                                             val lineNumbering: Boolean,
                                              val saxonConfigurationFile: URI?,
                                              val saxonConfigurationProperties: Map<String,String>,
                                              initialSchemaDocuments: List<URI>,
@@ -31,19 +33,27 @@ class SaxonConfiguration private constructor(val licensed: Boolean,
         fun newInstance(configuration: Configuration): SaxonConfiguration {
             val licensed = configuration.isLicensedFeature(Configuration.LicenseFeature.SCHEMA_VALIDATION)
             val contextManager: ExecutionContextManager = ExecutionContextImpl()
-            val saxonConfiguration = SaxonConfiguration(licensed, null, emptyMap(), emptyList(), emptyMap(), emptyList(), contextManager)
+            val saxonConfiguration = SaxonConfiguration(licensed, configuration.isLineNumbering, null, emptyMap(), emptyList(), emptyMap(), emptyList(), contextManager)
             saxonConfiguration.init(true, configuration)
             return saxonConfiguration
         }
 
-        fun newInstance(licensed: Boolean,
-                        configurationFile: URI?,
-                        properties: Map<String,String>,
-                        schemaDocuments: List<URI>,
+        fun newInstance(xconfig: XmlCalabashConfiguration,
                         initializers: Map<String,Boolean>,
                         configurers: List<Configurer>): SaxonConfiguration {
+            return newInstance(xconfig.licensed, xconfig.lineNumbering, xconfig.saxonConfigurationFile?.toURI(),
+                xconfig.saxonConfigurationProperties, xconfig.xmlSchemas, initializers, configurers)
+        }
+
+       private fun newInstance(licensed: Boolean,
+                                lineNumbering: Boolean,
+                                configurationFile: URI?,
+                                properties: Map<String,String>,
+                                schemaDocuments: List<URI>,
+                                initializers: Map<String,Boolean>,
+                                configurers: List<Configurer>): SaxonConfiguration {
             val contextManager: ExecutionContextManager = ExecutionContextImpl()
-            val saxonConfiguration = SaxonConfiguration(licensed, configurationFile, properties, schemaDocuments, initializers, configurers, contextManager)
+            val saxonConfiguration = SaxonConfiguration(licensed, lineNumbering,configurationFile, properties, schemaDocuments, initializers, configurers, contextManager)
             saxonConfiguration.init(true, null)
             return saxonConfiguration
         }
@@ -79,6 +89,8 @@ class SaxonConfiguration private constructor(val licensed: Boolean,
                 val source = SAXSource(InputSource(saxonConfigurationFile.toString()))
                 Configuration.readConfiguration(source)
             }
+
+        _configuration.isLineNumbering = lineNumbering
 
         for ((key, value) in saxonConfigurationProperties) {
             val data = FeatureIndex.getData(key) ?: throw XProcError.xiUnrecognizedSaxonConfigurationProperty(key).exception()
@@ -135,7 +147,7 @@ class SaxonConfiguration private constructor(val licensed: Boolean,
     )
 
     fun newConfiguration(): SaxonConfiguration {
-        val newConfig = SaxonConfiguration(licensed, saxonConfigurationFile, saxonConfigurationProperties, schemaDocuments, initializerClasses, configurers, contextManager)
+        val newConfig = SaxonConfiguration(licensed, lineNumbering, saxonConfigurationFile, saxonConfigurationProperties, schemaDocuments, initializerClasses, configurers, contextManager)
         newConfig.inheritedFunctionLibraries.addAll(inheritedFunctionLibraries)
         newConfig.inheritedFunctionLibraries.addAll(functionLibraries)
         newConfig.pipelineExtensionFunctions.addAll(pipelineExtensionFunctions)

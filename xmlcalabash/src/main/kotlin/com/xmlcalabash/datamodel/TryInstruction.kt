@@ -257,6 +257,11 @@ class TryInstruction(parent: XProcInstruction): CompoundStepDeclaration(parent, 
         return group!!.tryInstruction()
     }
 
+    override fun runStep(): RunInstruction {
+        group = group ?: tryGroup()
+        return group!!.runStep()
+    }
+
     override fun atomicStep(type: QName): AtomicStepInstruction {
         group = group ?: tryGroup()
         return group!!.atomicStep(type)
