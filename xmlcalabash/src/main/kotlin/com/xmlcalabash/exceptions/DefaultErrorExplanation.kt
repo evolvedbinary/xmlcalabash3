@@ -123,6 +123,7 @@ class DefaultErrorExplanation(override val reporter: MessageReporter): ErrorExpl
     }
 
     private fun relativeLocation(location: Location): String? {
+        //println("relativeLocation(${location.baseUri}; ${initialCwd})")
         if (location.baseUri != null) {
             val rel = UriUtils.makeRelativeTo(initialCwd, location.baseUri).toString()
             if (location.lineNumber > 0) {
