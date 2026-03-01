@@ -111,8 +111,12 @@ abstract class VariableBindingContainer(parent: XProcInstruction, val name: QNam
 
         if (select!!.contextRef && children.isEmpty() && stepConfig.drp != null) {
             if (specialType != SpecialType.XSLT_SELECTION_PATTERN) {
-                val readFrom = pipe()
-                readFrom.setReadablePort(stepConfig.drp!!, true)
+                if (this is OptionInstruction) {
+                    stepConfig.warn { "option $${name} default value references the context item, but the context item will always be empty" }
+                } else {
+                    val readFrom = pipe()
+                    readFrom.setReadablePort(stepConfig.drp!!, true)
+                }
             }
         }
 
