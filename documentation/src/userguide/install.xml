@@ -182,17 +182,28 @@ XML Schema documents, you can provide that mapping as well. You will also
 want to provide mappings for other extensions you use.</para>
 
 </section>
-<section xml:id="console-encoding">
-<title>The console encoding</title>
+<section xml:id="console">
+<title>The console</title>
 
 <para>XML Calabash often runs as a program started on the command line. This can
 be in your standard terminal or it can be a terminal window provided by your
 editing environment. It’s also possible for another application to run XML
 Calabash on your behalf and present its output in some other manner. XML
 Calabash has a limited ability to determine how it was started or precisely how
-its output will be presented. For convenience, we’ll discuss output to “your
-terminal” but these issues apply equally to an output window in your XML editor
-or something else.</para>
+its output will be presented.</para>
+
+<para>What “the console” is called varies. It might be called the console or the
+terminal or your shell window or the command line interface. On Windows, it’s usually the
+<code>cmd</code> window or the <code>PowerShell</code> window. On Unix-derived systems,
+it’s the terminal window where your shell runs (<code>bash</code>, <code>zsh</code>,
+<code>fish</code>, take your pick).</para>
+
+<para>In this section “your terminal” refers to the environment where XML Calabash
+is running. Most often, that’s some flavor of console, but it can also be the output
+window in your XML editor or something else.</para>
+
+<section xml:id="console-encoding">
+<title>Console output</title>
 
 <para>Internally, XML Calabash operates mostly on “Java strings” which are
 Unicode<footnote><para>This section is intentionally vague about which Unicode
@@ -244,6 +255,40 @@ actually is.
 
 <para>How you fix that depends on the details of the environment you’re using.</para>
 
+</section>
+<section xml:id="console-input">
+<title>Console input</title>
+
+<para>One input port can be bound to “standard input”. You can do this <link
+linkend="cli-input">explicitly</link> by using “<code>-</code>” as the URI
+portion of an input binding. It will also be done implicitly if you leave the
+primary input port unbound. Standard input will come from your terminal
+unless you redirect input in some way.
+</para>
+
+
+<para>If the binding is implicit, and you weren’t expecting it, it will appear that XML
+Calabash has hung because it will wait indefinitely for input. To help mitigate this situation,
+if XML Calabash determines that it’s running in a terminal, and if the binding is implicit,
+it will print a prompt:</para>
+
+<screen>Waiting for <replaceable>portname</replaceable> input from the console...</screen>
+
+<para>You can avoid this prompt by using an expicit binding or the 
+<option linkend="cli-pipe">--pipe</option> option.</para>
+
+<para>If you’re letting XML Calabash read from the terminal for input, you have
+to tell it when you’re finished. Exactly how you do that will depend on the
+environment in which XML Calabash is running. On Unix-derived systems, a newline
+followed by Ctrl-D is the most common way to end input. On Windows, use a newline
+followed by Ctrl-Z followed by another newline.</para>
+
+<note>
+<para>If the input you’re typing is XML, the parser is processing the lines as
+you type them. If you make a well-formedness error, an exception will be thrown
+immediately, before you finish typing the document.</para>
+</note>
+</section>
 </section>
 
 <section xml:id="extensions">
