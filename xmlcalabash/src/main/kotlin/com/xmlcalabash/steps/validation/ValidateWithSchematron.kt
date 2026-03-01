@@ -73,7 +73,7 @@ open class ValidateWithSchematron(): AbstractValidationStep() {
         val failed = impl.failedAssertions(report)
 
         if (reportFormat == "xvrl") {
-            report = xvrlReport(report, reportFormat, schema, xvrlParameters)
+            report = xvrlReport(document, report, reportFormat, schema, xvrlParameters)
         }
 
         if (assertValid) {
@@ -81,7 +81,7 @@ open class ValidateWithSchematron(): AbstractValidationStep() {
                 val xvrl = if (reportFormat == "xvrl") {
                     report
                 } else {
-                    xvrlReport(report, "xvrl", schema, xvrlParameters)
+                    xvrlReport(document, report, "xvrl", schema, xvrlParameters)
                 }
                 val doc = XProcDocument.ofXml(xvrl, document.context)
                 if (document.baseURI == null) {
@@ -95,13 +95,14 @@ open class ValidateWithSchematron(): AbstractValidationStep() {
         receiver.output("result", document)
     }
 
-    private fun xvrlReport(report: XdmNode, reportFormat: String, schema: XProcDocument, xvrlParameters: Map<String,String>): XdmNode {
+    private fun xvrlReport(document: XProcDocument, report: XdmNode, reportFormat: String, schema: XProcDocument, xvrlParameters: Map<String,String>): XdmNode {
         if (reportFormat != "xvrl") {
             return report
         }
 
         val xvrl = XvrlReport.fromSvrl(stepConfig, xvrlParameters, report)
-        xvrl.metadata.validator("SchXslt2", XmlCalabashBuildConfig.DEPENDENCIES["schxslt2"] ?: "unknown")
+        xvrl.metadata.validator("SchXslt2", XmlCalabashBuildConfig.SCHXSLT2 ?: "unknown")
+        xvrl.metadata.document(document.baseURI)
 
         if (stepConfig.baseUri != null && schema.baseURI != null
             && schema.baseURI.toString().startsWith(stepConfig.baseUri.toString())
