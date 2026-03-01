@@ -164,6 +164,10 @@ class XmlCalabashCli private constructor() {
             val primaryInputPort = pipeline.inputManifold.values.filter { it.primary == true }.firstOrNull()?.name
             val inputList = mutableListOf<XmlCalabashInput>()
             for (input in builder.inputs.getOrDefault() ?: emptyList()) {
+                // Bail early for a bad input port name, before we try to read from stdin, specifically
+                if (input.port != null && input.port !in pipeline.inputManifold) {
+                    throw XProcError.xsNoSuchPort(input.port!!).exception()
+                }
                 if (input.port == null && !input.multiplex) {
                     if (primaryInputPort == null) {
                         throw XProcError.xiCliPortNameRequired("input").exception()
@@ -276,6 +280,17 @@ class XmlCalabashCli private constructor() {
                         break;
                     }
                 }
+
+                // We're already loading the jansi library for JLine, so ...
+                // You'd think that FileDescriptor.in was the right thing here, but FileDescriptor won't
+                // actually tell you the device number and it always uses 0 for in, so...
+                if (implicitStdin != null) {
+                    val inputTty = org.fusesource.jansi.internal.CLibrary.isatty(0) != 0
+                    if (inputTty && builder.pipedMode.getOrDefault() != true) {
+                        System.err.println("Waiting for ${port} input from the console...")
+                    }
+                }
+
                 val loader = DocumentLoader(pipeline.config, CommandLine.STDIO_URI)
                 Pair(ctype, loader.load(System.`in`, ctype))
             } else {
