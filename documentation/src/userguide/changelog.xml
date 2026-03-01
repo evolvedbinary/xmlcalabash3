@@ -13,6 +13,38 @@ See the commits and pull requests on
 finer detail.</para>
 
 <revhistory>
+<revision xml:id="r3041">
+<revnumber>3.0.41</revnumber>
+<date>2026-03-01</date>
+<revdescription>
+<itemizedlist spacing="compact">
+<listitem><para>Closed <cbissue number="608"/>. Add <tag>xvrl:document</tag> to
+the <tag>xvrl:metadata</tag> when converting SVRL to XVRL.
+</para></listitem>
+<listitem><para>Closed <cbissue number="606"/>. Make sure that unbound ports
+on compound steps don’t cause problems at runtime.
+</para></listitem>
+<listitem><para>Closed <cbissue number="600"/>. Improve handling of console
+input and output. Updated
+<link xlink:href="https://docs.xmlcalabash.com/userguide/current/installation.html#console">the
+documentation</link> about console handling.
+</para></listitem>
+<listitem><para>Closed <cbissue number="577"/>. Ignore the default readable port
+when configuring <tag>p:option</tag> defaults (options cannot have any bindings).
+</para></listitem>
+<listitem><para>Closed <cbissue number="599"/> and <cbissue number="602"/>. Fixed
+line numbering and <tag>cx:cause</tag> in error reports. It’s no longer possible
+to load a pipeline that contains an <tag class="attribute">xml:base</tag> attribute
+that’s syntactically invalid. Fixed an unrelated bug where <tag>p:run</tag> couldn’t appear
+in a <tag>p:try</tag>.
+</para></listitem>
+<listitem><para>Closed <cbissue number="598"/>. Improved the way a relative path
+is computed for two absolute URIs. Fixed the bug where the last slash was
+sometimes missing. Added support for paths that start at the root. Improved
+Windows path parsing (always compare drive letters case-insensitively).</para></listitem>
+</itemizedlist>
+</revdescription>
+</revision>
 <revision xml:id="r3040">
 <revnumber>3.0.40</revnumber>
 <date>2026-02-26</date>
