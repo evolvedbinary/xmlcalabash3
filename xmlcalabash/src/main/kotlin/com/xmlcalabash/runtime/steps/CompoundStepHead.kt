@@ -44,14 +44,18 @@ class CompoundStepHead(config: XProcStepConfiguration, val parent: CompoundStep,
         val sb = StringBuilder()
         // Inputs = step inputs that aren't passed on to the subpipeline; !source on p:for-each, for example
         for ((name, port) in params.inputs) {
-            if (!port.weldedShut) {
+            if (port.weldedShut) {
+                weldedPorts.add(name)
+            } else {
                 sb.append(port.name).append(" ")
                 openPorts.add(name)
             }
         }
         // Outputs = step inputs that are passed on to the subpipeline, caches and current on p:for-each, for example
         for ((name, port) in params.outputs) {
-            if (!port.weldedShut) {
+            if (port.weldedShut) {
+                weldedPorts.add(name)
+            } else {
                 sb.append(port.name).append(" ")
                 openPorts.add(name)
             }
