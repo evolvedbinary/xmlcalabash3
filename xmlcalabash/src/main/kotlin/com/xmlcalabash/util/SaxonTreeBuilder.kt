@@ -329,9 +329,13 @@ open class SaxonTreeBuilder(val processor: Processor) {
         receiver.characters(S9Api.makeUnicodeString(text), loc, 0)
     }
 
-    fun addPI(target: String, data: String, baseURI: String) {
-        val loc = DefaultLocation(baseURI)
-        receiver.processingInstruction(target, S9Api.makeUnicodeString(data), loc, 0)
+    fun addPI(target: String, data: String, baseURI: String?) {
+        if (baseURI != null) {
+            val loc = DefaultLocation(baseURI)
+            receiver.processingInstruction(target, S9Api.makeUnicodeString(data), loc, 0)
+        } else {
+            receiver.processingInstruction(target, S9Api.makeUnicodeString(data), VoidLocation.instance, 0)
+        }
     }
 
     fun addPI(target: String, data: String) {
