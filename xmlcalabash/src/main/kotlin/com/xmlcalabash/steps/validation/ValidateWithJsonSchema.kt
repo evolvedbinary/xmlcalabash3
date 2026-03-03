@@ -67,7 +67,7 @@ open class ValidateWithJsonSchema(): AbstractValidationStep() {
         val report = XvrlReport.newInstance(stepConfig, xvrlParameters(parameters))
         report.metadata.creator(stepConfig.saxonConfig.environment.productName,
             stepConfig.saxonConfig.environment.productVersion)
-        report.metadata.validator("jsonSchemaValidator", XmlCalabashBuildConfig.DEPENDENCIES["jsonSchemaValidator"] ?: "unknown")
+        report.metadata.validator("jsonSchemaValidator", XmlCalabashBuildConfig.DEPENDENCIES["com.networknt:json-schema-validator"] ?: "unknown")
 
         if (stepConfig.baseUri != null && schema.baseURI != null
             && schema.baseURI.toString().startsWith(stepConfig.baseUri.toString())

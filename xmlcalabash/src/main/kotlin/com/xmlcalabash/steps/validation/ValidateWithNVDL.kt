@@ -35,7 +35,7 @@ open class ValidateWithNVDL(): AbstractValidationStep() {
         }
 
         val report = Errors(stepConfig, document.baseURI, xvrlParameters(parameters))
-        report.report.metadata.validator("Jing", XmlCalabashBuildConfig.DEPENDENCIES["jing"] ?: "unknown")
+        report.report.metadata.validator("Jing", XmlCalabashBuildConfig.DEPENDENCIES["org.relaxng:jing"] ?: "unknown")
 
         val listener = CachingErrorListener(stepConfig, report)
         val properties = PropertyMapBuilder()
