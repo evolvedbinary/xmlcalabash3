@@ -168,7 +168,7 @@ class XmlUnitStep(): AbstractAtomicStep() {
         }
 
         val report = XvrlReport.newInstance(stepConfig, AbstractValidationStep.xvrlParameters(parameters), diffmeta)
-        report.metadata.validator("xmlunit", XmlCalabashBuildConfig.DEPENDENCIES["xmlunit"] ?: "unknown")
+        report.metadata.validator("xmlunit", XmlCalabashBuildConfig.DEPENDENCIES["org.xmlunit:xmlunit-core"] ?: "unknown")
 
         for (comp in diff.differences) {
             details(source, report, comp, comp.comparison.controlDetails)

@@ -49,7 +49,7 @@ open class ValidateWithRelaxNG(): AbstractValidationStep() {
         }
 
         val report = Errors(stepConfig, document.baseURI, xvrlParameters(parameters))
-        report.report.metadata.validator("Jing", XmlCalabashBuildConfig.DEPENDENCIES["jing"] ?: "unknown")
+        report.report.metadata.validator("Jing", XmlCalabashBuildConfig.DEPENDENCIES["org.relaxng:jing"] ?: "unknown")
 
         val language = if (compact) "RNC" else "RNG"
         if (stepConfig.baseUri != null && schema.baseURI != null
