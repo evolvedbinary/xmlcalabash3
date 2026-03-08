@@ -4,8 +4,10 @@ import com.xmlcalabash.app.CommandLine
 import com.xmlcalabash.config.XmlCalabashInput
 import com.xmlcalabash.XmlCalabashBuilder
 import com.xmlcalabash.config.XmlCalabashOutput
+import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.exceptions.XProcException
 import com.xmlcalabash.io.MediaType
+import com.xmlcalabash.namespace.NsCx
 import com.xmlcalabash.namespace.NsErr
 import com.xmlcalabash.util.AssertionsLevel
 import com.xmlcalabash.util.ExtensionName
@@ -82,6 +84,56 @@ class CommandLineTest {
         val info = BuilderConfiguration(builder)
         Assertions.assertTrue(info.assertConfiguration(mapOf(
             "inputs" to listOf(XmlCalabashInput("source", URI.create("file:/path/to/doc.html"), MediaType.parse("application/html+xml")))
+        )).isEmpty())
+    }
+
+    // [--input=uri]
+    @Test
+    fun inputPrimaryInputPort() {
+        val builder = CommandLine.parse(arrayOf("--input=file:/path/to/doc.xml"))
+        val info = BuilderConfiguration(builder)
+        Assertions.assertTrue(info.assertConfiguration(mapOf(
+            "inputs" to listOf(XmlCalabashInput(null, URI.create("file:/path/to/doc.xml"), MediaType.ANY))
+        )).isEmpty())
+    }
+
+    // [--input-multiplex=input.mime]
+    @Test
+    fun inputMultiplexBad() {
+        try {
+            CommandLine.parse(arrayOf("--input-multiplex:x@y=input.mime"))
+        } catch (ex: XProcException) {
+            Assertions.assertEquals(NsErr.xi(205), ex.error.code)
+        } catch (_: Exception) {
+            fail()
+        }
+    }
+
+    // [--input-multiplex=input.mime]
+    @Test
+    fun inputMultiplex() {
+        val builder = CommandLine.parse(arrayOf("--input-multiplex:file:/path/to/input.mime"))
+        val info = BuilderConfiguration(builder)
+
+        val expected = XmlCalabashInput(null, URI.create("file:/path/to/input.mime"), MediaType.parse("multipart/mixed"))
+        expected.multiplex = true
+
+        Assertions.assertTrue(info.assertConfiguration(mapOf(
+            "inputs" to listOf(expected)
+        )).isEmpty())
+    }
+
+    // [--input-multiplex=-]
+    @Test
+    fun inputMultiplexStdio() {
+        val builder = CommandLine.parse(arrayOf("--input-multiplex:-"))
+        val info = BuilderConfiguration(builder)
+
+        val expected = XmlCalabashInput(null, CommandLine.STDIO_URI, MediaType.parse("multipart/mixed"))
+        expected.multiplex = true
+
+        Assertions.assertTrue(info.assertConfiguration(mapOf(
+            "inputs" to listOf(expected)
         )).isEmpty())
     }
 

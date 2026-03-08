@@ -3,7 +3,7 @@
         xmlns:cxerr="http://xmlcalabash.com/ns/error"
         xmlns:t="http://xproc.org/ns/testsuite/3.0">
   <t:info>
-    <t:title>cmdline-001</t:title>
+    <t:title>cmdline-006</t:title>
     <t:revision-history>
       <t:revision>
         <t:date>2026-02-22</t:date>

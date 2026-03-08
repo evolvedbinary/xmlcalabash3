@@ -68,7 +68,7 @@ class CommandLine private constructor(val args: Array<out String>) {
         ArgumentDescription("--help", listOf(), ArgumentType.BOOLEAN, "true") { _help = it == "true" },
         ArgumentDescription("--init", listOf(), ArgumentType.STRING) { builder.initializers.add(Pair(it, false)) },
         ArgumentDescription("--input", listOf("-i"), ArgumentType.STRING) { parseInput(it) },
-        ArgumentDescription("--input-multiplex", listOf("-im"), ArgumentType.STRING) { parseInput(it, true) },
+        ArgumentDescription("--input-multiplex", listOf("-im"), ArgumentType.STRING) { parseInputMultiplex(it) },
         ArgumentDescription("--licensed", listOf(), ArgumentType.BOOLEAN, "true") { builder.licensed.set(it == "true") },
         ArgumentDescription("--line-numbering", listOf("-l"), ArgumentType.BOOLEAN, "true") { builder.lineNumbering.set(it == "true") },
         ArgumentDescription("--manifest", listOf("-m"), ArgumentType.STRING) { parseManifest(it) },
@@ -99,24 +99,28 @@ class CommandLine private constructor(val args: Array<out String>) {
         }
 
         for (opt in args) {
-            val pos = opt.indexOf(':')
-            var option = if (pos >= 0) {
-                opt.substring(0, pos)
-            } else {
-                opt
-            }
-            val suppliedValue = if (pos >= 0) {
-                opt.substring(pos + 1)
-            } else {
-                // special case for --input and --output
+            var option: String = ""
+            var suppliedValue: String? = null
+
+            // Special case for --input and --output
+            if (opt.startsWith("--input=") || opt.startsWith("-i=")
+                || opt.startsWith("--output=") || opt.startsWith("-o=")) {
                 val eqpos = opt.indexOf('=')
-                if (option.startsWith("--input=") || option.startsWith("--output=")
-                    || option.startsWith("-i=") || option.startsWith("-o=")) {
-                    option = opt.substring(0, eqpos)
-                    opt.substring(eqpos)
+                option = opt.substring(0, eqpos)
+                suppliedValue = opt.substring(eqpos + 1)
+            } else {
+                val pos = opt.indexOf(':')
+                option = if (pos >= 0) {
+                    opt.substring(0, pos)
+                } else {
+                    opt
+                }
+                suppliedValue = if (pos >= 0) {
+                    opt.substring(pos + 1)
                 } else {
                     null
                 }
+
             }
 
             var processed = false
@@ -252,57 +256,23 @@ class CommandLine private constructor(val args: Array<out String>) {
         return Pair(arg.substring(0, pos).trim(), arg.substring(pos + 1).trim())
     }
 
-    private fun parseInput(arg: String, multiplex: Boolean = false) {
-        // -i:contentType@port=path
-        // -i=path
-        val (portspec, href) = split(arg, "input", "")
+    private fun splitIO(arg: String, type: String, defaultName: String? = null): Pair<String?, String> {
+        val pos = arg.indexOf("=")
+        if (pos < 0) {
+            return Pair(null, arg)
+        }
+        return split(arg, type, defaultName)
+    }
+
+    private fun parseInput(arg: String) {
+        // --input-multiplex:uri
+        val (portspec, href) = splitIO(arg, "input", "")
         var port: String? = portspec
         var contentType = MediaType.ANY
-        if (portspec.contains("@")) {
+        if (portspec != null && portspec.contains("@")) {
             val index = portspec.indexOf("@")
             contentType = MediaType.parse(portspec.substring(0, index))
             port = port!!.substring(index + 1).trim()
-        }
-
-        if (multiplex) {
-            if (contentType != MediaType.MULTIPART_MIXED && contentType != MediaType.ANY) {
-                throw XProcError.xiCliInvalidInputMediaType(contentType.toString()).exception()
-            }
-
-            val pos = arg.indexOf("?")
-            val href = when (pos) {
-                -1 -> arg
-                0 -> throw XProcError.xiCliMalformedOption("input", arg).exception()
-                else -> arg.substring(0, pos)
-            }
-
-            val input = if (href == STDIO_NAME) {
-                XmlCalabashInput(null, STDIO_URI, MediaType.MULTIPART_MIXED)
-            } else {
-                XmlCalabashInput(null, UriUtils.resolve(href), MediaType.MULTIPART_MIXED)
-            }
-
-            input.multiplex = true
-            if (pos > 0) {
-                // I think the user wants to write source=result, meaning that the source port should
-                // come from the port labeled result. Of course, in reality, what I want in the mapping
-                // is result=source, rename result to source...
-                val maplist = arg.substring(pos+1).split(";")
-                for (map in maplist) {
-                    if (map.trim().isEmpty()) {
-                        continue
-                    }
-                    val mapping = map.split("=")
-                    if (mapping.size != 2 || mapping[0].isEmpty() || mapping[1].isEmpty()) {
-                        throw XProcError.xiCliMalformedOption("input", arg).exception()
-                    }
-                    // ...that's why this is "backwards".
-                    input.multiplexMapping[mapping[1]] = mapping[0]
-                }
-            }
-
-            builder.inputs.add(input)
-            return
         }
 
         if (port == "") {
@@ -317,6 +287,46 @@ class CommandLine private constructor(val args: Array<out String>) {
         builder.inputs.add(input)
     }
 
+    private fun parseInputMultiplex(arg: String) {
+        if (arg.indexOf("@") > 0 && arg.indexOf("@") < arg.indexOf("=")) {
+            throw XProcError.xiCliMalformedOption("input-multiplex", arg.substring(0, arg.indexOf("="))).exception()
+        }
+
+        val pos = arg.indexOf("?")
+        val href = when (pos) {
+            -1 -> arg
+            0 -> throw XProcError.xiCliMalformedOption("input", arg).exception()
+            else -> arg.substring(0, pos)
+        }
+
+        val input = if (href == STDIO_NAME) {
+            XmlCalabashInput(null, STDIO_URI, MediaType.MULTIPART_MIXED)
+        } else {
+            XmlCalabashInput(null, UriUtils.resolve(href), MediaType.MULTIPART_MIXED)
+        }
+
+        input.multiplex = true
+        if (pos > 0) {
+            // I think the user wants to write source=result, meaning that the source port should
+            // come from the port labeled result. Of course, in reality, what I want in the mapping
+            // is result=source, rename result to source...
+            val maplist = arg.substring(pos+1).split(";")
+            for (map in maplist) {
+                if (map.trim().isEmpty()) {
+                    continue
+                }
+                val mapping = map.split("=")
+                if (mapping.size != 2 || mapping[0].isEmpty() || mapping[1].isEmpty()) {
+                    throw XProcError.xiCliMalformedOption("input", arg).exception()
+                }
+                // ...that's why this is "backwards".
+                input.multiplexMapping[mapping[1]] = mapping[0]
+            }
+        }
+
+        builder.inputs.add(input)
+    }
+
     private fun parseOutput(arg: String, multiplex: Boolean = false) {
         // -o:contentType@port=path
 
@@ -327,13 +337,18 @@ class CommandLine private constructor(val args: Array<out String>) {
 
             val output = XmlCalabashOutput(null, arg, true, true)
             builder.outputs.add(output)
+
+            if (arg == STDIO_NAME) {
+                builder.pipedMode.set(true)
+            }
+
             return
         }
 
-        val (portspec, filename) = split(arg, "output", "")
+        val (portspec, filename) = splitIO(arg, "output", "")
         var port: String? = portspec
         var multipartMixed = multiplex
-        if (portspec.contains("@")) {
+        if (portspec != null && portspec.contains("@")) {
             val index = portspec.indexOf("@")
             val contentType = portspec.substring(0, index)
             if (contentType == "multipart/mixed") {
@@ -342,6 +357,10 @@ class CommandLine private constructor(val args: Array<out String>) {
                 throw XProcError.xiCliInvalidOutputMediaType(contentType).exception()
             }
             port = port!!.substring(index + 1).trim()
+
+            if (filename == STDIO_NAME) {
+                builder.pipedMode.set(true)
+            }
         }
 
         if (port == "") {
