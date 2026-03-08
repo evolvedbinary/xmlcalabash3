@@ -157,6 +157,7 @@ class FileOutputReceiver(xmlCalabash: XmlCalabash,
 
         val fos = if (output.pattern == CommandLine.STDIO_NAME) {
             manifestMap.add(port, output, document, CommandLine.STDIO_URI)
+            wroteTo[port] = CommandLine.STDIO_URI
             logger.debug { "Writing ${port} to stdout" }
             System.out
         } else {
