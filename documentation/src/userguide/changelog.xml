@@ -13,6 +13,24 @@ See the commits and pull requests on
 finer detail.</para>
 
 <revhistory>
+<revision xml:id="r3042">
+<revnumber>3.0.42</revnumber>
+<date>2026-03-08</date>
+<revdescription>
+<itemizedlist spacing="compact">
+<listitem><para>Closed <cbissue number="613"/>. Fixed a bug where tree construction
+failed if a processing instruction had a null base URI.
+</para></listitem>
+<listitem><para>Improved versions reported for Jing, SchXslt, etc. (A format change
+meant they were being reported as “unknown”.)
+</para></listitem>
+<listitem><para>Fixed a number of bugs in the new input, output, and multiplex options.
+Added an attempt to inform users if XML Calabash is waiting for input on the
+console.
+</para></listitem>
+</itemizedlist>
+</revdescription>
+</revision>
 <revision xml:id="r3041">
 <revnumber>3.0.41</revnumber>
 <date>2026-03-01</date>
