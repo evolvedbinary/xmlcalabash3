@@ -140,6 +140,7 @@ class OsExec(): AbstractAtomicStep() {
         }
 
         if (failureThreshold != null && failureThreshold < rc) {
+            stepConfig.info { stderr.toString() }
             throw stepConfig.exception(XProcError.xcOsExecFailed(rc))
         }
 
