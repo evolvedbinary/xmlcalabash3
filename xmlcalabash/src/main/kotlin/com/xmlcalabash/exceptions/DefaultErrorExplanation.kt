@@ -138,7 +138,15 @@ class DefaultErrorExplanation(override val reporter: MessageReporter): ErrorExpl
     }
 
     override fun report(error: XProcError) {
-        reporter.report(Verbosity.ERROR) { Report(Verbosity.ERROR) { message(error, true) }}
+        if (error.reports.isNotEmpty()) {
+            for (report in error.reports) {
+                // Having to make a new report from a report in order to turn on details seems ... suboptimal
+                reporter.report(Verbosity.ERROR) { Report(Verbosity.ERROR) { message(error, true) } }
+            }
+        } else {
+            reporter.report(Verbosity.ERROR) { Report(Verbosity.ERROR) { message(error, true) } }
+        }
+
         if (showStacktrace && error.stackTrace.isNotEmpty()) {
             reporter.report(Verbosity.ERROR) { Report(Verbosity.ERROR) { "Stack trace:" } }
             var count = error.stackTrace.size

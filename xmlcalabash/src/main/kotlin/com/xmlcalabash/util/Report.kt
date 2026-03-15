@@ -12,6 +12,22 @@ import net.sf.saxon.trans.XPathException
 import net.sf.saxon.tree.AttributeLocation
 
 open class Report(val severity: Verbosity, val message: () -> String) {
+    companion object {
+        private fun messageFromError(error: XmlProcessingError): () -> String {
+            val rawmsg = if (error.cause is XPathException && error.cause.message != null) {
+                error.cause.message!!
+            } else {
+                error.message
+            }
+
+            // Saxon reports "at line -1" sometimes; that's just ugly
+            // https://saxonica.plan.io/issues/7033
+            val msg = rawmsg.replace("at line -1 ", "")
+
+            return { msg }
+        }
+    }
+
     private var _location: Location = Location.NULL
     private var _inputLocation: Location = Location.NULL
     private var _cause: Throwable? = null
@@ -50,12 +66,7 @@ open class Report(val severity: Verbosity, val message: () -> String) {
         }
     }
 
-    constructor(severity: Verbosity, stepConfig: StepConfiguration, error: XmlProcessingError)
-            : this(severity, { val msg = if (error.cause is XPathException && error.cause.message != null) error.cause.message!! else error.message
-        // Saxon reports "at line -1" sometimes; that's just ugly
-        // https://saxonica.plan.io/issues/7033
-        msg.replace("at line -1 ", "")
-    }) {
+    constructor(severity: Verbosity, stepConfig: StepConfiguration, error: XmlProcessingError) : this(severity, messageFromError(error)) {
         _location = stepConfig.location
         _inputLocation = Location(error.location)
 
@@ -66,6 +77,10 @@ open class Report(val severity: Verbosity, val message: () -> String) {
         _extraDetail[NsSaxon.type] = "${error.isTypeError}"
         if (error.errorCode != null) {
             _extraDetail[Ns.code] = "Q{${error.errorCode.namespaceUri}}${error.errorCode.localName}"
+        }
+
+        if (error.location is XPathParser.NestedLocation) {
+            (error.location as XPathParser.NestedLocation).nearbyText?.let { _extraDetail[NsSaxon.nearbyText] = it }
         }
 
         if (error.failingExpression != null) {
@@ -137,7 +152,7 @@ open class Report(val severity: Verbosity, val message: () -> String) {
                 sb.append("error ").append(code)
             }
             if (NsSaxon.expression in extraDetail) {
-                sb.append(" in expression").append(extraDetail[NsSaxon.expression]!!)
+                sb.append(" in expression ").append(extraDetail[NsSaxon.expression]!!)
             }
             sb.append(": ")
         } else {
@@ -147,6 +162,11 @@ open class Report(val severity: Verbosity, val message: () -> String) {
         }
 
         sb.append(message())
+
+        if (NsSaxon.nearbyText in extraDetail) {
+            sb.append("\n  Nearby text: ").append(extraDetail[NsSaxon.nearbyText]!!)
+        }
+
         return sb.toString()
     }
 }
