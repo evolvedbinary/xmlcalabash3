@@ -177,6 +177,8 @@ object Ns {
     val tar = QName("tar")
     val target = QName("target")
     val templateName = QName("template-name")
+    val templateParameters = QName("template-parameters")
+    val templateTunnelParameters = QName("template-tunnel-parameters")
     val temporaryFiles = QName("temporary-files")
     val terminate = QName("terminate")
     val test = QName("test")

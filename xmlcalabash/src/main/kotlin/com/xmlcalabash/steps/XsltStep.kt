@@ -46,6 +46,8 @@ open class XsltStep(): AbstractAtomicStep() {
     var populateDefaultCollection = false
     var initialMode: QName? = null
     var templateName: QName? = null
+    val templateParameters = mutableMapOf<QName,XdmValue>()
+    val templateTunnelParameters = mutableMapOf<QName,XdmValue>()
     var outputBaseUri: URI? = null
 
     var goesBang: XProcError? = null
@@ -85,8 +87,16 @@ open class XsltStep(): AbstractAtomicStep() {
         populateDefaultCollection = booleanBinding(Ns.populateDefaultCollection) ?: false
         initialMode = qnameBinding(Ns.initialMode)
         templateName = qnameBinding(Ns.templateName)
+        templateParameters.putAll(qnameMapBinding(Ns.templateParameters))
+        templateTunnelParameters.putAll(qnameMapBinding(Ns.templateTunnelParameters))
         outputBaseUri = uriBinding(Ns.outputBaseUri)
         var version = stringBinding(Ns.version)
+
+        if (templateName == null) {
+            if (templateParameters.isNotEmpty() || templateTunnelParameters.isNotEmpty()) {
+                throw IllegalArgumentException("Template parameters only allowed with template-name")
+            }
+        }
 
         val gcValue = options[Ns.globalContextItem]!!.value
         if (gcValue != XdmEmptySequence.getInstance()) {
@@ -117,6 +127,8 @@ open class XsltStep(): AbstractAtomicStep() {
         populateDefaultCollection = false
         initialMode = null
         templateName = null
+        templateParameters.clear()
+        templateTunnelParameters.clear()
         outputBaseUri = null
         goesBang = null
         terminationError = null
@@ -337,6 +349,8 @@ open class XsltStep(): AbstractAtomicStep() {
 
         try {
             if (templateName != null) {
+                transformer.setInitialTemplateParameters<XdmValue>(templateParameters, false)
+                transformer.setInitialTemplateParameters<XdmValue>(templateTunnelParameters, true)
                 transformer.callTemplate(templateName!!, primaryDestination)
             } else {
                 transformer.applyTemplates(inputSelection, primaryDestination)

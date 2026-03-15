@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<t:test expected="pass"
+        xmlns:t="http://xproc.org/ns/testsuite/3.0">
+  <t:info>
+    <t:title>template-params-001</t:title>
+    <t:revision-history>
+      <t:revision>
+        <t:date>2026-03-15</t:date>
+        <t:author>
+          <t:name>Norm Tovey-Walsh</t:name>
+        </t:author>
+        <t:description xmlns="http://www.w3.org/1999/xhtml">
+          <p>Created test.</p>
+        </t:description>
+      </t:revision>
+    </t:revision-history>
+  </t:info>
+  <t:description xmlns="http://www.w3.org/1999/xhtml">
+    <p>Test that the p:xslt step accepts template-parameters and template-tunnel-parameters
+    options. (Not yet part of XProc.)</p>
+  </t:description>
+  <t:pipeline>
+<p:declare-step xmlns:p="http://www.w3.org/ns/xproc"
+                xmlns:cx="http://xmlcalabash.com/ns/extensions"
+                name="main" version="3.0">
+  <p:import href="https://xmlcalabash.com/ext/library/railroad.xpl"/>
+  <p:output port="result" sequence="true"/>
+
+  <p:xslt template-name="main"
+          template-parameters="map{'two':2}"
+          template-tunnel-parameters="map{'t': 'tunneled', 'u': 'unused'}">
+    <p:with-input port="source"><p:empty/></p:with-input>
+    <p:with-input port="stylesheet">
+      <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+                      xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                      exclude-result-prefixes="xs"
+                      version="3.0">
+        <xsl:output method="xml" encoding="utf-8" indent="no"/>
+        <xsl:template name="main">
+          <xsl:param name="one" select="1"/>
+          <xsl:param name="two" select="'NaN'"/>
+          <xsl:param name="t" tunnel="yes" select="'absent'"/>
+          <doc one="{{$one}}" two="{{$two}}" t="{{$t}}"/>
+        </xsl:template>
+      </xsl:stylesheet>
+    </p:with-input>
+  </p:xslt>
+</p:declare-step>
+</t:pipeline>
+  <t:schematron>
+    <s:schema queryBinding="xslt2"
+              xmlns:s="http://purl.oclc.org/dsdl/schematron">
+      <s:pattern>
+        <s:rule context="/">
+          <s:assert test="doc">The root is wrong.</s:assert>
+        </s:rule>
+      </s:pattern>
+      <s:pattern>
+        <s:rule context="/doc">
+          <s:assert test="@one = 1">The attribute ‘one’ is incorrect.</s:assert>
+          <s:assert test="@two = 2">The attribute ‘two’ is incorrect.</s:assert>
+          <s:assert test="@t = 'tunneled'">The attribute ‘t’ is incorrect.</s:assert>
+        </s:rule>
+      </s:pattern>
+    </s:schema>
+  </t:schematron>
+</t:test>
