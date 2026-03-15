@@ -198,7 +198,15 @@ abstract class AbstractTrangStep(): AbstractAtomicStep() {
             if (exception == null) {
                 throw stepConfig.exception(XProcError.xdStepFailed("unknown exception"))
             }
-            throw stepConfig.exception(XProcError.xdStepFailed(exception.message ?: "unknown exception"), exception)
+            val sb = StringBuilder()
+            sb.append(exception.message ?: "unknown exception")
+            if (exception.lineNumber > 0) {
+                sb.append(" in schema at line ${exception.lineNumber}")
+            }
+            if (exception.columnNumber > 0) {
+                sb.append(", column ${exception.columnNumber}")
+            }
+            throw stepConfig.exception(XProcError.xdStepFailed(sb.toString()), exception)
         }
 
         override fun fatalError(exception: SAXParseException?) {

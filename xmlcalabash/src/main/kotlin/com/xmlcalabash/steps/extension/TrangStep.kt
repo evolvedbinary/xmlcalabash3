@@ -115,7 +115,7 @@ class TrangStep(): AbstractTrangStep() {
         val resolver = TrangResolver()
         val errorHandler = TrangErrorHandler()
 
-        var primaryInput = inputUris.first().toString().replace("\\", "/")
+        val primaryInput = inputUris.first().toString().replace("\\", "/")
         val underlyingInput = baseUriToFile[primaryInput]!!
 
         includeToFile[primaryInput] = underlyingInput
