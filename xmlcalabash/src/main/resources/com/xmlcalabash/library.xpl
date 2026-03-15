@@ -752,6 +752,8 @@
       <p:option name="populate-default-collection" as="xs:boolean?" select="true()"/>
       <p:option name="initial-mode" as="xs:QName?"/>
       <p:option name="template-name" as="xs:QName?"/>
+      <p:option name="template-parameters" as="map(xs:QName,item()*)?"/>
+      <p:option name="template-tunnel-parameters" as="map(xs:QName,item()*)?"/>
       <p:option name="output-base-uri" as="xs:anyURI?"/>
       <p:option name="version" as="xs:string?"/>
    </p:declare-step>
