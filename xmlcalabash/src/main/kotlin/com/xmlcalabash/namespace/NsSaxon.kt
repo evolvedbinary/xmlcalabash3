@@ -16,6 +16,7 @@ object NsSaxon {
     val constraintName = QName(namespace, "s:constraint-name")
     val constraintClause = QName(namespace, "s:constraint-clause")
     val constraintReference = QName(namespace, "s:constraint-reference")
+    val nearbyText = QName(namespace, "s:nearby-text")
     val schemaType = QName(namespace, "s:schema-type")
     val schemaPart = QName(namespace, "s:schema-part")
 }
