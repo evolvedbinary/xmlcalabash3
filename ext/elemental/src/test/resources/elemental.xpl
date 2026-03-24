@@ -8,7 +8,7 @@
 <p:output port="result"/>
 
 <p:xquery cx:processor="https://elemental.xyz/"
-          parameters="map{'cx:database-uri': 'http://existdb:8080/exist/rest/db/'}">
+          parameters="map{'cx:database-uri': 'http://elemental:8080/exist/rest/db/'}">
   <p:with-input port="source"><p:empty/></p:with-input>
   <p:with-input port='query'>
     <p:inline content-type="text/plain">&lt;doc>{3+4}&lt;/doc></p:inline>
