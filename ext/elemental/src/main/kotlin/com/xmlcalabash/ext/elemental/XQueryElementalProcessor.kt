@@ -69,7 +69,7 @@ class XQueryElementalProcessor(): XQueryProcessor {
     override fun run(sources: List<XProcDocument>, query: XProcDocument, parameters: Map<QName, XdmValue>, version: String) {
         val databaseUri = parameters[cx_databaseUri]?.underlyingValue?.stringValue
             ?: config[_databaseUri]
-            ?: throw stepConfig.exception(XProcError.xdStepFailed("No database-uri configured for eXist-db"))
+            ?: throw stepConfig.exception(XProcError.xdStepFailed("No database-uri configured for Elemental"))
 
         val username = parameters[NsCx.username]?.underlyingValue?.stringValue ?: config[Ns.username]
         val password = parameters[NsCx.password]?.underlyingValue?.stringValue ?: config[Ns.password]
@@ -215,7 +215,7 @@ class XQueryElementalProcessor(): XQueryProcessor {
         builder.endDocument()
 
         val queryXml = builder.result
-        stepConfig.debug { "eXist dabase query: ${queryXml}"}
+        stepConfig.debug { "Elemental database query: ${queryXml}"}
 
         val request = InternetProtocolRequest(stepConfig, URI(databaseUri))
         if (username != null) {

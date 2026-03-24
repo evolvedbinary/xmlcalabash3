@@ -1,4 +1,4 @@
-#  eXist-db extension step
+#  Elemental extension step
 
 This is an extension step for [XML Calabash 3.x](https://github.com/xmlcalabash/xmlcalabash3).
 
@@ -12,7 +12,7 @@ Alpha versions of XML Calabash and this step are published to the Maven
 https://oss.sonatype.org/content/repositories/snapshots/
 
 Add `com.xmlcalabash:xmlcalabash:<version>` and
-`com.xmlcalabash:existdb:<version>` to your project.
+`com.xmlcalabash:elemental:<version>` to your project.
 
 # Install “by hand”
 
@@ -27,6 +27,13 @@ then load them automatically.
 
 # Configure as your default XQuery implementation
 
-You can configure XML Calabash so that it will use eXist-db as the default
-implementation of the `p:xquery` step. See the configuration chapter of the user
-guide for more details.
+You can configure XML Calabash so that it will use Elemental as the default
+implementation of the `p:xquery` step. You will need a configuration that is
+similar to the following:
+
+```xml
+<cc:xml-calabash xmlns:cc="https://xmlcalabash.com/ns/configuration" version="1.0"
+    default-xquery-processor="https://elemental.xyz/"/>
+```
+
+See the [Configuration chapter](https://docs.xmlcalabash.com/userguide/current/configuration.html) of the User Guide for more details.
