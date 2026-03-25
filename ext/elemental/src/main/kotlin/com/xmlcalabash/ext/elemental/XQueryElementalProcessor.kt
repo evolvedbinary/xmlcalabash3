@@ -52,9 +52,14 @@ class XQueryElementalProcessor(): XQueryProcessor {
     lateinit var stepParams: RuntimeStepParameters
 
     lateinit var sources: List<XProcDocument>
+    lateinit var query: String
     lateinit var parameters: Map<QName, XdmValue>
 
     private val config = mutableMapOf<QName, String>()
+
+    var databaseUri: String? = null
+    var username: String? = null
+    var password: String? = null
 
     override fun setup(stepConfig: XProcStepConfiguration, receiver: Receiver, stepParams: RuntimeStepParameters, cacheQuery: Boolean, config: Map<QName, String>) {
         this.stepConfig = stepConfig
@@ -67,51 +72,37 @@ class XQueryElementalProcessor(): XQueryProcessor {
     }
 
     override fun run(sources: List<XProcDocument>, query: XProcDocument, parameters: Map<QName, XdmValue>, version: String) {
-        val databaseUri = parameters[cx_databaseUri]?.underlyingValue?.stringValue
-            ?: config[_databaseUri]
-            ?: throw stepConfig.exception(XProcError.xdStepFailed("No database-uri configured for Elemental"))
-
-        val username = parameters[NsCx.username]?.underlyingValue?.stringValue ?: config[Ns.username]
-        val password = parameters[NsCx.password]?.underlyingValue?.stringValue ?: config[Ns.password]
-
-        if ((username != null && password == null) || (username == null && password != null)) {
-            throw stepConfig.exception(XProcError.xdStepFailed("Either or both of username and password must be specified"))
-        }
-
         this.sources = sources
+        this.query = query.value.underlyingValue.stringValue
         this.parameters = parameters
 
-        val qparameters = mutableMapOf<QName, String>()
-        for ((name, value) in config) {
-            if (name.namespaceUri == existns) {
-                qparameters[QName(name.localName)] = value
-            }
+        databaseUri = parameters[cx_databaseUri]?.underlyingValue?.stringValue ?: config[_databaseUri]
+
+        username = parameters[NsCx.username]?.underlyingValue?.stringValue ?: config[Ns.username] ?: "admin"
+        password = parameters[NsCx.password]?.underlyingValue?.stringValue ?: config[Ns.password] ?: ""
+
+        if (databaseUri == null) {
+            throw stepConfig.exception(XProcError.xdStepFailed("No database-uri configured for Elemental"))
         }
 
-        if (NsCx.query in parameters) {
-            val qparam = stepConfig.typeUtils.forceQNameKeys(parameters[NsCx.query] as XdmMap)
-            for ((name, value) in stepConfig.typeUtils.asMap(qparam)) {
-                qparameters[name] = value.underlyingValue.stringValue
-            }
-        }
-        if (_wrap !in qparameters) {
-            if (qparameters[_cache] == "yes") {
-                qparameters[_wrap] = "yes"
-            } else {
-                qparameters[_wrap] = "no"
-            }
-        }
-        if (_typed !in qparameters) {
-            qparameters[_typed] = "no"
-        }
+        remoteQuery()
+    }
 
+    private fun remoteQuery() {
         val builder = SaxonTreeBuilder(stepConfig)
+
         builder.startDocument(null)
-        builder.addStartElement(exist_query, stepConfig.typeUtils.attributeMap(qparameters))
+
+        // Create XML for Query
+        val queryParameters = extractQueryParametersFromConfig()
+        builder.addStartElement(exist_query, stepConfig.typeUtils.attributeMap(queryParameters))
+
+        // Create XML for XQuery content
         builder.addStartElement(exist_text)
-        builder.addText(query.value.underlyingValue.stringValue)
+        builder.addText(query)
         builder.addEndElement()
 
+        // Create XML for XQuery Variable bindings
         var startedVariables = false
         for ((qname, value) in parameters) {
             val skip = qname.namespaceUri == NsCx.namespace
@@ -187,22 +178,11 @@ class XQueryElementalProcessor(): XQueryProcessor {
             builder.addEndElement()
         }
 
-        val qproperties = mutableMapOf<QName, String>()
-        for ((name, value) in config) {
-            if (name.namespaceUri == serialns) {
-                qproperties[QName(name.localName)] = value
-            }
-        }
-
-        if (NsCx.properties in parameters) {
-            val qprop = stepConfig.typeUtils.forceQNameKeys(parameters[NsCx.properties] as XdmMap)
-            for ((name, value) in stepConfig.typeUtils.asMap(qprop)) {
-                qproperties[name] = value.underlyingValue.stringValue
-            }
-        }
-        if (qproperties.isNotEmpty()) {
+        // Create XML for Properties
+        val queryProperties = extractQueryPropertiesFromConfig()
+        if (queryProperties.isNotEmpty()) {
             builder.addStartElement(exist_properties)
-            for ((name, value) in qproperties) {
+            for ((name, value) in queryProperties) {
                 builder.addStartElement(exist_property, stepConfig.typeUtils.attributeMap(mapOf(
                     QName(name.localName) to value
                 )))
@@ -219,7 +199,7 @@ class XQueryElementalProcessor(): XQueryProcessor {
 
         val request = InternetProtocolRequest(stepConfig, URI(databaseUri))
         if (username != null) {
-            request.authentication("basic", username, password!!, true)
+            request.authentication("basic", username!!, password!!, true)
         }
         request.addSource(XProcDocument.ofXml(queryXml, stepConfig,MediaType.XML))
         try {
@@ -234,6 +214,66 @@ class XQueryElementalProcessor(): XQueryProcessor {
         } catch (ex: Exception) {
             throw stepConfig.exception(XProcError.xdStepFailed(ex.message ?: ""), ex)
         }
+    }
+
+    /**
+     * Extract parameters from the config that control how the XQuery is executed and serialized.
+     *
+     * @return A Map of Parameter names to values.
+     */
+    private fun extractQueryParametersFromConfig() : Map<QName, String> {
+        val queryParameters = mutableMapOf<QName, String>()
+
+        for ((name, value) in config) {
+            if (name.namespaceUri == existns) {
+                queryParameters[QName(name.localName)] = value
+            }
+        }
+
+        if (NsCx.query in parameters) {
+            val qparam = stepConfig.typeUtils.forceQNameKeys(parameters[NsCx.query] as XdmMap)
+            for ((name, value) in stepConfig.typeUtils.asMap(qparam)) {
+                queryParameters[name] = value.underlyingValue.stringValue
+            }
+        }
+
+        if (_wrap !in queryParameters) {
+            if (queryParameters[_cache] == "yes") {
+                queryParameters[_wrap] = "yes"
+            } else {
+                queryParameters[_wrap] = "no"
+            }
+        }
+
+        if (_typed !in queryParameters) {
+            queryParameters[_typed] = "no"
+        }
+
+        return queryParameters.toMap()
+    }
+
+    /**
+     * Extract properties from the config that control how the XQuery is executed and serialized.
+     *
+     * @return A Map of Property names to values.
+     */
+    private fun extractQueryPropertiesFromConfig() : Map<QName, String> {
+        val queryProperties = mutableMapOf<QName, String>()
+
+        for ((name, value) in config) {
+            if (name.namespaceUri == serialns) {
+                queryProperties[QName(name.localName)] = value
+            }
+        }
+
+        if (NsCx.properties in parameters) {
+            val qprop = stepConfig.typeUtils.forceQNameKeys(parameters[NsCx.properties] as XdmMap)
+            for ((name, value) in stepConfig.typeUtils.asMap(qprop)) {
+                queryProperties[name] = value.underlyingValue.stringValue
+            }
+        }
+
+        return queryProperties.toMap();
     }
 
     override fun reset() {
