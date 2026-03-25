@@ -60,6 +60,8 @@ class XQueryElementalProcessor(): XQueryProcessor {
     var databaseUri: String? = null
     var username: String? = null
     var password: String? = null
+    var requestTimeout: Int? = null
+    var responseTimeout: Int? = null
 
     override fun setup(stepConfig: XProcStepConfiguration, receiver: Receiver, stepParams: RuntimeStepParameters, cacheQuery: Boolean, config: Map<QName, String>) {
         this.stepConfig = stepConfig
@@ -77,9 +79,10 @@ class XQueryElementalProcessor(): XQueryProcessor {
         this.parameters = parameters
 
         databaseUri = parameters[cx_databaseUri]?.underlyingValue?.stringValue ?: config[_databaseUri]
-
         username = parameters[NsCx.username]?.underlyingValue?.stringValue ?: config[Ns.username] ?: "admin"
         password = parameters[NsCx.password]?.underlyingValue?.stringValue ?: config[Ns.password] ?: ""
+        requestTimeout = (parameters[NsCx.requestTimeout]?.underlyingValue?.stringValue ?: config[Ns.requestTimeout])?.toInt()
+        responseTimeout = (parameters[NsCx.responseTimeout]?.underlyingValue?.stringValue ?: config[Ns.responseTimeout])?.toInt()
 
         if (databaseUri == null) {
             throw stepConfig.exception(XProcError.xdStepFailed("No database-uri configured for Elemental"))
@@ -200,6 +203,12 @@ class XQueryElementalProcessor(): XQueryProcessor {
         val request = InternetProtocolRequest(stepConfig, URI(databaseUri))
         if (username != null) {
             request.authentication("basic", username!!, password!!, true)
+        }
+        if (requestTimeout != null) {
+            request.requestTimeout = requestTimeout
+        }
+        if (responseTimeout != null) {
+            request.responseTimeout = responseTimeout
         }
         request.addSource(XProcDocument.ofXml(queryXml, stepConfig,MediaType.XML))
         try {

@@ -7,8 +7,10 @@
 
 <p:output port="result"/>
 
-<p:xquery cx:processor="https://elemental.xyz/"
-          parameters="map{'cx:database-uri': 'http://elemental:8080/exist/rest/db/'}">
+<p:xquery cx:processor="https://elemental.xyz/" parameters="map {
+            'cx:database-uri': 'http://elemental:8080/exist/rest/db/',
+            'cx:request-timeout': 2000,
+            'cx:response-timeout': 1000 }">
   <p:with-input port="source"><p:empty/></p:with-input>
   <p:with-input port='query'>
     <p:inline content-type="text/plain">&lt;doc>{3+4}&lt;/doc></p:inline>

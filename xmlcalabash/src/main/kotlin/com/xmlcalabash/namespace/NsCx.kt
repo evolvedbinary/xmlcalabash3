@@ -67,6 +67,8 @@ object NsCx {
     val publicIdentifier = QName(namespace, "cx:public-identifier")
     val query = QName(namespace, "cx:query")
     val report = QName(namespace, "cx:report")
+    val requestTimeout = QName(namespace, "cx:request-timeout")
+    val responseTimeout = QName(namespace, "cx:response-timeout")
     val saxonEdition = QName(namespace, "saxon-edition")
     val saxonVersion = QName(namespace, "saxon-version")
     val select = QName(namespace, "cx:select")

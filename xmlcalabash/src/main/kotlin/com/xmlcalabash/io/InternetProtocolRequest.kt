@@ -54,7 +54,14 @@ class InternetProtocolRequest(val stepConfig: StepConfiguration, val uri: URI) {
     private val _parameters = mutableMapOf<QName,XdmValue>()
 
     private var _cookieStore: CookieStore? = null
-    var timeout: Int? = null
+    /**
+     * HTTP Request Timeout in Milliseconds.
+     */
+    var requestTimeout: Int? = null
+    /**
+     * HTTP Response Timeout in Milliseconds.
+     */
+    var responseTimeout: Int? = null
     private var _sources = mutableListOf<XProcDocument>()
     private var _authMethod: String? = null
     private var _authPreemptive = false
@@ -130,14 +137,16 @@ class InternetProtocolRequest(val stepConfig: StepConfiguration, val uri: URI) {
             cookieStore = BasicCookieStore()
         }
 
-        if (timeout != null) {
+        if (requestTimeout != null) {
             // https://stackoverflow.com/questions/68096970/httpclient5-lot-of-apis-changed-removed
             // val socketConfig = SocketConfig.custom().setSoTimeout(Timeout.ofSeconds(timeout!!.toLong())).build()
             // val connMgr = BasicHttpClientConnectionManager()
             // connMgr.socketConfig = socketConfig
             // https://stackoverflow.com/questions/78040298/best-way-to-configure-timeouts-on-apache-httpclient-5
-            rqBuilder.setConnectionRequestTimeout(timeout!!.toLong(), TimeUnit.SECONDS)
-            rqBuilder.setResponseTimeout(timeout!!.toLong(), TimeUnit.SECONDS)
+            rqBuilder.setConnectionRequestTimeout(requestTimeout!!.toLong(), TimeUnit.MILLISECONDS)
+        }
+        if (responseTimeout != null) {
+            rqBuilder.setResponseTimeout(responseTimeout!!.toLong(), TimeUnit.MILLISECONDS)
         }
 
         val httpRequest = when (method.uppercase()) {

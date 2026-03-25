@@ -128,7 +128,8 @@ open class HttpRequestStep(): AbstractAtomicStep() {
     private fun doHttp() {
         val request = InternetProtocolRequest(stepConfig, href)
         request.parameters = parameters
-        request.timeout = timeout
+        request.requestTimeout = timeout?.times(1000)
+        request.responseTimeout = timeout?.times(1000)
         request.sendBodyAnyway = sendBodyAnyway
         request.statusOnly = statusOnly
         request.suppressCookies = suppressCookies
