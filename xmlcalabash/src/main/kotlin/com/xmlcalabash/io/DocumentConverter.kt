@@ -324,7 +324,7 @@ class DocumentConverter(val stepConfig: StepConfiguration,
             MediaClassification.XML -> {
                 try {
                     val text = XdmAtomicValue(doc.value.underlyingValue.stringValue)
-                    val xml = runFunction("parse-xml", listOf(text))
+                    val xml = S9Api.adjustBaseUri(runFunction("parse-xml", listOf(text)) as XdmNode, doc.baseURI);
                     return doc.with(xml).with(contentType, true)
                 } catch (ex: SaxonApiException) {
                     if (doc.baseURI != null) {
