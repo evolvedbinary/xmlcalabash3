@@ -182,7 +182,7 @@ class XmlCalabashCli private constructor() {
             val multiplexedInput = inputList.filter { it.multiplex }.isNotEmpty()
 
             val explicitStdin: String? = inputList.filter { it.href == CommandLine.STDIO_URI }.firstOrNull()?.port
-            val implicitStdin: String? = if (!multiplexedInput && explicitStdin == null) {
+            val implicitStdin: String? = if (!multiplexedInput && explicitStdin == null && (builder.pipedMode.getOrDefault() ?: false)) {
                 if (primaryInputPort != null && inputList.filter { it.port == primaryInputPort }.isEmpty()) {
                     val rport = pipeline.inputManifold[primaryInputPort]!!
                     if (rport.defaultBindings.isEmpty()) {
