@@ -40,7 +40,7 @@ SOFTWARE.
   <output indent="yes" use-when="$schxslt:debug"/>
 
   <variable name="schxslt:version" as="xs:string"
-                select="if (starts-with('1.7', '$')) then 'development' else '1.7'"/>
+                select="if (starts-with('1.10.1', '$')) then 'development' else '1.10.1'"/>
 
   <param name="schxslt:phase" as="xs:string" select="'#DEFAULT'">
     <!--
@@ -110,6 +110,13 @@ SOFTWARE.
     -->
   </param>
 
+  <param name="schxslt:compact-report" as="xs:boolean" select="false()" static="yes">
+    <!--
+        When set to boolean true, the validation stylesheet only reports failed assertions, successful reports and
+        errors. Defaults to false.
+    -->
+  </param>
+
   <param name="schxslt:severity-threshold" as="xs:string" select="'info'">
     <!--
         Assertions with a severity lesser than the threshold are not checked. One of 'info', 'warning', 'error', or
@@ -129,6 +136,13 @@ SOFTWARE.
         Default value of the expression that selects the subset of the document to be validate. Can be overwritten on a
         per-phase basis by the @from attribute.  The default from expression also applies to the phase '#ALL'. Defaults
         to 'root()'.
+    -->
+  </param>
+
+  <param name="schxslt:check-assembled-schema" as="xs:boolean" select="false()" static="yes">
+    <!--
+        When set to boolean `true`, the transpiler performs some plausability checks after all external definitions are
+        included. It terminates with an error if it finds errors in the assembled schema. Defaults to `false`.
     -->
   </param>
 
@@ -178,14 +192,24 @@ SOFTWARE.
       </message>
     </if>
 
+    <variable name="assembled-schema" as="element(sch:schema)">
+      <call-template name="schxslt:perform-include">
+        <with-param name="schema" as="element(sch:schema)" select="."/>
+      </call-template>
+    </variable>
+
+    <variable name="assembled-schema-errors" as="element(svrl:error)*" use-when="$schxslt:check-assembled-schema">
+      <apply-templates select="$assembled-schema" mode="schxslt:check-assembled-schema"/>
+    </variable>
+
+    <if test="not(empty($assembled-schema-errors))" use-when="$schxslt:check-assembled-schema">
+      <message terminate="yes" select="$assembled-schema-errors"/>
+    </if>
+
     <call-template name="schxslt:reduce-schema">
       <with-param name="schema" as="element(sch:schema)">
         <call-template name="schxslt:perform-expand">
-          <with-param name="schema" as="element(sch:schema)">
-            <call-template name="schxslt:perform-include">
-              <with-param name="schema" as="element(sch:schema)" select="."/>
-            </call-template>
-          </with-param>
+          <with-param name="schema" as="element(sch:schema)" select="$assembled-schema"/>
         </call-template>
       </with-param>
       <with-param name="phase" as="xs:string" select="$phase"/>
@@ -202,7 +226,7 @@ SOFTWARE.
     <apply-templates select="$schema" mode="schxslt:expand"/>
   </template>
 
-  <!-- Utility mode: Create an XSLT stylesheet that finds a face as
+  <!-- Utility mode: Create an XSLT stylesheet that finds a phase as
        described in ISO Schematron 4th Edition, 5.4.13 and 5.5.22. -->
   <template match="sch:schema" as="element(Q{http://www.w3.org/1999/XSL/Transform}stylesheet)" mode="schxslt:create-phase-selector">
     <alias:stylesheet version="3.0">
@@ -256,11 +280,12 @@ SOFTWARE.
 
   <template match="sch:schema/sch:extends[@href]" as="node()*" mode="schxslt:include">
     <variable name="external" as="element()" select="schxslt:load-external(@href)"/>
-    <if test="(namespace-uri($external) ne 'http://purl.oclc.org/dsdl/schematron') or (local-name($external) ne 'library')">
+    <if test="(namespace-uri($external) ne 'http://purl.oclc.org/dsdl/schematron') or (not(local-name($external) = ('library', 'schema')))">
       <variable name="message" as="xs:string+">
         The @href attribute of a top-level &lt;extends&gt; element of a schema must be an IRI reference to an external
         well-formed XML document or to an element in an external well-formed XML document that is a Schematron
-        &lt;library&gt; element. This @href points to a Q{{{namespace-uri($external)}}}{local-name($external)} element.
+        &lt;library&gt; or a &lt;schema&gt; element. This @href points to a
+        Q{{{namespace-uri($external)}}}{local-name($external)} element.
       </variable>
       <message terminate="yes">
         <text/>
@@ -461,6 +486,13 @@ SOFTWARE.
         </for-each-group>
       </map>
     </variable>
+    <variable name="patterns-subordinate" as="xs:string*">
+      <for-each select="Q{http://www.w3.org/2005/xpath-functions/map}keys($patterns)">
+        <if test="Q{http://www.w3.org/2005/xpath-functions/map}get($patterns, .)/@documents">
+          <value-of select="."/>
+        </if>
+      </for-each>
+    </variable>
 
     <alias:stylesheet version="3.0" expand-text="{$schxslt:expand-text}">
       <for-each select="sch:ns">
@@ -497,76 +529,77 @@ SOFTWARE.
             <with-param name="attributes" as="attribute()*" select="(@schemaVersion, @schematronEdition)"/>
           </call-template>
           <attribute name="phase" select="$phase"/>
-          <for-each select="sch:ns">
+          <for-each select="sch:ns" use-when="not($schxslt:compact-report)">
             <svrl:ns-prefix-in-attribute-values prefix="{@prefix}" uri="{@uri}"/>
           </for-each>
-          <for-each select="sch:p">
+          <for-each select="sch:p" use-when="not($schxslt:compact-report)">
             <svrl:text>
               <sequence select="(@xml:*, @icon)"/>
               <sequence select="node()"/>
             </svrl:text>
           </for-each>
           <comment>SchXslt2 {$schxslt:version}</comment>
-          <alias:apply-templates select="." mode="Q{{http://dmaus.name/ns/2023/schxslt}}validate"/>
-        </svrl:schematron-output>
-      </alias:template>
+          <alias:try>
 
-      <alias:template match="{$root}" as="element()*" mode="Q{{http://dmaus.name/ns/2023/schxslt}}validate">
-        <alias:try>
-          <for-each select="Q{http://www.w3.org/2005/xpath-functions/map}keys($patterns)">
-            <variable name="groupId" as="xs:string" select="."/>
-            <for-each select="Q{http://www.w3.org/2005/xpath-functions/map}get($patterns, $groupId)">
-              <element name="svrl:active-{local-name()}" use-when="$schxslt:report-active-pattern">
-                <call-template name="schxslt:copy-attributes">
-                  <with-param name="attributes" as="attribute()*" select="(@id, @documents, @role)"/>
-                </call-template>
-                <if test="sch:title">
-                  <alias:attribute name="name">{sch:title}</alias:attribute>
-                </if>
-              </element>
-            </for-each>
-
-            <choose>
-              <when test="Q{http://www.w3.org/2005/xpath-functions/map}get($patterns, $groupId)[1]/@documents">
-                <alias:for-each select="{Q{http://www.w3.org/2005/xpath-functions/map}get($patterns, $groupId)[1]/@documents}">
+            <for-each select="$patterns-subordinate">
+              <variable name="groupId" as="xs:string" select="."/>
+              <variable name="patterns" as="element()+" select="Q{http://www.w3.org/2005/xpath-functions/map}get($patterns, .)"/>
+              <for-each select="$patterns">
+                <call-template name="schxslt:active-pattern"/>
+                <alias:for-each select="{$patterns[1]/@documents}">
                   <alias:source-document href="{{.}}">
                     <alias:apply-templates select="." mode="{$groupId}"/>
                   </alias:source-document>
                 </alias:for-each>
-              </when>
-              <otherwise>
-                <alias:apply-templates select="." mode="{$groupId}"/>
-              </otherwise>
-            </choose>
+              </for-each>
+            </for-each>
+
+            <alias:apply-templates select="." mode="Q{{http://dmaus.name/ns/2023/schxslt}}validate"/>
+            <if test="$schxslt:fail-early">
+              <alias:catch errors="Q{{http://dmaus.name/ns/2023/schxslt}}CatchFailEarly">
+                <alias:sequence select="$Q{{http://www.w3.org/2005/xqt-errors}}value"/>
+              </alias:catch>
+            </if>
+            <alias:catch>
+              <svrl:error code="{{$Q{{http://www.w3.org/2005/xqt-errors}}code}}">
+                <alias:if test="{$schxslt:document-uri-expression}">
+                  <alias:attribute name="document" select="{$schxslt:document-uri-expression}"/>
+                </alias:if>
+                <alias:if test="$Q{{http://www.w3.org/2005/xqt-errors}}line-number">
+                  <alias:attribute name="line-number" select="$Q{{http://www.w3.org/2005/xqt-errors}}line-number"/>
+                </alias:if>
+                <alias:if test="$Q{{http://www.w3.org/2005/xqt-errors}}column-number">
+                  <alias:attribute name="column-number" select="$Q{{http://www.w3.org/2005/xqt-errors}}column-number"/>
+                </alias:if>
+                <alias:if test="$Q{{http://www.w3.org/2005/xqt-errors}}description">
+                  <alias:value-of select="$Q{{http://www.w3.org/2005/xqt-errors}}description"/>
+                </alias:if>
+              </svrl:error>
+              <if test="$schxslt:terminate-validation-on-error">
+                <alias:variable name="message" as="Q{{http://www.w3.org/2001/XMLSchema}}string+" expand-text="yes">
+                  Running the ISO Schematron validation failed with a dynamic error.
+                  Error code: {{$Q{{http://www.w3.org/2005/xqt-errors}}code}} Reason: {{$Q{{http://www.w3.org/2005/xqt-errors}}description}}
+                </alias:variable>
+                <alias:message terminate="yes" error-code="Q{{{{http://dmaus.name/ns/2023/schxslt}}}}ValidationError">
+                  <alias:text/>
+                  <alias:value-of select="normalize-space(string-join($message))"/>
+                </alias:message>
+              </if>
+            </alias:catch>
+          </alias:try>
+        </svrl:schematron-output>
+      </alias:template>
+
+      <alias:template match="root()" as="element()*" mode="Q{{http://dmaus.name/ns/2023/schxslt}}validate">
+          <for-each select="Q{http://www.w3.org/2005/xpath-functions/map}keys($patterns)[not(. = $patterns-subordinate)]">
+            <variable name="groupId" as="xs:string" select="."/>
+            <for-each select="Q{http://www.w3.org/2005/xpath-functions/map}get($patterns, $groupId)">
+              <call-template name="schxslt:active-pattern"/>
+            </for-each>
+
+            <alias:apply-templates select="{$root}" mode="{$groupId}"/>
 
           </for-each>
-          <if test="$schxslt:fail-early">
-            <alias:catch errors="Q{{http://dmaus.name/ns/2023/schxslt}}CatchFailEarly">
-              <alias:sequence select="$Q{{http://www.w3.org/2005/xqt-errors}}value"/>
-            </alias:catch>
-          </if>
-          <alias:catch>
-            <svrl:error code="{{$Q{{http://www.w3.org/2005/xqt-errors}}code}}">
-              <alias:if test="{$schxslt:document-uri-expression}">
-                <alias:attribute name="document" select="{$schxslt:document-uri-expression}"/>
-              </alias:if>
-              <alias:if test="$Q{{http://www.w3.org/2005/xqt-errors}}description">
-                <alias:value-of select="$Q{{http://www.w3.org/2005/xqt-errors}}description"/>
-              </alias:if>
-            </svrl:error>
-            <if test="$schxslt:terminate-validation-on-error">
-              <alias:variable name="message" as="Q{{http://www.w3.org/2001/XMLSchema}}string+" expand-text="yes">
-                Running the ISO Schematron validation failed with a dynamic error.
-                Error code: {{$Q{{http://www.w3.org/2005/xqt-errors}}code}} Reason: {{$Q{{http://www.w3.org/2005/xqt-errors}}description}}
-              </alias:variable>
-              <alias:message terminate="yes" error-code="Q{{{{http://dmaus.name/ns/2023/schxslt}}}}ValidationError">
-                <alias:text/>
-                <alias:value-of select="normalize-space(string-join($message))"/>
-              </alias:message>
-            </if>
-          </alias:catch>
-        </alias:try>
-
       </alias:template>
 
       <alias:function name="Q{{http://dmaus.name/ns/2023/schxslt}}numeric-severity" as="Q{{http://www.w3.org/2001/XMLSchema}}integer">
@@ -599,7 +632,7 @@ SOFTWARE.
       <alias:variable name="Q{{http://dmaus.name/ns/2023/schxslt}}rule-context" as="node()" select="."/>
       <alias:choose>
         <alias:when test="'{generate-id(..)}' = $Q{{http://dmaus.name/ns/2023/schxslt}}pattern">
-          <element name="svrl:suppressed-rule" use-when="$schxslt:report-suppressed-rule">
+          <element name="svrl:suppressed-rule" use-when="$schxslt:report-suppressed-rule and not($schxslt:compact-report)">
             <call-template name="schxslt:copy-attributes">
               <with-param name="attributes" as="attribute()*" select="(@id, @role, @flag, @visit-each, @context)"/>
             </call-template>
@@ -667,7 +700,11 @@ SOFTWARE.
         <alias:if test="not({@test})">
           <alias:variable name="failed-assert" as="element(svrl:failed-assert)">
             <svrl:failed-assert>
-              <call-template name="schxslt:failed-assertion-content"/>
+              <call-template name="schxslt:failed-assertion-content">
+                <!-- Pass the current assertion as a tunnel parameter so that it can be used in attached diagnostics and
+                     properties. -->
+                <with-param name="assertion" as="element(sch:assert)" select="." tunnel="yes"/>
+              </call-template>
             </svrl:failed-assert>
           </alias:variable>
           <if test="$schxslt:fail-early">
@@ -677,9 +714,11 @@ SOFTWARE.
         </alias:if>
       </alias:when>
       <alias:otherwise>
-        <element name="svrl:skipped-assert" use-when="$schxslt:report-skipped-assertion">
+        <element name="svrl:skipped-assert" use-when="$schxslt:report-skipped-assertion and not($schxslt:compact-report)">
           <attribute name="severityThreshold" select="$schxslt:severity-threshold"/>
-          <call-template name="schxslt:failed-assertion-attributes"/>
+          <call-template name="schxslt:failed-assertion-attributes">
+            <with-param name="assertion" as="element(sch:assert)" select="." tunnel="yes"/>
+          </call-template>
         </element>
       </alias:otherwise>
     </alias:choose>
@@ -691,7 +730,11 @@ SOFTWARE.
         <alias:if test="{@test}">
           <alias:variable name="successful-report" as="element(svrl:successful-report)">
             <svrl:successful-report>
-              <call-template name="schxslt:failed-assertion-content"/>
+              <call-template name="schxslt:failed-assertion-content">
+                <!-- Pass the current assertion as a tunnel parameter so that it can be used in attached diagnostics and
+                     properties. -->
+                <with-param name="assertion" as="element(sch:report)" select="." tunnel="yes"/>
+              </call-template>
             </svrl:successful-report>
           </alias:variable>
           <if test="$schxslt:fail-early">
@@ -701,9 +744,11 @@ SOFTWARE.
         </alias:if>
       </alias:when>
       <alias:otherwise>
-        <element name="svrl:skipped-report" use-when="$schxslt:report-skipped-assertion">
+        <element name="svrl:skipped-report" use-when="$schxslt:report-skipped-assertion and not($schxslt:compact-report)">
           <attribute name="severityThreshold" select="$schxslt:severity-threshold"/>
-          <call-template name="schxslt:failed-assertion-attributes"/>
+          <call-template name="schxslt:failed-assertion-attributes">
+            <with-param name="assertion" as="element(sch:report)" select="." tunnel="yes"/>
+          </call-template>
         </element>
       </alias:otherwise>
     </alias:choose>
@@ -751,20 +796,38 @@ SOFTWARE.
     </copy>
   </template>
 
-  <template match="sch:name[@path]" as="element(Q{http://www.w3.org/1999/XSL/Transform}value-of)" mode="schxslt:copy-message-content">
-    <alias:value-of select="{@path}"/>
+  <template match="sch:name[@path]" as="element(Q{http://www.w3.org/1999/XSL/Transform}for-each)" mode="schxslt:copy-message-content">
+    <param name="assertion" as="element()" tunnel="yes"/>
+    <alias:for-each select="{($assertion/@subject, $assertion/../@subject, '.')[1]}[1]">
+      <alias:value-of select="{@path}"/>
+    </alias:for-each>
   </template>
 
   <template match="sch:name[not(@path)]" as="element(Q{http://www.w3.org/1999/XSL/Transform}value-of)" mode="schxslt:copy-message-content">
-    <alias:value-of select="name()"/>
+    <param name="assertion" as="element()" tunnel="yes"/>
+    <alias:value-of select="name({($assertion/@subject, $assertion/../@subject, '.')[1]})"/>
   </template>
 
-  <template match="sch:value-of" as="element(Q{http://www.w3.org/1999/XSL/Transform}value-of)" mode="schxslt:copy-message-content">
-    <alias:value-of select="{@select}"/>
+  <template match="sch:value-of" as="element(Q{http://www.w3.org/1999/XSL/Transform}for-each)" mode="schxslt:copy-message-content">
+    <param name="assertion" as="element()" tunnel="yes"/>
+    <alias:for-each select="{($assertion/@subject, $assertion/../@subject, '.')[1]}[1]">
+      <alias:value-of select="{@select}"/>
+    </alias:for-each>
+  </template>
+
+  <template name="schxslt:active-pattern" as="element()?">
+    <element name="svrl:active-{local-name()}" use-when="$schxslt:report-active-pattern and not($schxslt:compact-report)">
+      <call-template name="schxslt:copy-attributes">
+        <with-param name="attributes" as="attribute()*" select="(@id, @documents, @role)"/>
+      </call-template>
+      <if test="sch:title">
+        <alias:attribute name="name">{sch:title}</alias:attribute>
+      </if>
+    </element>
   </template>
 
   <template name="schxslt:fired-rule" as="element()+">
-    <element name="svrl:fired-rule" use-when="$schxslt:report-fired-rule">
+    <element name="svrl:fired-rule" use-when="$schxslt:report-fired-rule and not($schxslt:compact-report)">
       <call-template name="schxslt:copy-attributes">
         <with-param name="attributes" as="attribute()*" select="(@id, @role, @flag, @visit-each, @context)"/>
       </call-template>
@@ -790,13 +853,14 @@ SOFTWARE.
     </alias:for-each>
   </template>
 
-  <template name="schxslt:report-message" as="element(svrl:text)?">
-    <if test="text() | *">
-      <svrl:text>
-        <sequence select="@xml:*"/>
-        <apply-templates select="node()" mode="schxslt:copy-message-content"/>
-      </svrl:text>
-    </if>
+  <template name="schxslt:report-message" as="element(svrl:text)">
+    <svrl:text>
+      <sequence select="@xml:*"/>
+      <call-template name="schxslt:copy-attributes">
+        <with-param name="attributes" as="attribute()*" select="(@see, @icon, @fpi)"/>
+      </call-template>
+      <apply-templates select="node()" mode="schxslt:copy-message-content"/>
+    </svrl:text>
   </template>
 
   <template name="schxslt:report-diagnostics" as="element(svrl:diagnostic-reference)*">
@@ -846,6 +910,7 @@ SOFTWARE.
   </template>
 
   <template name="schxslt:failed-assertion-attributes" as="node()*">
+    <param name="assertion" as="element()" tunnel="yes"/>
     <call-template name="schxslt:copy-attributes">
       <with-param name="attributes" as="attribute()*" select="(@flag, @id, @role, @severity, @test)"/>
     </call-template>
@@ -859,8 +924,10 @@ SOFTWARE.
       <attribute name="xml:lang" select="schxslt:in-scope-language(.)"/>
     </if>
     <if test="not($schxslt:streamable) or exists($schxslt:location-function)">
-      <!-- The variable schxslt:rule-context will be available at this part of the validation stylesheet. -->
-      <alias:attribute name="location" select="{($schxslt:location-function, 'path')[1]}($Q{{http://dmaus.name/ns/2023/schxslt}}rule-context)"/>
+      <alias:where-populated>
+        <!-- The variable schxslt:rule-context will be available at this part of the validation stylesheet. -->
+        <alias:attribute name="location" select="{($schxslt:location-function, 'path')[1]}({($assertion/@subject, $assertion/../@subject, '$Q{http://dmaus.name/ns/2023/schxslt}rule-context')[1]})"/>
+      </alias:where-populated>
     </if>
   </template>
 
@@ -930,5 +997,96 @@ SOFTWARE.
       </otherwise>
     </choose>
   </function>
+
+  <!-- Check assembled schema -->
+  <mode name="schxslt:check-assembled-schema" on-no-match="shallow-skip" use-accumulators="unique-ids"/>
+
+  <accumulator name="unique-ids" as="map(xs:string, xs:boolean)" initial-value="map{}">
+    <accumulator-rule match="sch:*[@id]" select="Q{http://www.w3.org/2005/xpath-functions/map}put($value, string(@id), Q{http://www.w3.org/2005/xpath-functions/map}contains($value, string(@id)))"/>
+  </accumulator>
+
+  <template match="sch:schema" mode="schxslt:check-assembled-schema" as="element(svrl:error)*">
+    <apply-templates mode="#current"/>
+    <variable name="unique-ids" as="map(xs:string, xs:boolean)" select="accumulator-after('unique-ids')"/>
+    <for-each select="Q{http://www.w3.org/2005/xpath-functions/map}keys($unique-ids)">
+      <if test="Q{http://www.w3.org/2005/xpath-functions/map}get($unique-ids, .)">
+        <svrl:error code="Q{{http://dmaus.name/ns/2023/schxslt}}DuplicateId">The id {.} is not unique in the assembled schema.</svrl:error>
+      </if>
+    </for-each>
+  </template>
+
+  <template match="sch:phase/sch:active" mode="schxslt:check-assembled-schema" as="element(svrl:error)*">
+    <variable name="pattern" as="element()*" select="../../(sch:pattern | sch:group)[@id = current()/@pattern]"/>
+    <choose>
+      <when test="empty($pattern)">
+        <svrl:error code="Q{{http://dmaus.name/ns/2023/schxslt}}PatternNotFound">The phase {../@id} references the pattern {@pattern}, but this pattern is not defined.</svrl:error>
+      </when>
+      <when test="count($pattern) gt 1"/>
+      <when test="$pattern/@abstract = 'true'">
+        <svrl:error code="Q{{http://dmaus.name/ns/2023/schxslt}}InvalidPatternReference">The phase {../@id} references a pattern {@pattern}, but this pattern is declared to be abstract.</svrl:error>
+      </when>
+    </choose>
+  </template>
+
+  <template match="sch:pattern[@is-a] | sch:group[@is-a]" mode="schxslt:check-assembled-schema" as="element(svrl:error)*">
+    <variable name="template" as="element()*" select="../(sch:pattern | sch:group)[@id = current()/@is-a]"/>
+    <choose>
+      <when test="empty($template)">
+        <svrl:error code="Q{{http://dmaus.name/ns/2023/schxslt}}PatternNotFound">The pattern {@id} references the abstract pattern {@is-a}, but this pattern is not defined.</svrl:error>
+      </when>
+      <when test="count($template) gt 1"/>
+      <when test="not($template/@abstract = 'true')">
+        <svrl:error code="Q{{http://dmaus.name/ns/2023/schxslt}}InvalidPatternReference">The pattern {@id} references the abstract pattern {@is-a}, but the pattern is not defined as an abstract pattern.</svrl:error>
+      </when>
+      <when test="local-name(.) ne local-name($template)">
+        <svrl:error code="Q{{http://dmaus.name/ns/2023/schxslt}}InvalidPatternReference">The pattern {@id} references the abstract pattern {@is-a}, but the pattern is not of the same type .</svrl:error>
+      </when>
+      <otherwise>
+        <variable name="instance" as="element()" select="."/>
+        <for-each select="$template/sch:param[not(@value)]">
+          <if test="empty($instance/sch:param[@name = current()/@name])">
+            <svrl:error code="Q{{http://dmaus.name/ns/2023/schxslt}}MissingPatternParameter">The abstract pattern {$template/@id} requires the parameter {@name} to be set.</svrl:error>
+          </if>
+        </for-each>
+        <for-each select="$instance/sch:param">
+          <if test="empty($template/sch:param[@name = current()/@name])">
+            <svrl:error code="Q{{http://dmaus.name/ns/2023/schxslt}}UndeclaredPatternParameter">The pattern {@id} declares a parameter {@name}, but the abstract pattern {$template/@id} does not define a parameter with this name.</svrl:error>
+          </if>
+        </for-each>
+      </otherwise>
+    </choose>
+
+  </template>
+
+  <template match="sch:rule/sch:extends" mode="schxslt:check-assembled-schema" as="element(svrl:error)*">
+    <if test="empty(../../../(sch:pattern | sch:group | sch:rules)/sch:rule[@id = current()/@rule])">
+      <svrl:error code="Q{{http://dmaus.name/ns/2023/schxslt}}RuleNotFound">The rule {../@id} extends a rule {@rule}, but this rule is not defined.</svrl:error>
+    </if>
+  </template>
+
+  <template match="sch:assert | sch:report" mode="schxslt:check-assembled-schema" as="element(svrl:error)*">
+    <variable name="schema" as="element(sch:schema)" select="../../.."/>
+    <variable name="id" as="xs:string" select="string(@id)"/>
+
+    <for-each select="tokenize(@diagnostics)">
+      <variable name="diagnostic" as="element(sch:diagnostic)*" select="$schema/sch:diagnostics/sch:diagnostic[@id = current()]"/>
+      <choose>
+        <when test="empty($diagnostic)">
+          <svrl:error code="Q{{http://dmaus.name/ns/2023/schxslt}}DiagnosticNotFound">The assertion {$id} references a diagnostic {.}, but the diagnostic is not defined.</svrl:error>
+        </when>
+        <when test="count($diagnostic) gt 1"/>
+      </choose>
+    </for-each>
+
+    <for-each select="tokenize(@properties)">
+      <variable name="property" as="element(sch:property)*" select="$schema/sch:properties/sch:property[@id = current()]"/>
+      <choose>
+        <when test="empty($property)">
+          <svrl:error code="Q{{http://dmaus.name/ns/2023/schxslt}}PropertyNotFound">The assertion {$id} references a property {.}, but the property is not defined.</svrl:error>
+        </when>
+        <when test="count($property) gt 1"/>
+      </choose>
+    </for-each>
+  </template>
 
 </transform>

@@ -1,3 +1,5 @@
+<img src="aint_logo_black_smaller.png" align="right">
+
 # SchXslt2 Schematron to XSLT 3.0 transpiler
 
 SchXslt2 is the second iteration of SchXslt, a modern XSLT-based implementation of the ISO Schematron validation
@@ -8,6 +10,9 @@ terms of the MIT license.
 
 Feedback to SchXslt2 is welcome via [email](mailto:dmaus@dmaus.name) or Codeberg's [issue
 management](https://codeberg.org/dmaus/schxslt2/issues).
+
+The AIn't batch is by [Bethan Tovey-Walsh](https://linguacelta.com/aint/) and released under a CreativeCommons CC0
+license.
 
 ## FAQ: Why is SchXslt2 called a transpiler and not a Schematron implementation, validator, or processor?
 
@@ -64,6 +69,8 @@ report. Defaults to ```fn:path()``` when not set.
 When set to boolean ```true```, the validation stylesheet globally enables text value templates, and you may use them in
 assertion or diagnostic messages. Defaults to ```false```.
 
+Nota bene: Setting this option to `true` also enables text value templates in e.g. variable declarations.
+
 ### schxslt:fail-early as xs:boolean
 
 When set to boolean ```true```, the validation stylesheet stops as soon as it encounters the first failed assertion or
@@ -105,6 +112,26 @@ When set to boolean ```true```, the validation stylesheet reports suppressed rul
 ### schxslt:report-skipped-assertion as xs:boolean
 
 When set to boolean `true`, the validation stylesheet reports assertions that are skipped. Defaults to `true`.
+
+### schxslt:compact-report as xs:boolean
+
+When set to boolean `true`, the validation stylesheet only reports failed assertions, successful reports and
+errors. Defaults to `false`.
+
+### schxslt:check-assembled-schema as xs:boolean
+
+When set to boolean `true`, the transpiler performs some plausability checks after all external definitions are
+included. It terminates with an error if it finds inconsistencies in the assembled schema. Defaults to `false`.
+
+The following problems are detected:
+
+- non-unique `@id` attribute values
+- references to non-existent diagnostics
+- references to non-existent properties
+- references to non-existent patterns and groups
+- undeclared abstract pattern parameters
+- missing abstract pattern parameters
+- references to non-existent rules
 
 ## Schematron 4 (2025)
 
