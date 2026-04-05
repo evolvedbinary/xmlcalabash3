@@ -5,6 +5,7 @@ import com.xmlcalabash.datamodel.Location
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.namespace.Ns
 import com.xmlcalabash.namespace.NsSaxon
+import com.xmlcalabash.namespace.NsXml
 import com.xmlcalabash.namespace.NsXvrl
 import com.xmlcalabash.util.SaxonTreeBuilder
 import net.sf.saxon.s9api.QName
@@ -227,6 +228,37 @@ class XvrlDetection private constructor(stepConfig: StepConfiguration): XvrlElem
     fun context(content: List<XdmNode>, attr: Map<QName,String?> = emptyMap()): XvrlContext {
         context = XvrlContext.newInstance(stepConfig, content, attr)
         return context!!
+    }
+
+    // ============================================================
+
+    fun filterLanguages(languages: String?) {
+        if (languages == null) {
+            return
+        }
+
+        for (lang in languages.split("\\s+".toRegex())) {
+            val matching = mutableListOf<XvrlMessage>()
+            for (msg in message) {
+                if (msg.getAttribute(NsXml.lang) == lang) {
+                    matching.add(msg)
+                }
+            }
+            if (matching.isNotEmpty()) {
+                message.clear()
+                message.addAll(matching)
+                return
+            }
+        }
+
+        val default = mutableListOf<XvrlMessage>()
+        for (msg in message) {
+            if (msg.getAttribute(NsXml.lang) == null) {
+                default.add(msg)
+            }
+        }
+        message.clear()
+        message.addAll(default)
     }
 
     // ============================================================

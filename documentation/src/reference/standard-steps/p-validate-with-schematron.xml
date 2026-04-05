@@ -54,6 +54,10 @@ and any Schematron assertions fail.</error>
   <title>Description</title>
   <para role="external-refs"/>
 
+  <para>Schematron is implemented with
+  <link xlink:href="https://codeberg.org/schxslt/schxslt2">SchXslt2</link>
+  version <?dep name.dmaus.schxslt:schxslt2?>.</para>
+
   <tip>
     <title>Line numbering</title>
     <para>If validation errors occur and there are no line numbers in the reported errors,
@@ -63,5 +67,58 @@ and any Schematron assertions fail.</error>
     when the validated document
     <link linkend="load-param-line-numbering">is loaded</link>.</para>
   </tip>
+</refsection>
+
+<refsection>
+<title>SVRL to XVRL conversion</title>
+
+<para>The SchXslt2 processor produces SVRL (Schematron Validation Reporting
+Language) output. XML Calabash will convert this to <link
+xlink:href="https://spec.xproc.org/xvrl/">XVRL</link> (Extensible Validation
+Report Language) if that output format is requested. The goal of XVRL is provide
+a unified vocabulary for error reporting across a wide range of validation
+technologies (DTDs, RELAX NG, Schematron, etc.).</para>
+
+<para>The XVRL specification describes several parameters that can be specified to
+control various aspects of this conversion:</para>
+
+<variablelist>
+<varlistentry><term><code>xvrl:default-severity</code></term>
+<listitem><para>If an assertion does not specify a severity, this default severity
+will be used (except on <code>svrl:successful-report</code> elements
+where the default value “info” is always used). Starting with XML Calabash version 3.0.43, both the
+<code>severity</code> and <code>role</code> attributes are inspected for a severity
+value (earlier versions only looked at the <code>role</code> attribute). You can 
+map other attributes with the <code>map-to-severity</code> parameter.
+</para></listitem>
+</varlistentry>
+<varlistentry><term><code>xvrl:serialization-format</code></term>
+<listitem><para>The only value accepted is “<literal>xml</literal>”.
+</para></listitem>
+</varlistentry>
+<varlistentry><term><code>xvrl:language</code></term>
+<listitem><para>Allows the caller to filter localized messages. If the validation
+report provides messages in more than one language, the XVRL report will only
+contain messages in the specfied language. If more than one language is provided,
+messages in the first matching language are returned.
+</para></listitem>
+</varlistentry>
+<varlistentry><term><code>map-to-severity</code></term>
+<listitem><para>XML Calabash assumes that the severity of an assertion is reported in the
+<tag class="attribute">role</tag> or <tag class="attribute">severity</tag> attribute.
+If the <code>map-to-severity</code> parameter is provided, it must be a list of QNames.
+Each QName is considered
+in turn and the value of the first attribute with a matching QName is taken as the severity.
+</para></listitem>
+</varlistentry>
+<varlistentry><term><code>xpath-notation</code></term>
+<listitem><para>This parameter is not supported.
+</para></listitem>
+</varlistentry>
+</variablelist>
+
+<para>The XVRL parameters can be provided directly in the <option>parameters</option> map
+or in a map named <option>c:xvrl</option> in the <option>parameters</option>.</para>
+
 </refsection>
 </refentry>
