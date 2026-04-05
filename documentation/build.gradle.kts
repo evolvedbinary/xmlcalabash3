@@ -48,6 +48,7 @@ plugins {
 val saxonVersion = project.properties["saxonVersion"].toString()
 val docbookVersion = project.properties["docbookVersion"].toString()
 val xslTNGversion = project.properties["xslTNGversion"].toString()
+val schXslt2Version = project.properties["schxslt2"].toString()
 
 val refVersion = (project.findProperty("refVersion")
                       ?: project.findProperty("xmlcalabashVersion")).toString()
@@ -168,7 +169,8 @@ val xmlCalabashVersion = tasks.register<JavaExec>("xmlCalabashVersion") {
     stream.println("\"refVersion\": \"${refVersion}\",")
     stream.println("\"guideVersion\": \"${guideVersion}\",")
     stream.println("\"docbookVersion\": \"${docbookVersion}\",")
-    stream.println("\"xslTNGversion\": \"${xslTNGversion}\"")
+    stream.println("\"xslTNGversion\": \"${xslTNGversion}\",")
+    stream.println("\"schXslt2Version\": \"${schXslt2Version}\"")
     stream.println("}")
     stream.close()
   }
@@ -198,7 +200,7 @@ val xmlCalabashBuildInfo = tasks.register("xmlCalabashBuildInfo") {
 
         // These are special
         if (step == "xmlcalabash") {
-          stream.println("    <depends-on version=\"1.3.1\">name.dmaus.schxslt:schxslt2</depends-on>")
+          stream.println("    <depends-on version=\"${schXslt2Version}\">name.dmaus.schxslt:schxslt2</depends-on>")
           stream.println("    <depends-on version=\"${saxonVersion}\">net.sf.saxon:Saxon-HE</depends-on>")
         }
 

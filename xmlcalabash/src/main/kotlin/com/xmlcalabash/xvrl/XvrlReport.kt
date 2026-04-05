@@ -17,6 +17,7 @@ class XvrlReport private constructor(stepConfig: StepConfiguration, val xvrlPara
         val _document = QName("document")
         val _documents = QName("documents")
         val _role = QName("role")
+        val _severity = QName("severity")
         val _location = QName("location")
         val _context = QName("context")
 
@@ -218,8 +219,11 @@ class XvrlReport private constructor(stepConfig: StepConfiguration, val xvrlPara
             if (children.first().nodeName == NsSvrl.activePattern) {
                 return
             }
-            val node = children.removeFirst()
+            val node = children.first();
             if (node.nodeName == NsSvrl.firedRule) {
+                children.removeFirst()
+                ruleFromSvrl(report, pattern, node, children)
+            } else {
                 ruleFromSvrl(report, pattern, node, children)
             }
         }
@@ -236,7 +240,7 @@ class XvrlReport private constructor(stepConfig: StepConfiguration, val xvrlPara
                     detectionFromSvrl(report, pattern, rule, node, "info")
                 }
                 NsSvrl.failedAssert -> {
-                    detectionFromSvrl(report, pattern, rule, node, "error")
+                    detectionFromSvrl(report, pattern, rule, node, xvrlParameters["default-severity"] ?: "error")
                 }
                 else -> Unit
             }
@@ -244,7 +248,24 @@ class XvrlReport private constructor(stepConfig: StepConfiguration, val xvrlPara
     }
 
     private fun detectionFromSvrl(report: XvrlReport, pattern: XdmNode, rule: XdmNode, node: XdmNode, defaultSeverity: String) {
-        val severity = node.getAttributeValue(_role) ?: defaultSeverity
+        val severityQNames = if ("map-to-severity" in xvrlParameters) {
+            val names = mutableListOf<QName>()
+            for (name in xvrlParameters["map-to-severity"]!!.split("\\s+".toRegex())) {
+                names.add(stepConfig.typeUtils.parseQName(name))
+            }
+            names
+        } else {
+            listOf(_role, _severity)
+        }
+
+        var severity = defaultSeverity
+        for (name in severityQNames) {
+            if (node.getAttributeValue(name) != null) {
+                severity = node.getAttributeValue(name)
+                break
+            }
+        }
+
         val detection = report.detection(severity)
 
         if (node.getAttributeValue(_location) != null) {
@@ -264,10 +285,12 @@ class XvrlReport private constructor(stepConfig: StepConfiguration, val xvrlPara
                 messageFromSvrl(detection, child, lang)
             }
         }
+
+        detection.filterLanguages(xvrlParameters["language"])
     }
 
     private fun messageFromSvrl(detection: XvrlDetection, node: XdmNode, defaultLanguage: String?) {
-        val lang = node.getAttributeValue(NsXml.lang) ?: defaultLanguage
+        val lang = langFromSvrl(node) ?: defaultLanguage
         val atts = mutableMapOf<QName,String>()
         lang?.let { atts[NsXml.lang] = it }
         val message = detection.message(atts)
@@ -280,12 +303,39 @@ class XvrlReport private constructor(stepConfig: StepConfiguration, val xvrlPara
                     }
                 }
                 XdmNodeKind.ELEMENT -> {
-                    val element = message.message(child.nodeName)
-                    recurse(element, child)
+                    if (child.nodeName == NsSvrl.text) {
+                        val text = child.stringValue.trim()
+                        if (text.isNotEmpty()) {
+                            message.message(text)
+                        }
+                    } else {
+                        val element = message.message(child.nodeName)
+                        recurse(element, child)
+                    }
                 }
                 else -> Unit
             }
         }
+    }
+
+    private fun langFromSvrl(node: XdmNode): String? {
+        var lang = node.getAttributeValue(NsXml.lang)
+        if (lang != null) {
+            return lang
+        }
+
+        if (node.nodeName == NsSvrl.diagnosticReference) {
+            for (child in node.axisIterator(Axis.CHILD)) {
+                if (child.nodeKind == XdmNodeKind.ELEMENT) {
+                    lang = langFromSvrl(child)
+                    if (lang != null) {
+                        return lang
+                    }
+                }
+            }
+        }
+
+        return null
     }
 
     private fun recurse(message: XvrlMessageElement, node: XdmNode) {

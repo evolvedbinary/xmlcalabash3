@@ -6,6 +6,7 @@ import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.namespace.Ns
 import com.xmlcalabash.namespace.NsC
 import com.xmlcalabash.namespace.NsSchxslt
+import com.xmlcalabash.namespace.NsXvrl
 import com.xmlcalabash.util.S9Api
 import com.xmlcalabash.util.SchematronImpl
 import com.xmlcalabash.xvrl.XvrlReport
@@ -14,6 +15,7 @@ import net.sf.saxon.s9api.QName
 import net.sf.saxon.s9api.XdmMap
 import net.sf.saxon.s9api.XdmNode
 import net.sf.saxon.s9api.XdmValue
+import org.apache.logging.log4j.kotlin.logger
 
 open class ValidateWithSchematron(): AbstractValidationStep() {
     companion object {
@@ -30,7 +32,43 @@ open class ValidateWithSchematron(): AbstractValidationStep() {
         val parameters = mutableMapOf<QName, XdmValue>()
         parameters.putAll(qnameMapBinding(Ns.parameters))
 
-        val xvrlParameters = xvrlParameters(parameters)
+        val xvrlParameters = mutableMapOf<String, String>()
+
+        if (NsC.xvrl in parameters) {
+            val xdmMap = stepConfig.typeUtils.forceQNameKeys(parameters.get(NsC.xvrl) as XdmMap)
+            for (key in xdmMap.keySet()) {
+                val value = xdmMap.get(key);
+                val pname = key.qNameValue
+                if (pname.namespaceUri == NsXvrl.namespace) {
+                    if (pname.localName in listOf("default-severity", "serialization-format", "language", "map-to-severity", "xpath-notation")) {
+                        xvrlParameters[pname.localName] = value.underlyingValue.toString()
+                    } else {
+                        stepConfig.warn { "Ignoring unknown XVRL parameter: ${pname}" }
+                    }
+                }
+            }
+
+            parameters.remove(NsC.xvrl)
+            for ((key, value) in parameters) {
+                if (key.namespaceUri == NsXvrl.namespace) {
+                    stepConfig.warn { "Ignoring xvrl: parameters when c:xvrl is present" }
+                    break
+                }
+            }
+        } else {
+            xvrlParameters.putAll(xvrlParameters(parameters))
+        }
+
+        if ((xvrlParameters["serialization-format"] ?: "xml") != "xml") {
+            val format = xvrlParameters["serialization-format"]
+            stepConfig.warn { "The XVRL serialization-format \"${format}\" is not supported, using XML" }
+            xvrlParameters.remove("serialization-format")
+        }
+
+        if ((xvrlParameters["xpath-notation"] != null)) {
+            stepConfig.warn { "The XVRL xpath-notation parameter is not supported" }
+            xvrlParameters.remove("xpath-notation")
+        }
 
         val compileParams = mutableMapOf<QName, XdmValue>()
         val dynamicParams = mutableMapOf<QName, XdmValue>()

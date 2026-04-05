@@ -22,4 +22,5 @@ object NsC {
     val query = QName(namespace, "c:query")
     val report = QName(namespace, "c:report")
     val result = QName(namespace, "c:result")
+    val xvrl = QName(namespace, "c:xvrl")
 }
