@@ -405,8 +405,7 @@ class XplParser internal constructor(val builder: PipelineBuilder) {
         )
 
         if (node.attributes.contains(Ns.select)) {
-            // Options on the outermost declare step can be set from the outside...
-            if (decl.parent == null && decl.stepConfig.staticBindings.contains(name)) {
+            if (decl.stepConfig.staticBindings.contains(name)) {
                 option.select = XProcExpression.constant(stepConfig, decl.stepConfig.staticBindings[name]!!, asType, values)
             } else {
                 option.select = XProcExpression.select(stepConfig, node.attributes[Ns.select]!!, asType, false, values)
