@@ -88,11 +88,11 @@ object XmlToSax {
             }
 
             if (contentHandler == null) {
-                contentHandler == NopContentHandler()
+                contentHandler = NopContentHandler()
             }
 
             if (lexHandler == null) {
-                lexHandler == NopLexicalHandler()
+                lexHandler = NopLexicalHandler()
             }
 
             parse(input.node)
