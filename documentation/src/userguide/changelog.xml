@@ -13,6 +13,44 @@ See the commits and pull requests on
 finer detail.</para>
 
 <revhistory>
+<revision xml:id="r3043">
+<revnumber>3.0.43</revnumber>
+<date>2026-04-06</date>
+<revdescription>
+<itemizedlist spacing="compact">
+<listitem><para>Closed <cbissue number="695"/>. Support the (not-yet-standard)
+options on <tag>p:xslt</tag> for template parameters.
+</para></listitem>
+<listitem><para>Closed <cbissue number="642"/>. Make sure that the encoding
+is passed to the HTML parser.
+</para></listitem>
+<listitem><para>Closed <cbissue number="638"/>. Improved XVRL reports from
+<tag>p:validate-with-schematron</tag>. Updated the step documentation.
+</para></listitem>
+<listitem><para>Closed <cbissue number="629"/>. Set the document element’s base
+URI when casting from text.
+</para></listitem>
+<listitem><para>Closed <cbissue number="628"/>. Read from <literal>stdin</literal>
+for an unbound primary input port only in <option>--pipe</option> mode.
+</para></listitem>
+<listitem><para>Closed <cbissue number="623"/>. Print the <literal>stderr</literal> output
+from <tag>p:os-exec</tag> at the “info” level if the step fails.
+</para></listitem>
+<listitem><para>Closed <cbissue number="621"/>. Improve error messages from
+Saxon by adding more detail. Also include error location in
+exception message when Trang fails.
+</para></listitem>
+<listitem><para>Closed <cbissue number="579"/>. Always set static options to
+compile-time values.
+</para></listitem>
+<listitem><para>Upgraded SchXslt2 to version 1.10.1.
+</para></listitem>
+<listitem><para>Updated build configuration; attempted to use Gradle 9.x, but it won’t
+build the Maven artifacts. Upgraded to 8.14 instead. And updated the foojay plugin.
+</para></listitem>
+</itemizedlist>
+</revdescription>
+</revision>
 <revision xml:id="r3042">
 <revnumber>3.0.42</revnumber>
 <date>2026-03-08</date>
