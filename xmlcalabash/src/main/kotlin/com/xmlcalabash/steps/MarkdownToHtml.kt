@@ -10,6 +10,7 @@ import com.xmlcalabash.namespace.NsCx
 import com.xmlcalabash.util.MarkdownConfigurer
 import com.xmlcalabash.util.MarkdownExtensions
 import net.sf.saxon.s9api.*
+import java.nio.charset.StandardCharsets
 
 open class MarkdownToHtml(): AbstractAtomicStep() {
     companion object {
@@ -60,7 +61,7 @@ open class MarkdownToHtml(): AbstractAtomicStep() {
         val markup = "<body xmlns='http://www.w3.org/1999/xhtml'>" + renderer.render(html) + "</body>"
 
         val loader = DocumentLoader(stepConfig, document.baseURI, DocumentProperties(), mapOf())
-        val result = loader.load(markup.byteInputStream(), MediaType.HTML)
+        val result = loader.load(markup.byteInputStream(StandardCharsets.UTF_8), MediaType.HTML, StandardCharsets.UTF_8)
 
         receiver.output("result", result)
     }

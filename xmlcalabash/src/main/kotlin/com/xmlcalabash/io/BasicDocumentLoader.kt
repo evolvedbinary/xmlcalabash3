@@ -160,7 +160,7 @@ class BasicDocumentLoader(val href: URI?,
                     throw err.exception(ex)
                 }
             }
-            MediaClassification.HTML -> loadHtml(href, stream)
+            MediaClassification.HTML -> loadHtml(href, stream, charset)
             MediaClassification.JSON -> loadJson(stream)
             MediaClassification.TEXT -> loadText(stream, charset)
             // I'm not sure what to do with CSV. Maybe wait for XPath 4?
@@ -233,7 +233,7 @@ class BasicDocumentLoader(val href: URI?,
         }
     }
 
-    private fun loadHtml(uri: URI?, stream: InputStream): XProcDocument {
+    private fun loadHtml(uri: URI?, stream: InputStream, charset: Charset?): XProcDocument {
         val builder = processor.newDocumentBuilder()
         builder.isLineNumbering = parameters[NsCx.lineNumbering]?.underlyingValue?.effectiveBooleanValue() ?: false
         uri?.let { builder.baseURI = it }
@@ -246,6 +246,7 @@ class BasicDocumentLoader(val href: URI?,
 
         val source = InputSource(stream)
         source.systemId = uri.toString();
+        charset?.let { source.encoding = it.toString() }
 
         parser.parse(source)
 
