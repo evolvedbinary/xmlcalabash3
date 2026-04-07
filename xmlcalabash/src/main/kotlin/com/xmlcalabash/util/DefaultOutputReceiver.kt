@@ -77,11 +77,10 @@ open class DefaultOutputReceiver(val xmlCalabash: XmlCalabash,
             }
         }
 
-        if (decorate && part.body[part.body.size-1].toInt() != 10) {
-            stream.println()
-        }
-
         if (decorate) {
+            if (part.body.size > 0 && part.body[part.body.size-1].toInt() != 10) {
+                stream.println()
+            }
             stream.println("".padEnd(header.length, '='))
         }
     }
