@@ -175,7 +175,7 @@ class S9Api {
                         attributes = attributes.put(baseAi)
                         builder.addStartElement(xml.nodeName, attributes, adjBaseUri)
                     } else {
-                        builder.addStartElement(xml, adjBaseUri)
+                        builder.addStartElement(xml, adjBaseUri.toString())
                     }
 
                     for (child in xml.axisIterator(Axis.CHILD)) {
@@ -251,7 +251,7 @@ class S9Api {
         }
 
         fun xdmToSaxSource(stepConfig: XProcStepConfiguration, doc: XProcDocument): SAXSource {
-            val source = XmlToSax.asSaxSource(doc.value as XdmNode)
+            val source = XmlToSax.asSaxSource(stepConfig, doc.value as XdmNode)
             source.inputSource.systemId = doc.baseURI?.toString()
             return source
         }

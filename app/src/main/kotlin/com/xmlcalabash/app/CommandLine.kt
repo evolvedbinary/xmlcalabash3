@@ -431,6 +431,7 @@ class CommandLine private constructor(val args: Array<out String>) {
     private fun parseExtensionName(arg: String) {
         when (arg) {
             "eager-uri-resolution" -> builder.extensions.add(ExtensionName.EAGER_URI_RESOLUTION)
+            "ignore-invalid-uris" -> builder.extensions.add(ExtensionName.IGNORE_INVALID_URIS)
             else -> throw XProcError.xiCliInvalidValue("--extension-name", arg).exception()
         }
     }

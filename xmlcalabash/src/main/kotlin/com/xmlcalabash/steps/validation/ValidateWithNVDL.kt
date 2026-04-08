@@ -71,7 +71,7 @@ open class ValidateWithNVDL(): AbstractValidationStep() {
         }
 
         try {
-            val docSource = SaxProducer.adaptForJing(XmlToSax.asSaxProducer(srcdoc))
+            val docSource = SaxProducer.adaptForJing(XmlToSax.asSaxProducer(stepConfig, srcdoc))
             if (!driver.validate(docSource)) {
                 val xvrl = XProcDocument.ofXml(report.asXml(), stepConfig)
                 if (assertValid) {

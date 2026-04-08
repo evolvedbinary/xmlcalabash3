@@ -326,6 +326,11 @@ See below.
 </para>
 </listitem>
 </varlistentry>
+<varlistentry><term>Ignore Invalid URIs</term>
+<listitem>
+<para>Disregard invalid URIs rather than reporting them as errors.</para>
+</listitem>
+</varlistentry>
 </variablelist>
 
 <section xml:id="eager-uri-resolution">
@@ -449,6 +454,18 @@ have where enabling the “eager-uri-resolution” feature changes the behavior 
 the pipeline.
 </para>
 
+</section>
+
+<section xml:id="ignore-invalid-uris">
+<title>Ignore invalid URIs</title>
+
+<para>Invalid URIs, for example, an <tag class="attribute">xml:base</tag>
+attribute with an invalid percent-encoded string such as“<literal>%gg</literal>”, are
+generally errors. But that can make processing such files, even in ways that don’t
+involve resolving the base URI, impossible.</para>
+<para>If the “ignore invalid URIs” extension feature is enabled, XML Calabash behaves
+in a non-conformant way: invalid URIs don’t raise an error, they are simply
+ignored.</para>
 </section>
 </section>
 </chapter>

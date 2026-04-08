@@ -432,11 +432,15 @@ class ConfigurationLoader() {
         val name = node.getAttributeValue(Ns.name)!!
         when (name) {
             "eager-uri-resolution" -> {
-                // This is the only invocation value that should be a set; instead of implementing
-                // a generic set interface, I'm just faking it with a list...
                 val list = builder.extensions.get() ?: emptyList()
                 if (!list.contains(ExtensionName.EAGER_URI_RESOLUTION)) {
                     builder.extensions.add(ExtensionName.EAGER_URI_RESOLUTION)
+                }
+            }
+            "ignore-invalid-uris" -> {
+                val list = builder.extensions.get() ?: emptyList()
+                if (!list.contains(ExtensionName.IGNORE_INVALID_URIS)) {
+                    builder.extensions.add(ExtensionName.IGNORE_INVALID_URIS)
                 }
             }
             else -> throw XProcError.xiUnrecognizedExtension(name).exception()

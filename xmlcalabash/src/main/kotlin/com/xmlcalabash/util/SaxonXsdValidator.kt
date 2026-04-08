@@ -113,7 +113,7 @@ class SaxonXsdValidator(val stepConfig: XProcStepConfiguration) {
         stepConfig.saxonConfig.clearSchemaCache();
         for (schema in schemaDocuments) {
             try {
-                manager.load(XmlToSax.asSaxSource(schema))
+                manager.load(XmlToSax.asSaxSource(stepConfig, schema))
             } catch (ex: SaxonApiException) {
                 if (schema.baseURI != null) {
                     throw stepConfig.exception(XProcError.xcXmlSchemaInvalidSchema(schema.baseURI!!), ex)
