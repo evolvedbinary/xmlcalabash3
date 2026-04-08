@@ -205,8 +205,22 @@ resolution.</para>
 <rng-pattern schema="../../build/xml-calabash.rng"
              name="cc.extension"/>
 
-<para>Only one extension name is recognized: <literal>eager-uri-resolution</literal>.
+<para>Only two extension names are recognized:</para>
+
+<variablelist>
+<varlistentry><term><literal>eager-uri-resolution</literal></term>
+<listitem>
+<para>
 See <link linkend="eager-uri-resolution">Eager URI resolution</link>.</para>
+</listitem>
+</varlistentry>
+<varlistentry><term><literal>ignore-invalid-uris</literal></term>
+<listitem>
+<para>
+See <link linkend="ignore-invalid-uris">Ignore invalid URIs</link>.</para>
+</listitem>
+</varlistentry>
+</variablelist>
 </section>
 
 <section xml:id="cc.graphviz">

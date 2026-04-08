@@ -30,7 +30,15 @@ public class BuilderLocation implements Location {
     }
 
     public BuilderLocation(XdmNode node, URI overrideBaseURI) {
-        systemId = overrideBaseURI.toString();
+        if (overrideBaseURI != null) {
+            systemId = overrideBaseURI.toString();
+        }
+        lineNumber = node.getLineNumber();
+        columnNumber = node.getColumnNumber();
+    }
+
+    public BuilderLocation(XdmNode node, String overrideBaseURI) {
+        systemId = overrideBaseURI;
         lineNumber = node.getLineNumber();
         columnNumber = node.getColumnNumber();
     }

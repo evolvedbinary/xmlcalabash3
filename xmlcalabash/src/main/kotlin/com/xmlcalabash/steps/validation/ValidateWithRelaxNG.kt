@@ -105,7 +105,7 @@ open class ValidateWithRelaxNG(): AbstractValidationStep() {
         }
 
         var valid = true
-        if (!driver.validate(SaxProducer.adaptForJing(XmlToSax.asSaxProducer(document.value as XdmNode)))) {
+        if (!driver.validate(SaxProducer.adaptForJing(XmlToSax.asSaxProducer(stepConfig, document.value as XdmNode)))) {
             valid = false
             if (assertValid) {
                 val xvrl = XProcDocument.ofXml(report.asXml(), stepConfig)

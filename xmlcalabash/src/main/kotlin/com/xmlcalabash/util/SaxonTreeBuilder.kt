@@ -1,8 +1,8 @@
 package com.xmlcalabash.util
 
 import com.xmlcalabash.config.StepConfiguration
-import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.datamodel.DocumentContext
+import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.exceptions.XProcException
 import com.xmlcalabash.xslt.XsltStylesheet
 import com.xmlcalabash.xslt.stylesheet
@@ -32,9 +32,10 @@ import java.net.URISyntaxException
    But I am not very confident.
  */
 
-open class SaxonTreeBuilder(val processor: Processor) {
+open class SaxonTreeBuilder(val processor: Processor, val ignoreInvalidUris: Boolean = false) {
     constructor (config: DocumentContext): this(config.processor)
-    constructor (config: StepConfiguration): this(config.processor)
+    constructor (config: StepConfiguration): this(config.processor,
+        config.xmlCalabashConfig.extensions.contains(ExtensionName.IGNORE_INVALID_URIS))
 
     protected val excludedNamespaces = mutableSetOf<NamespaceUri>()
     protected val controller = Controller(processor.underlyingConfiguration)
@@ -103,25 +104,11 @@ open class SaxonTreeBuilder(val processor: Processor) {
             }
             throw ise
         }
-
-/*
-        if (excludedNamespaces.isNotEmpty()) {
-            addSubtreeNodeByParts(node)
-        } else {
-            location = BuilderLocation(node)
-            try {
-                receiver.append(node.underlyingNode)
-            } catch (ex: UnsupportedOperationException) {
-                // Okay, do it the hard way
-                addSubtreeNodeByParts(node)
-            }
-        }
- */
     }
 
     private fun addSubtreeNodeByParts(node: XdmNode) {
         // Okay, do it the hard way
-        location = BuilderLocation(node)
+        location = BuilderLocation(node, nodeBaseUri(node))
         when (node.nodeKind) {
             XdmNodeKind.DOCUMENT -> writeChildren(node)
             XdmNodeKind.ELEMENT -> {
@@ -139,7 +126,7 @@ open class SaxonTreeBuilder(val processor: Processor) {
     }
 
     protected fun writeChildren(node: XdmNode) {
-        location = BuilderLocation(node)
+        location = BuilderLocation(node, nodeBaseUri(node))
         val iter = node.axisIterator(Axis.CHILD)
         while (iter.hasNext()) {
             addSubtree(iter.next())
@@ -151,21 +138,21 @@ open class SaxonTreeBuilder(val processor: Processor) {
     }
 
     fun addStartElement(node: XdmNode) {
-        location = BuilderLocation(node)
-        addStartElement(node, node.nodeName, node.baseURI)
+        location = BuilderLocation(node, nodeBaseUri(node))
+        addStartElement(node, node.nodeName, node.underlyingNode.baseURI)
     }
 
-    fun addStartElement(node: XdmNode, overrideBaseURI: URI) {
+    fun addStartElement(node: XdmNode, overrideBaseURI: String) {
         location = BuilderLocation(node, overrideBaseURI)
         addStartElement(node, node.nodeName, overrideBaseURI)
     }
 
     fun addStartElement(node: XdmNode, newName: QName) {
-        location = BuilderLocation(node)
-        addStartElement(node, newName, node.baseURI)
+        location = BuilderLocation(node, nodeBaseUri(node))
+        addStartElement(node, newName, node.underlyingNode.baseURI)
     }
 
-    fun addStartElement(node: XdmNode, newName: QName, overrideBaseURI: URI) {
+    fun addStartElement(node: XdmNode, newName: QName, overrideBaseURI: String) {
         location = BuilderLocation(node, overrideBaseURI)
         val attrs = node.underlyingNode.attributes()
         addStartElement(node, newName, overrideBaseURI, attrs)
@@ -176,7 +163,7 @@ open class SaxonTreeBuilder(val processor: Processor) {
     }
 
     fun addStartElement(node: XdmNode, attrs: AttributeMap, nsmap: NamespaceMap) {
-        location = BuilderLocation(node)
+        location = BuilderLocation(node, nodeBaseUri(node))
         val inode = node.underlyingNode
 
         val baseURI = try {
@@ -188,7 +175,7 @@ open class SaxonTreeBuilder(val processor: Processor) {
         addStartElement(NameOfNode.makeName(inode), attrs, inode.schemaType, filteredNamespaceMap(nsmap), baseURI)
     }
 
-    fun addStartElement(node: XdmNode, newName: QName, overrideBaseURI: URI, attrs: AttributeMap) {
+    fun addStartElement(node: XdmNode, newName: QName, overrideBaseURI: String, attrs: AttributeMap) {
         location = BuilderLocation(node, overrideBaseURI)
         val inode = node.underlyingNode
 
@@ -210,8 +197,8 @@ open class SaxonTreeBuilder(val processor: Processor) {
         }
 
         // Hack. See comment at top of file
-        if (overrideBaseURI.toASCIIString() != "") {
-            receiver.setSystemId(overrideBaseURI.toASCIIString())
+        if (overrideBaseURI != "") {
+            receiver.setSystemId(overrideBaseURI)
         }
 
         val newNameOfNode = FingerprintedQName(newName.prefix, newName.namespaceUri, newName.localName)
@@ -340,6 +327,18 @@ open class SaxonTreeBuilder(val processor: Processor) {
 
     fun addPI(target: String, data: String) {
         addPI(target, data, receiver.systemId)
+    }
+
+    private fun nodeBaseUri(node: XdmNode): URI? {
+        try {
+            return node.getBaseURI()
+        } catch (ex: java.lang.IllegalStateException) {
+            if (ex.message != null && ex.message!!.contains("baseURI") && ignoreInvalidUris) {
+                return null
+            } else {
+                throw ex
+            }
+        }
     }
 
     fun xslt(documentUri: String? = null,

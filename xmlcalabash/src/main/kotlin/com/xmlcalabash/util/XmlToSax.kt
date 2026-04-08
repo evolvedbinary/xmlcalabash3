@@ -1,5 +1,6 @@
 package com.xmlcalabash.util
 
+import com.xmlcalabash.config.StepConfiguration
 import net.sf.saxon.s9api.Axis
 import net.sf.saxon.s9api.XdmNode
 import net.sf.saxon.s9api.XdmNodeKind
@@ -10,21 +11,29 @@ import javax.xml.transform.sax.SAXSource
 
 object XmlToSax {
     fun asSaxSource(node: XdmNode): SAXSource {
+        return asSaxSource(node, false)
+    }
+
+    fun asSaxSource(stepConfig: StepConfiguration, node: XdmNode): SAXSource {
+        return asSaxSource(node, stepConfig.xmlCalabashConfig.extensions.contains(ExtensionName.IGNORE_INVALID_URIS))
+    }
+
+    private fun asSaxSource(node: XdmNode, ignoreInvalidUris: Boolean): SAXSource {
         val input = XdmNodeInputSource(node)
         input.encoding = "UTF-8"
         input.systemId = node.baseURI?.toString()
         val source = SAXSource(input)
-        source.xmlReader = XdmNodeXMLReader()
+        source.xmlReader = XdmNodeXMLReader(ignoreInvalidUris)
         return source
     }
 
-    fun asSaxProducer(node: XdmNode): SaxProducer {
-        return XdmNodeSaxProducer(node)
+    fun asSaxProducer(stepConfig: StepConfiguration, node: XdmNode): SaxProducer {
+        return XdmNodeSaxProducer(stepConfig, node)
     }
 
     class XdmNodeInputSource(val node: XdmNode): InputSource()
 
-    class XdmNodeXMLReader: XMLReader {
+    private class XdmNodeXMLReader(val ignoreInvalidUris: Boolean): XMLReader {
         private var dtdHandler: DTDHandler? = null
         private var contentHandler: ContentHandler? = null
         private var errHandler: ErrorHandler? = null
@@ -116,7 +125,7 @@ object XmlToSax {
                     val local = node.nodeName.localName
                     val qname = node.nodeName.toString();
 
-                    contentHandler!!.setDocumentLocator(LocalLocator(node))
+                    contentHandler!!.setDocumentLocator(LocalLocator(node, ignoreInvalidUris))
                     for (ns in node.axisIterator(Axis.NAMESPACE)) {
                         contentHandler!!.startPrefixMapping(ns.nodeName?.localName ?: "", ns.stringValue)
                     }
@@ -133,17 +142,17 @@ object XmlToSax {
                 }
                 XdmNodeKind.TEXT -> {
                     val arr = node.stringValue.toCharArray()
-                    contentHandler!!.setDocumentLocator(LocalLocator(node))
+                    contentHandler!!.setDocumentLocator(LocalLocator(node, ignoreInvalidUris))
                     contentHandler!!.characters(arr, 0, arr.size)
                 }
                 XdmNodeKind.PROCESSING_INSTRUCTION -> {
-                    contentHandler!!.setDocumentLocator(LocalLocator(node))
+                    contentHandler!!.setDocumentLocator(LocalLocator(node, ignoreInvalidUris))
                     contentHandler!!.processingInstruction(node.nodeName.localName, node.stringValue)
                 }
                 XdmNodeKind.COMMENT -> {
                     if (lexHandler != null) {
                         val arr = node.stringValue.toCharArray()
-                        contentHandler!!.setDocumentLocator(LocalLocator(node))
+                        contentHandler!!.setDocumentLocator(LocalLocator(node, ignoreInvalidUris))
                         lexHandler!!.comment(arr, 0, arr.size)
                     }
                 }
@@ -153,9 +162,9 @@ object XmlToSax {
         }
     }
 
-    class XdmNodeSaxProducer(val node: XdmNode) : SaxProducer {
+    class XdmNodeSaxProducer(val stepConfig: StepConfiguration, val node: XdmNode) : SaxProducer {
         override fun produce(contentHandler: ContentHandler?, dtdHandler: DTDHandler?, errorHandler: ErrorHandler?) {
-            val source = asSaxSource(node)
+            val source = asSaxSource(stepConfig, node)
             source.xmlReader.contentHandler = contentHandler
             source.xmlReader.errorHandler = errorHandler
             source.xmlReader.dtdHandler = dtdHandler
@@ -239,8 +248,16 @@ object XmlToSax {
         }
     }
 
-    class LocalLocator(node: XdmNode): Locator {
-        private val systemId = node.baseURI?.toString()
+    private class LocalLocator(node: XdmNode, ignoreInvalidUris: Boolean): Locator {
+        private val systemId = try {
+            node.baseURI?.toString()
+        } catch (ex: IllegalStateException) {
+            if (ex.message != null && ex.message!!.contains("baseURI") && ignoreInvalidUris) {
+                null
+            } else {
+                throw ex
+            }
+        }
         private val line = node.lineNumber
         private val column = node.columnNumber
 
