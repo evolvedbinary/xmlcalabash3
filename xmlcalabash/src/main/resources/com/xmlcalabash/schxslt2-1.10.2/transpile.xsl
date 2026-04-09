@@ -40,7 +40,7 @@ SOFTWARE.
   <output indent="yes" use-when="$schxslt:debug"/>
 
   <variable name="schxslt:version" as="xs:string"
-                select="if (starts-with('1.10.1', '$')) then 'development' else '1.10.1'"/>
+                select="if (starts-with('1.10.2', '$')) then 'development' else '1.10.2'"/>
 
   <param name="schxslt:phase" as="xs:string" select="'#DEFAULT'">
     <!--
@@ -160,8 +160,9 @@ SOFTWARE.
 
   <variable name="schxslt:document-uri-expression" as="xs:string" select="'(document-uri(.), base-uri(root()))[1]'"/>
 
-  <mode name="schxslt:expand" on-no-match="shallow-copy"/>
-  <mode name="schxslt:include" on-no-match="shallow-copy"/>
+  <mode name="schxslt:expand-abstract-rules" on-no-match="shallow-copy"/>
+  <mode name="schxslt:assemble-schema" on-no-match="shallow-copy"/>
+  <mode name="schxslt:instantiate-abstract-patterns" on-no-match="shallow-copy"/>
   <mode name="schxslt:compose-schema" on-no-match="shallow-copy"/>
   <mode name="schxslt:transpile" on-no-match="shallow-skip"/>
   <mode name="schxslt:create-phase-selector" on-no-match="shallow-skip"/>
@@ -193,7 +194,7 @@ SOFTWARE.
     </if>
 
     <variable name="assembled-schema" as="element(sch:schema)">
-      <call-template name="schxslt:perform-include">
+      <call-template name="schxslt:assemble-schema">
         <with-param name="schema" as="element(sch:schema)" select="."/>
       </call-template>
     </variable>
@@ -208,26 +209,44 @@ SOFTWARE.
 
     <call-template name="schxslt:reduce-schema">
       <with-param name="schema" as="element(sch:schema)">
-        <call-template name="schxslt:perform-expand">
-          <with-param name="schema" as="element(sch:schema)" select="$assembled-schema"/>
+        <call-template name="schxslt:expand-abstract-rules">
+          <with-param name="schema" as="element(sch:schema)">
+            <call-template name="schxslt:instantiate-abstract-patterns">
+              <with-param name="schema" as="element(sch:schema)">
+                <call-template name="schxslt:denormalize-schema">
+                  <with-param name="schema" as="element(sch:schema)" select="$assembled-schema"/>
+                </call-template>
+              </with-param>
+            </call-template>
+          </with-param>
         </call-template>
       </with-param>
       <with-param name="phase" as="xs:string" select="$phase"/>
     </call-template>
   </template>
 
-  <template name="schxslt:perform-include" as="element(sch:schema)">
+  <template name="schxslt:assemble-schema" as="element(sch:schema)" visibility="private">
     <param name="schema" as="element(sch:schema)" required="yes"/>
-    <apply-templates select="$schema" mode="schxslt:include"/>
+    <apply-templates select="$schema" mode="schxslt:assemble-schema"/>
   </template>
 
-  <template name="schxslt:perform-expand" as="element(sch:schema)">
+  <template name="schxslt:expand-abstract-rules" as="element(sch:schema)" visibility="private">
     <param name="schema" as="element(sch:schema)" required="yes"/>
-    <apply-templates select="$schema" mode="schxslt:expand"/>
+    <apply-templates select="$schema" mode="schxslt:expand-abstract-rules"/>
   </template>
 
-  <!-- Utility mode: Create an XSLT stylesheet that finds a phase as
-       described in ISO Schematron 4th Edition, 5.4.13 and 5.5.22. -->
+  <template name="schxslt:instantiate-abstract-patterns" as="element(sch:schema)" visibility="private">
+    <param name="schema" as="element(sch:schema)" required="yes"/>
+    <apply-templates select="$schema" mode="schxslt:instantiate-abstract-patterns"/>
+  </template>
+
+  <template name="schxslt:denormalize-schema" as="element(sch:schema)" visibility="private">
+    <param name="schema" as="element(sch:schema)" required="yes"/>
+    <apply-templates select="$schema" mode="schxslt:denormalize-schema"/>
+  </template>
+
+  <!-- BEGIN Mode schxslt:create-phase-selector -->
+
   <template match="sch:schema" as="element(Q{http://www.w3.org/1999/XSL/Transform}stylesheet)" mode="schxslt:create-phase-selector">
     <alias:stylesheet version="3.0">
       <for-each select="sch:ns">
@@ -250,8 +269,11 @@ SOFTWARE.
     </alias:stylesheet>
   </template>
 
-  <!-- Step 1: Include -->
-  <template match="sch:include" as="element()" mode="schxslt:include">
+  <!-- END Mode schxslt:create-phase-selector -->
+
+  <!-- BEGIN Mode schxslt:assemble-schema -->
+
+  <template match="sch:include" as="element()" mode="schxslt:assemble-schema">
     <variable name="external" as="element()" select="schxslt:load-external(@href)"/>
     <apply-templates select="$external" mode="#current">
       <with-param name="sourceLanguage" as="xs:string" select="schxslt:in-scope-language(.)"/>
@@ -259,7 +281,7 @@ SOFTWARE.
     </apply-templates>
   </template>
 
-  <template match="sch:library/sch:extends[@href]" as="node()*" mode="schxslt:include">
+  <template match="sch:library/sch:extends[@href]" as="node()*" mode="schxslt:assemble-schema">
     <variable name="external" as="element()" select="schxslt:load-external(@href)"/>
     <if test="(namespace-uri($external) ne 'http://purl.oclc.org/dsdl/schematron') or (local-name($external) ne 'library')">
       <variable name="message" as="xs:string+">
@@ -278,7 +300,7 @@ SOFTWARE.
     </apply-templates>
   </template>
 
-  <template match="sch:schema/sch:extends[@href]" as="node()*" mode="schxslt:include">
+  <template match="sch:schema/sch:extends[@href]" as="node()*" mode="schxslt:assemble-schema">
     <variable name="external" as="element()" select="schxslt:load-external(@href)"/>
     <if test="(namespace-uri($external) ne 'http://purl.oclc.org/dsdl/schematron') or (not(local-name($external) = ('library', 'schema')))">
       <variable name="message" as="xs:string+">
@@ -298,7 +320,7 @@ SOFTWARE.
     </apply-templates>
   </template>
 
-  <template match="sch:rule/sch:extends[@href]" as="node()*" mode="schxslt:include">
+  <template match="sch:rule/sch:extends[@href]" as="node()*" mode="schxslt:assemble-schema">
     <variable name="external" as="element()" select="schxslt:load-external(@href)"/>
     <if test="(namespace-uri($external) ne 'http://purl.oclc.org/dsdl/schematron') or (local-name($external) ne 'rule')">
       <variable name="message" as="xs:string+">
@@ -317,44 +339,41 @@ SOFTWARE.
     </apply-templates>
   </template>
 
-  <template match="*" mode="schxslt:include schxslt:expand">
-    <param name="sourceLanguage" as="xs:string" select="schxslt:in-scope-language(.)"/>
-    <param name="targetNamespaces" as="element(sch:ns)*"/>
-    <variable name="inScopeLanguage" as="xs:string" select="schxslt:in-scope-language(.)"/>
+  <!-- END Mode schxslt:assemble-schema -->
 
+  <!-- BEGIN Mode schxslt:denormalize-schema -->
+
+  <mode name="schxslt:denormalize-schema" on-no-match="shallow-copy"/>
+
+  <template match="sch:diagnostics | sch:properties" as="empty-sequence()" mode="schxslt:denormalize-schema"/>
+
+  <template match="sch:rule" as="element(sch:rule)" mode="schxslt:denormalize-schema">
+    <variable name="diagnostics" as="xs:string*" select="(sch:assert | sch:report)/@diagnostics ! tokenize(.)"/>
+    <variable name="properties" as="xs:string*" select="(sch:assert | sch:report)/@properties ! tokenize(.)"/>
     <copy>
-      <for-each select="$targetNamespaces">
-        <namespace name="{@prefix}" select="@uri"/>
-      </for-each>
-      <apply-templates select="@*" mode="#current"/>
-      <if test="not(@xml:lang) and not($inScopeLanguage eq $sourceLanguage)">
-        <attribute name="xml:lang" select="$inScopeLanguage"/>
-      </if>
-      <apply-templates select="node()" mode="#current"/>
+      <sequence select="@*"/>
+      <sequence select="node()"/>
+      <where-populated>
+        <sch:diagnostics>
+          <apply-templates select="../../sch:diagnostics/sch:diagnostic[@id = $diagnostics]" mode="#current"/>
+        </sch:diagnostics>
+      </where-populated>
+      <where-populated>
+        <sch:properties>
+          <apply-templates select="../../sch:properties/sch:property[@id = $properties]" mode="#current"/>
+        </sch:properties>
+      </where-populated>
     </copy>
   </template>
 
-  <!-- Step 2: Expand -->
-  <template match="sch:rule[@abstract = 'true'] | (sch:pattern | sch:group)[@abstract = 'true']" as="empty-sequence()" mode="schxslt:expand"/>
+  <!-- END Mode schxslt:denormalize-schema -->
 
-  <template match="sch:rule/sch:extends[@rule]" as="node()*" mode="schxslt:expand">
-    <variable name="abstract-rule" as="element(sch:rule)*"
-                  select="(../../sch:rule, ../../../(sch:pattern | sch:group | sch:rules)/sch:rule)[@abstract = 'true'][@id = current()/@rule]"/>
-    <if test="empty($abstract-rule)">
-      <variable name="message" as="xs:string+">
-        The current schema defines no abstract rule named '{@rule}'.
-      </variable>
-      <message terminate="yes">
-        <text/>
-        <value-of select="normalize-space(string-join($message))"/>
-      </message>
-    </if>
-    <apply-templates select="$abstract-rule/node()" mode="#current">
-      <with-param name="sourceLanguage" as="xs:string" select="schxslt:in-scope-language(.)"/>
-    </apply-templates>
-  </template>
+  <!-- BEGIN Mode schxslt:instantiate-abstract-patterns -->
 
-  <template match="(sch:pattern | sch:group)[@is-a]" as="element()" mode="schxslt:expand">
+  <template match="(sch:pattern | sch:group)[@abstract = 'true']" as="empty-sequence()" mode="schxslt:instantiate-abstract-patterns"/>
+  <template match="(sch:pattern | sch:group)/sch:param" as="empty-sequence()" mode="schxslt:instantiate-abstract-patterns"/>
+
+  <template match="(sch:pattern | sch:group)[@is-a]" as="element()" mode="schxslt:instantiate-abstract-patterns">
     <variable name="is-a" as="element()?" select="../(sch:pattern | sch:group)[local-name() = local-name(current())][@abstract = 'true'][@id = current()/@is-a]"/>
     <if test="empty($is-a)">
       <variable name="message" as="xs:string+">
@@ -386,11 +405,8 @@ SOFTWARE.
       </apply-templates>
     </variable>
 
-    <variable name="diagnostics" as="xs:string*" select="tokenize(string-join($instance[self::sch:rule]/sch:*/@diagnostics, ' '))"/>
-    <variable name="properties" as="xs:string*" select="tokenize(string-join($instance[self::sch:rule]/sch:*/@properties, ' '))"/>
-
     <copy>
-      <apply-templates select="(@* except (@id, @abstract))" mode="#current">
+      <apply-templates select="@* except (@is-a)" mode="#current">
         <with-param name="params" as="element(sch:param)*" select="sch:param" tunnel="yes"/>
       </apply-templates>
       <if test="empty(@documents)">
@@ -403,27 +419,11 @@ SOFTWARE.
       </if>
       <sequence select="$instance"/>
       <apply-templates select="node()" mode="#current"/>
-
-      <if test="exists($diagnostics)">
-        <element name="diagnostics" namespace="http://purl.oclc.org/dsdl/schematron">
-          <apply-templates select="../sch:diagnostics/sch:diagnostic[@id = $diagnostics]" mode="#current">
-            <with-param name="params" as="element(sch:param)*" select="sch:param" tunnel="yes"/>
-          </apply-templates>
-        </element>
-      </if>
-      <if test="exists($properties)">
-        <element name="properties" namespace="http://purl.oclc.org/dsdl/schematron">
-          <apply-templates select="../sch:properties/sch:property[@id = $properties]" mode="#current">
-            <with-param name="params" as="element(sch:param)*" select="sch:param" tunnel="yes"/>
-          </apply-templates>
-        </element>
-      </if>
-
     </copy>
 
   </template>
 
-  <template match="sch:assert/@test | sch:report/@test | sch:rule/@context | sch:value-of/@select | (sch:pattern | sch:group)/@documents | sch:name/@path | sch:let/@value | Q{http://www.w3.org/1999/XSL/Transform}copy-of[ancestor::sch:property]/@select" mode="schxslt:expand">
+  <template match="sch:assert/@test | sch:report/@test | sch:rule/@context | sch:value-of/@select | (sch:pattern | sch:group)/@documents | sch:name/@path | sch:let/@value | Q{http://www.w3.org/1999/XSL/Transform}copy-of[ancestor::sch:property]/@select" mode="schxslt:instantiate-abstract-patterns">
     <param name="params" as="element(sch:param)*" tunnel="yes"/>
     <attribute name="{name()}" select="schxslt:replace-params(., $params)"/>
   </template>
@@ -450,9 +450,51 @@ SOFTWARE.
     </choose>
   </function>
 
+  <!-- END Mode schxslt:instantiate-abstract-patterns -->
+
+  <template match="*" mode="schxslt:assemble-schema schxslt:denormalize-schema schxslt:instantiate-abstract-patterns schxslt:expand-abstract-rules">
+    <param name="sourceLanguage" as="xs:string" select="schxslt:in-scope-language(.)"/>
+    <param name="targetNamespaces" as="element(sch:ns)*"/>
+    <variable name="inScopeLanguage" as="xs:string" select="schxslt:in-scope-language(.)"/>
+
+    <copy>
+      <for-each select="$targetNamespaces">
+        <namespace name="{@prefix}" select="@uri"/>
+      </for-each>
+      <apply-templates select="@*" mode="#current"/>
+      <if test="not(@xml:lang) and not($inScopeLanguage eq $sourceLanguage)">
+        <attribute name="xml:lang" select="$inScopeLanguage"/>
+      </if>
+      <apply-templates select="node()" mode="#current"/>
+    </copy>
+  </template>
+
+  <!-- BEGIN Mode schxslt:expand-abstract-rules -->
+
+  <template match="sch:rule[@abstract = 'true']" as="empty-sequence()" mode="schxslt:expand-abstract-rules"/>
+
+  <template match="sch:rule/sch:extends[@rule]" as="node()*" mode="schxslt:expand-abstract-rules">
+    <variable name="abstract-rule" as="element(sch:rule)*"
+                  select="(../../sch:rule, ../../../(sch:pattern | sch:group | sch:rules)/sch:rule)[@abstract = 'true'][@id = current()/@rule]"/>
+    <if test="empty($abstract-rule)">
+      <variable name="message" as="xs:string+">
+        The current schema defines no abstract rule named '{@rule}'.
+      </variable>
+      <message terminate="yes">
+        <text/>
+        <value-of select="normalize-space(string-join($message))"/>
+      </message>
+    </if>
+    <apply-templates select="$abstract-rule/node()" mode="#current">
+      <with-param name="sourceLanguage" as="xs:string" select="schxslt:in-scope-language(.)"/>
+    </apply-templates>
+  </template>
+
+  <!-- END Mode schxslt:expand-abstract-rules -->
+
   <!-- Reduce schema such that only patterns and groups of the
        selected phase are present. -->
-  <template name="schxslt:reduce-schema" as="element(sch:schema)">
+  <template name="schxslt:reduce-schema" as="element(sch:schema)" visibility="private">
     <param name="schema" as="element(sch:schema)" required="yes"/>
     <param name="phase" as="xs:string" required="yes"/>
     <variable name="excluded-patterns" as="element(sch:pattern)*"
@@ -460,7 +502,7 @@ SOFTWARE.
     <variable name="excluded-groups" as="element(sch:group)*"
               select="if ($phase eq '#ALL') then () else $schema/sch:group[not(@id = $schema/sch:phase[@id = $phase]/sch:active/@pattern)]"/>
     <variable name="excluded-phases" as="element(sch:phase)*"
-              select="if ($phase eq '#ALL') then $schema/sch:phase else $schema/sch:phase[@id != $phase]"/>
+              select="if ($phase eq '#ALL') then () else $schema/sch:phase[@id != $phase]"/>
     <element name="schema" namespace="http://purl.oclc.org/dsdl/schematron">
       <sequence select="$schema/@* except $schema/@defaultPhase"/>
       <if test="$phase ne '#ALL'">
@@ -470,7 +512,8 @@ SOFTWARE.
     </element>
   </template>
 
-  <!-- Step 3: Transpile -->
+  <!-- BEGIN Mode schxslt:transpile -->
+
   <template match="sch:library" as="empty-sequence()" mode="schxslt:transpile">
     <message terminate="yes">This version of SchXslt2 does not transpile ISO Schematron libraries</message>
   </template>
@@ -513,7 +556,7 @@ SOFTWARE.
 
       <for-each select="Q{http://www.w3.org/2005/xpath-functions/map}keys($patterns)">
         <alias:mode name="{.}" on-no-match="shallow-skip" streamable="{$schxslt:streamable}" use-accumulators="{$accumulators}"/>
-        <alias:template match="*" mode="{.}" priority="-10">
+        <alias:template match="* | root()" mode="{.}" priority="-10">
           <alias:apply-templates select="@*" mode="#current"/>
           <alias:apply-templates select="node()" mode="#current"/>
         </alias:template>
@@ -708,7 +751,7 @@ SOFTWARE.
             </svrl:failed-assert>
           </alias:variable>
           <if test="$schxslt:fail-early">
-            <alias:message  select="$failed-assert" error-code="Q{{http://dmaus.name/ns/2023/schxslt}}CatchFailEarly" terminate="yes"/>
+            <alias:message  select="$failed-assert" error-code="Q{{{{http://dmaus.name/ns/2023/schxslt}}}}CatchFailEarly" terminate="yes"/>
           </if>
           <alias:sequence select="$failed-assert"/>
         </alias:if>
@@ -738,7 +781,7 @@ SOFTWARE.
             </svrl:successful-report>
           </alias:variable>
           <if test="$schxslt:fail-early">
-            <alias:message  select="$successful-report" error-code="Q{{http://dmaus.name/ns/2023/schxslt}}CatchFailEarly" terminate="yes"/>
+            <alias:message  select="$successful-report" error-code="Q{{{{http://dmaus.name/ns/2023/schxslt}}}}CatchFailEarly" terminate="yes"/>
           </if>
           <alias:sequence select="$successful-report"/>
         </alias:if>
@@ -753,6 +796,10 @@ SOFTWARE.
       </alias:otherwise>
     </alias:choose>
   </template>
+
+  <!-- END Mode schxslt:transpile -->
+
+  <!-- BEGIN Mode schxslt:copy-message-content -->
 
   <template match="sch:dir" as="element(svrl:dir)" mode="schxslt:copy-message-content">
     <svrl:dir>
@@ -815,7 +862,9 @@ SOFTWARE.
     </alias:for-each>
   </template>
 
-  <template name="schxslt:active-pattern" as="element()?">
+  <!-- END Mode schxslt:copy-message-content -->
+
+  <template name="schxslt:active-pattern" as="element()?" visibility="private">
     <element name="svrl:active-{local-name()}" use-when="$schxslt:report-active-pattern and not($schxslt:compact-report)">
       <call-template name="schxslt:copy-attributes">
         <with-param name="attributes" as="attribute()*" select="(@id, @documents, @role)"/>
@@ -826,7 +875,7 @@ SOFTWARE.
     </element>
   </template>
 
-  <template name="schxslt:fired-rule" as="element()+">
+  <template name="schxslt:fired-rule" as="element()+"  visibility="private">
     <element name="svrl:fired-rule" use-when="$schxslt:report-fired-rule and not($schxslt:compact-report)">
       <call-template name="schxslt:copy-attributes">
         <with-param name="attributes" as="attribute()*" select="(@id, @role, @flag, @visit-each, @context)"/>
@@ -853,7 +902,7 @@ SOFTWARE.
     </alias:for-each>
   </template>
 
-  <template name="schxslt:report-message" as="element(svrl:text)">
+  <template name="schxslt:report-message" as="element(svrl:text)" visibility="private">
     <svrl:text>
       <sequence select="@xml:*"/>
       <call-template name="schxslt:copy-attributes">
@@ -863,9 +912,9 @@ SOFTWARE.
     </svrl:text>
   </template>
 
-  <template name="schxslt:report-diagnostics" as="element(svrl:diagnostic-reference)*">
+  <template name="schxslt:report-diagnostics" as="element(svrl:diagnostic-reference)*" visibility="private">
     <variable name="diagnostics" as="xs:string*" select="tokenize(normalize-space(@diagnostics))"/>
-    <for-each select="(../../sch:diagnostics, ../../../sch:diagnostics)[1]/sch:diagnostic[@id = $diagnostics]">
+    <for-each select="../sch:diagnostics/sch:diagnostic[@id = $diagnostics]">
       <svrl:diagnostic-reference diagnostic="{schxslt:protect-curlies(@id)}">
         <svrl:text>
           <if test="schxslt:in-scope-language(.) ne schxslt:in-scope-language(ancestor::sch:schema)">
@@ -881,9 +930,9 @@ SOFTWARE.
     </for-each>
   </template>
 
-  <template name="schxslt:report-properties" as="element(svrl:property-reference)*">
+  <template name="schxslt:report-properties" as="element(svrl:property-reference)*" visibility="private">
     <variable name="properties" as="xs:string*" select="tokenize(normalize-space(@properties))"/>
-    <for-each select="(../../sch:properties, ../../../sch:properties)[1]/sch:property[@id = $properties]">
+    <for-each select="../sch:properties/sch:property[@id = $properties]">
       <svrl:property-reference property="{schxslt:protect-curlies(@id)}">
         <call-template name="schxslt:copy-attributes">
           <with-param name="attributes" as="attribute()*" select="(@role, @scheme)"/>
@@ -902,14 +951,14 @@ SOFTWARE.
     </for-each>
   </template>
 
-  <template name="schxslt:failed-assertion-content" as="node()+">
+  <template name="schxslt:failed-assertion-content" as="node()+" visibility="private">
     <call-template name="schxslt:failed-assertion-attributes"/>
     <call-template name="schxslt:report-diagnostics"/>
     <call-template name="schxslt:report-properties"/>
     <call-template name="schxslt:report-message"/>
   </template>
 
-  <template name="schxslt:failed-assertion-attributes" as="node()*">
+  <template name="schxslt:failed-assertion-attributes" as="node()*" visibility="private">
     <param name="assertion" as="element()" tunnel="yes"/>
     <call-template name="schxslt:copy-attributes">
       <with-param name="attributes" as="attribute()*" select="(@flag, @id, @role, @severity, @test)"/>
@@ -931,14 +980,14 @@ SOFTWARE.
     </if>
   </template>
 
-  <template name="schxslt:copy-attributes" as="attribute()*">
+  <template name="schxslt:copy-attributes" as="attribute()*" visibility="private">
     <param name="attributes" as="attribute()*" required="yes"/>
     <for-each select="$attributes">
       <attribute name="{name()}" select="schxslt:copy-attribute-value(.)"/>
     </for-each>
   </template>
 
-  <function name="schxslt:copy-attribute-value" as="xs:string">
+  <function name="schxslt:copy-attribute-value" as="xs:string" visibility="private">
     <param name="attribute" as="attribute()"/>
     <choose>
       <when test="(node-name($attribute) = $schxslt:var-attributes) and starts-with(normalize-space($attribute), '$') and (substring(normalize-space($attribute), 2) castable as xs:Name)">
@@ -953,17 +1002,17 @@ SOFTWARE.
     </choose>
   </function>
 
-  <function name="schxslt:in-scope-language" as="xs:string?">
+  <function name="schxslt:in-scope-language" as="xs:string?" visibility="private">
     <param name="context" as="node()"/>
     <value-of select="lower-case($context/ancestor-or-self::*[@xml:lang][1]/@xml:lang)"/>
   </function>
 
-  <function name="schxslt:protect-curlies" as="xs:string">
+  <function name="schxslt:protect-curlies" as="xs:string" visibility="private">
     <param name="value" as="xs:string"/>
     <value-of select="$value => replace('\{', '{{') => replace('\}', '}}')"/>
   </function>
 
-  <function name="schxslt:load-external" as="element()">
+  <function name="schxslt:load-external" as="element()" visibility="private">
     <param name="href" as="attribute(href)"/>
 
     <variable name="uriParts" as="xs:string+" select="tokenize(string($href), '#')"/>
@@ -998,7 +1047,7 @@ SOFTWARE.
     </choose>
   </function>
 
-  <!-- Check assembled schema -->
+  <!-- BEGIN Mode schxslt:check-assembled-schema -->
   <mode name="schxslt:check-assembled-schema" on-no-match="shallow-skip" use-accumulators="unique-ids"/>
 
   <accumulator name="unique-ids" as="map(xs:string, xs:boolean)" initial-value="map{}">
@@ -1088,5 +1137,7 @@ SOFTWARE.
       </choose>
     </for-each>
   </template>
+
+  <!-- END Mode schxslt:check-assembled-schema -->
 
 </transform>
