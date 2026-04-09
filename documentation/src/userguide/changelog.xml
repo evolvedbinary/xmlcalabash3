@@ -13,6 +13,37 @@ See the commits and pull requests on
 finer detail.</para>
 
 <revhistory>
+<revision xml:id="r3044">
+<revnumber>3.0.44</revnumber>
+<date>2026-04-09</date>
+<revdescription>
+<itemizedlist spacing="compact">
+<listitem><para>Upgraded to SchXslt2 version 1.10.2 which fixes a bug
+exercised by the test suites.
+</para></listitem>
+<listitem><para>Closed <cbissue number="647"/>. Avoid an index-out-of-bounds
+exception when decorated output is produced and a pipeline produces no output
+on a port.
+</para></listitem>
+<listitem><para>Fixed the bug where the <tag class="attribute">cx:assertions</tag>
+attribute was reported as unsupported on atomic steps.
+</para></listitem>
+<listitem><para>Implemented the “ignore invalid URIs” extension feature.
+This feature enables a non-conformant mode where invalid URIs (such as “<literal>%gg</literal>”
+appearing in an <tag class="attribute">xml:base</tag> attribute) are ignored
+rather than raising an error. It should be used only when absolutely
+necessary.</para>
+<para>(As a purely practical matter, formatting the documents in the XProc test
+suite without this feature is nearly impossible because there are tests that
+intentionally contain invalid URIs to demonstrate that the processor will fail
+when it encounters them.)
+</para></listitem>
+<listitem><para>Updated the project submodules to load the XProc test suite
+from the Codeberg repository.
+</para></listitem>
+</itemizedlist>
+</revdescription>
+</revision>
 <revision xml:id="r3043">
 <revnumber>3.0.43</revnumber>
 <date>2026-04-06</date>
