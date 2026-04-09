@@ -39,7 +39,7 @@ abstract class AbstractAtomicStep(): XProcStep {
     private lateinit var _stepParams: RuntimeStepParameters
     internal val _options = mutableMapOf<QName, LazyValue>()
     internal val _queues: ConcurrentMap<String, List<XProcDocument>> = ConcurrentHashMap()
-    protected var expectedExtensionAttributes = mutableSetOf<QName>()
+    protected var expectedExtensionAttributes = mutableSetOf<QName>(NsCx.assertions)
 
     val stepParams: RuntimeStepParameters
         get() = _stepParams
