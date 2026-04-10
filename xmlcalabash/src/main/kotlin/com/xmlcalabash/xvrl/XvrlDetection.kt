@@ -17,13 +17,16 @@ class XvrlDetection private constructor(stepConfig: StepConfiguration): XvrlElem
         val _severity = QName("severity")
 
         fun newInstance(stepConfig: StepConfiguration, severity: String, code: String? = null, attr: Map<QName,String?> = emptyMap()): XvrlDetection {
-            if (severity !in listOf("info", "warning", "error", "fatal-error", "unspecified")) {
+            if (severity !in listOf("info", "warning", "error", "fatal", "fatal-error", "unspecified")) {
                 throw stepConfig.exception(XProcError.xiXvrlInvalidSeverity(severity))
             }
 
             val detection = XvrlDetection(stepConfig)
             detection.commonAttributes(attr)
-            detection.setAttribute(_severity, severity)
+
+            // SVRL "fatal" is a synonym for XVRL "fatal-error"
+            detection.setAttribute(_severity, if (severity == "fatal") "fatal-error" else severity)
+
             code?.let { detection.setAttribute(Ns.code, it) }
             return detection
         }
