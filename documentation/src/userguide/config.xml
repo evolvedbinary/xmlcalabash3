@@ -117,6 +117,14 @@ configuration file</link>. This file will be loaded to initialize the Saxon conf
 </listitem>
 </varlistentry>
 
+<varlistentry><term><tag class="attribute">stacktrace</tag> (boolean)</term>
+<listitem>
+<para>If the stacktrace option is enabled, a stack trace (really a “step trace”) will
+be printed if the pipeline fails at runtime. This trace will show the step that
+failed and its ancestors. (To get a JVM stack trace, use the <option>--debug</option> option.)</para>
+</listitem>
+</varlistentry>
+
 <varlistentry><term><tag class="attribute">try-namespaces</tag> (boolean)</term>
 <listitem>
 <para>If true, <link linkend="implicit-validation">implicit validation</link> will

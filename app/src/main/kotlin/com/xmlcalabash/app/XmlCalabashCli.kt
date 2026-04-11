@@ -665,7 +665,7 @@ class XmlCalabashCli private constructor() {
             explainError(errorExplanation, error)
         }
 
-        if (verbosity <= Verbosity.DEBUG || builder.stacktrace.getOrDefault()!!) {
+        if (verbosity <= Verbosity.DEBUG) {
             errors[0].printStackTrace()
             if (errors[0].cause != null && errors[0].cause != errors[0]) {
                 errors[0].cause!!.printStackTrace()
