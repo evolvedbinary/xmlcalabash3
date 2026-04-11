@@ -520,7 +520,7 @@ the <option linkend="cc.xml-calabash">piped-io</option> configuration setting.</
 <listitem>
 <para>If the stacktrace option is enabled, a stack trace (really a “step trace”) will
 be printed if the pipeline fails at runtime. This trace will show the step that
-failed and its ancestors.</para>
+failed and its ancestors. (To get a JVM stack trace, use the <option>--debug</option> option.)</para>
 </listitem>
 </varlistentry>
 

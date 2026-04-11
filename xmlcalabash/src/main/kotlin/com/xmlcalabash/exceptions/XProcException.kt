@@ -11,12 +11,14 @@ class XProcException(val error: XProcError, cause: Throwable? = null): RuntimeEx
     internal var elaborated = false
 
     internal fun elaborate(type: QName, name: String, location: Location) {
+        // Always update the stack trace, even if we've otherwise elaborated this error
+        error.updateAt(type, name)
+
         if (elaborated) {
             return
         }
         elaborated = true
 
-        error.updateAt(type, name)
         if (error.errorLocation == Location.NULL) {
             error.updateAt(location)
         }
