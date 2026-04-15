@@ -3,7 +3,7 @@ package com.xmlcalabash.ext.existdb
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.io.DocumentWriter
-import com.xmlcalabash.io.InternetProtocolRequest
+import com.xmlcalabash.io.DefaultInternetProtocolRequest
 import com.xmlcalabash.io.MediaType
 import com.xmlcalabash.namespace.Ns
 import com.xmlcalabash.namespace.NsCx
@@ -217,7 +217,7 @@ class XQueryExistDbProcessor(): XQueryProcessor {
         val queryXml = builder.result
         stepConfig.debug { "eXist dabase query: ${queryXml}"}
 
-        val request = InternetProtocolRequest(stepConfig, URI(databaseUri))
+        val request = DefaultInternetProtocolRequest(stepConfig, URI(databaseUri))
         if (username != null) {
             request.authentication("basic", username, password!!, true)
         }

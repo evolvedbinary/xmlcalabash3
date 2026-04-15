@@ -148,6 +148,10 @@ publishing {
             id = "ndw"
             name = "Norm Tovey-Walsh"
           }
+          developer {
+            id = "adamretter"
+            name = "Adam Retter"
+          }
         }
       }
 

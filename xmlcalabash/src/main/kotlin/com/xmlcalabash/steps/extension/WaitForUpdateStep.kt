@@ -1,7 +1,7 @@
 package com.xmlcalabash.steps.extension
 
 import com.xmlcalabash.exceptions.XProcError
-import com.xmlcalabash.io.InternetProtocolRequest
+import com.xmlcalabash.io.DefaultInternetProtocolRequest
 import com.xmlcalabash.namespace.Ns
 import com.xmlcalabash.steps.AbstractAtomicStep
 import com.xmlcalabash.util.DurationUtils
@@ -69,7 +69,7 @@ class WaitForUpdateStep(): AbstractAtomicStep() {
     }
 
     private fun waitForHttp() {
-        val request = InternetProtocolRequest(stepConfig, href)
+        val request = DefaultInternetProtocolRequest(stepConfig, href)
         var response = request.execute("head")
         val exists = response.statusCode != 404
         val etag = response.headers["etag"]?.value?.toString()

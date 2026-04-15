@@ -2,49 +2,23 @@ package com.xmlcalabash.ext.elemental
 
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
-import com.xmlcalabash.io.DocumentWriter
-import com.xmlcalabash.io.InternetProtocolRequest
-import com.xmlcalabash.io.MediaType
 import com.xmlcalabash.namespace.Ns
 import com.xmlcalabash.namespace.NsCx
 import com.xmlcalabash.runtime.XProcStepConfiguration
 import com.xmlcalabash.runtime.api.Receiver
 import com.xmlcalabash.runtime.parameters.RuntimeStepParameters
 import com.xmlcalabash.spi.XQueryProcessor
-import com.xmlcalabash.util.SaxonTreeBuilder
 import net.sf.saxon.om.NamespaceUri
 import net.sf.saxon.s9api.QName
-import net.sf.saxon.s9api.XdmArray
-import net.sf.saxon.s9api.XdmAtomicValue
 import net.sf.saxon.s9api.XdmMap
-import net.sf.saxon.s9api.XdmNode
 import net.sf.saxon.s9api.XdmValue
-import java.io.ByteArrayOutputStream
-import java.net.URI
-import java.nio.charset.StandardCharsets
 
-class XQueryElementalProcessor(): XQueryProcessor {
+class XQueryElementalProcessor: XQueryProcessor {
     companion object {
         val _databaseUri = QName("database-uri")
         val existns = NamespaceUri.of("http://exist.sourceforge.net/NS/exist")
         val cx_databaseUri = QName(NsCx.namespace, "cx:database-uri")
-
         private val serialns = NamespaceUri.of("http://exist-db.org/xquery/types/serialized")
-        private val exist_query = QName(existns, "query")
-        private val exist_text = QName(existns, "text")
-        private val exist_variables = QName(existns, "variables")
-        private val exist_variable = QName(existns, "variable")
-        private val exist_qname = QName(existns, "qname")
-        private val exist_prefix = QName(existns, "prefix")
-        private val exist_localname = QName(existns, "localname")
-        private val exist_namespace = QName(existns, "namespace")
-        private val serial_sequence = QName(serialns, "sequence")
-        private val serial_value = QName(serialns, "value")
-        private val exist_properties = QName(existns, "properties")
-        private val exist_property = QName(existns, "property")
-        private val _cache = QName("cache")
-        private val _wrap = QName("wrap")
-        private val _typed = QName("typed")
     }
 
     lateinit var stepConfig: XProcStepConfiguration
@@ -84,181 +58,32 @@ class XQueryElementalProcessor(): XQueryProcessor {
         requestTimeout = (parameters[NsCx.requestTimeout]?.underlyingValue?.stringValue ?: config[Ns.requestTimeout])?.toInt()
         responseTimeout = (parameters[NsCx.responseTimeout]?.underlyingValue?.stringValue ?: config[Ns.responseTimeout])?.toInt()
 
+        val elementalServer: ElementalServer
+
         if (databaseUri == null) {
             throw stepConfig.exception(XProcError.xdStepFailed("No database-uri configured for Elemental"))
+        } else {
+            elementalServer = RemoteElementalServer(databaseUri!!, requestTimeout, responseTimeout)
         }
 
-        remoteQuery()
-    }
-
-    private fun remoteQuery() {
-        val builder = SaxonTreeBuilder(stepConfig)
-
-        builder.startDocument(null)
-
-        // Create XML for Query
-        val queryParameters = extractQueryParametersFromConfig()
-        builder.addStartElement(exist_query, stepConfig.typeUtils.attributeMap(queryParameters))
-
-        // Create XML for XQuery content
-        builder.addStartElement(exist_text)
-        builder.addText(query)
-        builder.addEndElement()
-
-        // Create XML for XQuery Variable bindings
-        var startedVariables = false
-        for ((qname, value) in parameters) {
-            val skip = qname.namespaceUri == NsCx.namespace
-                    || qname.namespaceUri == existns
-
-            if (!skip) {
-                if (!startedVariables) {
-                    builder.addStartElement(exist_variables)
-                    startedVariables = true
-                }
-                builder.addStartElement(exist_variable)
-
-                builder.addStartElement(exist_qname)
-                if (qname.prefix.isNotEmpty()) {
-                    builder.addStartElement(exist_prefix)
-                    builder.addText(qname.prefix)
-                    builder.addEndElement()
-                }
-                builder.addStartElement(exist_localname)
-                builder.addText(qname.localName)
-                builder.addEndElement()
-                if (qname.namespaceUri != NamespaceUri.NULL) {
-                    builder.addStartElement(exist_namespace)
-                    builder.addText(qname.namespaceUri.toString())
-                    builder.addEndElement()
-                }
-                builder.addEndElement()
-
-                // FIXME: handle sequence and type attribute
-                builder.addStartElement(serial_sequence)
-                for (item in value.iterator()) {
-                    when (item) {
-                        is XdmAtomicValue -> {
-                            val type = "xs:${item.primitiveTypeName.localName}"
-                            builder.addStartElement(serial_value, stepConfig.typeUtils.attributeMap(mapOf(Ns.type to type)))
-                            builder.addText(item.underlyingValue.stringValue)
-                            builder.addEndElement()
-                        }
-                        is XdmNode -> {
-                            val type = "document-node()"
-                            builder.addStartElement(serial_value, stepConfig.typeUtils.attributeMap(mapOf(Ns.type to type)))
-                            val doc = XProcDocument.ofValue(item, stepConfig, MediaType.XML)
-                            val baos = ByteArrayOutputStream()
-                            val writer = DocumentWriter(doc, baos)
-                            writer.write()
-                            builder.addText(baos.toString(StandardCharsets.UTF_8))
-                            builder.addEndElement()
-                        }
-                        is XdmMap, is XdmArray -> {
-                            val type = if (item is XdmMap) { "map(*)" } else { "array(*)" }
-                            builder.addStartElement(serial_value, stepConfig.typeUtils.attributeMap(mapOf(Ns.type to type)))
-                            val doc = XProcDocument.ofValue(item, stepConfig, MediaType.JSON)
-                            val baos = ByteArrayOutputStream()
-                            val writer = DocumentWriter(doc, baos)
-                            writer.write()
-                            builder.addText(baos.toString(StandardCharsets.UTF_8))
-                            builder.addEndElement()
-                        }
-                        else -> {
-                            val type = "xs:untyped"
-                            builder.addStartElement(serial_value, stepConfig.typeUtils.attributeMap(mapOf(Ns.type to type)))
-                            builder.addText(item.underlyingValue.stringValue)
-                            builder.addEndElement()
-                        }
-                    }
-                }
-                builder.addEndElement()
-
-                builder.addEndElement()
-            }
-        }
-        if (startedVariables) {
-            builder.addEndElement()
-        }
-
-        // Create XML for Properties
         val queryProperties = extractQueryPropertiesFromConfig()
-        if (queryProperties.isNotEmpty()) {
-            builder.addStartElement(exist_properties)
-            for ((name, value) in queryProperties) {
-                builder.addStartElement(exist_property, stepConfig.typeUtils.attributeMap(mapOf(
-                    QName(name.localName) to value
-                )))
-                builder.addEndElement()
-            }
-            builder.addEndElement()
-        }
+        val queryVariables = extractQueryVariablesFromConfig()
 
-        builder.addEndElement()
-        builder.endDocument()
-
-        val queryXml = builder.result
-        stepConfig.debug { "Elemental database query: ${queryXml}"}
-
-        val request = InternetProtocolRequest(stepConfig, URI(databaseUri))
-        if (username != null) {
-            request.authentication("basic", username!!, password!!, true)
-        }
-        if (requestTimeout != null) {
-            request.requestTimeout = requestTimeout
-        }
-        if (responseTimeout != null) {
-            request.responseTimeout = responseTimeout
-        }
-        request.addSource(XProcDocument.ofXml(queryXml, stepConfig,MediaType.XML))
+        val queryResult: ElementalServer.QueryResult
         try {
-            val response = request.execute("post")
-            if (response.statusCode == 200) {
-                for (doc in response.response) {
-                    receiver.output("result", doc)
-                }
-            } else {
-                throw stepConfig.exception(XProcError.xdStepFailed(response.response.first().value.toString()))
-            }
+            queryResult = elementalServer.query(stepConfig, this.query, false, username!!, password!!, queryProperties, queryVariables)
         } catch (ex: Exception) {
             throw stepConfig.exception(XProcError.xdStepFailed(ex.message ?: ""), ex)
         }
-    }
 
-    /**
-     * Extract parameters from the config that control how the XQuery is executed and serialized.
-     *
-     * @return A Map of Parameter names to values.
-     */
-    private fun extractQueryParametersFromConfig() : Map<QName, String> {
-        val queryParameters = mutableMapOf<QName, String>()
+        // TODO(AR) figure out how to report compilation, execution, and unmarshalling times back to the step caller - add additional output ports perhaps?
+//        receiver.output("compilation-time", queryResult.compilationTime)
+//        receiver.output("execution-time", queryResult.executionTime)
+//        receiver.output("umarshalling-time", queryResult.umarshallingTime)
 
-        for ((name, value) in config) {
-            if (name.namespaceUri == existns) {
-                queryParameters[QName(name.localName)] = value
-            }
+        for (resultDoc in queryResult.result) {
+            receiver.output("result", resultDoc)
         }
-
-        if (NsCx.query in parameters) {
-            val qparam = stepConfig.typeUtils.forceQNameKeys(parameters[NsCx.query] as XdmMap)
-            for ((name, value) in stepConfig.typeUtils.asMap(qparam)) {
-                queryParameters[name] = value.underlyingValue.stringValue
-            }
-        }
-
-        if (_wrap !in queryParameters) {
-            if (queryParameters[_cache] == "yes") {
-                queryParameters[_wrap] = "yes"
-            } else {
-                queryParameters[_wrap] = "no"
-            }
-        }
-
-        if (_typed !in queryParameters) {
-            queryParameters[_typed] = "no"
-        }
-
-        return queryParameters.toMap()
     }
 
     /**
@@ -283,6 +108,10 @@ class XQueryElementalProcessor(): XQueryProcessor {
         }
 
         return queryProperties.toMap();
+    }
+
+    private fun extractQueryVariablesFromConfig() : Map <QName, XdmValue> {
+        return parameters.filterKeys { qname ->  qname.namespaceUri != NsCx.namespace && qname.namespaceUri != existns }
     }
 
     override fun reset() {

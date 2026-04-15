@@ -89,7 +89,7 @@ class DocumentLoader(val stepConfig: StepConfiguration,
 
         if (absURI.scheme == "http" || absURI.scheme == "https") {
             val start = System.nanoTime()
-            val req = InternetProtocolRequest(stepConfig, absURI)
+            val req = DefaultInternetProtocolRequest(stepConfig, absURI)
             req.overrideContentType = documentProperties.contentType
             val resp = req.execute("GET")
 

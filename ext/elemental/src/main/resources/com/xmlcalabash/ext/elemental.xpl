@@ -12,6 +12,8 @@
     <p:option name="parameters" as="map(xs:QName,item()*)?"/>
     <p:option name="version" as="xs:string?"/>
     <p:option name="database-uri" as="xs:anyURI?"/>
+    <p:option name="request-timeout" as="xs:integer?"/>
+    <p:option name="response-timeout" as="xs:integer?"/>
     <p:option name="username" as="xs:string?"/>
     <p:option name="password" as="xs:string?"/>
     <p:option name="query-parameters" as="map(xs:QName, item()*)?"/>

@@ -5,7 +5,7 @@ import com.xmlcalabash.documents.DocumentProperties
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.exceptions.XProcException
-import com.xmlcalabash.io.InternetProtocolRequest
+import com.xmlcalabash.io.DefaultInternetProtocolRequest
 import com.xmlcalabash.io.DocumentConverter
 import com.xmlcalabash.namespace.Ns
 import com.xmlcalabash.namespace.NsErr
@@ -126,7 +126,7 @@ open class HttpRequestStep(): AbstractAtomicStep() {
     }
 
     private fun doHttp() {
-        val request = InternetProtocolRequest(stepConfig, href)
+        val request = DefaultInternetProtocolRequest(stepConfig, href)
         request.parameters = parameters
         request.requestTimeout = timeout?.times(1000)
         request.responseTimeout = timeout?.times(1000)
