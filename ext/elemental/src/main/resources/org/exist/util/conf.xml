@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Elemental configuration optimized for use within XML Calabash
+-->
+<exist>
+
+    <db-connection cacheSize="256M" checkMaxCacheSize="true" collectionCache="64M"
+                   database="native" files="../data" pageSize="4096" nodesBuffer="1000"
+                   cacheShrinkThreshold="10000" minDiskSpace="1024M"
+                   posix-chown-restricted="true" preserve-on-copy="false">
+
+        <startup>
+            <triggers>
+                <trigger class="org.exist.security.BouncyCastleJceProviderStartupTrigger"/>
+                <trigger class="org.exist.protocolhandler.URLStreamHandlerStartupTrigger">
+                    <parameter name="mode" value="disk"/>
+                </trigger>
+            </triggers>
+        </startup>
+
+        <pool max="20" min="1" sync-period="120000" wait-before-shutdown="120000"/>
+
+        <query-pool max-stack-size="64" size="128"/>
+
+        <recovery enabled="no" group-commit="no" journal-dir="../data"
+                  size="100M" sync-on-commit="no" force-restart="no" consistency-check="no"/>
+
+        <watchdog output-size-limit="1000000" query-timeout="-1"/>
+
+    </db-connection>
+
+    <lock-manager upgrade-check="false" warn-wait-on-read-for-write="false" paths-multi-writer="false">
+        <lock-table disabled="true" trace-stack-depth="0"/>
+        <document use-path-locks="false"/>
+    </lock-manager>
+
+    <repository root="/db/apps"/>
+
+    <binary-manager>
+        <cache class="org.exist.util.io.FileFilterInputStreamCache"/>
+    </binary-manager>
+
+    <indexer caseSensitive="yes" index-depth="5" preserve-whitespace-mixed-content="no" suppress-whitespace="none">
+        <modules>
+            <module id="ngram-index" file="ngram.dbx" n="3" class="org.exist.indexing.ngram.NGramIndex"/>
+            <module id="lucene-index" buffer="32" class="org.exist.indexing.lucene.LuceneIndex" />
+            <module id="range-index" class="org.exist.indexing.range.RangeIndex"/>
+        </modules>
+    </indexer>
+
+    <parser>
+        <xml>
+            <features>
+                <feature name="http://xml.org/sax/features/external-general-entities" value="false"/>
+                <feature name="http://xml.org/sax/features/external-parameter-entities" value="false"/>
+                <feature name="http://javax.xml.XMLConstants/feature/secure-processing" value="true"/>
+            </features>
+        </xml>
+
+        <html-to-xml class="org.codelibs.nekohtml.parsers.SAXParser">
+            <properties>
+                <property name="http://cyberneko.org/html/properties/names/elems" value="match"/>
+                <property name="http://cyberneko.org/html/properties/names/attrs" value="no-change"/>
+            </properties>
+        </html-to-xml>
+    </parser>
+
+    <serializer add-exist-id="none" compress-output="no"
+                omit-xml-declaration="yes" omit-original-xml-declaration="no"
+                output-doctype="yes" enable-xinclude="yes"
+                enable-xsl="no" indent="yes" match-tagging-attributes="no"
+                match-tagging-elements="no"/>
+
+    <transformer class="net.sf.saxon.TransformerFactoryImpl" caching="yes">
+        <attribute name="http://saxon.sf.net/feature/version-warning" value="false" type="boolean"/>
+    </transformer>
+
+    <validation mode="no">
+        <entity-resolver>
+            <catalog uri="${WEBAPP_HOME}/WEB-INF/catalog.xml"/>
+        </entity-resolver>
+    </validation>
+
+    <xquery enable-java-binding="no" disable-deprecated-functions="no"
+            enable-query-rewriting="yes" backwardCompatible="no"
+            enforce-index-use="strict" raise-error-on-failed-retrieval="no">
+        
+        <builtin-modules>
+            <module uri="http://www.w3.org/2005/xpath-functions/map"  class="org.exist.xquery.functions.map.MapModule"/>
+            <module uri="http://www.w3.org/2005/xpath-functions/math" class="org.exist.xquery.functions.math.MathModule"/>
+            <module uri="http://www.w3.org/2005/xpath-functions/array" class="org.exist.xquery.functions.array.ArrayModule"/>
+            <module uri="http://exist-db.org/xquery/backups" class="org.exist.backup.xquery.BackupModule"/>
+            <module uri="http://exist-db.org/xquery/inspection" class="org.exist.xquery.functions.inspect.InspectionModule"/>
+            <module uri="http://exist-db.org/xquery/kwic" src="resource:org/exist/xquery/lib/kwic.xql"/>
+            <module uri="http://exist-db.org/xquery/securitymanager" class="org.exist.xquery.functions.securitymanager.SecurityManagerModule"/>
+            <module uri="http://exist-db.org/xquery/system" class="org.exist.xquery.functions.system.SystemModule"/>
+            <module uri="http://exist-db.org/xquery/testing" src="resource:org/exist/xquery/lib/test.xq"/>
+            <module uri="http://exist-db.org/xquery/transform" class="org.exist.xquery.functions.transform.TransformModule"/>
+            <module uri="http://exist-db.org/xquery/util" class="org.exist.xquery.functions.util.UtilModule">
+                <parameter name="evalDisabled" value="true"/>
+            </module>
+            <module uri="http://exist-db.org/xquery/validation" class="org.exist.xquery.functions.validation.ValidationModule"/>
+            <module uri="http://exist-db.org/xquery/xmldb" class="org.exist.xquery.functions.xmldb.XMLDBModule">
+                <parameter name="allowAnyUri" value="false"/>
+            </module>
+            <module uri="http://exist-db.org/xquery/ngram"  class="org.exist.xquery.modules.ngram.NGramModule"/>
+            <module uri="http://exist-db.org/xquery/lucene" class="org.exist.xquery.modules.lucene.LuceneModule"/>
+            <module uri="http://exist-db.org/xquery/range"  class="org.exist.xquery.modules.range.RangeIndexModule"/>
+            <module uri="http://exist-db.org/xquery/contentextraction"  class="org.exist.contentextraction.xquery.ContentExtractionModule"/>
+            <module uri="http://expath.org/ns/http-client" class="org.expath.exist.HttpClientModule"/>
+            <module uri="http://expath.org/ns/zip" class="org.expath.exist.ZipModule"/>
+            <module uri="http://exist-db.org/xquery/xqdoc" class="org.exist.xqdoc.xquery.XQDocModule"/>
+            <module uri="http://exist-db.org/xquery/cache" class="org.exist.xquery.modules.cache.CacheModule">
+                <parameter name="enableLazyCreation" value="true"/>
+                <parameter name="lazy.maximumSize" value="128"/>
+            </module>
+            <module uri="http://exist-db.org/xquery/compression" class="org.exist.xquery.modules.compression.CompressionModule"/>
+            <module uri="http://exist-db.org/xquery/counter" class="org.exist.xquery.modules.counter.CounterModule"/>
+            <module uri="http://exist-db.org/xquery/cqlparser" class="org.exist.xquery.modules.cqlparser.CQLParserModule"/>
+            <module uri="http://exist-db.org/xquery/repo" class="org.exist.xquery.modules.expathrepo.ExpathPackageModule"/>
+            <module uri="http://exist-db.org/xquery/file" class="org.exist.xquery.modules.file.FileModule"/>
+            <module uri="http://exist-db.org/xquery/image" class="org.exist.xquery.modules.image.ImageModule"/>
+            <module uri="http://exist-db.org/xquery/jndi" class="org.exist.xquery.modules.jndi.JNDIModule"/>
+            <module uri="http://exist-db.org/xquery/mail" class="org.exist.xquery.modules.mail.MailModule"/>
+            <module uri="http://exist-db.org/xquery/process" class="org.exist.xquery.modules.process.ProcessModule"/>
+            <module uri="http://exist-db.org/xquery/scheduler" class="org.exist.xquery.modules.scheduler.SchedulerModule"/>
+            <module uri="http://exist-db.org/xquery/simple-ql" class="org.exist.xquery.modules.simpleql.SimpleQLModule"/>
+            <module uri="http://exist-db.org/xquery/sql" class="org.exist.xquery.modules.sql.SQLModule"/>
+            <module uri="http://exist-db.org/xquery/xmldiff" class="org.exist.xquery.modules.xmldiff.XmlDiffModule"/>
+            <module uri="http://exist-db.org/xquery/xslfo" class="org.exist.xquery.modules.xslfo.XSLFOModule">
+                <parameter name="processorAdapter" value="org.exist.xquery.modules.xslfo.ApacheFopProcessorAdapter"/>
+            </module>
+        </builtin-modules>
+    </xquery>
+
+    <xupdate allowed-fragmentation="50000" enable-consistency-checks="no"/>
+
+    <saxon configuration-file="saxon-config.xml"/>
+
+</exist>

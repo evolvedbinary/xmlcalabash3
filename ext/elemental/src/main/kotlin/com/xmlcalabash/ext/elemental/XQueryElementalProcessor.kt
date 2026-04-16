@@ -61,7 +61,7 @@ class XQueryElementalProcessor: XQueryProcessor {
         val elementalServer: ElementalServer
 
         if (databaseUri == null) {
-            throw stepConfig.exception(XProcError.xdStepFailed("No database-uri configured for Elemental"))
+            elementalServer = LocalElementalServer() // TODO(AR) pass parameters for Elemental configuration properties and config file?
         } else {
             elementalServer = RemoteElementalServer(databaseUri!!, requestTimeout, responseTimeout)
         }

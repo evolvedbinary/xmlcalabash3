@@ -42,6 +42,8 @@ class SmokeTestElemental {
 
     @ParameterizedTest
     @ValueSource(strings = [
+        "elemental-local-cx",
+        "elemental-local-q",
         "elemental-remote-cx",
         "elemental-remote-q"
     ])
