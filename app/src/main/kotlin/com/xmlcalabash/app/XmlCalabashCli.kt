@@ -73,18 +73,17 @@ class XmlCalabashCli private constructor() {
 
         try {
             builder.update(CommandLine.parse(args))
+            loadConfiguration(builder.configurationFile.getOrDefault())?.let { builder.update(it) }
+
+            val resolver = XMLResolver()
+            resolver.configuration.setFeature(ResolverFeature.CLASSPATH_CATALOGS, true)
+            builder.xmlResolver.set(resolver)
+
+            setupDefaultMessaging()
         } catch (ex: XProcException) {
             setupDefaultMessaging()
             abort(cliExplain, ex)
         }
-
-        loadConfiguration(builder.configurationFile.getOrDefault())?.let { builder.update(it) }
-
-        val resolver = XMLResolver()
-        resolver.configuration.setFeature(ResolverFeature.CLASSPATH_CATALOGS, true)
-        builder.xmlResolver.set(resolver)
-
-        setupDefaultMessaging()
 
         var tstart: Long = 0
         var tend: Long = 0
