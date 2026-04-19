@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<t:test expected="pass"
+        xmlns:t="http://xproc.org/ns/testsuite/3.0">
+  <t:info>
+    <t:title>issue-cb-661-001</t:title>
+    <t:revision-history>
+      <t:revision>
+        <t:date>2026-04-19</t:date>
+        <t:author>
+          <t:name>Norm Tovey-Walsh</t:name>
+        </t:author>
+        <t:description xmlns="http://www.w3.org/1999/xhtml">
+          <p>Created test.</p>
+        </t:description>
+      </t:revision>
+    </t:revision-history>
+  </t:info>
+  <t:description xmlns="http://www.w3.org/1999/xhtml">
+    <p>Tests that the “weldedShut” bug is fixed.</p>
+  </t:description>
+<t:pipeline>
+
+<p:declare-step version="3.1"
+              xmlns:mySteps="http://www.example.com/mySteps"
+              xmlns:p="http://www.w3.org/ns/xproc">
+  <p:input port="source">
+    <p:inline>
+      <xslt>
+        <input>../documents/document.xml</input>
+        <stylesheet>../documents/identity.xsl</stylesheet>
+      </xslt>
+    </p:inline>
+  </p:input>
+  <p:output port="result" />
+
+  <p:declare-step type="mySteps:Transform" name="myTransformStep">
+    <p:input port="source" primary="true" sequence="true" />
+    <p:input port="stylesheet" primary="false" />
+    <p:output port="result" primary="true" />
+    <p:option name="template-name" /><!-- Not used -->
+
+    <p:xslt name="myXsltTransform">
+      <p:with-input port="stylesheet" pipe="stylesheet" />
+    </p:xslt>
+  </p:declare-step>
+
+  <p:choose name="transform">
+    <p:when test="xslt/input">
+      <mySteps:Transform p:message="+++++++ With input" name="INWHEN">
+        <p:with-input port="source"
+                      href="{xslt/input}" />
+        <p:with-input port="stylesheet" href="{xslt/stylesheet}"/>
+      </mySteps:Transform>
+    </p:when>
+    <p:otherwise>
+      <!-- Use named template -->
+      <mySteps:Transform p:message="+++++++ Empty input" name="INOTHER">
+        <p:with-input port="source">
+          <p:empty/>
+        </p:with-input>
+        <p:with-input port="stylesheet" href="{xslt/stylesheet}"/>
+        <p:with-option name="template-name" select="xslt/@template" />
+      </mySteps:Transform>
+    </p:otherwise>
+  </p:choose>
+</p:declare-step>
+
+</t:pipeline>
+  <t:schematron>
+    <s:schema queryBinding="xslt2"
+              xmlns:s="http://purl.oclc.org/dsdl/schematron">
+      <s:pattern>
+        <s:rule context="/">
+          <s:assert test="document">The document root is not correct.</s:assert>
+        </s:rule>
+      </s:pattern>
+    </s:schema>
+  </t:schematron>
+</t:test>

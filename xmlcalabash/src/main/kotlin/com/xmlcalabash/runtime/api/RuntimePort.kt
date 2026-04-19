@@ -9,16 +9,13 @@ open class RuntimePort(val name: String, val unbound: Boolean, val primary: Bool
     val assertions = mutableListOf<XdmNode>()
     val defaultBindings = mutableListOf<ConnectionInstruction>()
     var serialization = initialSerialization
-    internal var weldedShut = false
 
     constructor(port: RuntimePort): this(port.name, port.unbound, port.primary, port.sequence, port.contentTypes, port.serialization) {
         assertions.addAll(port.assertions)
         defaultBindings.addAll(port.defaultBindings)
-        weldedShut = port.weldedShut
     }
 
     constructor(port: RuntimeOption): this(port.name.eqName, true, false, true, emptyList(), XdmMap()) {
-        weldedShut = false
     }
 
     override fun toString(): String {

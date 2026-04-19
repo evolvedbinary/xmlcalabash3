@@ -87,7 +87,7 @@ class CompoundStepModel(runtime: XProcRuntime, model: CompoundModel): StepModel(
                 pinputs.putAll(inputs)
                 if (userStep != null) {
                     for ((name, port) in userStep!!.inputs) {
-                        if (name !in pinputs && !port.weldedShut) {
+                        if (name !in pinputs) {
                             pinputs[name] = RuntimePort(port)
                         }
                     }

@@ -45,26 +45,7 @@ class Graph private constructor(val environment: GraphEnvironment) {
         addJoiners()
         patchEdges()
 
-        // Discard empty nodes, discard unused source inputs on p:inline.
-        // Weld the ports shut.
-        val discardNodes = mutableListOf<Model>()
-        val discardEdges = mutableListOf<Edge>()
-        for (edge in edges.filter { it.from.step.instructionType == NsCx.empty }) {
-            val to = edge.to.inputs[edge.inputPort]!!
-            to.weldedShut = true
-            // Run is ... special
-            if (to.parent is CompoundModel) {
-                if (to.parent.step.instructionType == NsP.run) {
-                    // I'm dubious about this, but run is ... special
-                    to.parent.head.outputs[edge.inputPort]!!.weldedShut = true
-
-                } else {
-                    to.parent.head.inputs[edge.inputPort]!!.weldedShut = true
-                }
-            }
-            discardNodes.add(edge.from)
-            discardEdges.add(edge)
-        }
+        // Discard unused source inputs on p:inline.
         for (model in models.filter { it.step.instructionType == NsCx.inline }) {
             var found = false
             for (edge in edges.filter { it.to.step.instructionType == NsCx.inline}) {
@@ -76,12 +57,6 @@ class Graph private constructor(val environment: GraphEnvironment) {
             if (!found) {
                 model.inputs.clear()
             }
-        }
-        for (node in discardNodes) {
-            models.remove(node)
-        }
-        for (edge in discardEdges) {
-            edges.remove(edge)
         }
 
         for (model in models.filter { it !== node}) {
@@ -123,9 +98,8 @@ class Graph private constructor(val environment: GraphEnvironment) {
                 }
                 else -> AtomicModel(this, node, child as AtomicStepInstruction, modelName(child.name))
             }
-            if (cnode.step.instructionType != NsCx.empty) {
-                node._children.add(cnode)
-            }
+
+            node._children.add(cnode)
             instructionMap[child] = cnode
 
             if (cnode is CompoundModel) {

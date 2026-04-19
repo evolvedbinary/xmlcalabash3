@@ -24,7 +24,6 @@ class CompoundStepHead(config: XProcStepConfiguration, val parent: CompoundStep,
     val defaultInputs = step.defaultInputs
     internal val openPorts = mutableSetOf<String>()
     internal val unboundInputs = mutableSetOf<String>()
-    internal val weldedPorts = mutableSetOf<String>()
     private var message: XdmValue? = null
     internal var showMessage = true
     internal val _cache: ConcurrentMap<String, List<XProcDocument>> = ConcurrentHashMap()
@@ -44,21 +43,13 @@ class CompoundStepHead(config: XProcStepConfiguration, val parent: CompoundStep,
         val sb = StringBuilder()
         // Inputs = step inputs that aren't passed on to the subpipeline; !source on p:for-each, for example
         for ((name, port) in params.inputs) {
-            if (port.weldedShut) {
-                weldedPorts.add(name)
-            } else {
-                sb.append(port.name).append(" ")
-                openPorts.add(name)
-            }
+            sb.append(port.name).append(" ")
+            openPorts.add(name)
         }
         // Outputs = step inputs that are passed on to the subpipeline, caches and current on p:for-each, for example
         for ((name, port) in params.outputs) {
-            if (port.weldedShut) {
-                weldedPorts.add(name)
-            } else {
-                sb.append(port.name).append(" ")
-                openPorts.add(name)
-            }
+            sb.append(port.name).append(" ")
+            openPorts.add(name)
         }
 
         // Also wait for any bindings that are expected
@@ -216,14 +207,6 @@ class CompoundStepHead(config: XProcStepConfiguration, val parent: CompoundStep,
 
         // Work out what should appear on each input...
         for ((port, output) in params.outputs) {
-            if (output.weldedShut) {
-                val error = checkInputPort(port, output)
-                if (error != null) {
-                    inputErrors.add(error)
-                }
-                continue
-            }
-
             if (port !in cache) {
                 if (port in defaultInputs && port in unboundInputs) {
                     val default = defaultInputs[port]!!
@@ -284,10 +267,6 @@ class CompoundStepHead(config: XProcStepConfiguration, val parent: CompoundStep,
         }
 
         for ((port, output) in params.outputs) {
-            if (output.weldedShut) {
-                continue
-            }
-
             val documents = mutableListOf<XProcDocument>()
             if (cache[port] != null) {
                 if (params.outputs[port]?.primary == true) {
@@ -363,8 +342,8 @@ class CompoundStepHead(config: XProcStepConfiguration, val parent: CompoundStep,
         super.reset()
 
         openPorts.clear()
-        openPorts.addAll(params.inputs.keys.filter { it !in weldedPorts })
-        openPorts.addAll(params.outputs.keys.filter { it !in weldedPorts })
+        openPorts.addAll(params.inputs.keys)
+        openPorts.addAll(params.outputs.keys)
 
         _cache.clear()
         inputCount.clear()

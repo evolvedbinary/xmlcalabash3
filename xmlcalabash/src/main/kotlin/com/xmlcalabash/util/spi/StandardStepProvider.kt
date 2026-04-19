@@ -135,6 +135,7 @@ class StandardStepProvider: AtomicStepManager, AtomicStepProvider {
         NsCx.option             to { p: StepParameters? -> OptionExpressionStep(p as OptionStepParameters) },
         NsCx.inline             to { p: StepParameters? -> InlineStep(p as InlineStepParameters) },
         NsCx.document           to { p: StepParameters? -> DocumentStep(p as DocumentStepParameters) },
+        NsCx.empty              to { p: StepParameters? -> EmptyStep() },
         NsCx.joiner             to { _: StepParameters? -> JoinerStep() },
         NsCx.sink               to { _: StepParameters? -> SinkStep() },
         NsCx.splitter           to { _: StepParameters? -> SplitterStep() },
