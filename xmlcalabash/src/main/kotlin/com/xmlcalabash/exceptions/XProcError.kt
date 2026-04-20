@@ -221,6 +221,7 @@ open class XProcError protected constructor(val code: QName, val variant: Int, e
         fun xdNotWellFormed(baseUri: URI) = dynamic(Pair(49, 2), baseUri)
         fun xdValueTemplateError(message: String) = dynamic(50, message)
         fun xdInvalidAvtResult(result: String) = dynamic(51, result)
+        fun xdAttributeForbidden(name: QName) = dynamic(52, name)
         fun xdStepTimeout(timeout: String) = dynamic(53, timeout)
         fun xdEncodingWithXmlOrHtml(encoding: String) = dynamic(54, encoding)
         fun xdEncodingRequired(charset: String) = dynamic(55, charset)

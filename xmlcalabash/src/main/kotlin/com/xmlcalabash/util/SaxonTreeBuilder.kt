@@ -120,6 +120,7 @@ open class SaxonTreeBuilder(val processor: Processor, val ignoreInvalidUris: Boo
             XdmNodeKind.TEXT -> addText(node.stringValue)
             XdmNodeKind.PROCESSING_INSTRUCTION ->
                 addPI(node.nodeName.localName, node.stringValue)
+            XdmNodeKind.ATTRIBUTE -> throw XProcError.xdAttributeForbidden(node.nodeName).exception()
             else ->
                 throw RuntimeException("Unexpected node kind")
         }
