@@ -176,10 +176,10 @@ It is a dynamic error if the XPath expression in a value template evaluates to
 something to other than a sequence containing atomic values or nodes.
 
 XD0052
-Cannot serialize free-standing attribute “$1” in a non-XML document.
+An attribute node (“$1”) is not allowed here.
 It is a dynamic error if the XPath expression in a text value template evaluates
-to an attribute node when the content type is not an XML media type or an HTML
-media type.
+to an attribute node when the parent is not an element or the preceding sibling
+is not an attrbute.
 
 XD0053
 Step timeout; ran for more than “$1” seconds.
