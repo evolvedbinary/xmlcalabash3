@@ -177,14 +177,10 @@ steps:
       api_key:
         from_secret: ACCESS_TOKEN
 
-# N.B. The xproc-test-suite-apache2 container has a complete copy of 
-# the /usr/local/apache2 directory (including binaries) from the apache2
-# container. Parts of it are (will be!) updated by a different workflow.
+# N.B. The apache2 container is built with the XProc test-suite included.
 services:
   - name: apache2
     image: apache2
-    volumes:
-      - xproc-test-suite-apache2:/usr/local/apache2
 
   - name: sendria
     image: sendria
