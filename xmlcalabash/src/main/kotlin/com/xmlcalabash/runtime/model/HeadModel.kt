@@ -13,7 +13,7 @@ class HeadModel(runtime: XProcRuntime, model: Model): StepModel(runtime, model) 
         // nop
     }
 
-    override fun runnable(yconfig: XProcStepConfiguration): () -> AbstractStep {
+    override fun runnable(config: XProcStepConfiguration): () -> AbstractStep {
         throw UnsupportedOperationException("You can't make a runnable from a head")
     }
 
