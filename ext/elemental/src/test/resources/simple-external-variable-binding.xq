@@ -7,6 +7,8 @@ declare variable $attr as attribute() external;
 declare variable $map as map(*) external;
 declare variable $array as array(*) external;
 
+/elem
+,
 document {
     element { $name } {
         text { "Hello, world." }

@@ -93,14 +93,27 @@ class LocalElementalServer(val elementalConfigurationProperties: Map<String, Str
 
     // TODO(AR) could create additional XProc step integrations for steps to store are retrieve documents etc? - perhaps this could be done by URI resolution from existing steps? - consult with NDW abut what's best to do in Calabash
 
-    override fun query(stepConfig: XProcStepConfiguration, query: String, cacheQuery: Boolean, username: String, password: String, properties: Map<QName, String>?, variableBindings: Map<QName, XdmValue>?) : QueryResult {
+    override fun query(stepConfig: XProcStepConfiguration, sources: List<XProcDocument>, query: String, cacheQuery: Boolean, username: String, password: String, properties: Map<QName, String>?, variableBindings: Map<QName, XdmValue>?) : QueryResult {
         val brokerPool = server.brokerPool
         val subject = brokerPool.securityManager.authenticate(username, password)
 
         val broker = brokerPool.get(Optional.of(subject))
         broker.use {
 
-            val contextSequence = null   // TODO(AR) need to inject the context from the xquery step 'source' port!
+            // TODO(AR) set default collection in Elemental
+            val contextSequence: org.exist.xquery.value.Sequence?
+            if (!sources.isEmpty()) {
+                val xdmValue: XdmValue = sources[0].value
+                if (!xdmValue.isEmptySequence) {
+                    val xdmItem = xdmValue.itemAt(0)
+                    val item = toElementalXdm(stepConfig, org.exist.xquery.XQueryContext(), xdmItem)
+                    contextSequence = org.exist.xquery.value.ValueSequence(item)
+                } else {
+                    contextSequence = null
+                }
+            } else {
+                contextSequence = null
+            }
 
             stepConfig.debug { "Elemental local database query: ${query}"}
 
@@ -459,7 +472,9 @@ class LocalElementalServer(val elementalConfigurationProperties: Map<String, Str
                     val saxAdapter = org.exist.dom.memtree.SAXAdapter(xqueryContext)
                     val contentHandlerProxy = ContentHandlerProxy(saxAdapter)
                     contentHandlerProxy.pipelineConfiguration = stepConfig.processor.getUnderlyingConfiguration().makePipelineConfiguration()
-                    xdmItem.getUnderlyingNode().copy(contentHandlerProxy, 0, null)
+                    contentHandlerProxy.open()
+                    xdmItem.getUnderlyingNode().copy(contentHandlerProxy, 0, xdmItem.underlyingValue.saveLocation())
+                    contentHandlerProxy.close()
                     saxAdapter.document
                 }
 
@@ -467,7 +482,9 @@ class LocalElementalServer(val elementalConfigurationProperties: Map<String, Str
                     val saxAdapter = org.exist.dom.memtree.SAXAdapter(xqueryContext)
                     val contentHandlerProxy = ContentHandlerProxy(saxAdapter)
                     contentHandlerProxy.pipelineConfiguration = stepConfig.processor.getUnderlyingConfiguration().makePipelineConfiguration()
-                    xdmItem.getUnderlyingNode().copy(contentHandlerProxy, 0, null)
+                    contentHandlerProxy.open()
+                    xdmItem.getUnderlyingNode().copy(contentHandlerProxy, 0, xdmItem.underlyingValue.saveLocation())
+                    contentHandlerProxy.close()
                     saxAdapter.document.documentElement as org.exist.dom.memtree.ElementImpl
                 }
 

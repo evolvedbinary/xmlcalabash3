@@ -12,5 +12,5 @@ interface ElementalServer {
     /**
      * Execute an XQuery/XPath with Elemental
      */
-    fun query(stepConfig: XProcStepConfiguration, query: String, cacheQuery: Boolean = false, username: String = "admin", password: String = "", properties: Map<QName, String>?, variableBindings: Map<QName, XdmValue>?) : QueryResult
+    fun query(stepConfig: XProcStepConfiguration, sources: List<XProcDocument>, query: String, cacheQuery: Boolean = false, username: String = "admin", password: String = "", properties: Map<QName, String>?, variableBindings: Map<QName, XdmValue>?) : QueryResult
 }

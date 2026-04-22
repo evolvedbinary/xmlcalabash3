@@ -71,7 +71,7 @@ class XQueryElementalProcessor: XQueryProcessor {
 
         val queryResult: ElementalServer.QueryResult
         try {
-            queryResult = elementalServer.query(stepConfig, this.query, false, username!!, password!!, queryProperties, queryVariables)
+            queryResult = elementalServer.query(stepConfig, this.sources, this.query, false, username!!, password!!, queryProperties, queryVariables)
         } catch (ex: Exception) {
             throw stepConfig.exception(XProcError.xdStepFailed(ex.message ?: ""), ex)
         }

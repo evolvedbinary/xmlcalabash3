@@ -32,6 +32,7 @@ class RemoteElementalServer(val databaseUri: String, val requestTimeout: Int? = 
     private val serialns = NamespaceUri.of("http://exist-db.org/xquery/types/serialized")
     private val exist_query = QName(existns, "query")
     private val exist_text = QName(existns, "text")
+    private val exist_context_item = QName(existns, "context-item")
     private val exist_variables = QName(existns, "variables")
     private val exist_variable = QName(existns, "variable")
     private val exist_qname = QName(existns, "qname")
@@ -50,7 +51,7 @@ class RemoteElementalServer(val databaseUri: String, val requestTimeout: Int? = 
     private val query_results_wrap = QName("wrap")
     private val query_results_typed = QName("typed")
 
-    override fun query(stepConfig: XProcStepConfiguration, query: String, cacheQuery: Boolean, username: String, password: String, properties: Map<QName, String>?, variableBindings: Map<QName, XdmValue>?) : QueryResult {
+    override fun query(stepConfig: XProcStepConfiguration, sources: List<XProcDocument>, query: String, cacheQuery: Boolean, username: String, password: String, properties: Map<QName, String>?, variableBindings: Map<QName, XdmValue>?) : QueryResult {
 
         val builder = SaxonTreeBuilder(stepConfig)
 
@@ -88,6 +89,18 @@ class RemoteElementalServer(val databaseUri: String, val requestTimeout: Int? = 
         builder.addStartElement(exist_text)
         builder.addText(query)
         builder.addEndElement()
+
+        // TODO(AR) set default collection in Elemental
+        // Create XML for Context Item
+        if (!sources.isEmpty()) {
+            val xdmValue: XdmValue = sources[0].value
+            if (!xdmValue.isEmptySequence) {
+                val xdmItem = xdmValue.itemAt(0)
+                builder.addStartElement(exist_context_item)
+                serializeItem(stepConfig, builder, xdmItem)
+                builder.addEndElement()
+            }
+        }
 
         // Create XML for XQuery Variable bindings
         if (variableBindings != null) {
@@ -145,8 +158,6 @@ class RemoteElementalServer(val databaseUri: String, val requestTimeout: Int? = 
 
         builder.addEndElement()
         builder.endDocument()
-
-        val contextSequence = null   // TODO(AR) need to inject the Context from the XQuery step 'source' port!
 
         val queryXml = builder.result
         stepConfig.debug { "Elemental remote database query: ${queryXml}"}

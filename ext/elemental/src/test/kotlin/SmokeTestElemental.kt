@@ -51,10 +51,14 @@ class SmokeTestElemental {
         val outputPorts = runPipeline(name)
         val resultPort = outputPorts["result"]!!
 
-        assertEquals(23, resultPort.size)
+        assertEquals(24, resultPort.size)
 
         var i = 0
         var value: XdmValue? = null
+
+        value = resultPort[i++].value
+        assertTrue(value is XdmNode)
+        assertXmlEquals("<elem x=\"y\"><subElem>some text</subElem></elem>", value as XdmNode)
 
         value = resultPort[i++].value
         assertTrue(value is XdmNode)
@@ -198,6 +202,7 @@ class SmokeTestElemental {
         val diff = DiffBuilder.compare(expectedSource)
             .withTest(actualSource)
             .checkForSimilar()
+            .ignoreElementContentWhitespace()
             .build()
 
         assertFalse(diff.hasDifferences(), diff.toString())

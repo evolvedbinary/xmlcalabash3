@@ -20,7 +20,13 @@
                   'map': map { 'x': 'y' },
                   'array': ['x', 'y'] }">
 
-    <p:with-input port="source"><p:empty/></p:with-input>
+    <p:with-input port="source">
+      <p:inline>
+        <elem x="y">
+          <subElem>some text</subElem>
+        </elem>
+      </p:inline>
+    </p:with-input>
 
     <p:with-input port="query" href="simple-external-variable-binding.xq"/>
 
