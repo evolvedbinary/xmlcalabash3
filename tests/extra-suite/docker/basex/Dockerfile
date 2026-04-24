@@ -7,5 +7,6 @@ FROM debian:bookworm
 RUN apt-get update -y
 RUN apt-get install -y openjdk-17-jdk
 RUN apt-get install -y curl zip
+COPY BaseX120.zip /tmp
 
 CMD ["/bin/bash"]
