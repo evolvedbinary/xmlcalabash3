@@ -155,7 +155,9 @@ are treated as warnings.</para></listitem>
   <term><option>--catalog:<replaceable>catalog-file-uri</replaceable></option></term>
 <listitem>
 <para>Adds the specified catalog to the list of XML Catalogs that are used 
-during resource resolution.</para>
+during resource resolution. The <replaceable>catalog-file-uri</replaceable> must
+be the URI for a single catalog. To specify more than one catalog, repeat
+the <option>--catalog</option> option for each catalog.</para>
 </listitem>
 </varlistentry>
 
