@@ -1,0 +1,7 @@
+<!-- -*- nxml -*- -->
+<cc:xml-calabash xmlns:cc="https://xmlcalabash.com/ns/configuration">
+  <cc:pipeline href="file:/tmp/pipe.xpl">
+    <cc:input-multiplex href="source.mime"/>
+    <cc:output-multiplex href="/tmp/output.mime"/>
+  </cc:pipeline>
+</cc:xml-calabash>

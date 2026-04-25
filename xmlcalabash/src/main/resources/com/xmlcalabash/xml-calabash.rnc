@@ -178,7 +178,7 @@ cc.catalog =
 cc.pipeline =
     element cc:pipeline {
         attribute href { xsd:anyURI },
-        attribute step { xsd:NCName }?,
+        attribute step { text }?,
         attribute temporary-files { xsd:anyURI }?,
         (cc.input | cc.inputMultiplex
          | cc.output | cc.outputMultiplex | cc.manifest

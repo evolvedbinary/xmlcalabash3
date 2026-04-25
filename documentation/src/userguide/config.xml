@@ -435,13 +435,25 @@ for details.</para>
 <title>cc:pipeline</title>
 </info>
 
-<para>Define a default pipeline.</para>
+<para>Define a default pipeline and default inputs, outputs, and options for the
+pipeline.</para>
 
 <rng-pattern schema="../../build/xml-calabash.rng"
              name="cc.pipeline"/>
 
-<para>If no pipeline is supplied on the command line, the pipeline identified by the
-<tag class="attribute">href</tag> attribute will be run. If a <tag class="attribute">step</tag>
+<para>If no pipeline is supplied on the command line, the pipeline identified by
+the <tag class="attribute">href</tag> attribute will be run with the specified
+default inputs, outputs, and options unless other values are provided for them
+on the command line.</para>
+
+<para>If the absolute URI of the pipeline supplied on the command line is the
+same as the resolved (absolute) value of the <tag class="attribute">href</tag> attribute,
+default inputs, outputs, and options will be considered. If a different pipeline
+is supplied on the command line, none of inputs, outputs, or options specified
+in the configuration file will be used. (If a different pipeline is specified, this
+configuration option is effectively ignored.)</para>
+
+<para>If a <tag class="attribute">step</tag>
 is specified, then the pipeline must be a <tag>p:library</tag>.
 If the <replaceable>step</replaceable> value is a string without a “:”,
 it’s interpreted as a name and the <tag>p:declare-step</tag> with that name in the
@@ -450,19 +462,18 @@ is interpreted as a QName (resolved against the combined namespace bindings
 provided in the configuration file and on the command line) and the <tag>p:declare-step</tag>
 with that type in the library is selected.</para>
 
-<para>A pipeline can also provide default inputs, outputs, and
-options. Each of these applies <emphasis>only</emphasis> if an
-alternative input, output, or option <emphasis>is not</emphasis>
-specified on the command line.</para>
+<para>The <tag>cc:input</tag>, <tag>cc:output</tag>, and <tag>cc:option</tag> elements 
+define default inputs, outputs, and options, respectively.
+Each default applies <emphasis>only</emphasis>
+if an alternative value <emphasis>is not</emphasis> specified on the command
+line. All default inputs are ignored if <option>--input-multiplex</option> is specified
+on the command line and, conversely, <tag>cc:input-multiplex</tag> setting is ignored if
+<emphasis>any</emphasis> input is provided on the command line. 
+</para>
 
 <para>If <tag class="attribute">temporary-files</tag> is specified,
 all outputs on otherwise-unspecified ports will be written to temporary
 files. See the <option linkend="cli-temporary-files">--temporary-files</option> option.</para>
-
-<para>Although the inputs, outputs, and options are nested inside the <tag>cc:pipeline</tag>
-element, they are independent. The configured defaults apply even when an alternate
-pipeline is specifed on the command line (unless alternative inputs, outputs, or options
-are also specified there.)</para>
 
 <section xml:id="cc.input">
 <info>

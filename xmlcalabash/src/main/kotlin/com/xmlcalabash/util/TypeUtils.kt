@@ -93,6 +93,14 @@ class TypeUtils(val context: DocumentContext) {
             return map
         }
 
+        fun asXdmMap(inputMap: Map<QName, XdmValue>): XdmMap {
+            var map = XdmMap()
+            for ((key, value) in inputMap) {
+                map = map.put(XdmAtomicValue(key), value)
+            }
+            return map
+        }
+
         fun asGenericMap(inputMap: XdmMap): Map<XdmAtomicValue, XdmValue> {
             val map = mutableMapOf<XdmAtomicValue, XdmValue>()
             for (key in inputMap.keySet()) {
@@ -197,11 +205,7 @@ class TypeUtils(val context: DocumentContext) {
     }
 
     fun asXdmMap(inputMap: Map<QName, XdmValue>): XdmMap {
-        var map = XdmMap()
-        for ((key, value) in inputMap) {
-            map = map.put(XdmAtomicValue(key), value)
-        }
-        return map
+        return TypeUtils.asXdmMap(inputMap)
     }
 
     fun asGenericXdmMap(inputMap: Map<XdmAtomicValue, XdmValue>): XdmMap {

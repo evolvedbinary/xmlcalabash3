@@ -304,7 +304,7 @@ class XmlCalabashCli private constructor() {
                     mimeProps[Ns.contentType] = MediaType.OCTET_STREAM
                     val doc = stepConfig.environment.documentManager.load(input.href!!, pipeline.config, mimeProps)
                     doc as XProcBinaryDocument
-                    val loader = MimeDocumentLoader(xmlCalabash)
+                    val loader = MimeDocumentLoader(stepConfig)
                     val bais = ByteArrayInputStream(doc.binaryValue)
                     val map= loader.loadMultiplexed(bais, input.multiplexMapping)
                     for ((port, doclist) in map) {
@@ -324,6 +324,7 @@ class XmlCalabashCli private constructor() {
                 }
 
                 if (input.href == CommandLine.STDIO_URI) {
+                    stepConfig.debug { "Input for ${port} from stdin" }
                     val (ctype, doc) = stdin!!
                     if (ctype == MediaType.MULTIPART_MIXED) {
                         val loader = MimeDocumentLoader(xmlCalabash)
@@ -335,6 +336,7 @@ class XmlCalabashCli private constructor() {
                         pipeline.input(port, doc)
                     }
                 } else {
+                    stepConfig.debug { "Input for ${port} from ${input.href}" }
                     val props = DocumentProperties()
                     if (input.contentType != MediaType.ANY) {
                         props[Ns.contentType] = input.contentType.toString()
@@ -380,18 +382,23 @@ class XmlCalabashCli private constructor() {
                     if (sawStdout) {
                         throw XProcError.xiAtMostOneStdout().exception()
                     }
+                    stepConfig.debug { "Output for ${port} to stdout" }
                     sawStdout = true
+                } else {
+                    stepConfig.debug { "Output for ${port} to ${output.pattern}" }
                 }
             }
 
             for (port in pipeline.outputManifold.keys) {
                 if (port !in realOutputs) {
                     if (outputMultiplex != null) {
+                        stepConfig.debug { "Multiplexed output for ${port} to ${outputMultiplex.pattern}" }
                         realOutputs[port] = outputMultiplex
                     } else {
                         val tempdir = builder.temporaryFiles.getOrDefault()
                         if (tempdir != null) {
                             if (tempdir.isEmpty()) {
+                                stepConfig.debug { "Output for ${port} to system temporary directory" }
                                 realOutputs[port] = XmlCalabashTempOutput(port, "")
                             } else {
                                 val td = File(tempdir)
@@ -404,12 +411,14 @@ class XmlCalabashCli private constructor() {
                                         throw XProcError.xiCannotCreateTempDir(tempdir).exception()
                                     }
                                 }
+                                stepConfig.debug { "Output for ${port} to temporary directory: ${tempdir}" }
                                 realOutputs[port] = XmlCalabashTempOutput(port, tempdir)
                             }
                         } else {
                             if (xmlCalabash.config.pipe) {
                                 throw XProcError.xiCliPortNameRequired("output").exception()
                             }
+                            stepConfig.debug { "Output for ${port} to stdout" }
                             realOutputs[port] = XmlCalabashOutput(port, "-")
                         }
                     }
@@ -419,6 +428,9 @@ class XmlCalabashCli private constructor() {
             val optManager = xprocParser.builder.staticOptionsManager
             for ((name, value) in optManager.useWhenOptions) {
                 if (name !in optManager.staticOptions) {
+                    if (builder.debug.getOrDefault() == true) {
+                        stepConfig.debug { "Setting ${name} to ${value}" }
+                    }
                     pipeline.option(name, XProcDocument.ofValue(value, stepConfig, MediaType.OCTET_STREAM, DocumentProperties()))
                 }
             }
