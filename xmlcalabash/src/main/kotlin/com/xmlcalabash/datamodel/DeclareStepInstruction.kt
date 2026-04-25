@@ -236,7 +236,7 @@ class DeclareStepInstruction(parent: XProcInstruction?, stepConfig: InstructionC
         newStepNames.putAll(findStepNames(newStepNames))
         newStepTypes.putAll(findStepTypes(newStepTypes))
 
-        updateStepConfig(newStepTypes, emptyMap(), bindings)
+        updateStepConfig(newStepTypes, emptyMap(), newBindings)
 
         var lastChild: VariableBindingContainer? = null
         for (child in children) {
