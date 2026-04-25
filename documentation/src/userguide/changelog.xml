@@ -13,6 +13,58 @@ See the commits and pull requests on
 finer detail.</para>
 
 <revhistory>
+<revision xml:id="r3045">
+<revnumber>3.0.45</revnumber>
+<date>2026-04-25</date>
+<revdescription>
+<itemizedlist spacing="compact">
+<listitem><para>Closed <cbissue number="674"/>. Fixed the way document properties are
+serialized in MIME multiplexed output. This is backwards incompatible; document
+properties will be ignored in MIME output captured from XML Calabash versions
+before 3.0.45.
+</para></listitem>
+<listitem><para>Closed <cbissue number="670"/>. Fixed a typo in the configuration
+file schema (<tag class='attribute'>href</tag> is required on <tag>cc:catalog</tag>)
+and improved the documentation for the <option>--catalog</option> option.
+</para></listitem>
+<listitem><para>Closed <cbissue number="665"/>. Provide a proper error message
+for <code>err:XD0052</code> (attempting to insert an attribute into a text value
+template).</para></listitem>
+<listitem><para>Made several improvements to the “stacktrace” option.
+Fixed the bug where the stack trace only reported the last step; fixed the bug
+where <option>--stacktrace</option> and <option>--debug</option> were confused;
+documented the <tag class="attribute">stacktrace</tag> configuration option.
+</para></listitem>
+<listitem><para>Closed <cbissue number="662"/>. Make sure configuration errors
+are caught and explained. </para></listitem>
+<listitem><para>Closed <cbissue number="661"/>. Abandoned attempts to avoid
+“empty” steps in the graph. The <tag>p:document</tag> (implicit or explicit) and
+<tag>p:inline</tag> bindings in a pipeline get promoted to “document” and
+“inline” steps. In a similar way, <tag>p:empty</tag> can be promoted to an
+“empty” step. As an optimization, rather than having “empty” steps, the ports
+were marked as “welded shut” requiring no input. This was also responsible for
+<cbissue number="445"/>. I’ve removed this attempt at optimization, it’s not
+likely to have a noticable performance impact, but you will notice that pipeline
+graphs are different.
+</para></listitem>
+<listitem><para>Closed <cbissue number="659"/>. Corrected the way that arguments
+on the command line and arguments from the configuration file (<tag>cc:pipeline</tag>)
+are combined.
+There's a backwards-incompatible change here: if a pipeline URI is specified on
+the command line and it doesn't match the one specified on the <tag>cc:pipeline</tag>
+element, the configuration file settings are all ignored. Previously, they were 
+used anyway.
+</para></listitem>
+<listitem><para>Closed <cbissue number="656"/>. Map the SVRL “fatal” severity
+to the XVRL “fatal-error” severity.
+</para></listitem>
+<listitem><para>Closed <cbissue number="649"/>. Make sure static options from
+imported libraries are in the set of in-scope variables for expressions in the
+importing step.
+</para></listitem>
+</itemizedlist>
+</revdescription>
+</revision>
 <revision xml:id="r3044">
 <revnumber>3.0.44</revnumber>
 <date>2026-04-09</date>
