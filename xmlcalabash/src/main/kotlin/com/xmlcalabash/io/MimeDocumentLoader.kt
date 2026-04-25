@@ -1,10 +1,14 @@
 package com.xmlcalabash.io
 
 import com.xmlcalabash.XmlCalabash
+import com.xmlcalabash.datamodel.InstructionConfiguration
 import com.xmlcalabash.documents.DocumentProperties
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.namespace.Ns
 import com.xmlcalabash.namespace.NsXs
+import com.xmlcalabash.util.Report
+import com.xmlcalabash.util.TypeSerializer
+import com.xmlcalabash.util.Verbosity
 import net.sf.saxon.om.NamespaceUri
 import net.sf.saxon.s9api.QName
 import net.sf.saxon.s9api.XdmAtomicValue
@@ -18,7 +22,9 @@ import javax.mail.Session
 import javax.mail.internet.MimeMessage
 import javax.mail.internet.MimeMultipart
 
-class MimeDocumentLoader(xmlCalabash: XmlCalabash) {
+class MimeDocumentLoader(private val xmlCalabash: XmlCalabash, private val stepConfig: InstructionConfiguration? = null) {
+    constructor(stepConfig: InstructionConfiguration): this(stepConfig.xmlCalabash, stepConfig)
+
     companion object {
         private val _a = QName("a")
     }
@@ -44,6 +50,31 @@ class MimeDocumentLoader(xmlCalabash: XmlCalabash) {
             throw IllegalArgumentException("Mime content isn't multipart/mixed: ${message.contentType}")
         }
 
+        var ignoreProperties = false
+        for (header in message.allHeaders) {
+            if (header.name.lowercase() == "server") {
+                // Server: XML Calabash version 3.0.44
+                val value = header.value.lowercase()
+                if (value.startsWith("xml calabash version 3.0")) {
+                    var version = value.substring(25).trim()
+                    if (version.contains("-")) {
+                        version = version.substring(0, version.indexOf("-"))
+                    }
+                    try {
+                        val num = version.toInt()
+                        if (num < 45) {
+                            ignoreProperties = true
+                            xmlCalabash.config.messageReporter.report(Verbosity.WARN) {
+                                Report(Verbosity.WARN, { "Document properties ignored on multiplexed input (format changed in version 3.0.45)" })
+                            }
+                        }
+                    } catch (ex: NumberFormatException) {
+                        // nop
+                    }
+                }
+            }
+        }
+
         val documents = mutableListOf<XProcDocument>()
         val multipart = message.getContent() as MimeMultipart
         for (index in 0 until multipart.count) {
@@ -67,7 +98,7 @@ class MimeDocumentLoader(xmlCalabash: XmlCalabash) {
                     contentType = MediaType.parse(header.value)
                     properties[Ns.contentType] = header.value
                 }
-                if (header.name.lowercase() == "x-document-property") {
+                if (!ignoreProperties && header.name.lowercase() == "x-document-property") {
                     parseProperty(properties, header.value)
                 }
                 if (header.name.lowercase() == "x-port") {
@@ -83,11 +114,13 @@ class MimeDocumentLoader(xmlCalabash: XmlCalabash) {
             val doc = loader.load(body.inputStream)
 
             if (map == null) {
+                // This is multipart/mixed input
                 documents.add(doc)
             } else {
                 if (port == null) {
                     throw IllegalArgumentException("Part does not have an X-Port header")
                 }
+                stepConfig?.debug { "Multiplexed input for ${port}: ${baseUri}" }
                 val list = mutableListOf<XProcDocument>()
                 list.addAll(map[port] ?: emptyList())
                 list.add(doc)
@@ -98,57 +131,26 @@ class MimeDocumentLoader(xmlCalabash: XmlCalabash) {
         return documents
     }
 
-    val sprop = "^([^{}?]+)(\\?([a-z]+))?=(.*)$".toRegex()
-    val cprop = "^Q\\{([^}]+)}([^?=]+)(\\?([a-z]+))?=(.*)$".toRegex()
+    val ts = TypeSerializer(xmlCalabash.saxonConfiguration.processor)
+    val sprop = "^([^{}=]+)=(.*)$".toRegex()
+    val cprop = "^Q\\{([^}]+)}([^=]+)=(.*)$".toRegex()
     private fun parseProperty(properties: DocumentProperties, content: String) {
         lateinit var name: QName
-        lateinit var type: String
         lateinit var value: String
 
         val cmatch = cprop.matchEntire(content)
         if (cmatch == null) {
             val smatch = sprop.matchEntire(content)
-            if (smatch == null) {
-                throw IllegalArgumentException("Unparsable document property: ${content}")
-            }
+                ?: throw IllegalArgumentException("Unparsable document property: ${content}")
             name = QName(smatch.groups[1]!!.value)
-            type = smatch.groups[3]?.value ?: "string"
-            value = URLDecoder.decode(smatch.groups[4]!!.value, "UTF-8")
+            value = URLDecoder.decode(smatch.groups[2]!!.value, "UTF-8")
         } else {
             val uri = cmatch.groups[1]!!.value
             val local = cmatch.groups[2]!!.value
             name = QName(NamespaceUri.of(uri), local)
-            type = cmatch.groups[4]?.value ?: "string"
-            value = URLDecoder.decode(cmatch.groups[5]!!.value, "UTF-8")
+            value = URLDecoder.decode(cmatch.groups[3]!!.value, "UTF-8")
         }
 
-        when (type) {
-            "string" -> {
-                properties[name] = XdmAtomicValue(value)
-            }
-            "xml" -> {
-                val loader = BasicDocumentLoader(null, processor, null, properties)
-                val bais = ByteArrayInputStream(value.toByteArray())
-                val doc = loader.load(bais, MediaType.XML)
-                properties[name] = doc.value
-            }
-            "json" -> {
-                val loader = BasicDocumentLoader(null, processor, null, properties)
-                val bais = ByteArrayInputStream(value.toByteArray())
-                val doc = loader.load(bais, MediaType.JSON)
-                properties[name] = doc.value
-            }
-            else -> {
-                val compiler = processor.newXPathCompiler()
-                compiler.declareVariable(_a)
-                compiler.declareNamespace("xs", NsXs.namespace.toString())
-                val exec = compiler.compile("\$a cast as xs:${type}")
-                val selector = exec.load()
-                val untyped = StringConverter.StringToUntypedAtomic().convert(XdmAtomicValue(value).underlyingValue)
-                selector.setVariable(_a, XdmAtomicValue(untyped))
-                val result = selector.evaluate()
-                properties[name] = result
-            }
-        }
+        properties[name] = ts.marshal(value)
     }
 }

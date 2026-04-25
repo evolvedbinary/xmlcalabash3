@@ -8,6 +8,7 @@ import com.xmlcalabash.io.DocumentWriter
 import com.xmlcalabash.io.MediaType
 import com.xmlcalabash.namespace.Ns
 import com.xmlcalabash.namespace.NsXs
+import net.sf.saxon.om.NamespaceUri
 import net.sf.saxon.s9api.QName
 import net.sf.saxon.s9api.Serializer
 import net.sf.saxon.s9api.XdmArray
@@ -239,44 +240,21 @@ class MimeOutputSequence(private val xmlCalabash: XmlCalabash, val stream: Outpu
         }
         mimePart.addField("X-Port", port)
 
+        val ts = TypeSerializer(xmlCalabash.saxonConfiguration.processor)
         for ((name, value) in document.properties.asMap()) {
             when (name) {
                 Ns.baseUri, Ns.contentType, Ns.encoding -> Unit
                 else -> {
-                    var fieldType = "";
-                    var fieldValue = ""
-
-                    if (value is XdmNode || value is XdmMap || value is XdmArray) {
-                        val baos = ByteArrayOutputStream()
-                        val serializer = xmlCalabash.saxonConfiguration.processor.newSerializer(baos)
-
-                        if (value is XdmNode) {
-                            fieldType = "?xml"
-                            serializer.setOutputProperty(Serializer.Property.METHOD, "xml")
-                        } else {
-                            fieldType = "?json"
-                            serializer.setOutputProperty(Serializer.Property.METHOD, "json")
-                        }
-                        serializer.serializeXdmValue(value)
-                        val stringValue = String(baos.toByteArray(), StandardCharsets.UTF_8)
-                        fieldValue = URLEncoder.encode(stringValue, "UTF-8")
-                    } else if (value is XdmAtomicValue) {
-                        if (value.primitiveTypeName != NsXs.string) {
-                            fieldType = "?${value.primitiveTypeName.localName}"
-                        }
-                        fieldValue = URLEncoder.encode(value.underlyingValue.stringValue, "UTF-8")
-                    } else {
-                        // ???
-                        logger.debug { "Unexpected value in MIME output sequence: $value" }
-                        fieldValue = URLEncoder.encode(value.underlyingValue.stringValue, "UTF-8")
-                    }
-
-                    mimePart = mimePart.addField("X-Document-Property", "${name.eqName}${fieldType}=${fieldValue}")
+                    val baos = ByteArrayOutputStream()
+                    val serializer = xmlCalabash.saxonConfiguration.processor.newSerializer(baos)
+                    serializer.setOutputProperty(Serializer.Property.METHOD, "json")
+                    serializer.serializeXdmValue(ts.unmarshal(value))
+                    val fieldValue = String(baos.toByteArray(), StandardCharsets.UTF_8)
+                    mimePart = mimePart.addField("X-Document-Property", "${name.eqName}=${fieldValue}")
                 }
             }
         }
 
         return mimePart
     }
-
 }

@@ -1,0 +1,10 @@
+<!-- -*- nxml -*- -->
+<cc:xml-calabash xmlns:cc="https://xmlcalabash.com/ns/configuration">
+  <cc:pipeline href="file:/tmp/pipe.xpl">
+    <cc:input port="source" href="doc.xml"/>
+    <cc:input port="schema" href="doc.sch"/>
+    <cc:output port="result" filespec="/tmp/result.xml"/>
+    <cc:output port="report" filespec="/tmp/report.xml"/>
+    <cc:option name="thing" value="a thing"/>
+  </cc:pipeline>
+</cc:xml-calabash>

@@ -246,6 +246,7 @@ class XmlCalabashBuilder {
         }
     }
 
+    var updated = false
     fun update(props: XmlCalabashBuilder) {
         assertions.update(props.assertions)
         debug.update(props.debug)
@@ -286,7 +287,7 @@ class XmlCalabashBuilder {
         xmlSchemas.update(props.xmlSchemas)
         extensions.update(props.extensions)
 
-        // Namespaces is special; merge them...
+        // Namespaces are special; merge them...
         val nsmap = mutableMapOf<String, NamespaceUri>()
         namespaces.get()?.let { nsmap.putAll(it) }
         props.namespaces.get()?.let { nsmap.putAll(it) }
@@ -295,10 +296,8 @@ class XmlCalabashBuilder {
         command.update(props.command)
         commandOptions.update(props.commandOptions)
         configurationFile.update(props.configurationFile)
-        inputs.update(props.inputs)
         manifest.update(props.manifest)
         temporaryFiles.update(props.temporaryFiles)
-        outputs.update(props.outputs)
         outputSerialization.update(props.outputSerialization)
         initializers.update(props.initializers)
         graphs.update(props.graphs)
@@ -306,13 +305,94 @@ class XmlCalabashBuilder {
         stacktrace.update(props.stacktrace)
         go.update(props.go)
         step.update(props.step)
-        pipelineUri.update(props.pipelineUri)
-        options.update(props.options)
         mimeTypes.update(props.mimeTypes)
         mpt.update(props.mpt)
         cssFormatter.update(props.cssFormatter)
         xslFormatter.update(props.xslFormatter)
         messageReporterBufferSize.update(props.messageReporterBufferSize)
+
+        if (!updated) {
+            // The first time through, we set these unconditionally...
+            pipelineUri.update(props.pipelineUri)
+
+            if (inputs.getOrDefault() == null) {
+                inputs.update(props.inputs)
+            }
+            if (outputs.getOrDefault() == null) {
+                outputs.update(props.outputs)
+            }
+            if (options.getOrDefault() == null) {
+                options.update(props.options)
+            }
+        } else {
+            // Pipelines have to be combined with care. The values passed in as
+            // props are only used if there isn't already a setting. As a special
+            // case, if the pipelineUri isn't null, we ignore the settings altogether.
+            if (props.pipelineUri.getOrDefault() != null
+                && (pipelineUri.getOrDefault() == null || pipelineUri.getOrDefault() == props.pipelineUri.getOrDefault())) {
+                pipelineUri.update(props.pipelineUri)
+                if (props.inputs.size > 0) {
+                    val newInputs = mutableListOf<XmlCalabashInput>()
+                    var multiplexInput = false
+                    var anyInput = false
+                    val inputSet = mutableSetOf<String>()
+                    for (input in inputs.getOrDefault() ?: emptyList()) {
+                        newInputs.add(input)
+                        anyInput = true
+                        if (input.port == null) {
+                            multiplexInput = true
+                        } else {
+                            inputSet.add(input.port)
+                        }
+                    }
+                    if (!multiplexInput) {
+                        for (input in props.inputs.getOrDefault() ?: emptyList()) {
+                            if ((input.port == null && !anyInput)
+                                || (input.port != null && input.port !in inputSet)) {
+                                newInputs.add(input)
+                            }
+                        }
+                    }
+                    inputs.set(newInputs)
+                }
+
+                if (props.outputs.size > 0) {
+                    val newOutputs = mutableListOf<XmlCalabashOutput>()
+                    val outputSet = mutableSetOf<String>()
+                    var outputMultiplex = false
+                    for (output in outputs.getOrDefault() ?: emptyList()) {
+                        newOutputs.add(output)
+                        if (output.port == null) {
+                            outputMultiplex = true
+                        } else {
+                            outputSet.add(output.port)
+                        }
+                    }
+                    for (output in props.outputs.getOrDefault() ?: emptyList()) {
+                        if ((output.port == null && !outputMultiplex)
+                            || (output.port != null && output.port !in outputSet)) {
+                            newOutputs.add(output)
+                        }
+                    }
+                    outputs.set(newOutputs)
+                }
+
+                if (props.options.size > 0) {
+                    val newOptions = mutableMapOf<String,List<Any>>()
+                    for (option in options.getOrDefault() ?: emptyMap()) {
+                        newOptions[option.key] = option.value
+                    }
+                    for (option in props.options.getOrDefault() ?: emptyMap()) {
+                        if (option.key !in newOptions) {
+                            newOptions[option.key] = option.value
+                        }
+                    }
+                    options.set(newOptions)
+                }
+            }
+        }
+
+        updated = true
     }
 
     private class InvokedConfiguration constructor(props: XmlCalabashBuilder): XmlCalabashConfiguration {
