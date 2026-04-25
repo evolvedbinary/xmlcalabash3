@@ -51,14 +51,18 @@ class SmokeTestElemental {
         val outputPorts = runPipeline(name)
         val resultPort = outputPorts["result"]!!
 
-        assertEquals(24, resultPort.size)
+        assertEquals(25, resultPort.size)
 
         var i = 0
         var value: XdmValue? = null
 
         value = resultPort[i++].value
         assertTrue(value is XdmNode)
-        assertXmlEquals("<elem x=\"y\"><subElem>some text</subElem></elem>", value as XdmNode)
+        assertXmlEquals("<elem a=\"b\"><subElem>some text</subElem></elem>", value as XdmNode)
+
+        value = resultPort[i++].value
+        assertTrue(value is XdmNode)
+        assertXmlEquals("<default-collection><elem a=\"b\"><subElem>some text</subElem></elem><elem x=\"y\"><subElem>some more text</subElem></elem></default-collection>", value as XdmNode)
 
         value = resultPort[i++].value
         assertTrue(value is XdmNode)

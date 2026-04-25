@@ -4,7 +4,6 @@ import com.xmlcalabash.datamodel.DocumentContextImpl
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.ext.elemental.ElementalServer.QueryResult
-import com.xmlcalabash.io.DocumentWriter
 import com.xmlcalabash.io.MediaType
 import com.xmlcalabash.namespace.Ns
 import com.xmlcalabash.runtime.XProcStepConfiguration
@@ -19,9 +18,7 @@ import net.sf.saxon.s9api.XdmMap
 import net.sf.saxon.s9api.XdmNode
 import net.sf.saxon.s9api.XdmNodeKind
 import net.sf.saxon.s9api.XdmValue
-import java.io.ByteArrayOutputStream
 import java.net.URI
-import java.nio.charset.StandardCharsets
 import javax.xml.XMLConstants
 import kotlin.collections.iterator
 
@@ -33,6 +30,7 @@ class RemoteElementalServer(val databaseUri: String, val requestTimeout: Int? = 
     private val exist_query = QName(existns, "query")
     private val exist_text = QName(existns, "text")
     private val exist_context_item = QName(existns, "context-item")
+    private val exist_default_collection = QName(existns, "default-collection")
     private val exist_variables = QName(existns, "variables")
     private val exist_variable = QName(existns, "variable")
     private val exist_qname = QName(existns, "qname")
@@ -90,7 +88,6 @@ class RemoteElementalServer(val databaseUri: String, val requestTimeout: Int? = 
         builder.addText(query)
         builder.addEndElement()
 
-        // TODO(AR) set default collection in Elemental
         // Create XML for Context Item
         if (!sources.isEmpty()) {
             val xdmValue: XdmValue = sources[0].value
@@ -101,6 +98,19 @@ class RemoteElementalServer(val databaseUri: String, val requestTimeout: Int? = 
                 builder.addEndElement()
             }
         }
+
+        // Set Default Collection in Elemental
+        builder.addStartElement(exist_default_collection)
+        builder.addStartElement(serial_sequence)
+        if (!sources.isEmpty()) {
+            sources.forEach { xprocDocument ->
+                xprocDocument.value.forEach { xdmItem ->
+                    serializeItem(stepConfig, builder, xdmItem)
+                }
+            }
+        }
+        builder.addEndElement()
+        builder.addEndElement()
 
         // Create XML for XQuery Variable bindings
         if (variableBindings != null) {

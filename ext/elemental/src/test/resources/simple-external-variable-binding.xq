@@ -9,6 +9,10 @@ declare variable $array as array(*) external;
 
 /elem
 ,
+element default-collection {
+    collection()
+}
+,
 document {
     element { $name } {
         text { "Hello, world." }

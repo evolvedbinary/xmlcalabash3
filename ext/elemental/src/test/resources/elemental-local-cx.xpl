@@ -19,8 +19,13 @@
 
     <p:with-input port="source">
       <p:inline>
-        <elem x="y">
+        <elem a="b">
           <subElem>some text</subElem>
+        </elem>
+      </p:inline>
+      <p:inline>
+        <elem x="y">
+          <subElem>some more text</subElem>
         </elem>
       </p:inline>
     </p:with-input>

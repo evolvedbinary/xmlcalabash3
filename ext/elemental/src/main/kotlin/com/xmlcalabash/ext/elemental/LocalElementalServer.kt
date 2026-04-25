@@ -100,7 +100,6 @@ class LocalElementalServer(val elementalConfigurationProperties: Map<String, Str
         val broker = brokerPool.get(Optional.of(subject))
         broker.use {
 
-            // TODO(AR) set default collection in Elemental
             val contextSequence: org.exist.xquery.value.Sequence?
             if (!sources.isEmpty()) {
                 val xdmValue: XdmValue = sources[0].value
@@ -115,9 +114,17 @@ class LocalElementalServer(val elementalConfigurationProperties: Map<String, Str
                 contextSequence = null
             }
 
+            // Set Default Collection in Elemental
+            val defaultCollection: List<XdmItem>
+            if (!sources.isEmpty()) {
+                defaultCollection = sources.map(XProcDocument::value).flatMap{ xdmValue -> xdmValue.stream().asList() }
+            } else {
+                defaultCollection = emptyList()
+            }
+
             stepConfig.debug { "Elemental local database query: ${query}"}
 
-            val elementalQueryResult = XQueryUtil.query(broker, StringSource(query), cacheQuery, contextSequence, convertProperties(properties), bindVariablesFn(stepConfig, variableBindings), null, null)
+            val elementalQueryResult = XQueryUtil.query(broker, StringSource(query), cacheQuery, contextSequence, convertProperties(properties), setupXqueryContextPreExecution(stepConfig, defaultCollection, variableBindings ?: emptyMap()), null, null)
 
             val startUnmarshalling = System.currentTimeMillis()
             val xprocDocuments = toXProcDocuments(stepConfig, elementalQueryResult.result)
@@ -127,12 +134,23 @@ class LocalElementalServer(val elementalConfigurationProperties: Map<String, Str
         }
     }
 
-    private fun bindVariablesFn(stepConfig: XProcStepConfiguration, variableBindings: Map<QName, XdmValue>?) : ConsumerE<org.exist.xquery.XQueryContext, XPathException>? {
-        if (variableBindings == null) {
-            return null
-        }
+    private fun setupXqueryContextPreExecution(stepConfig: XProcStepConfiguration, defaultCollection: List<XdmItem>, variableBindings: Map<QName, XdmValue>) : ConsumerE<org.exist.xquery.XQueryContext, XPathException>? {
 
         return ConsumerE { xqueryContext ->
+            // Set the Default Collection
+            val sequence: org.exist.xquery.value.Sequence
+            if (!defaultCollection.isEmpty()) {
+                sequence = org.exist.xquery.value.ValueSequence(defaultCollection.size)
+                defaultCollection.forEach { xdmItem ->
+                    val item = toElementalXdm(stepConfig, xqueryContext, xdmItem)
+                    sequence.add(item)
+                }
+            } else {
+                sequence = org.exist.xquery.value.Sequence.EMPTY_SEQUENCE
+            }
+            xqueryContext.addDynamicallyAvailableCollection("", { broker, txn, uri -> sequence })
+
+            // Bind external variables
             for ((qname, value) in variableBindings) {
                 val variableName = org.exist.dom.QName(qname.localName, qname.namespaceUri.toString(), qname.prefix)
                 val variableValue = toElementalXdm(stepConfig, xqueryContext, value)
