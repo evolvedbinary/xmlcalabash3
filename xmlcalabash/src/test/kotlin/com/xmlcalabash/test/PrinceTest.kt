@@ -24,7 +24,11 @@ class PrinceTest {
     fun testPrinceCssFormatter() {
         val managers = mutableListOf<PagedMediaManager>()
         for (provider in PagedMediaServiceProvider.providers()) {
-            managers.add(provider.create())
+            val manager = provider.create()
+            if (manager.formatters().isNotEmpty()) {
+                manager.configure(manager.formatters().first(), emptyMap())
+            }
+            managers.add(manager)
         }
         Assertions.assertTrue(managers.isNotEmpty())
         var xslManager: PagedMediaManager? = null

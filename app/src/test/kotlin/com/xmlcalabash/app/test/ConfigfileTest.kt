@@ -174,10 +174,10 @@ class ConfigfileTest {
         val config = ConfigurationLoader().load(File("src/test/resources/cfg/pagedmedia.xml"))
         val info = BuilderConfiguration(config)
         Assertions.assertTrue(info.assertConfiguration(mapOf(
-            "cssFormatter" to mapOf(URI.create("https://xmlcalabash.com/paged-media/css-formatter/weasyprint") to mapOf(QName("exePath") to "/opt/homebrew/bin/weasyprint"),
-                URI.create("https://xmlcalabash.com/paged-media/css-formatter") to emptyMap(),
-                URI.create("https://xmlcalabash.com/paged-media/css-formatter/antenna-house") to emptyMap()),
-            "xslFormatter" to mapOf(URI.create("https://xmlcalabash.com/paged-media/xsl-formatter/fop") to emptyMap())
+            "cssFormatter" to listOf(Pair(URI.create("https://xmlcalabash.com/paged-media/css-formatter/weasyprint"), mapOf(QName("exePath") to "/opt/homebrew/bin/weasyprint")),
+                Pair(URI.create("https://xmlcalabash.com/paged-media/css-formatter"), emptyMap()),
+                Pair(URI.create("https://xmlcalabash.com/paged-media/css-formatter/antenna-house"), emptyMap())),
+            "xslFormatter" to listOf(Pair(URI.create("https://xmlcalabash.com/paged-media/xsl-formatter/fop"), emptyMap()))
         )).isEmpty())
     }
 

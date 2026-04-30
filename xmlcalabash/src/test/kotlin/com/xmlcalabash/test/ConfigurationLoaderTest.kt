@@ -87,9 +87,10 @@ class ConfigurationLoaderTest {
         Assertions.assertEquals(1, builder.cssFormatter.getOrDefault()?.size)
         val weasy = URI.create("https://xmlcalabash.com/paged-media/css-formatter/weasyprint")
         val css = builder.cssFormatter.getOrDefault()!!
-        Assertions.assertEquals(weasy, css.keys.first())
-        Assertions.assertEquals(1, css.get(weasy)?.size)
-        Assertions.assertEquals("/opt/homebrew/bin/weasyprint", css.get(weasy)?.get(QName("exePath")))
+        // FIXME:
+        Assertions.assertEquals(weasy, css.first().first)
+        Assertions.assertEquals(1, css.first().second.size)
+        Assertions.assertEquals("/opt/homebrew/bin/weasyprint", css.first().second.get(QName("exePath")))
 
         Assertions.assertEquals(URI.create("file:/path/to/library.xpl"), builder.pipelineUri.getOrDefault())
 

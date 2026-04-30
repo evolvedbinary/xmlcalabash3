@@ -8,7 +8,9 @@ import com.xmlcalabash.namespace.Ns
 import com.xmlcalabash.namespace.NsCx
 import com.xmlcalabash.spi.PagedMediaManager
 import com.xmlcalabash.steps.pagedmedia.fop.FopManager
+import com.xmlcalabash.util.Report
 import com.xmlcalabash.util.UriUtils
+import com.xmlcalabash.util.Verbosity
 import com.xmlcalabash.util.spi.StandardPagedMediaProvider
 import net.sf.saxon.s9api.QName
 import net.sf.saxon.s9api.XdmValue
@@ -44,14 +46,15 @@ open class XslFormatterStep(): AbstractAtomicStep() {
             } else {
                 formatters.add(URI.create("https://xmlcalabash.com/paged-media/xsl-formatter/${value}"))
             }
+        } else {
+            formatters.addAll(stepConfig.xmlCalabashConfig.xslFormatters.map { it.first })
         }
-        formatters.addAll(stepConfig.xmlCalabashConfig.pagedMediaXslProcessors)
         if (formatters.isEmpty()) {
             formatters.add(StandardPagedMediaProvider.genericXslFormatter)
         }
 
         for (formatter in formatters) {
-            stepConfig.debug { "Searching for ${formatter} css-formatter" }
+            stepConfig.debug { "Searching for ${formatter} xsl-formatter" }
             for (manager in stepConfig.xmlCalabashConfig.pagedMediaManagers) {
                 if (manager.formatterAvailable(formatter)) {
                     xslManager = manager
@@ -67,13 +70,15 @@ open class XslFormatterStep(): AbstractAtomicStep() {
         }
 
         if (xslManager == null) {
-            throw stepConfig.exception(XProcError.xdStepFailed("No XSL formatters available"))
+            if (formatters.size == 1 && formatters.first() == StandardPagedMediaProvider.genericXslFormatter) {
+                throw stepConfig.exception(XProcError.xdStepFailed("No XSL formatters available"))
+            }
+            throw stepConfig.exception(XProcError.xdStepFailed("No configured XSL formatters available"))
         }
 
         val provider = xslManager.getFoProcessor(genericXslFormatter)
 
-        // FIXME:
-        //runtime.pipelineConfig.messageReporter.progress { "Using ${provider.name()} formatter" }
+        stepConfig.debug { "Using ${provider.name()} formatter" }
 
         provider.initialize(stepConfig, document.baseURI ?: stepConfig.baseUri ?: UriUtils.cwdAsUri(), parameters)
 

@@ -303,7 +303,34 @@ class BuilderConfiguration(config: XmlCalabashBuilder) {
                         }
                     }
                 }
-                "configuredXQueryProcessors", "cssFormatter", "xslFormatter" -> {
+                "cssFormatter", "xslFormatter" -> {
+                    @Suppress("UNCHECKED_CAST")
+                    val expected = value as List<Pair<URI, Map<QName, String>>>
+                    @Suppress("UNCHECKED_CAST")
+                    val actual = configValues[name] as List<Pair<URI, Map<QName, String>>>
+
+                    if (expected.size != actual.size) {
+                        diffs.add(name)
+                    } else {
+                        for ((index, epair) in expected.withIndex()) {
+                            val euri = epair.first
+                            val emap = epair.second
+                            val auri = actual[index].first
+                            val amap = actual[index].second
+                            if (euri != auri) {
+                                diffs.add(name)
+                            } else {
+                                for ((key, evalue) in emap) {
+                                    if (evalue != amap[key]) {
+                                        diffs.add(name)
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                }
+                "configuredXQueryProcessors" -> {
                     @Suppress("UNCHECKED_CAST")
                     val expected = value as Map<URI, Map<QName, String>>
                     @Suppress("UNCHECKED_CAST")
