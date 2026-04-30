@@ -1,13 +1,15 @@
 package com.xmlcalabash.steps
 
-import com.xmlcalabash.io.MediaType
 import com.xmlcalabash.documents.DocumentProperties
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
+import com.xmlcalabash.io.MediaType
 import com.xmlcalabash.namespace.Ns
 import com.xmlcalabash.namespace.NsCx
 import com.xmlcalabash.spi.PagedMediaManager
+import com.xmlcalabash.util.Report
 import com.xmlcalabash.util.UriUtils
+import com.xmlcalabash.util.Verbosity
 import com.xmlcalabash.util.spi.StandardPagedMediaProvider
 import net.sf.saxon.s9api.QName
 import net.sf.saxon.s9api.XdmValue
@@ -47,8 +49,9 @@ open class CssFormatterStep(): AbstractAtomicStep() {
             } else {
                 formatters.add(URI.create("https://xmlcalabash.com/paged-media/css-formatter/${value}"))
             }
+        } else {
+            formatters.addAll(stepConfig.xmlCalabashConfig.cssFormatters.map { it.first })
         }
-        formatters.addAll(stepConfig.xmlCalabashConfig.pagedMediaCssProcessors)
         if (formatters.isEmpty()) {
             formatters.add(StandardPagedMediaProvider.genericCssFormatter)
         }
@@ -67,12 +70,15 @@ open class CssFormatterStep(): AbstractAtomicStep() {
         }
 
         if (cssManager == null) {
-            throw stepConfig.exception(XProcError.xdStepFailed("No CSS formatters available"))
+            if (formatters.size == 1 && formatters.first() == StandardPagedMediaProvider.genericCssFormatter) {
+                throw stepConfig.exception(XProcError.xdStepFailed("No CSS formatters available"))
+            }
+            throw stepConfig.exception(XProcError.xdStepFailed("No configured CSS formatters available"))
         }
 
         val provider = cssManager.getCssProcessor(genericCssFormatter)
 
-        //runtime.pipelineConfig.messageReporter.progress { "Using ${provider.name()} formatter" }
+        stepConfig.debug { "Using ${provider.name()} formatter" }
 
         provider.initialize(stepConfig, document.baseURI ?: stepConfig.baseUri ?: UriUtils.cwdAsUri(), parameters)
         for (stylesheet in stylesheets) {

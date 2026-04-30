@@ -354,11 +354,21 @@ class ConfigurationLoader() {
         }
 
         if (cssFormatter != null) {
-            builder.cssFormatter.put(cssFormatter, properties)
+            val current = builder.cssFormatter.getOrDefault() ?: emptyList()
+            if (current.any { it.first == cssFormatter }) {
+                logger.info { "Repeated CSS formatter configuration for ${cssFormatter} ignored" }
+            } else {
+                builder.cssFormatter.add(Pair(cssFormatter, properties))
+            }
         }
 
         if (xslFormatter != null) {
-            builder.xslFormatter.put(xslFormatter, properties)
+            val current = builder.xslFormatter.getOrDefault() ?: emptyList()
+            if (current.any { it.first == xslFormatter }) {
+                logger.info { "Repeated XSL formatter configuration for ${xslFormatter} ignored" }
+            } else {
+                builder.xslFormatter.add(Pair(xslFormatter, properties))
+            }
         }
     }
 

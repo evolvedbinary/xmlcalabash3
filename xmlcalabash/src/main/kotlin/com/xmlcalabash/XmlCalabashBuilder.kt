@@ -82,8 +82,8 @@ class XmlCalabashBuilder {
     val pipelineUri = CfgValue<URI>()
     val mimeTypes = CfgMapValue<String, List<String>>()
     val mpt = CfgValue(0.99999998)
-    val cssFormatter = CfgMapValue<URI, Map<QName, String>>()
-    val xslFormatter = CfgMapValue<URI, Map<QName, String>>()
+    val cssFormatter = CfgListValue<Pair<URI, Map<QName, String>>>()
+    val xslFormatter = CfgListValue<Pair<URI, Map<QName, String>>>()
     val messageReporterBufferSize = CfgValue(32)
     val configurers = CfgListValue<Configurer>()
     val additionalMimeTypeMappings = CfgMapValue<MediaType, Set<String>>()
@@ -138,7 +138,13 @@ class XmlCalabashBuilder {
             for (manager in xconfig.pagedMediaManagers) {
                 for (formatter in manager.formatters()) {
                     if (formatter in uninitializedFormatters) {
-                        manager.configure(formatter, emptyMap())
+                        // This is a bit crude and relies on the fact that cssFormatter and xslFormatter URIs are disjoint
+                        var fopt: Map<QName, String>? = xconfig.cssFormatters.filter { it.first == formatter }.firstOrNull()?.second
+                        if (fopt == null) {
+                            fopt = xconfig.xslFormatters.filter { it.first == formatter }.firstOrNull()?.second
+                        }
+
+                        manager.configure(formatter, fopt ?: emptyMap())
                     }
                 }
             }
@@ -395,7 +401,7 @@ class XmlCalabashBuilder {
         updated = true
     }
 
-    private class InvokedConfiguration constructor(props: XmlCalabashBuilder): XmlCalabashConfiguration {
+    private class InvokedConfiguration(props: XmlCalabashBuilder): XmlCalabashConfiguration {
         lateinit var _saxonConfiguration: SaxonConfiguration
         override val saxonConfiguration: SaxonConfiguration
             get() = _saxonConfiguration
@@ -416,6 +422,8 @@ class XmlCalabashBuilder {
         override val other: Map<QName, List<Map<QName, String>>> = props.other.getOrDefault() ?: emptyMap()
         override val pagedMediaCssProcessors: List<URI> = props.pagedMediaCssProcessors.getOrDefault() ?: emptyList()
         override val pagedMediaXslProcessors: List<URI> = props.pagedMediaXslProcessors.getOrDefault() ?: emptyList()
+        override val cssFormatters: List<Pair<URI, Map<QName, String>>> = props.cssFormatter.getOrDefault() ?: emptyList()
+        override val xslFormatters: List<Pair<URI, Map<QName, String>>> = props.xslFormatter.getOrDefault() ?: emptyList()
         override val configuredXQueryProcessors: Map<URI, Map<QName, String>> = props.configuredXQueryProcessors.getOrDefault() ?: emptyMap()
         override val defaultXQueryProcessor: URI = props.defaultXQueryProcessor.getOrDefault()!!
         override val pipe: Boolean = props.pipedMode.getOrDefault()!!
