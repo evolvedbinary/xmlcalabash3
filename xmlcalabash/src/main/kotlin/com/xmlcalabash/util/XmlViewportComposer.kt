@@ -88,8 +88,6 @@ class XmlViewportComposer(val stepConfig: XProcStepConfiguration, val match: Str
         }
 
         override fun startElement(node: XdmNode, attributes: AttributeMap): Boolean {
-            val builder = SaxonTreeBuilder(stepConfig)
-
             // Special case for a document element with a relative base URI. Make sure that the base
             // URI that will get computed for the document element will be correct.
             val baseUri = if (node.getAttributeValue(NsXml.base) != null && !URI(node.getAttributeValue(NsXml.base)).isAbsolute) {
@@ -97,11 +95,7 @@ class XmlViewportComposer(val stepConfig: XProcStepConfiguration, val match: Str
             } else {
                 node.baseURI
             }
-
-            builder.startDocument(baseUri)
-            builder.addSubtree(node)
-            builder.endDocument()
-            viewportItems.add(XmlViewportItem(stepConfig, builder.result))
+            viewportItems.add(XmlViewportItem(stepConfig, makeDocument(node, baseUri)))
             insertMarker()
             return false
         }
@@ -119,22 +113,31 @@ class XmlViewportComposer(val stepConfig: XProcStepConfiguration, val match: Str
         }
 
         override fun text(node: XdmNode) {
-            viewportItems.add(XmlViewportItem(stepConfig, node))
+            viewportItems.add(XmlViewportItem(stepConfig, makeDocument(node)))
             insertMarker()
             matcher.addEndElement()
         }
 
         override fun comment(node: XdmNode) {
-            viewportItems.add(XmlViewportItem(stepConfig, node))
+            viewportItems.add(XmlViewportItem(stepConfig, makeDocument(node)))
             insertMarker()
             matcher.addEndElement()
         }
 
         override fun pi(node: XdmNode) {
-            viewportItems.add(XmlViewportItem(stepConfig, node))
+            viewportItems.add(XmlViewportItem(stepConfig, makeDocument(node)))
             insertMarker()
             matcher.addEndElement()
         }
+
+        private fun makeDocument(node: XdmNode, overrideBaseUri: URI? = null): XdmNode {
+            val builder = SaxonTreeBuilder(stepConfig)
+            builder.startDocument(overrideBaseUri ?: node.baseURI)
+            builder.addSubtree(node)
+            builder.endDocument()
+            return builder.result
+        }
+
     }
 
     inner class Recomposer: ProcessMatchingNodes {
