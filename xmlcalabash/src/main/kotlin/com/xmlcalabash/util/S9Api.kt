@@ -86,10 +86,14 @@ class S9Api {
 
         fun textContent(doc: XProcDocument): String {
             if (doc.value is XdmNode) {
+                val node = doc.value as XdmNode
+                if (node.nodeKind == XdmNodeKind.TEXT) {
+                    return node.stringValue
+                }
                 val stream = ByteArrayOutputStream()
-                val serializer = (doc.value as XdmNode).processor.newSerializer(stream)
+                val serializer = node.processor.newSerializer(stream)
                 serializer.setOutputProperty(Serializer.Property.METHOD, "text")
-                serializer.serialize((doc.value as XdmNode).asSource())
+                serializer.serialize(node.asSource())
                 return stream.toString(StandardCharsets.UTF_8)
             } else {
                 return doc.value.toString()
