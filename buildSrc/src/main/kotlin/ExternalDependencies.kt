@@ -14,25 +14,25 @@ object ExternalDependencies {
             "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2",
             "org.jetbrains.kotlin:kotlin-reflect:2.1.20",
 
-            "com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.21.1",
-            "com.fasterxml.jackson.dataformat:jackson-dataformat-toml:2.21.1",
-            "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.21.1",
+            "com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.21.3",
+            "com.fasterxml.jackson.dataformat:jackson-dataformat-toml:2.21.3",
+            "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.21.3",
             "com.github.f4b6a3:uuid-creator:6.1.1",
             "com.networknt:json-schema-validator:1.5.9",
             "com.nwalsh:sinclude:5.6.0",
             "com.vladsch.flexmark:flexmark-all:0.64.8",
-            "commons-codec:commons-codec:1.21.0",
+            "commons-codec:commons-codec:1.22.0",
             "javax.activation:activation:1.1.1", // For mimetype mapping
             "nu.validator:htmlparser:1.4.16",
             "org.apache.commons:commons-compress:1.28.0",
-            "org.apache.httpcomponents.client5:httpclient5:5.6",
+            "org.apache.httpcomponents.client5:httpclient5:5.6.1",
             "org.brotli:dec:0.1.2",
             "org.jline:jline:3.30.6",
             "org.jline:jline-terminal-jansi:3.30.6",
             "org.nineml:coffeefilter:3.3.8",
             "org.nineml:coffeegrinder:3.3.8",
             "org.relaxng:jing:20241231",
-            "org.tukaani:xz:1.11",
+            "org.tukaani:xz:1.12",
             "org.xmlresolver:xmlresolver:6.0.21",
 
             // I was using log4j but httpclient5 uses slf4j.
@@ -40,17 +40,17 @@ object ExternalDependencies {
             // But I got tired of trying to figure it out so I did this instead.
             "org.slf4j:slf4j-api:2.0.17",
             "ch.qos.logback:logback-classic:1.5.18",
-            "org.apache.logging.log4j:log4j-to-slf4j:2.25.3"),
+            "org.apache.logging.log4j:log4j-to-slf4j:2.25.4"),
 
         "asciidoctor" to listOf("org.asciidoctor:asciidoctorj:3.0.1",
             "org.asciidoctor:asciidoctorj-pdf:2.3.23"),
 
-        "diagramming" to listOf("net.sourceforge.plantuml:plantuml:1.2026.1", // plantuml includes ditaa
+        "diagramming" to listOf("net.sourceforge.plantuml:plantuml:1.2026.2", // plantuml includes ditaa
             "de.rototor.jeuclid:jeuclid-core:3.1.14"),
 
-        "plantuml" to listOf("net.sourceforge.plantuml:plantuml:1.2026.1"),
+        "plantuml" to listOf("net.sourceforge.plantuml:plantuml:1.2026.2"),
 
-        "ditaa" to listOf("net.sourceforge.plantuml:plantuml:1.2026.1"),
+        "ditaa" to listOf("net.sourceforge.plantuml:plantuml:1.2026.2"),
 
         "mathml-to-svg" to listOf("de.rototor.jeuclid:jeuclid-core:3.1.14"),
 
@@ -71,10 +71,10 @@ object ExternalDependencies {
 
         "markup-blitz" to listOf("de.bottlecaps:markup-blitz:1.9"),
 
-        "metadata-extractor" to listOf("com.drewnoakes:metadata-extractor:2.19.0",
-            "org.apache.pdfbox:pdfbox:3.0.6", // pdfbox dep for parsing XML in pdfbox
-            "org.apache.pdfbox:pdfbox-io:3.0.6",
-            "org.apache.pdfbox:xmpbox:3.0.6",
+        "metadata-extractor" to listOf("com.drewnoakes:metadata-extractor:2.20.0",
+            "org.apache.pdfbox:pdfbox:3.0.7", // pdfbox dep for parsing XML in pdfbox
+            "org.apache.pdfbox:pdfbox-io:3.0.7",
+            "org.apache.pdfbox:xmpbox:3.0.7",
             "javax.xml.bind:jaxb-api:2.3.1"),
 
         "paged-media-fop" to listOf("org.apache.xmlgraphics:fop:2.11",
@@ -93,16 +93,16 @@ object ExternalDependencies {
             "de.bottlecaps.ebnf-convert:ebnf-convert-lib:0.72"),
 
         "rdf" to listOf("javax.activation:activation:1.1.1", // For mimetype mapping
-            "org.apache.jena:jena:5.5.0",
-            "org.apache.jena:jena-arq:5.5.0",
-            "org.apache.jena:jena-core:5.5.0",
-            "org.apache.jena:jena-iri:5.5.0",
+            "org.apache.jena:jena:6.0.0",
+            "org.apache.jena:jena-arq:6.0.0",
+            "org.apache.jena:jena-core:6.0.0",
+            "org.apache.jena:jena-iri:5.6.0",
             "org.semarglproject:semargl-core:0.7",
             "org.semarglproject:semargl-rdfa:0.7"),
 
         "selenium" to listOf("org.nineml:coffeegrinder:3.3.8",
             "org.nineml:coffeefilter:3.3.8",
-            "org.seleniumhq.selenium:selenium-java:4.41.0"),
+            "org.seleniumhq.selenium:selenium-java:4.43.0"),
 
         "send-mail" to listOf("javax.activation:activation:1.1.1",
             "javax.mail:javax.mail-api:1.6.2",
