@@ -1,8 +1,6 @@
 package com.xmlcalabash.runtime.steps
 
 import com.xmlcalabash.documents.XProcDocument
-import com.xmlcalabash.exceptions.XProcException
-import com.xmlcalabash.namespace.NsErr
 import com.xmlcalabash.runtime.XProcStepConfiguration
 import com.xmlcalabash.runtime.model.CompoundStepModel
 
@@ -39,7 +37,7 @@ open class ForEachStep(config: XProcStepConfiguration, compound: CompoundStepMod
 
                 if (position > 1) {
                     head.reset()
-                    head.showMessage = false
+                    head._showMessage = false
                     foot.reset()
                     for (step in stepsToRun) {
                         step.reset()

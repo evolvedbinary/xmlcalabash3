@@ -24,8 +24,8 @@ class CompoundStepHead(config: XProcStepConfiguration, val parent: CompoundStep,
     val defaultInputs = step.defaultInputs
     internal val openPorts = mutableSetOf<String>()
     internal val unboundInputs = mutableSetOf<String>()
-    private var message: XdmValue? = null
-    internal var showMessage = true
+    private var _message: XdmValue? = null
+    internal var _showMessage = true
     internal val _cache: ConcurrentMap<String, List<XProcDocument>> = ConcurrentHashMap()
     internal val _options: ConcurrentMap<QName, List<XProcDocument>> = ConcurrentHashMap()
     private val inputErrors = mutableListOf<XProcError>()
@@ -129,9 +129,9 @@ class CompoundStepHead(config: XProcStepConfiguration, val parent: CompoundStep,
             if (port.startsWith("Q{")) {
                 val name = stepConfig.typeUtils.parseQName(port)
 
-                if ((type.namespaceUri == NsP.namespace && name == Ns.message)
-                    || (type.namespaceUri != NsP.namespace && name == NsP.message)) {
-                    message = doc.value
+                if ((parent.type.namespaceUri == NsP.namespace && name == Ns.message)
+                    || (parent.type.namespaceUri != NsP.namespace && name == NsP.message)) {
+                    _message = doc.value
                 } else {
                     val olist = mutableListOf<XProcDocument>()
                     olist.addAll(_options[name] ?: emptyList())
@@ -185,25 +185,34 @@ class CompoundStepHead(config: XProcStepConfiguration, val parent: CompoundStep,
             NsP.message
         }
         if (matchingName in staticOptions) {
-            message = staticOptions[matchingName]!!.staticValue.evaluate(stepConfig)
+            _message = staticOptions[matchingName]!!.staticValue.evaluate(stepConfig)
         }
     }
 
-    override fun run() {
-        if (message == null) {
+    internal fun showMessage() {
+        if (!_showMessage) {
+            return
+        }
+
+        if (_message == null) {
             if (parent.type.namespaceUri == NsP.namespace) {
-                message = options[Ns.message]?.first()?.value
+                _message = options[Ns.message]?.first()?.value
             } else {
-                message = options[NsP.message]?.first()?.value
+                _message = options[NsP.message]?.first()?.value
             }
         }
 
-        if (showMessage && message != null) {
-            val infoMessage = "${message}"
-            stepConfig.info { infoMessage }
-            message = null
-            showMessage = false
+        if (_message != null) {
+            val resolved = "${_message}"
+            stepConfig.info { resolved }
         }
+
+        _message = null
+        _showMessage = false
+    }
+
+    override fun run() {
+        showMessage()
 
         // Work out what should appear on each input...
         for ((port, output) in params.outputs) {
@@ -349,7 +358,7 @@ class CompoundStepHead(config: XProcStepConfiguration, val parent: CompoundStep,
         inputCount.clear()
         _options.clear()
         inputErrors.clear()
-        showMessage = true
+        _showMessage = true
     }
 
     override fun toString(): String {

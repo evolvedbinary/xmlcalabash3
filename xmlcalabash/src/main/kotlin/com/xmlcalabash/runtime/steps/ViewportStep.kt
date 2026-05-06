@@ -5,7 +5,6 @@ import com.xmlcalabash.io.MediaType
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.namespace.Ns
-import com.xmlcalabash.namespace.NsXml
 import com.xmlcalabash.runtime.XProcStepConfiguration
 import com.xmlcalabash.runtime.model.CompoundStepModel
 import com.xmlcalabash.util.MediaClassification
@@ -17,7 +16,6 @@ import net.sf.saxon.s9api.XdmMap
 import net.sf.saxon.s9api.XdmNode
 import net.sf.saxon.s9api.XdmValue
 import net.sf.saxon.value.QNameValue
-import net.sf.saxon.value.StringValue
 
 open class ViewportStep(config: XProcStepConfiguration, compound: CompoundStepModel): CompoundStep(config, compound) {
     init {
@@ -81,7 +79,7 @@ open class ViewportStep(config: XProcStepConfiguration, compound: CompoundStepMo
                     iterationPosition = position
                     if (!firstTime) {
                         head.reset()
-                        head.showMessage = false
+                        head._showMessage = false
                         foot.reset()
                         for (step in stepsToRun) {
                             step.reset()
