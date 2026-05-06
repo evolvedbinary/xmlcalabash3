@@ -128,7 +128,9 @@ abstract class VariableBindingContainer(parent: XProcInstruction, val name: QNam
                 if (this is OptionInstruction) {
                     throw stepConfig.exception(XProcError.xsShadowStaticOption(name))
                 } else {
-                    throw stepConfig.exception(XProcError.xsVariableShadowsStaticOption(name))
+                    if (this !is RunOptionInstruction) {
+                        throw stepConfig.exception(XProcError.xsVariableShadowsStaticOption(name))
+                    }
                 }
             }
         }

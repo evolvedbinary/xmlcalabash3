@@ -59,7 +59,7 @@ open class WhileStep(config: XProcStepConfiguration, compound: CompoundStepModel
 
                 if (position > 1L) {
                     head.reset()
-                    head.showMessage = false
+                    head._showMessage = false
                     foot.reset()
                     for (step in stepsToRun) {
                         step.reset()

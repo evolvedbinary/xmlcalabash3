@@ -18,7 +18,10 @@ open class RunStep(config: XProcStepConfiguration, compound: CompoundStepModel):
     val runParams = compound.params as RunStepStepParameters
 
     override fun run() {
-        // This isn't *really* a compound step...
+        // This isn't *really* a compound step...and we don't run its head!
+
+        head.showMessage()
+
         val cache = mutableMapOf<String, List<XProcDocument>>()
         cache.putAll(head.cache)
         head.cacheClear()
