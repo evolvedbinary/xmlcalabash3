@@ -13,11 +13,11 @@ class DefaultMessageReporter(nextReporter: MessageReporter? = null): NopMessageR
             val prefix = StringBuilder()
 
             when (severity) {
-                Verbosity.TRACE -> prefix.append("Trace ")
-                Verbosity.DEBUG -> prefix.append("Debug ")
+                Verbosity.TRACE -> prefix.append("Trace: ")
+                Verbosity.DEBUG -> prefix.append("Debug: ")
                 Verbosity.INFO -> Unit
-                Verbosity.WARN -> prefix.append("Warning ")
-                Verbosity.ERROR -> prefix.append("Error ")
+                Verbosity.WARN -> prefix.append("Warning: ")
+                Verbosity.ERROR -> prefix.append("Error: ")
             }
 
             try {
