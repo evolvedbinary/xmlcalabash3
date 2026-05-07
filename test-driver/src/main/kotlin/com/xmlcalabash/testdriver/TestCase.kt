@@ -9,6 +9,7 @@ import com.xmlcalabash.exceptions.DefaultErrorExplanation
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.exceptions.XProcException
 import com.xmlcalabash.io.BasicDocumentLoader
+import com.xmlcalabash.io.DocumentWriter
 import com.xmlcalabash.io.MimeDocumentLoader
 import com.xmlcalabash.namespace.Ns
 import com.xmlcalabash.namespace.NsCx
@@ -66,6 +67,7 @@ class TestCase(val builder: XmlCalabashBuilder, val xmlCalabash: XmlCalabash, va
         val HIDDEN = QName("hidden")
         val EXECUTABLE = QName("executable")
         val ENCODING = QName("encoding")
+        val SERIALIZED = QName("serialized")
 
         private val showErrorExplanations = false
         private val commandLineTempDir = File("/tmp/xmlcalabash.rcl")
@@ -102,6 +104,7 @@ class TestCase(val builder: XmlCalabashBuilder, val xmlCalabash: XmlCalabash, va
     var requiresUnreadableFiles = false
     var requiresUnwritableDirectory = false
     val UNSUPPORTED_FEATURES = mutableListOf<String>("xslt-1", "xquery_1_0")
+    var serialized = false
 
     fun load() {
         if (System.getenv("XMLCALABASH_TEST_CHROME") == "false") {
@@ -238,7 +241,7 @@ class TestCase(val builder: XmlCalabashBuilder, val xmlCalabash: XmlCalabash, va
                 pipeline.option(name, value)
             }
 
-            val outputReceiver = BufferingReceiver()
+            var outputReceiver = BufferingReceiver()
             pipeline.receiver = outputReceiver
 
             if (testOptions.report != null) {
@@ -250,6 +253,30 @@ class TestCase(val builder: XmlCalabashBuilder, val xmlCalabash: XmlCalabash, va
                 pipeline.run()
                 elapsedSeconds = (System.nanoTime() - start) / 1e9
                 endIO()
+
+                if (serialized) {
+                    val serializedReceiver = BufferingReceiver()
+                    for ((port, doclist) in outputReceiver.outputs) {
+                        val serlist = mutableListOf<String>()
+                        for (doc in doclist) {
+                            val baos = ByteArrayOutputStream()
+                            val writer = DocumentWriter(doc, baos)
+                            writer.write()
+
+                            val builder = SaxonTreeBuilder(doc.context.processor)
+                            builder.startDocument(doc.baseURI)
+                            builder.addStartElement(QName("serialization"))
+                            builder.addText(baos.toString(StandardCharsets.UTF_8))
+                            builder.addEndElement()
+                            builder.endDocument()
+
+                            val text = XProcDocument.ofXml(builder.result, doc.context)
+                            serializedReceiver.output(port, text)
+                        }
+                    }
+                    outputReceiver = serializedReceiver
+                }
+
             } catch (e: Exception) {
                 elapsedSeconds = (System.nanoTime() - start) / 1e9
                 endIO()
@@ -772,6 +799,11 @@ class TestCase(val builder: XmlCalabashBuilder, val xmlCalabash: XmlCalabash, va
             for (feature in root.getAttributeValue(FEATURES)!!.trim().split("\\s+".toRegex())) {
                 features.add(feature)
             }
+        }
+
+        if (root.getAttributeValue(SERIALIZED) != null) {
+            val value = root.getAttributeValue(SERIALIZED)!!.trim()
+            serialized = (value == "true" || value == "1" || value == "yes");
         }
 
         expected = root.getAttributeValue(EXPECTED)
