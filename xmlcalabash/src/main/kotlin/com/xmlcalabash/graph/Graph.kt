@@ -23,7 +23,6 @@ class Graph private constructor(val environment: GraphEnvironment) {
     private var edgeNumber = 0L
 
     private var pipelineNode: PipelineModel? = null
-    private var _graphXml: XdmNode? = null
 
     fun modelName(base: String): String {
         return environment.uniqueName(base)

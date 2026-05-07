@@ -292,6 +292,11 @@ abstract class CompoundStepDeclaration(parent: XProcInstruction?, stepConfig: In
     }
 
     protected open fun sinkUnreadablePort(wo: PortBindingContainer) {
+        if (wo.parent?.instructionType == NsCx.expression) {
+            val expr = wo.parent as AtomicExpressionStepInstruction
+            stepConfig.debug { "Variable $${expr.bindingName} is initialized but never used" }
+        }
+
         val sink = atomicStep(NsCx.sink)
         val wi = sink.withInput()
         wi.port = "source"
