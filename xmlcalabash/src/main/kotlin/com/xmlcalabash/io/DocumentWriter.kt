@@ -235,12 +235,28 @@ class DocumentWriter(val doc: XProcDocument,
 
         try {
             for ((name, value) in _params) {
-                if (value.underlyingValue is QNameValue) {
-                    val qname = (value.underlyingValue as QNameValue)
-                    serializer.setOutputProperty(name, "Q{${qname.namespaceURI}}${qname.localName}")
+                if (value == XdmEmptySequence.getInstance()) {
+                    // Ignore empty sequences
+                    continue
+                }
+
+                if (name == Ns.cdataSectionElements || name == Ns.suppressIndentation) {
+                    // Special case for various sorts of list values
+                    val vlist = mutableListOf<String>()
+                    for (item in value.iterator()) {
+                        if (item.underlyingValue is QNameValue) {
+                            val qname = (item.underlyingValue as QNameValue)
+                            vlist.add("Q{${qname.namespaceURI}}${qname.localName}")
+                        } else {
+                            vlist.add(item.underlyingValue.stringValue)
+                        }
+                    }
+                    serializer.setOutputProperty(name, vlist.joinToString(" "))
                 } else {
-                    // Ignore the empty sequence...
-                    if (value != XdmEmptySequence.getInstance()) {
+                    if (value.underlyingValue is QNameValue) {
+                        val qname = (value.underlyingValue as QNameValue)
+                        serializer.setOutputProperty(name, "Q{${qname.namespaceURI}}${qname.localName}")
+                    } else {
                         serializer.setOutputProperty(name, value.underlyingValue.stringValue)
                     }
                 }
