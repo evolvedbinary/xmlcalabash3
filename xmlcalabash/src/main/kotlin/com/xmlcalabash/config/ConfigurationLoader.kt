@@ -453,6 +453,12 @@ class ConfigurationLoader() {
                     builder.extensions.add(ExtensionName.IGNORE_INVALID_URIS)
                 }
             }
+            "3.2" -> {
+                val list = builder.extensions.get() ?: emptyList()
+                if (!list.contains(ExtensionName.VERSION_32)) {
+                    builder.extensions.add(ExtensionName.VERSION_32)
+                }
+            }
             else -> throw XProcError.xiUnrecognizedExtension(name).exception()
         }
     }

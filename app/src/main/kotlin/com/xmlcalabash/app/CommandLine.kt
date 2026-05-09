@@ -432,6 +432,7 @@ class CommandLine private constructor(val args: Array<out String>) {
         when (arg) {
             "eager-uri-resolution" -> builder.extensions.add(ExtensionName.EAGER_URI_RESOLUTION)
             "ignore-invalid-uris" -> builder.extensions.add(ExtensionName.IGNORE_INVALID_URIS)
+            "3.2" -> builder.extensions.add(ExtensionName.VERSION_32)
             else -> throw XProcError.xiCliInvalidValue("--extension-name", arg).exception()
         }
     }
