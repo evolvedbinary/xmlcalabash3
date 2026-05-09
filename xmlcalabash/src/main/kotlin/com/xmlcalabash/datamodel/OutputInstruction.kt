@@ -34,6 +34,11 @@ class OutputInstruction(parent: XProcInstruction): PortBindingContainer(parent, 
 
         if (_serialization == null) {
             _serialization = XProcExpression.constant(stepConfig, XdmMap(), stepConfig.qnameMapType)
+        } else {
+            // If there were preceding static options; we need to make sure they get copied down to here
+            for ((name, value) in parent!!.stepConfig.staticBindings) {
+                _serialization!!.setStaticBinding(name, XProcExpression.constant(parent!!.stepConfig, value))
+            }
         }
 
         super.elaborateInstructions()

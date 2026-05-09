@@ -5,6 +5,7 @@ import com.xmlcalabash.io.MediaType
 import com.xmlcalabash.datamodel.OutputInstruction
 import com.xmlcalabash.datamodel.PortBindingContainer
 import com.xmlcalabash.datamodel.WithInputInstruction
+import com.xmlcalabash.datamodel.XProcExpression
 import com.xmlcalabash.util.AssertionsLevel
 import net.sf.saxon.s9api.XdmMap
 import net.sf.saxon.s9api.XdmNode
@@ -20,6 +21,9 @@ open class ModelPort(val parent: Model, val name: String, val unbound: Boolean, 
         portBinding.primary == true, portBinding.sequence == true, portBinding.contentTypes.toList()) {
         weldedShut = portBinding.weldedShut
         if (portBinding is OutputInstruction) {
+            for ((name, value) in portBinding.stepConfig.staticBindings) {
+                portBinding.serialization.setStaticBinding(name, XProcExpression.constant(portBinding.stepConfig, value));
+            }
             serialization = portBinding.serialization.evaluate(portBinding.stepConfig) as XdmMap
         }
         if (portBinding.stepConfig.environment.assertions != AssertionsLevel.IGNORE) {
