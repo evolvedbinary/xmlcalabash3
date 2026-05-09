@@ -13,6 +13,7 @@ import com.xmlcalabash.runtime.api.Receiver
 import com.xmlcalabash.runtime.parameters.RuntimeStepParameters
 import com.xmlcalabash.spi.XQueryProcessor
 import com.xmlcalabash.util.Report
+import com.xmlcalabash.util.UriUtils
 import com.xmlcalabash.util.Verbosity
 import net.sf.saxon.om.NamespaceUri
 import net.sf.saxon.s9api.QName
@@ -28,6 +29,7 @@ import org.basex.io.IO
 import org.basex.io.IOContent
 import org.basex.io.serial.Serializer
 import org.basex.io.serial.SerializerOptions
+import org.basex.query.QueryInfo
 import org.basex.query.QueryProcessor
 import org.basex.query.util.UriResolver
 import org.basex.query.value.item.Uri
@@ -44,7 +46,7 @@ class XQueryBaseXProcessor(): XQueryProcessor {
     lateinit var stepParams: RuntimeStepParameters
 
     lateinit var sources: List<XProcDocument>
-    lateinit var query: String
+    lateinit var query: XProcDocument
     lateinit var parameters: Map<QName, XdmValue>
 
     private val config = mutableMapOf<QName, String>()
@@ -66,7 +68,7 @@ class XQueryBaseXProcessor(): XQueryProcessor {
 
     override fun run(sources: List<XProcDocument>, query: XProcDocument, parameters: Map<QName, XdmValue>, version: String) {
         this.sources = sources
-        this.query = query.value.underlyingValue.stringValue
+        this.query = query
         this.parameters = parameters
 
         host = parameters[NsCx.host]?.underlyingValue?.stringValue ?: config[Ns.host]
@@ -95,7 +97,7 @@ class XQueryBaseXProcessor(): XQueryProcessor {
         }
 
         val session = ClientSession(host, port, username, password)
-        val query = session.query(query)
+        val query = session.query(query.value.underlyingValue.stringValue)
 
         for ((qname, value) in parameters) {
             if (qname.namespaceUri != NsCx.namespace) {
@@ -137,7 +139,11 @@ class XQueryBaseXProcessor(): XQueryProcessor {
                 Add(doc.baseURI.toString(), serial).execute(context)
             }
 
-            val qp =  QueryProcessor(query, context)
+            val queryText = query.value.underlyingValue.stringValue
+            val queryUri = query.baseURI?.toString()
+            val queryInfo = QueryInfo(context)
+
+            val qp =  QueryProcessor(queryText, queryUri, context, queryInfo)
             qp.uriResolver(BaseXUriResolver(stepConfig))
 
             bindExternalVariables(qp)
