@@ -331,6 +331,11 @@ See below.
 <para>Disregard invalid URIs rather than reporting them as errors.</para>
 </listitem>
 </varlistentry>
+<varlistentry><term>Version 3.2 features</term>
+<listitem>
+<para>Speculative implementation of some features that might (or might not!) appear in XProc V.next.</para>
+</listitem>
+</varlistentry>
 </variablelist>
 
 <section xml:id="eager-uri-resolution">
@@ -463,9 +468,16 @@ the pipeline.
 attribute with an invalid percent-encoded string such as“<literal>%gg</literal>”, are
 generally errors. But that can make processing such files, even in ways that don’t
 involve resolving the base URI, impossible.</para>
-<para>If the “ignore invalid URIs” extension feature is enabled, XML Calabash behaves
+<para>If the “ignore-invalid-uris” extension feature is enabled, XML Calabash behaves
 in a non-conformant way: invalid URIs don’t raise an error, they are simply
 ignored.</para>
+</section>
+
+<section xml:id="version-32">
+<title>Version 3.2 features</title>
+
+<para>As development of XProc V.next progresses, XML Calabash may speculatively implement
+some new fatures. These are only available if the “3.2” extension feature is enabled.</para>
 </section>
 </section>
 </chapter>

@@ -1,5 +1,6 @@
 package com.xmlcalabash.config
 
+import com.xmlcalabash.XmlCalabashBuilder
 import com.xmlcalabash.XmlCalabashConfiguration
 import com.xmlcalabash.datamodel.DeclareStepInstruction
 import com.xmlcalabash.datamodel.XProcFunctionLibrary
@@ -7,6 +8,7 @@ import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.exceptions.XProcException
 import com.xmlcalabash.functions.*
 import com.xmlcalabash.spi.Configurer
+import com.xmlcalabash.util.ExtensionName
 import net.sf.saxon.Configuration
 import net.sf.saxon.functions.FunctionLibrary
 import net.sf.saxon.lib.ExtensionFunctionDefinition
@@ -41,19 +43,16 @@ class SaxonConfiguration private constructor(val licensed: Boolean,
         fun newInstance(xconfig: XmlCalabashConfiguration,
                         initializers: Map<String,Boolean>,
                         configurers: List<Configurer>): SaxonConfiguration {
-            return newInstance(xconfig.licensed, xconfig.lineNumbering, xconfig.saxonConfigurationFile?.toURI(),
-                xconfig.saxonConfigurationProperties, xconfig.xmlSchemas, initializers, configurers)
-        }
-
-       private fun newInstance(licensed: Boolean,
-                                lineNumbering: Boolean,
-                                configurationFile: URI?,
-                                properties: Map<String,String>,
-                                schemaDocuments: List<URI>,
-                                initializers: Map<String,Boolean>,
-                                configurers: List<Configurer>): SaxonConfiguration {
             val contextManager: ExecutionContextManager = ExecutionContextImpl()
-            val saxonConfiguration = SaxonConfiguration(licensed, lineNumbering,configurationFile, properties, schemaDocuments, initializers, configurers, contextManager)
+            val saxonConfiguration = SaxonConfiguration(xconfig.licensed, xconfig.lineNumbering,xconfig.saxonConfigurationFile?.toURI(),
+                xconfig.saxonConfigurationProperties, xconfig.xmlSchemas, initializers, configurers, contextManager)
+
+            if (xconfig.extensions.contains(ExtensionName.VERSION_32)) {
+                saxonConfiguration.standardExtensionFunctions.add(
+                    { config -> DocumentClassFunction(config) }
+                )
+            }
+
             saxonConfiguration.init(true, null)
             return saxonConfiguration
         }
@@ -133,7 +132,7 @@ class SaxonConfiguration private constructor(val licensed: Boolean,
     private val inheritedFunctionLibraries = mutableListOf<Pair<URI, XProcFunctionLibrary>>()
     private val functionLibraries = mutableListOf<Pair<URI, XProcFunctionLibrary>>()
     private val pipelineExtensionFunctions = mutableListOf<ExtensionFunctionDefinition>()
-    private val standardExtensionFunctions = listOf<(SaxonConfiguration) -> ExtensionFunctionDefinition>(
+    private val standardExtensionFunctions = mutableListOf<(SaxonConfiguration) -> ExtensionFunctionDefinition>(
         { config -> DocumentPropertyFunction(config) },
         { config -> DocumentPropertiesFunction(config) },
         { config -> ErrorFunction(config) },
@@ -148,6 +147,10 @@ class SaxonConfiguration private constructor(val licensed: Boolean,
 
     fun newConfiguration(): SaxonConfiguration {
         val newConfig = SaxonConfiguration(licensed, lineNumbering, saxonConfigurationFile, saxonConfigurationProperties, schemaDocuments, initializerClasses, configurers, contextManager)
+
+        newConfig.standardExtensionFunctions.clear()
+        newConfig.standardExtensionFunctions.addAll(standardExtensionFunctions)
+
         newConfig.inheritedFunctionLibraries.addAll(inheritedFunctionLibraries)
         newConfig.inheritedFunctionLibraries.addAll(functionLibraries)
         newConfig.pipelineExtensionFunctions.addAll(pipelineExtensionFunctions)
@@ -269,6 +272,7 @@ class SaxonConfiguration private constructor(val licensed: Boolean,
 
     private fun configureProcessor(processor: Processor) {
         for (function in standardExtensionFunctions) {
+            val f = function(this)
             processor.registerExtensionFunction(function(this))
         }
 
@@ -287,14 +291,6 @@ class SaxonConfiguration private constructor(val licensed: Boolean,
             val library = flib.second.suppressDuplicates(seen, processor.underlyingConfiguration)
             loadFunctionLibrary(flib.first, library)
             seen.putAll(flib.second.exposedNames)
-        }
-    }
-
-    // ============================================================
-
-    fun assertContextIsEmpty() {
-        if (contextManager is ExecutionContextImpl) {
-            contextManager.assertContextIsEmpty()
         }
     }
 
