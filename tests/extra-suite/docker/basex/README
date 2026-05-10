@@ -1,7 +1,0 @@
-In addition to running the build; you have to create the basex docker volume.
-
-$ docker create basex
-$ docker run -it --volume basex:/basex --rm basex /bin/bash
-
-Then in the container, unzip /tmp/BaseX120 into /basex
-

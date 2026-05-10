@@ -1,7 +1,0 @@
-<!DOCTYPE doc SYSTEM "doc.dtd" [
-<!ENTITY spoon "Spoon!">
-]>
-<doc><p>&chapter;</p>
-<!-- q next -->
-<q>&spoon;</q><p>&fork;</p></doc>
-
