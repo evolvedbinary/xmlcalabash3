@@ -3,8 +3,17 @@
         xmlns:cxerr="http://xmlcalabash.com/ns/error"
         xmlns:t="http://xproc.org/ns/testsuite/3.0">
   <t:info>
-    <t:title>find-004</t:title>
+    <t:title>find-005</t:title>
     <t:revision-history>
+      <t:revision>
+        <t:date>2026-05-10</t:date>
+        <t:author>
+          <t:name>Norm Tovey-Walsh</t:name>
+        </t:author>
+        <t:description xmlns="http://www.w3.org/1999/xhtml">
+          <p>Fixed title.</p>
+        </t:description>
+      </t:revision>
       <t:revision>
         <t:date>2025-05-11</t:date>
         <t:author>
