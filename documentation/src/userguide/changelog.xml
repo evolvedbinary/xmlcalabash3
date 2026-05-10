@@ -13,6 +13,64 @@ See the commits and pull requests on
 finer detail.</para>
 
 <revhistory>
+<revision xml:id="r3046">
+<revnumber>3.0.46</revnumber>
+<date>2026-05-10</date>
+<revdescription>
+<itemizedlist spacing="compact">
+<listitem><para>Closed <cbissue number="695"/>. Make sure that the initial query
+passed to BaseX has a base URI.
+</para></listitem>
+<listitem><para>Closed <cbissue number="690"/>. Put colons back in message reporter output.
+</para></listitem>
+<listitem><para>Closed <cbissue number="687"/> and <cbissue number="686"/>. Fix message output
+on <tag>p:run</tag> and correctly handle static options passed to <tag>p:run</tag>.
+</para></listitem>
+<listitem><para>Closed <cbissue number="678"/>. Updated dependencies (Apache Commons Codec,
+Apache HTTP Client,
+Apache PDFBox,
+Jackson data formats,
+Jena,
+log4j-to-slf4j,
+Metadata extractor,
+PlantUML,
+Selenium-java, and
+XZ).
+</para></listitem>
+<listitem><para>Closed <cbissue number="682"/>. Configuration of CSS and XSL formatters
+was broken in several ways.
+</para></listitem>
+<listitem><para>Closed  <cbissue number="681"/> and <cbissue number="680"/>. Corrected
+errors related to non-element matches in <tag>p:viewport</tag>.
+</para></listitem>
+<listitem><para>Closed <cbissue number="572"/>. Output a debug-level message for unused variables.
+</para></listitem>
+<listitem><para>Support several ways to set the value of serialization properties
+that accept a list of QNames as their value. Specifically, this applies to
+<code>cdata-section-elements</code> and <code>suppress-indentation</code>.
+They may be specified with a single string of space-separated
+<code xlink:href="https://www.w3.org/TR/xpath-31/#doc-xpath31-URIQualifiedName">URIQualifiedName</code>s
+or as an XPath sequence containing one or more <code>xs:QName</code> values or
+strings containing single <code>URIQualifiedName</code>s.
+</para></listitem>
+<listitem><para>Support static variables in serialization properties.
+</para></listitem>
+<listitem><para>Added an extension feature for speculative XProc V.next features
+and implemented the
+<function xlink:href="https://spec.xproc.org/pr/132/xproc/#f.document-class">p:document-class</function>
+function.
+</para></listitem>
+<listitem><para>Upgraded to SchXslt2 version 1.10.3.
+</para></listitem>
+<listitem><para>Updated the version of the XProc test suite used to test the build.
+</para></listitem>
+<listitem><para>Added links from the reference pages to additional examples in the XProc
+test suite.
+</para></listitem>
+</itemizedlist>
+</revdescription>
+</revision>
+
 <revision xml:id="r3045">
 <revnumber>3.0.45</revnumber>
 <date>2026-04-25</date>

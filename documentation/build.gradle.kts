@@ -328,7 +328,8 @@ val reference = tasks.register<SaxonXsltTask>("reference") {
       mapOf(
           "mediaobject-input-base-uri" to "file:${layout.buildDirectory.get()}/reference/current/",
           "chunk-output-base-uri" to "${layout.buildDirectory.get()}/reference/current/",
-          "dep_fop" to project.findProperty("fop").toString()
+          "dep_fop" to project.findProperty("fop").toString(),
+          "transform-before" to "file://${layout.projectDirectory.file("src/xsl/patch-refentry.xsl")}"
       )
   )
 
