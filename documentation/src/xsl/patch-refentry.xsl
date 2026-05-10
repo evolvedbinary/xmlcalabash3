@@ -32,6 +32,25 @@
         </refsection>
       </xsl:copy>
     </xsl:when>
+    <xsl:when test="starts-with($refname, 'cx:')">
+      <xsl:copy>
+        <xsl:apply-templates select="@*, node()"/>
+        <refsection xmlns="http://docbook.org/ns/docbook">
+          <info>
+            <title>Additional examples</title>
+          </info>
+          <para>
+            <xsl:text>The XML Calabash test suite </xsl:text>
+            <link xmlns:xlink="http://www.w3.org/1999/xlink"
+                  xlink:href="https://test-suite.xmlcalabash.com/element.html#cx_{substring-after($refname, ':')}"
+                  >contains examples</link>
+            <xsl:text> of the </xsl:text>
+            <tag>{$refname}</tag>
+            <xsl:text> step.</xsl:text>
+          </para>
+        </refsection>
+      </xsl:copy>
+    </xsl:when>
     <xsl:otherwise>
       <xsl:next-match/>
     </xsl:otherwise>

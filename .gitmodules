@@ -1,3 +1,6 @@
 [submodule "tests/3.0-test-suite"]
 	path = tests/3.0-test-suite
 	url = https://codeberg.org/XProc/test-suite.git
+[submodule "tests/extra-suite"]
+	path = tests/extra-suite
+	url = https://codeberg.org/xmlcalabash/test-suite.git

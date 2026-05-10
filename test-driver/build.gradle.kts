@@ -133,14 +133,14 @@ tasks.register<JavaExec>("selenium") {
   classpath = configurations.named("testrunner").get()
   mainClass = "com.xmlcalabash.testdriver.Main"
 
-  inputs.dir(layout.projectDirectory.dir("../tests/selenium"))
+  inputs.dir(layout.projectDirectory.dir("../tests/extra-suite/test-suite/selenium"))
   inputs.file(layout.projectDirectory.file("src/test/resources/exclusions.txt"))
   outputs.file(layout.buildDirectory.file("selenium-results.xml"))
 
   args("--title:XML Calabash Selenium Test Suite",
        "--require-pass:${requirePass}",
        "--console:${consoleOutput}",
-       "--dir:${layout.projectDirectory.dir("../tests/selenium/test-suite/tests")}",
+       "--dir:${layout.projectDirectory.dir("../tests/extra-suite/test-suite/selenium")}",
        "--report:${layout.buildDirectory.file("selenium-results.xml").get().asFile}",
        "--debug:${DEBUG}",
        "--save-results",
