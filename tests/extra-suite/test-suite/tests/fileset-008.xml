@@ -5,9 +5,18 @@
     <t:title>fileset-008</t:title>
     <t:revision-history>
       <t:revision>
+        <t:date>2026-05-10</t:date>
+        <t:author>
+          <t:name>Norm Tovey-Walsh</t:name>
+        </t:author>
+        <t:description xmlns="http://www.w3.org/1999/xhtml">
+          <p>Removed spurious text.</p>
+        </t:description>
+      </t:revision>
+      <t:revision>
         <t:date>2025-06-12</t:date>
         <t:author>
-n          <t:name>Norm Tovey-Walsh</t:name>
+          <t:name>Norm Tovey-Walsh</t:name>
         </t:author>
         <t:description xmlns="http://www.w3.org/1999/xhtml">
           <p>Created test.</p>

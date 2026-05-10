@@ -5,6 +5,15 @@
     <t:title>catalog-002</t:title>
     <t:revision-history>
       <t:revision>
+        <t:date>2026-05-10</t:date>
+        <t:author>
+          <t:name>Norm Tovey-Walsh</t:name>
+        </t:author>
+        <t:description xmlns="http://www.w3.org/1999/xhtml">
+          <p>Fixed markup error (moved catalog element).</p>
+        </t:description>
+      </t:revision>
+      <t:revision>
         <t:date>2025-05-17</t:date>
         <t:author>
           <t:name>Norm Tovey-Walsh</t:name>
@@ -15,10 +24,10 @@
       </t:revision>
     </t:revision-history>
   </t:info>
-  <t:catalog src="../documents/sample-catalog.xml"/>
   <t:description xmlns="http://www.w3.org/1999/xhtml">
     <p>Make sure that the catalog configuration is available to parsers, etc.</p>
   </t:description>
+  <t:catalog src="../documents/sample-catalog.xml"/>
   <t:pipeline>
 <p:declare-step xmlns:p="http://www.w3.org/ns/xproc"
                 xmlns:cx="http://xmlcalabash.com/ns/extensions"
