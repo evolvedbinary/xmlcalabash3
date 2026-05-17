@@ -13,6 +13,19 @@ See the commits and pull requests on
 finer detail.</para>
 
 <revhistory>
+<revision xml:id="r3047">
+<revnumber>3.0.47</revnumber>
+<date>2026-05-17</date>
+<revdescription>
+<itemizedlist spacing="compact">
+<listitem><para>Closed <cbissue number="706"/>. Report all of the (nested) causes when a
+pipeline fails with an exception. </para></listitem>
+<listitem><para>Reorganized the test suite subprojects, mostly to improve the
+documentation. Added links from steps to corresponding tests in the test suite
+as a way of providing more usage examples. </para></listitem>
+</itemizedlist>
+</revdescription>
+</revision>
 <revision xml:id="r3046">
 <revnumber>3.0.46</revnumber>
 <date>2026-05-10</date>
