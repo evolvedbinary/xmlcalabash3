@@ -574,17 +574,24 @@ val publishTestSuites = tasks.register<JavaExec>("publishTestSuites") {
 }
 
 listOf("3.0-test-suite", "extra-suite", "selenium").forEach { suite ->
+  val testInputs = if (suite == "selenium") {
+    layout.projectDirectory.file("../tests/extra-suite/test-suite/selenium")
+  } else {
+    layout.projectDirectory.file("../tests/${suite}/test-suite/tests")
+  }
+
   val testSuite = tasks.register<JavaExec>("setupSuite-${suite}") {
     classpath = configurations.named("transformation").get()
     mainClass = "net.sf.saxon.Transform"
     inputs.file(layout.projectDirectory.file("src/xsl/test-suite.xsl"))
-    inputs.dir(layout.projectDirectory.dir("../tests/${suite}/test-suite/tests"))
+    inputs.dir(testInputs)
     outputs.file(layout.buildDirectory.file("suites/${suite}.xml"))
 
     args("-it",
          "-xsl:${layout.projectDirectory.file("src/xsl/test-suite.xsl").asFile}",
          "-o:${layout.buildDirectory.file("suites/${suite}.xml").get().asFile}",
-         "test-suite=${suite}")
+         "test-suite=${suite}",
+         "test-suite-dir=${testInputs}")
 
     doLast {
       copy {

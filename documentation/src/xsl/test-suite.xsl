@@ -10,12 +10,12 @@
 <xsl:strip-space elements="*"/>
 
 <xsl:param name="test-suite" as="xs:string" required="yes"/>
+<xsl:param name="test-suite-dir" as="xs:string" required="yes"/>
 
 <xsl:mode on-no-match="shallow-copy"/>
 
 <xsl:template name="xsl:initial-template">
-  <xsl:variable name="dir" select="resolve-uri('../../../tests/' || $test-suite || '/test-suite/tests/',
-                                               static-base-uri())"/>
+  <xsl:variable name="dir" select="$test-suite-dir"/>
   <xsl:variable name="tests" select="collection($dir||'?select=*.xml;recurse=yes')"/>
 
   <xsl:variable name="rdir" select="resolve-uri('../../../test-driver/build/test-results/' || $test-suite || '/',
