@@ -687,6 +687,11 @@ class XmlCalabashCli private constructor() {
     }
 
     private fun explainError(errorExplanation: ErrorExplanation, ex: XProcException) {
+        // This is a hack; the cause should be *in* the error. Why isn't it?
+        if (ex.error.throwable == null && ex.cause != null) {
+            ex.error._throwable = ex.cause
+        }
+
         errorExplanation.report(ex.error)
         for (report in ex.error.reports) {
             errorExplanation.reporter.messagePrinter.println("  ${report}")
