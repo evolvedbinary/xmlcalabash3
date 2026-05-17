@@ -107,8 +107,19 @@ class DefaultErrorExplanation(override val reporter: MessageReporter): ErrorExpl
             sb.append(": ").append(errorMessage)
         }
 
-        if (error.throwable != null && error.throwable?.message != null) {
-            sb.append("\n").append("   cause: ${error.throwable!!.toString()}")
+        val seen = mutableSetOf<Throwable>()
+        var cause = error.throwable
+        while (cause != null) {
+            seen.add(cause)
+            if (cause.message != null) {
+                sb.append("\n").append("   cause: ${cause.message}")
+            } else {
+                sb.append("\n").append("   cause: ${cause}")
+            }
+            cause = cause.cause
+            if (seen.contains(cause)) {
+                cause = null
+            }
         }
 
         for (detail in details) {
