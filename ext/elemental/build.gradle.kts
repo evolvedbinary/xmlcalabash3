@@ -35,8 +35,7 @@ val dep_graalvmJS = "23.1.5"
 dependencies {
   implementation(project(":xmlcalabash"))
 
-  // TODO(AR) update to 7.6.0 release
-  implementation("xyz.elemental.fork.org.exist-db:exist-core:7.6.0-SNAPSHOT")
+  implementation("xyz.elemental.fork.org.exist-db:exist-core:7.7.0")
 
   xmlcalabash(project(":xmlcalabash"))
 }

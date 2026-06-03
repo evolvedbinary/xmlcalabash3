@@ -1,6 +1,6 @@
 #  Elemental extension step
 
-This is an extension step for [XML Calabash 3.x](https://github.com/xmlcalabash/xmlcalabash3), and it requires Elemental version 7.6.0 or newer.
+This is an extension step for [XML Calabash 3.x](https://github.com/xmlcalabash/xmlcalabash3), and it requires Elemental version 7.7.0 or newer.
 
 To use this step, you must add it to your XML Calabash configuration. It doesn’t
 have any standalone functionality.
