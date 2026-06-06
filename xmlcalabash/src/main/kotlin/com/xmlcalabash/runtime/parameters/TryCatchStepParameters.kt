@@ -7,10 +7,11 @@ import net.sf.saxon.s9api.QName
 
 open class TryCatchStepParameters(
     stepType: QName,
+    version: Double,
     stepName: String,
     location: Location,
     inputManifold: Map<String, RuntimePort>,
     outputManifold: Map<String, RuntimePort>,
     optionManifold: Map<QName, RuntimeOption>,
     val codes: List<QName>
-): RuntimeStepParameters(stepType, stepName, location, inputManifold, outputManifold, optionManifold)
+): RuntimeStepParameters(stepType, version, stepName, location, inputManifold, outputManifold, optionManifold,)

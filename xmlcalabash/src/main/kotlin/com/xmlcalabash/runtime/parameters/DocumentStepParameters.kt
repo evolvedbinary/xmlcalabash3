@@ -7,10 +7,11 @@ import com.xmlcalabash.runtime.api.RuntimeOption
 import com.xmlcalabash.runtime.api.RuntimePort
 import net.sf.saxon.s9api.QName
 
-class DocumentStepParameters(stepName: String,
+class DocumentStepParameters(version: Double,
+                             stepName: String,
                              location: Location,
                              inputs: Map<String, RuntimePort>,
                              outputs: Map<String, RuntimePort>,
                              options: Map<QName, RuntimeOption>,
                              val contentType: MediaType?
-): RuntimeStepParameters(NsCx.document, stepName, location, inputs, outputs, options)
+): RuntimeStepParameters(NsCx.document, version, stepName, location, inputs, outputs, options,)

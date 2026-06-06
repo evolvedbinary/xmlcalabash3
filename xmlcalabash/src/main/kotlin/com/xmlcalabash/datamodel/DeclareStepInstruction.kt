@@ -272,7 +272,7 @@ class DeclareStepInstruction(parent: XProcInstruction?, stepConfig: InstructionC
             if (version == null) {
                 throw stepConfig.exception(XProcError.xsMissingVersion())
             } else {
-                if (version != 3.0 && version != 3.1) {
+                if (version != 3.0 && version != 3.1 && version != 3.2) {
                     throw stepConfig.exception(XProcError.xsUnsupportedVersion(version!!.toString()))
                 }
             }

@@ -7,6 +7,7 @@ import net.sf.saxon.s9api.QName
 
 open class RunStepStepParameters(
     stepType: QName,
+    version: Double,
     stepName: String,
     location: Location,
     inputs: Map<String, RuntimePort>,
@@ -14,4 +15,4 @@ open class RunStepStepParameters(
     options: Map<QName, RuntimeOption>,
     val primaryInput: String?,
     val primaryOutput: String?
-): RuntimeStepParameters(stepType, stepName, location, inputs, outputs, options)
+): RuntimeStepParameters(stepType, version, stepName, location, inputs, outputs, options,)

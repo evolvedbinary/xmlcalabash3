@@ -18,7 +18,7 @@ import java.net.URI
 import java.nio.charset.StandardCharsets
 import java.util.*
 
-class ValueTemplateFilterXml(val originalNode: XdmNode, val contentType: MediaType, val baseUri: URI?): ValueTemplateFilter {
+class ValueTemplateFilterXml(val originalNode: XdmNode, val contentType: MediaType, val baseUri: URI?, val version: Double): ValueTemplateFilter {
     private var xmlNode = originalNode
     private var static = true
     private var onlyChecking = false
@@ -209,6 +209,28 @@ class ValueTemplateFilterXml(val originalNode: XdmNode, val contentType: MediaTy
                     addSubtree(builder, node)
                 }
             }
+            /*
+            XdmNodeKind.COMMENT, XdmNodeKind.PROCESSING_INSTRUCTION -> {
+                if (expandText.peek() && version > 3.1) {
+                    val sb = StringBuilder()
+                    for (node in considerValueTemplateNodes(config, node.parent, node.stringValue)) {
+                        if (node.first == null) {
+                            sb.append(node.second)
+                        } else {
+                            sb.append(node.first!!.underlyingValue.stringValue)
+                        }
+                    }
+
+                    if (node.nodeKind == XdmNodeKind.COMMENT) {
+                        builder.addComment(sb.toString())
+                    } else {
+                        builder.addPI(node.nodeName.localName, sb.toString())
+                    }
+                } else {
+                    addSubtree(builder, node)
+                }
+            }
+             */
             else -> addSubtree(builder, node)
         }
     }
@@ -254,6 +276,35 @@ class ValueTemplateFilterXml(val originalNode: XdmNode, val contentType: MediaTy
                     nodes.add(Pair(node, null))
                 }
             }
+            /*
+            XdmNodeKind.COMMENT, XdmNodeKind.PROCESSING_INSTRUCTION -> {
+                if (expandText.peek() && version > 3.1) {
+                    val sb = StringBuilder()
+                    for (node in considerValueTemplateNodes(config, node.parent, node.stringValue)) {
+                        if (node.first == null) {
+                            sb.append(node.second)
+                        } else {
+                            sb.append(node.first!!.underlyingValue.stringValue)
+                        }
+                    }
+
+                    val builder = SaxonTreeBuilder(config)
+                    builder.startDocument(node.baseURI)
+
+                    if (node.nodeKind == XdmNodeKind.COMMENT) {
+                        builder.addComment(sb.toString())
+                    } else {
+                        builder.addPI(node.nodeName.localName, sb.toString())
+                    }
+
+                    builder.endDocument()
+                    val node = builder.result.children().first()
+                    nodes.add(Pair(node, null))
+                } else {
+                    nodes.add(Pair(node, null))
+                }
+            }
+             */
             else -> nodes.add(Pair(node, null))
         }
         return nodes

@@ -68,6 +68,23 @@ abstract class XProcInstruction internal constructor(initialParent: XProcInstruc
     val inscopeVariables: Map<QName, VariableBindingContainer>
         get() = stepConfig.inscopeVariables
 
+    fun xprocVersion(): Double? {
+        var p: XProcInstruction? = this
+        while (p != null) {
+            when (p) {
+                is DeclareStepInstruction -> {
+                    if (p.version != null) {
+                        return p.version
+                    }
+                }
+                is LibraryInstruction -> return p.version
+                else -> Unit
+            }
+            p = p.parent
+        }
+        return null
+    }
+
     fun addVisibleStepType(decl: DeclareStepInstruction) {
         stepConfig.addVisibleStepType(decl)
     }

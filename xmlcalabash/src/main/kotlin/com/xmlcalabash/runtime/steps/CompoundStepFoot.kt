@@ -14,8 +14,10 @@ class CompoundStepFoot(config: XProcStepConfiguration, val parent: CompoundStep,
     internal var looping = false
     val cache = mutableMapOf<String, MutableList<XProcDocument>>()
     val holdPorts = mutableSetOf<String>()
-    override val params = RuntimeStepParameters(NsCx.foot, "!foot",
-        step.location, step.inputs, step.outputs, step.options)
+    override val params = RuntimeStepParameters(
+        NsCx.foot, 3.0, "!foot",
+        step.location, step.inputs, step.outputs, step.options,
+    )
 
     override val stepTimeout: Duration = Duration.ZERO
 

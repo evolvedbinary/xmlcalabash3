@@ -7,9 +7,10 @@ import net.sf.saxon.s9api.QName
 
 open class ViewportStepParameters(
     stepType: QName,
+    version: Double,
     stepName: String,
     location: Location,
     inputManifold: Map<String, RuntimePort>,
     outputManifold: Map<String, RuntimePort>,
     optionManifold: Map<QName, RuntimeOption>
-): RuntimeStepParameters(stepType, stepName, location, inputManifold, outputManifold, optionManifold)
+): RuntimeStepParameters(stepType, version, stepName, location, inputManifold, outputManifold, optionManifold,)

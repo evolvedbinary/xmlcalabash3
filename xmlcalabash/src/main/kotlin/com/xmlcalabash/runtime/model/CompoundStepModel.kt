@@ -43,26 +43,27 @@ class CompoundStepModel(runtime: XProcRuntime, model: CompoundModel): StepModel(
 
     override fun initialize(model: Model) {
         val cmodel = model as CompoundModel
+        val version = cmodel.step.xprocVersion()!!
 
         when (cmodel.step.instructionType) {
             NsP.forEach -> {
                 val finputs = mutableMapOf<String, RuntimePort>()
                 finputs.putAll(inputs)
                 //finputs.remove("!source")
-                params = RuntimeStepParameters(type, name, location, finputs, outputs, options)
+                params = RuntimeStepParameters(type, version, name, location, finputs, outputs, options,)
             }
             NsP.viewport -> {
                 val finputs = mutableMapOf<String, RuntimePort>()
                 finputs.putAll(inputs)
                 //finputs.remove("!source")
-                params = ViewportStepParameters(type, name, location, finputs, outputs, options)
+                params = ViewportStepParameters(type,version, name, location, finputs, outputs, options)
             }
             NsP.catch -> {
-                params = TryCatchStepParameters(type, name, location, inputs, outputs, options,
+                params = TryCatchStepParameters(type, version, name, location, inputs, outputs, options,
                     (cmodel.step as CatchInstruction).code)
             }
             NsP.finally -> {
-                params = TryCatchStepParameters(type, name, location, inputs, outputs, options, emptyList())
+                params = TryCatchStepParameters(type, version, name, location, inputs, outputs, options, emptyList())
             }
             NsP.run -> {
                 var primaryInput: String? = null
@@ -80,7 +81,7 @@ class CompoundStepModel(runtime: XProcRuntime, model: CompoundModel): StepModel(
                     }
                 }
 
-                params = RunStepStepParameters(type, name, location, inputs, outputs, options, primaryInput, primaryOutput)
+                params = RunStepStepParameters(type, version, name, location, inputs, outputs, options, primaryInput, primaryOutput)
             }
             else -> {
                 val pinputs = mutableMapOf<String, RuntimePort>()
@@ -92,7 +93,7 @@ class CompoundStepModel(runtime: XProcRuntime, model: CompoundModel): StepModel(
                         }
                     }
                 }
-                params = RuntimeStepParameters(type, name, location, pinputs, outputs, options)
+                params = RuntimeStepParameters(type, version, name, location, pinputs, outputs, options,)
             }
         }
 

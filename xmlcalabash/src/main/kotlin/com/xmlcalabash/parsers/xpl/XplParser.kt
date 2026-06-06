@@ -1269,6 +1269,7 @@ class XplParser internal constructor(val builder: PipelineBuilder) {
                 when (frac) {
                     0 -> return 3.0
                     1 -> return 3.1
+                    2 -> return 3.2
                     else -> Unit
                 }
             }
