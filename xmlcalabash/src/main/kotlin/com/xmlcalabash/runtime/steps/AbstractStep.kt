@@ -216,12 +216,13 @@ abstract class AbstractStep(val stepConfig: XProcStepConfiguration, step: StepMo
         // but it reuses exactly the right code, so I'm going with it...
         // Note that XProc imposes the constraint that it must be possible to evaluate
         // these expressions statically.
+        val version = binding.xprocVersion()!!
         when (binding) {
             is InlineInstruction -> {
                 val inlineReceiver = BufferingReceiver()
                 val source = RuntimePort("source", false, true, true, emptyList())
                 val result = RuntimePort("result", false, true, false, emptyList())
-                val inlineStepParams = InlineStepParameters("!inline", binding.stepConfig.location,
+                val inlineStepParams = InlineStepParameters(binding.xprocVersion()!!, "!inline", binding.stepConfig.location,
                     mapOf("source" to source), mapOf("result" to result), emptyMap(), binding.valueTemplateFilter, binding.contentType, binding.encoding)
                 val inlineStep = InlineStep(inlineStepParams)
                 inlineStep.setup(stepConfig.from(binding.stepConfig), inlineReceiver, inlineStepParams)
@@ -237,7 +238,7 @@ abstract class AbstractStep(val stepConfig: XProcStepConfiguration, step: StepMo
             }
             is DocumentInstruction -> {
                 val documentReceiver = BufferingReceiver()
-                val documentStepParameters = DocumentStepParameters("!document", binding.stepConfig.location,
+                val documentStepParameters = DocumentStepParameters(binding.xprocVersion()!!, "!document", binding.stepConfig.location,
                     emptyMap(), emptyMap(), emptyMap(), binding.contentType)
                 val documentStep = DocumentStep(documentStepParameters)
                 documentStep.setup(stepConfig.from(binding.stepConfig), documentReceiver, documentStepParameters)

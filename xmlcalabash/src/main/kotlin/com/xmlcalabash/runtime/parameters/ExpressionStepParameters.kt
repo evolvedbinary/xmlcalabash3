@@ -9,13 +9,14 @@ import net.sf.saxon.s9api.QName
 
 open class ExpressionStepParameters(
     stepName: String,
+    version: Double,
     location: Location,
     inputs: Map<String, RuntimePort>,
     outputs: Map<String, RuntimePort>,
     options: Map<QName, RuntimeOption>,
     step: AtomicExpressionStepInstruction,
     stepType: QName = NsCx.expression
-): RuntimeStepParameters(stepType, stepName, location, inputs, outputs, options) {
+): RuntimeStepParameters(stepType, version, stepName, location, inputs, outputs, options,) {
     val expression = step.expression
     val asType = step.expression.asType
     val values = step.expression.values

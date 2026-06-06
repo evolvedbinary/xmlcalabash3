@@ -7,9 +7,10 @@ import net.sf.saxon.s9api.QName
 
 open class RuntimeStepParameters(
     stepType: QName,
+    version: Double,
     stepName: String,
     location: Location,
     val inputs: Map<String, RuntimePort>,
     val outputs: Map<String, RuntimePort>,
     val options: Map<QName, RuntimeOption>
-): StepParameters(stepType, stepName, location)
+): StepParameters(stepType, version, stepName, location)

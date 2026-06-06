@@ -9,11 +9,12 @@ import net.sf.saxon.s9api.QName
 
 class OptionStepParameters(
     stepName: String,
+    version: Double,
     location: Location,
     inputs: Map<String, RuntimePort>,
     outputs: Map<String, RuntimePort>,
     options: Map<QName, RuntimeOption>,
     val step: AtomicExpressionStepInstruction
-): ExpressionStepParameters(stepName, location, inputs, outputs, options, step, NsCx.option) {
+): ExpressionStepParameters(stepName, version, location, inputs, outputs, options, step, NsCx.option) {
     val name = step.externalName
 }

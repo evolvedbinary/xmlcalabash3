@@ -19,8 +19,10 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 
 class CompoundStepHead(config: XProcStepConfiguration, val parent: CompoundStep, step: HeadModel): AbstractStep(config, step, NsCx.head, "${step.name}/head") {
-    override val params = RuntimeStepParameters(NsCx.head, "!head",
-        step.location, step.inputs, step.outputs, step.options)
+    override val params = RuntimeStepParameters(
+        NsCx.head, 3.0, "!head",
+        step.location, step.inputs, step.outputs, step.options,
+    )
     val defaultInputs = step.defaultInputs
     internal val openPorts = mutableSetOf<String>()
     internal val unboundInputs = mutableSetOf<String>()

@@ -19,32 +19,33 @@ open class AtomicBuiltinStepModel(runtime: XProcRuntime, val model: AtomicModel)
 
     init {
         val childStep = model.step as AtomicStepInstruction
+        val version = childStep.xprocVersion()!!
 
         staticOptions.putAll(childStep.staticOptions)
         extensionAttributes.putAll(childStep.extensionAttributes)
 
         provider = when (childStep.instructionType) {
             NsCx.empty -> {
-                params = EmptyStepParameters(name, location, inputs, outputs, options)
+                params = EmptyStepParameters(version, name, location, inputs, outputs, options)
                 runtime.environment.stepProvider(params)
             }
 
             NsCx.inline -> {
                 val step = childStep as AtomicInlineStepInstruction
-                params = InlineStepParameters(name, location, inputs, outputs, options,
+                params = InlineStepParameters(version,name, location, inputs, outputs, options,
                     step.filter, step.contentType, step.encoding)
                 runtime.environment.stepProvider(params)
             }
 
             NsCx.document -> {
                 val step = childStep as AtomicDocumentStepInstruction
-                params = DocumentStepParameters(name, location, inputs, outputs, options, step.contentType)
+                params = DocumentStepParameters(version, name, location, inputs, outputs, options, step.contentType)
                 runtime.environment.stepProvider(params)
             }
 
             NsCx.select -> {
                 val step = childStep as AtomicSelectStepInstruction
-                val param = SelectStepParameters(name, location, inputs, outputs, options, step.select)
+                val param = SelectStepParameters(name, version, location, inputs, outputs, options, step.select)
                 runtime.environment.stepProvider(param)
             }
 
@@ -67,17 +68,19 @@ open class AtomicBuiltinStepModel(runtime: XProcRuntime, val model: AtomicModel)
                 }
 
                 params = if (step.externalName != null) {
-                    OptionStepParameters(name, location, inputs, outputs, inscopeOptions, step)
+                    OptionStepParameters(name, version, location, inputs, outputs, inscopeOptions, step)
                 } else {
-                    ExpressionStepParameters(name, location, inputs, outputs, inscopeOptions, step)
+                    ExpressionStepParameters(name, version, location, inputs, outputs, inscopeOptions, step)
                 }
 
                 runtime.environment.stepProvider(params)
             }
 
             else -> {
-                params = RuntimeStepParameters(childStep.instructionType, childStep.name, childStep.location,
-                    inputs, outputs, options)
+                params = RuntimeStepParameters(
+                    childStep.instructionType, childStep.xprocVersion()!!, childStep.name, childStep.location,
+                    inputs, outputs, options,
+                )
                 runtime.environment.stepProvider(params)
             }
         }

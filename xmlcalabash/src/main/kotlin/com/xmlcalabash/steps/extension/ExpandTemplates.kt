@@ -25,7 +25,7 @@ class ExpandTemplates(): AbstractAtomicStep()  {
         variables = qnameMapBinding(_variables)
 
         val ctype = source.contentType ?: MediaType.XML
-        val filter = ValueTemplateFilterXml(source.value as XdmNode, ctype, source.baseURI)
+        val filter = ValueTemplateFilterXml(source.value as XdmNode, ctype, source.baseURI, stepParams.version)
 
         val bindings = mutableMapOf<QName, LazyValue>()
         for ((key, value) in variables) {

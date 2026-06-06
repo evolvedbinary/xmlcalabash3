@@ -80,7 +80,7 @@ class InlineInstruction(parent: XProcInstruction, xmlDocument: XdmNode): Connect
         }
 
         _valueTemplateFilter = if (encoding == null && !isRunPipeline) {
-            ValueTemplateFilterXml(xml, contentType!!, inlineBaseUri)
+            ValueTemplateFilterXml(xml, contentType!!, inlineBaseUri, xprocVersion()!!)
         } else {
             ValueTemplateFilterNone(xml, inlineBaseUri)
         }

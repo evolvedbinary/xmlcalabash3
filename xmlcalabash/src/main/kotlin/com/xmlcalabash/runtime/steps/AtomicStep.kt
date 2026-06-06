@@ -7,7 +7,6 @@ import com.xmlcalabash.namespace.Ns
 import com.xmlcalabash.namespace.NsCx
 import com.xmlcalabash.namespace.NsP
 import com.xmlcalabash.runtime.LazyValue
-import com.xmlcalabash.runtime.RuntimeEnvironment
 import com.xmlcalabash.runtime.XProcStepConfiguration
 import com.xmlcalabash.runtime.api.Receiver
 import com.xmlcalabash.runtime.model.AtomicBuiltinStepModel
@@ -20,8 +19,10 @@ import net.sf.saxon.s9api.XdmValue
 import org.apache.logging.log4j.kotlin.logger
 
 open class AtomicStep(config: XProcStepConfiguration, atomic: AtomicBuiltinStepModel): AbstractStep(config, atomic), Receiver {
-    final override val params = RuntimeStepParameters(atomic.type, atomic.name, atomic.location,
-        atomic.inputs, atomic.outputs, atomic.options)
+    final override val params = RuntimeStepParameters(
+        atomic.type, atomic.model.step.xprocVersion()!!, atomic.name, atomic.location,
+        atomic.inputs, atomic.outputs, atomic.options,
+    )
     val implementation = atomic.provider()
     val contextDocuments = mutableSetOf<XProcDocument>()
     val inputPorts = mutableSetOf<String>()

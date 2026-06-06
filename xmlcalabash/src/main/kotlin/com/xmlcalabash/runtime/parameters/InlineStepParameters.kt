@@ -8,7 +8,8 @@ import com.xmlcalabash.runtime.api.RuntimePort
 import com.xmlcalabash.util.ValueTemplateFilter
 import net.sf.saxon.s9api.QName
 
-class InlineStepParameters(stepName: String,
+class InlineStepParameters(version: Double,
+                           stepName: String,
                            location: Location,
                            inputs: Map<String, RuntimePort>,
                            outputs: Map<String, RuntimePort>,
@@ -16,4 +17,4 @@ class InlineStepParameters(stepName: String,
                            val filter: ValueTemplateFilter,
                            val contentType: MediaType?,
                            val encoding: String?
-): RuntimeStepParameters(NsCx.inline, stepName, location, inputs, outputs, options)
+): RuntimeStepParameters(NsCx.inline, version, stepName, location, inputs, outputs, options,)
