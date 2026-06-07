@@ -13,6 +13,7 @@ import net.sf.saxon.s9api.*
 import net.sf.saxon.serialize.SerializationProperties
 import net.sf.saxon.type.SchemaType
 import net.sf.saxon.type.Untyped
+import org.xml.sax.Locator
 import java.net.URI
 import java.net.URISyntaxException
 
@@ -245,6 +246,14 @@ open class SaxonTreeBuilder(val processor: Processor, val ignoreInvalidUris: Boo
             receiver.setSystemId(overrideBaseURI.toString())
         }
         addStartElement(elemName, attrs, typeCode, nsmap)
+    }
+
+    fun setSaxLocation(locator: Locator?) {
+        if (locator == null) {
+            return
+        }
+
+        location = BuilderLocation(locator.systemId, locator.lineNumber, locator.columnNumber)
     }
 
     fun addStartElement(elemName: NodeName, attrs: AttributeMap, typeCode: SchemaType, nsmap: NamespaceMap) {

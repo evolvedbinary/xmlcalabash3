@@ -12,10 +12,12 @@ import com.xmlcalabash.namespace.Ns
 import com.xmlcalabash.namespace.NsCx
 import com.xmlcalabash.namespace.NsXml
 import com.xmlcalabash.util.MediaClassification
-import com.xmlcalabash.util.SaxAttributes
 import com.xmlcalabash.util.SaxonTreeBuilder
 import com.xmlcalabash.util.TypeUtils
 import com.xmlcalabash.util.UriUtils
+import net.sf.saxon.om.AttributeMap
+import net.sf.saxon.om.EmptyAttributeMap
+import net.sf.saxon.om.NamespaceMap
 import net.sf.saxon.om.NamespaceUri
 import net.sf.saxon.s9api.*
 import net.sf.saxon.trans.XPathException
@@ -23,6 +25,7 @@ import net.sf.saxon.value.BooleanValue
 import nu.validator.htmlparser.common.XmlViolationPolicy
 import nu.validator.htmlparser.sax.HtmlParser
 import org.xml.sax.*
+import org.xml.sax.ext.LexicalHandler
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
@@ -238,11 +241,12 @@ class BasicDocumentLoader(val href: URI?,
         builder.isLineNumbering = parameters[NsCx.lineNumbering]?.underlyingValue?.effectiveBooleanValue() ?: false
         uri?.let { builder.baseURI = it }
 
-        val xdmContentHandler = builder.newBuildingContentHandler()
-        val contentHandler = HtmlContentHandler(xdmContentHandler)
+        val treeBuilder = SaxonTreeBuilder(processor)
+        val contentHandler = HtmlContentHandler(treeBuilder)
 
         val parser = HtmlParser(XmlViolationPolicy.ALTER_INFOSET)
         parser.contentHandler = contentHandler
+        parser.lexicalHandler = contentHandler
 
         val source = InputSource(stream)
         source.systemId = uri.toString();
@@ -250,7 +254,7 @@ class BasicDocumentLoader(val href: URI?,
 
         parser.parse(source)
 
-        val xdm = xdmContentHandler.documentNode
+        val xdm = treeBuilder.result
         return XProcDocument.ofXml(xdm, DocumentContextImpl(xdm), properties)
     }
 
@@ -370,7 +374,7 @@ class BasicDocumentLoader(val href: URI?,
         }
     }
 
-    private inner class HtmlContentHandler(val handler: ContentHandler): ContentHandler {
+    private inner class HtmlContentHandler(val builder: SaxonTreeBuilder): ContentHandler, LexicalHandler {
         val options = if (NsCx.xmlAttributes in parameters) {
             val map = mutableMapOf<String, XdmValue>()
             for ((key, value) in TypeUtils.asGenericMap(parameters[NsCx.xmlAttributes] as XdmMap)) {
@@ -380,97 +384,157 @@ class BasicDocumentLoader(val href: URI?,
         } else {
             emptyMap()
         }
+        var location: Locator? = null
+        var namespaces: NamespaceMap = NamespaceMap.emptyMap()
 
         override fun setDocumentLocator(locator: Locator?) {
-            handler.setDocumentLocator(locator)
+            location = locator
         }
 
         override fun startDocument() {
-            handler.startDocument()
+            var baseUri: URI? = null
+            location?.systemId?.let { baseUri = URI(it) }
+            builder.startDocument(baseUri)
         }
 
         override fun endDocument() {
-            handler.endDocument()
+            builder.endDocument()
         }
 
         override fun startPrefixMapping(prefix: String?, uri: String?) {
-            handler.startPrefixMapping(prefix, uri)
+            namespaces = namespaces.put(prefix ?: "", NamespaceUri.of(uri ?: ""))
         }
 
         override fun endPrefixMapping(prefix: String?) {
-            handler.endPrefixMapping(prefix)
+            namespaces = namespaces.remove(prefix ?: "")
         }
 
         override fun startElement(uri: String?, localName: String?, qName: String?, atts: Attributes?) {
-            var newAtts: Attributes? = atts
+            val nodeName = QName(NamespaceUri.of(uri ?: ""), qName)
+            var attributes: AttributeMap = EmptyAttributeMap.getInstance()
+
             if (atts != null) {
-                var copy = false
+                var saxloc: net.sf.saxon.s9api.Location? = null
+                location?.let { saxloc = SaxLocation(it) }
+
                 for (pos in 0 until atts.length) {
-                    val name = atts.getLocalName(pos)
-                    if (name.startsWith("xmlU00003A")) {
-                        copy = true
-                        break;
-                    }
-                }
-                if (copy) {
-                    val saxAtts = SaxAttributes()
-                    for (pos in 0 until atts.length) {
-                        val ns = atts.getURI(pos)
-                        val local = atts.getLocalName(pos)
-                        val qname = atts.getQName(pos)
-                        val value = atts.getValue(pos)
-                        if (local.startsWith("xmlU00003A")) {
-                            val realName = local.substring(10)
-                            if (realName in options) {
-                                if (options[realName]!! == XdmEmptySequence.getInstance()) {
-                                    // discard this attribute
-                                } else {
-                                    val mapping = options[realName]!!.underlyingValue.stringValue
-                                    if (mapping.startsWith("xml:")) {
-                                        val local = mapping.substring(4)
-                                        if (local == "" || ":" in local) {
-                                            throw IllegalArgumentException("Invalid attribute name: ${mapping}")
-                                        }
-                                        saxAtts.addAttribute(NsXml.namespace.toString(), local, mapping, value)
-                                    } else {
-                                        if (mapping == "" || ":" in mapping) {
-                                            throw IllegalArgumentException("Invalid attribute name: ${mapping}")
-                                        }
-                                        saxAtts.addAttribute("", mapping, mapping, value)
-                                    }
-                                }
+                    val ns = atts.getURI(pos)
+                    val local = atts.getLocalName(pos)
+                    val qname = atts.getQName(pos)
+                    val value = atts.getValue(pos)
+                    if (local.startsWith("xmlU00003A")) {
+                        val realName = local.substring(10)
+                        if (realName in options) {
+                            if (options[realName]!! == XdmEmptySequence.getInstance()) {
+                                // discard this attribute
                             } else {
-                                saxAtts.addAttribute(NsXml.namespace.toString(), realName, "xml:${realName}", value)
+                                val mapping = options[realName]!!.underlyingValue.stringValue
+                                if (mapping.startsWith("xml:")) {
+                                    val local = mapping.substring(4)
+                                    if (local == "" || ":" in local) {
+                                        throw IllegalArgumentException("Invalid attribute name: ${mapping}")
+                                    }
+                                    attributes = attributes.put(TypeUtils.attributeInfo(QName(NsXml.namespace, mapping), value))
+                                } else {
+                                    if (mapping == "" || ":" in mapping) {
+                                        throw IllegalArgumentException("Invalid attribute name: ${mapping}")
+                                    }
+                                    attributes = attributes.put(TypeUtils.attributeInfo(QName(NamespaceUri.NULL, mapping), value))
+                                }
                             }
                         } else {
-                            saxAtts.addAttribute(ns, local, qname, value)
+                            attributes = attributes.put(TypeUtils.attributeInfo(QName(NsXml.namespace, "xml:${realName}"), value))
                         }
+                    } else {
+                        attributes = attributes.put(TypeUtils.attributeInfo(QName(NamespaceUri.of(ns), qname), value))
                     }
-                    newAtts = saxAtts
                 }
             }
 
-            handler.startElement(uri, localName, qName, newAtts)
+            builder.setSaxLocation(location)
+            builder.addStartElement(nodeName, attributes, namespaces)
         }
 
         override fun endElement(uri: String?, localName: String?, qName: String?) {
-            handler.endElement(uri, localName, qName)
+            builder.addEndElement()
         }
 
         override fun characters(ch: CharArray?, start: Int, length: Int) {
-            handler.characters(ch, start, length)
+            if (ch != null) {
+                builder.addText(String(ch, start, length))
+            }
         }
 
         override fun ignorableWhitespace(ch: CharArray?, start: Int, length: Int) {
-            handler.ignorableWhitespace(ch, start, length)
+            characters(ch, start, length)
         }
 
         override fun processingInstruction(target: String?, data: String?) {
-            handler.processingInstruction(target, data)
+            if (target != null) {
+                builder.addPI(target, data ?: "", location?.systemId)
+            }
         }
 
         override fun skippedEntity(name: String?) {
-            handler.skippedEntity(name)
+            // nop?
+        }
+
+        override fun startDTD(name: String?, publicId: String?, systemId: String?) {
+            // nop
+        }
+
+        override fun endDTD() {
+            // nop
+        }
+
+        override fun startEntity(name: String?) {
+            // nop
+        }
+
+        override fun endEntity(name: String?) {
+            // nop
+        }
+
+        override fun startCDATA() {
+            // nop
+        }
+
+        override fun endCDATA() {
+            // nop
+        }
+
+        override fun comment(ch: CharArray?, start: Int, length: Int) {
+            if (ch != null) {
+                builder.addComment(String(ch, start, length))
+            }
+        }
+    }
+
+    private class SaxLocation(locator: Locator?): net.sf.saxon.s9api.Location {
+        val locatorSystemId = locator?.getSystemId()
+        val locatorPublicId = locator?.getPublicId()
+        val locatorLineNumber = locator?.getLineNumber() ?: -1
+        val locatorColumnNumber = locator?.getColumnNumber() ?: -1
+
+        override fun getSystemId(): String? {
+            return locatorSystemId
+        }
+
+        override fun getPublicId(): String? {
+            return locatorPublicId
+        }
+
+        override fun getLineNumber(): Int {
+            return locatorLineNumber
+        }
+
+        override fun getColumnNumber(): Int {
+            return locatorColumnNumber
+        }
+
+        override fun saveLocation(): net.sf.saxon.s9api.Location? {
+            // nop; not used here
+            return this
         }
     }
 }

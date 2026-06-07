@@ -109,6 +109,13 @@ class TypeUtils(val context: DocumentContext) {
             }
             return map
         }
+
+        fun attributeInfo(name: QName, value: String, location: Location? = null): AttributeInfo {
+            return AttributeInfo(fqName(name), BuiltInAtomicType.UNTYPED_ATOMIC, value, location, ReceiverOption.NONE)
+        }
+
+        fun fqName(name: QName): FingerprintedQName =
+            FingerprintedQName(name.prefix, name.namespaceUri, name.localName)
     }
 
     fun parseBoolean(bool: String): Boolean {
@@ -995,14 +1002,4 @@ class TypeUtils(val context: DocumentContext) {
         }
         return QName(qname.namespaceUri, "${qname.prefix}:${qname.localPart}")
     }
-
-    // ============================================================
-
-    private fun attributeInfo(name: QName, value: String, location: Location? = null): AttributeInfo {
-        return AttributeInfo(fqName(name), BuiltInAtomicType.UNTYPED_ATOMIC, value, location, ReceiverOption.NONE)
-    }
-
-    private fun fqName(name: QName): FingerprintedQName =
-        FingerprintedQName(name.prefix, name.namespaceUri, name.localName)
-
 }
