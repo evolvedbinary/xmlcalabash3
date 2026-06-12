@@ -111,6 +111,9 @@
     <group id="org.apache.xmlgraphics">
       <artifact id="fop" version="2.11"/>
     </group>
+    <group id="net.sourceforge.tess4j">
+      <artifact id="tess4j" version="5.19.0"/>
+    </group>
     <group id="org.asciidoctor">
       <artifact id="asciidoctorj-pdf" version="2.3.23"/>
       <artifact id="asciidoctorj" version="3.0.1"/>
@@ -273,6 +276,11 @@ object ExternalDependencies {
     <paged-media-prince>
       <artifact ref="prince-java-wrapper"/>
     </paged-media-prince>
+    <pdf>
+      <artifact ref="pdfbox"/>
+      <artifact ref="pdfbox-io"/>
+      <artifact ref="xmpbox"/>
+    </pdf>
     <polyglot>
       <artifact ref="polyglot"/>
       <artifact ref="js"/>
@@ -301,6 +309,9 @@ object ExternalDependencies {
       <artifact ref="javax.mail-api"/>
       <artifact ref="javax.mail"/>
     </send-mail>
+    <tesseract>
+      <artifact ref="tess4j"/>
+    </tesseract>
     <trang>
       <artifact ref="trang"/>
     </trang>

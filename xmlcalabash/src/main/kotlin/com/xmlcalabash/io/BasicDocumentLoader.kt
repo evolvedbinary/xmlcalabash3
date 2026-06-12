@@ -10,6 +10,7 @@ import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.namespace.Ns
 import com.xmlcalabash.namespace.NsCx
+import com.xmlcalabash.namespace.NsHtml
 import com.xmlcalabash.namespace.NsXml
 import com.xmlcalabash.util.MediaClassification
 import com.xmlcalabash.util.SaxonTreeBuilder
@@ -395,6 +396,9 @@ class BasicDocumentLoader(val href: URI?,
             var baseUri: URI? = null
             location?.systemId?.let { baseUri = URI(it) }
             builder.startDocument(baseUri)
+
+            // Make sure HTML output is always in the HTML namespace by default
+            namespaces = namespaces.put("", NsHtml.namespace)
         }
 
         override fun endDocument() {
@@ -414,9 +418,6 @@ class BasicDocumentLoader(val href: URI?,
             var attributes: AttributeMap = EmptyAttributeMap.getInstance()
 
             if (atts != null) {
-                var saxloc: net.sf.saxon.s9api.Location? = null
-                location?.let { saxloc = SaxLocation(it) }
-
                 for (pos in 0 until atts.length) {
                     val ns = atts.getURI(pos)
                     val local = atts.getLocalName(pos)

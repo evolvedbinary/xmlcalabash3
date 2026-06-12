@@ -1,0 +1,43 @@
+<preface xmlns:xi="http://www.w3.org/2001/XInclude"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         xmlns="http://docbook.org/ns/docbook"
+         xml:id="cx-pdf-general-notes">
+<?db filename="pdf-general-notes"?>
+<info>
+  <title>General Notes about PDF Support</title>
+</info>
+
+<para>PDF support is built on top of the <link
+xlink:href="https://pdfbox.apache.org/">Apache PDFBox</link> libraries. PDF
+files are highly variable. Not all PDF reading software can read the output from
+all PDF writing software, even if both the reader and the writer are attempting
+to follow the specification. If you find a PDF file that PDFBox can’t read, it’s
+unlikely that it’s a problem XML Calabash can fix. (In the course of developing
+the <tag>cx:pdf-form</tag> step, for example, testing turned up several PDF
+files that PDFBox couldn’t update because of missing fonts.)</para>
+
+<para>All of the PDF steps have a <option>password</option> option.
+This is only required to load encrypted PDF files.
+Loading an encrypted PDF always removes the security settings.
+If you need to restrict a modified PDF, use <tag>cx:pdf-encrypt</tag>
+as the last step.</para>
+
+<para>The <option>compression</option> option, on steps that create PDF files,
+determines whether the resulting PDF is compressed. PDFs are compressed unless
+“<literal>none</literal>” is specified for compression.</para>
+
+<para>Some complex features, like managing digital signatures, aren’t supported
+in XML Calabash but possibly could be. Feel free to open issues, but if you
+can’t provide samples that demonstrate what’s required, it may not be practical
+to implement the features.</para>
+
+<section>
+<title>Dependencies</title>
+<para>These steps and their dependencies are included in the XML Calabash application.
+If you are getting XML Calabash from Maven, you will also need to include
+the following additional dependencies:</para>
+
+<?dependencies pdf?>
+
+</section>
+</preface>

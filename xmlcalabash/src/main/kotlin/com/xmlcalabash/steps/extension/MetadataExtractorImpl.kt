@@ -3,9 +3,9 @@ package com.xmlcalabash.steps.extension
 import com.drew.imaging.ImageMetadataReader
 import com.drew.imaging.ImageProcessingException
 import com.drew.metadata.Metadata
-import com.xmlcalabash.io.MediaType
 import com.xmlcalabash.documents.XProcBinaryDocument
 import com.xmlcalabash.documents.XProcDocument
+import com.xmlcalabash.io.MediaType
 import com.xmlcalabash.namespace.Ns
 import com.xmlcalabash.namespace.NsC
 import com.xmlcalabash.runtime.XProcStepConfiguration
@@ -16,8 +16,6 @@ import net.sf.saxon.s9api.QName
 import net.sf.saxon.s9api.XdmNode
 import net.sf.saxon.s9api.XdmValue
 import org.apache.pdfbox.Loader
-import org.apache.pdfbox.io.RandomAccessReadBuffer
-import org.apache.pdfbox.pdmodel.PDDocument
 import org.apache.pdfbox.pdmodel.encryption.InvalidPasswordException
 import org.apache.xmpbox.type.*
 import org.apache.xmpbox.xml.DomXmpParser

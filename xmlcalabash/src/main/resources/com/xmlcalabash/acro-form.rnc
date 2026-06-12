@@ -1,0 +1,94 @@
+default namespace = "https://xmlcalabash.com/ns/acro-form"
+namespace f = "https://xmlcalabash.com/ns/acro-form"
+
+start = f.acro-form
+
+anyAttribute = attribute * { text }*
+
+fieldAttributes = 
+    attribute name { text },
+    attribute (* - name) { text }*
+
+field = f.field | f.checkbox | f.radiobutton | f.button | f.text | f.combobox | f.listbox
+        | f.signature
+
+buttonValues = "On" | "Off" | "Yes" | "No" | "true" | "false" | "1" | "0" 
+
+f.acro-form =
+    element f:acro-form {
+        field+
+    }
+
+f.field =
+    element f:field {
+        fieldAttributes,
+        (text | f.text-value)
+    }
+
+f.checkbox =
+    element f:checkbox {
+        fieldAttributes,
+        (buttonValues | f.button-value)
+    }
+
+f.radiobutton =
+    element f:radiobutton {
+        fieldAttributes,
+        (buttonValues | f.button-value)
+    }
+
+f.button =
+    element f:button {
+        fieldAttributes,
+        (buttonValues | f.button-value)
+    }
+
+f.button-value =
+    element f:value {
+        anyAttribute,
+        (buttonValues)
+    }
+
+f.text =
+    element f:text {
+        fieldAttributes,
+        (text | f.text-value)
+    }
+
+f.text-value =
+    element f:value {
+        anyAttribute,
+        text
+    }
+
+f.combobox =
+    element f:combobox {
+        fieldAttributes,
+        f.choice*,
+        f.value
+    }
+
+f.listbox =
+    element f:listbox {
+        fieldAttributes,
+        f.choice*,
+        f.value
+    }
+
+f.signature =
+    element f:signature {
+        fieldAttributes,
+        empty
+    }
+
+f.choice =
+    element f:choice {
+        anyAttribute,
+        text
+    }
+
+f.value =
+    element f:value {
+        anyAttribute,
+        text
+    }

@@ -1,0 +1,20 @@
+<part xmlns="http://docbook.org/ns/docbook"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      xml:id="pdf-extension-steps" version="5.2">
+<info>
+  <title>PDF extension steps</title>
+</info>
+
+<xi:include href="general.xml"/>
+<xi:include href="cx-pdf-copy.xml"/>
+<xi:include href="cx-pdf-decrypt.xml"/>
+<xi:include href="cx-pdf-encrypt.xml"/>
+<xi:include href="cx-pdf-extract.xml"/>
+<xi:include href="cx-pdf-form.xml"/>
+<xi:include href="cx-pdf-info.xml"/>
+<xi:include href="cx-pdf-merge.xml"/>
+<xi:include href="cx-pdf-to-images.xml"/>
+
+</part>
+

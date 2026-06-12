@@ -1,0 +1,263 @@
+<refentry xmlns:p="http://www.w3.org/ns/xproc"
+          xmlns:e="http://www.w3.org/1999/XSL/Spec/ElementSyntax"
+          xmlns:cxerr="http://xmlcalabash.com/ns/error"
+          xmlns:xi="http://www.w3.org/2001/XInclude"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          xmlns="http://docbook.org/ns/docbook"
+          xml:id="cx-tesseract">
+<?db filename="cx-tesseract"?>
+<refnamediv>
+  <refname>cx:tesseract</refname>
+  <refpurpose>Tesseract OCR</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv>
+<refsection role="introduction">
+<title>Introduction</title>
+<para>This step runs the Tesseract OCR application
+</para>
+</refsection>
+
+<refsection role="step-declaration">
+<title>Step declaration</title>
+<xi:include href="../../../../xmlcalabash/src/main/resources/com/xmlcalabash/ext/tesseract.xpl"
+            xpointer="xpath(/*/*[@type='cx:tesseract'])"/>
+<?import tesseract.xpl?>
+</refsection>
+</refsynopsisdiv>
+
+<refsection>
+<title>Description</title>
+
+<para>This step performs OCR on the input (usually an image) using
+<link xlink:href="https://tesseractocr.org/">Tesseract OCR</link>. In order
+to use this step, you must install the Tesseract OCR application.</para>
+
+<para>This library uses
+<link xlink:href="https://en.wikipedia.org/wiki/Java_Native_Access">JNA</link>
+to communicate with the Tesseract application. It’s also possible to use
+the <tag>p:os-exec</tag> step to run Tesseract directly, but that requires
+the pipeline to read the OCR results from the filesystem.</para>
+</refsection>
+
+<refsection>
+<title>Options</title>
+
+<refsection>
+<title>Language</title>
+<para>The <option>language</option> option identifies the language to expect in
+the image text, for example “<literal>eng</literal>”. The available languages and
+their names depends on which sets of training data you have available.</para>
+</refsection>
+
+<refsection>
+<title>Data path</title>
+<para>The <option>data-path</option> points to the directory containing training
+data. If the option isn’t given, the value of the <envar>TESSDATA_PREFIX</envar>
+environment variable is used.</para>
+<para>The location of the training data will depend on where Tesseract OCR was
+installed, and on what kind of system.</para>
+</refsection>
+
+<refsection>
+<title>Debug output</title>
+<para>The <option>debug-output</option> can be used to redirect debugging output
+from the Tesseract API to a file. (In my experience, it only works sometimes.)</para>
+</refsection>
+
+<refsection>
+<title>Engine Mode</title>
+
+<para>The <option>engine-mode</option> identifies the
+<link xlink:href="https://tesseractocr.org/doc/#oem">engine mode</link>,
+which switches between pattern matching engines.</para>
+
+<informaltable>
+<tgroup cols="2">
+<colspec colwidth="1.5in"/>
+<thead>
+<row><entry>Mode</entry><entry>Description</entry></row>
+</thead>
+<tbody>
+<row>
+  <entry>tesseract-only</entry>
+  <entry>Only the legacy engine (traditional computer vision)</entry>
+</row>
+<row>
+  <entry>lstm-only</entry>
+  <entry>Only the neural nets LSTM engine</entry>
+</row>
+<row>
+  <entry>lstm-combined</entry>
+  <entry>Legacy and LSTM engines combined</entry>
+</row>
+<row>
+  <entry>default</entry>
+  <entry>Default, based on what’s available in the model data</entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+</refsection>
+
+<refsection>
+<title>Page Segmentation Mode</title>
+
+<para>The <option>page-segmentation-mode</option> identifies the
+<link xlink:href="https://tesseractocr.org/doc/#psm">page segmentation mode</link>
+which determines how Tesseract analyzes the layout of
+an image to find text blocks. The modes are:</para>
+
+<informaltable>
+<tgroup cols="2">
+<colspec colwidth="1.5in"/>
+<thead>
+<row><entry>Mode</entry><entry>Description</entry></row>
+</thead>
+<tbody>
+<row>
+  <entry>osd-only</entry>
+  <entry>Orientation and script detection (OSD) only</entry>
+</row>
+<row>
+  <entry>auto-osd</entry>
+  <entry>Automatic page segmentation with OSD</entry>
+</row>
+<row>
+  <entry>auto</entry>
+  <entry>Fully automatic page segmentation, but no OSD</entry>
+</row>
+<row>
+  <entry>single-column</entry>
+  <entry>Assume a single column of text in varying sizes</entry>
+</row>
+<row>
+  <entry>single-block</entry>
+  <entry>Assume a single, uniform block of text</entry>
+</row>
+<row>
+  <entry>single-line</entry>
+  <entry>Assume a single line of text</entry>
+</row>
+<row>
+  <entry>sparse-text</entry>
+  <entry>Find as much text as possible, in no particular order</entry>
+</row>
+<row>
+  <entry>raw-line</entry>
+  <entry>Assume a single line of text, ignoring any Tesserect-specific hacks</entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+
+<para>The Tesseract documentation recommends <literal>auto</literal> for
+general documents, <literal>single-block</literal> for uniform text chunks,
+and <literal>single-line</literal> for bar codes or labels.</para>
+
+</refsection>
+
+<refsection>
+<title>Output format</title>
+
+<para>The <option>output-format</option> option determines what kind
+of output is produced.</para>
+
+<informaltable>
+<tgroup cols="2">
+<colspec colwidth="1.5in"/>
+<thead>
+<row><entry>Format</entry><entry>Description</entry></row>
+</thead>
+<tbody>
+<row>
+  <entry>text</entry>
+  <entry>Plain text output</entry>
+</row>
+<row>
+  <entry>hocr</entry>
+  <entry><link xlink:href="https://en.wikipedia.org/wiki/HOCR">hOCR output</link>;
+  an HTML result</entry>
+</row>
+<row>
+  <entry>tsv</entry>
+  <entry>Tab-separated-values output; a JSON result</entry>
+</row>
+<row>
+  <entry>alto</entry>
+  <entry>Alto XML output; an XML result</entry>
+</row>
+<row>
+  <entry>lstmbox</entry>
+  <entry>The <literal>lstmbox</literal> format can be used to make training data</entry>
+</row>
+<row>
+  <entry>wordstrbox</entry>
+  <entry>Coordinates and text for whole lines</entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+
+<para>The Tesseract application supports several other formats, but they aren’t
+supported by the underlying Java API. The Java API only supports text output
+formats (so PDF can’t work), and the “<literal>page-xml</literal>” format causes
+a spectacular crash.</para>
+
+</refsection>
+
+<refsection>
+<title>Variables</title>
+<para>The <option>variables</option> option allows you to set any
+Tesseract parameter. For example, an alternative way to enable hOCR output
+is to specify <code>map{'tessedit_create_hocr': '1'}</code> as the value
+of <option>variables</option>. (Don’t cross the streams this way, the results
+of specifying variables that conflict with the requested output format are
+undefined.)</para>
+
+<para>A complete set of variables can be obtained by running the
+<command>tesseract</command> application with the <option>--print-parameters</option>
+option in a shell or command window.</para>
+
+<para>The <option>dpi</option> option sets
+<literal>user_defined_dpi</literal>; the <option>output-format</option> option
+sets <literal>tessedit_create_<replaceable>format</replaceable></literal>;
+the <option>debug-output</option> option sets
+<literal>debug_output</literal>.</para>
+
+<para>Not all variables appear to be supported by the underlying Java API;
+setting some causes the Java process to crash spectacularly. This is likely some
+consequence of the underlying JNA architecture and is completely out of XML
+Calabash’s control.</para>
+</refsection>
+
+</refsection>
+<refsection>
+<title>Document properties</title>
+
+<para>No document properties are preserved.
+</para>
+</refsection>
+
+<refsection>
+<title>Additional dependencies</title>
+
+<para>This step is included in the XML Calabash application.
+If you are getting XML Calabash from Maven, you will also need to include
+these additional dependencies:</para>
+
+<?dependencies tesseract?>
+</refsection>
+
+<refsection>
+<title>Tess4J on Ubuntu</title>
+
+<para>It was a bit of a struggle getting the underlying JNA library to work
+on Ubuntu. There’s a discussion under tess4j
+<link xlink:href="https://github.com/nguyenq/tess4j/issues/273">issue #273</link>.
+I was able to get it workiing with the instructions in
+<link xlink:href="https://github.com/nguyenq/tess4j/issues/273#issuecomment-3925715392">the comment</link>
+from 19 February 2026. (Although <code>clang-19</code> seems to be the clang compiler on
+Ubuntu now.)</para>
+</refsection>
+</refentry>

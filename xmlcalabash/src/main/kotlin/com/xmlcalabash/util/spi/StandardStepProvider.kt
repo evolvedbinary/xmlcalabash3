@@ -10,12 +10,12 @@ import com.xmlcalabash.spi.AtomicStepManager
 import com.xmlcalabash.spi.AtomicStepProvider
 import com.xmlcalabash.steps.*
 import com.xmlcalabash.steps.extension.*
+import com.xmlcalabash.steps.extension.pdf.*
 import com.xmlcalabash.steps.file.*
 import com.xmlcalabash.steps.internal.*
 import com.xmlcalabash.steps.os.OsExec
 import com.xmlcalabash.steps.os.OsInfo
 import com.xmlcalabash.steps.validation.*
-import net.sf.saxon.om.NamespaceUri
 import net.sf.saxon.s9api.QName
 
 class StandardStepProvider: AtomicStepManager, AtomicStepProvider {
@@ -105,6 +105,16 @@ class StandardStepProvider: AtomicStepManager, AtomicStepProvider {
         NsCx.ditaa              to { _: StepParameters? -> DitaaStep() },
         NsCx.ePubCheck          to { _: StepParameters? -> EPubCheckStep(NsCx.namespace) },
         NsCx.ebnfConvert        to { _: StepParameters? -> EbnfConvertStep() },
+
+        NsCx.pdfInfo            to { _: StepParameters? -> PdfInfoStep() },
+        NsCx.pdfMerge           to { _: StepParameters? -> PdfMergeStep() },
+        NsCx.pdfExtract         to { _: StepParameters? -> PdfExtractStep() },
+        NsCx.pdfToImages        to { _: StepParameters? -> PdfToImages() },
+        NsCx.pdfDecrypt         to { _: StepParameters? -> PdfDecryptStep(false) },
+        NsCx.pdfCopy            to { _: StepParameters? -> PdfDecryptStep(true) },
+        NsCx.pdfEncrypt         to { _: StepParameters? -> PdfEncryptStep() },
+        NsCx.pdfForm            to { _: StepParameters? -> PdfFormStep() },
+
         NsCx.pebble             to { _: StepParameters? -> PebbleStep() },
         NsCx.fileset            to { _: StepParameters? -> FileSetStep() },
         NsCx.find               to { _: StepParameters? -> FindStep() },
@@ -123,6 +133,7 @@ class StandardStepProvider: AtomicStepManager, AtomicStepProvider {
         NsCx.rdfa               to { _: StepParameters? -> RdfaStep() },
         NsCx.selenium           to { _: StepParameters? -> SeleniumStep() },
         NsCx.sparql             to { _: StepParameters? -> SparqlStep() },
+        NsCx.tesseract          to { _: StepParameters? -> TesseractStep() },
         NsCx.trang              to { _: StepParameters? -> TrangStep() },
         NsCx.trangFiles         to { _: StepParameters? -> TrangFilesStep() },
         NsCx.uniqueId           to { _: StepParameters? -> UniqueIdStep() },

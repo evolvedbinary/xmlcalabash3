@@ -32,6 +32,7 @@
 <xi:include href="standard-steps/reference.xml"/>
 <xi:include href="exproc-steps/reference.xml"/>
 <xi:include href="extension-steps/reference.xml"/>
+<xi:include href="pdf-steps/reference.xml"/>
 <xi:include href="rdf-steps/reference.xml"/>
 <xi:include href="other/reference.xml"/>
 
