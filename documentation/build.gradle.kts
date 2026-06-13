@@ -57,6 +57,12 @@ val guideVersion = (project.findProperty("guideVersion")
 
 val xmlbuild = the<XmlCalabashBuildExtension>()
 
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
 configurations.all {
   resolutionStrategy.eachDependency {
     if (requested.group == "net.sf.saxon" && requested.name == "Saxon-HE") {
