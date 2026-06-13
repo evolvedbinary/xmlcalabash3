@@ -41,8 +41,6 @@ class DocumentWriter(val doc: XProcDocument,
     }
     private val _params = mutableMapOf<QName, XdmValue>()
     val inType = doc.contentType?.classification() ?: MediaClassification.BINARY
-    val serializationParameters: Map<QName, XdmValue>
-        get() = _params
     init {
         _params.putAll(externalSerialization)
         val inputMap = doc.properties.getSerialization()

@@ -1,9 +1,9 @@
 package com.xmlcalabash.steps
 
 import com.xmlcalabash.documents.XProcBinaryDocument
-import com.xmlcalabash.io.MediaType
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
+import com.xmlcalabash.io.MediaType
 import com.xmlcalabash.namespace.Ns
 import com.xmlcalabash.namespace.NsC
 import com.xmlcalabash.namespace.NsCx

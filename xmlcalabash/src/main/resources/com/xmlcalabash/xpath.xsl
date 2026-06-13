@@ -17,7 +17,7 @@
     <xsl:if test="nt:XPath/nt:PathExpr">
       <xsl:sequence select="true()"/>
     </xsl:if>
-    <xsl:if test="nt:XPath/nt:FunctionCall/nt:ArgumentList/nt:PathExpr">
+    <xsl:if test="nt:XPath//nt:FunctionCall/nt:ArgumentList/nt:PathExpr">
       <xsl:sequence select="true()"/>
     </xsl:if>
     <xsl:apply-templates select="//nt:AxisStep"/>
