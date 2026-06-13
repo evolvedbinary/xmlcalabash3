@@ -355,7 +355,7 @@ class TypeUtils(val context: DocumentContext) {
     fun parseContentTypes(text: String): List<MediaType> {
         try {
             val alist = ArrayList<MediaType>()
-            for (mt in MediaType.Companion.parseList(text)) {
+            for (mt in MediaType.parseList(text)) {
                 alist.add(mt)
             }
             return alist
