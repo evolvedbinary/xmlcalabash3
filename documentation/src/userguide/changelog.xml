@@ -13,6 +13,35 @@ See the commits and pull requests on
 finer detail.</para>
 
 <revhistory>
+<revision xml:id="r3048">
+<revnumber>3.0.48</revnumber>
+<date>2026-06-13</date>
+<revdescription>
+<itemizedlist spacing="compact">
+<listitem><para>Closed <cbissue number="726"/>. Upgraded to Kotlin version 2.3.21
+which (I hope) will fix the FreeBSD build problem.
+</para></listitem>
+<listitem><para>Closed <cbissue number="725"/>. Allow wildcards in the
+<tag class="attribute">content-types</tag> values on inputs and outputs.
+</para></listitem>
+<listitem><para>Closed <cbissue number="724"/>. Detect context item references
+in nested function calls.
+</para></listitem>
+<listitem><para>Closed <cbissue number="720"/>. Rewrote the HTML document builder
+so that comments aren’t lost.
+</para></listitem>
+<listitem><para>Closed <cbissue number="718"/>. Allow XProc version 3.2 pipelines. 
+Allow text value templates in comments and processing instructions in XProc 3.2 pipelines.
+</para></listitem>
+<listitem><para>Upgraded to SchXslt2 version 1.11.1.
+</para></listitem>
+<listitem><para>Added a set of
+<link xlink:href="/reference/current/pdf-extension-steps.html">PDF steps</link> and
+a <tag>cx:tesseract</tag> OCR step. (“Some rabbit holes are deeper than others.”)
+</para></listitem>
+</itemizedlist>
+</revdescription>
+</revision>
 <revision xml:id="r3047">
 <revnumber>3.0.47</revnumber>
 <date>2026-05-17</date>
