@@ -306,6 +306,7 @@ class BasicDocumentLoader(val href: URI?,
         }
     }
 
+    @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
     private fun loadYaml(stream: InputStream): XProcDocument {
         val yamlReader = ObjectMapper(YAMLFactory())
         val obj = yamlReader.readValue(stream, Object::class.java)
@@ -315,6 +316,7 @@ class BasicDocumentLoader(val href: URI?,
         return loadJson(ByteArrayInputStream(str.toByteArray(StandardCharsets.UTF_8)))
     }
 
+    @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
     private fun loadToml(stream: InputStream): XProcDocument {
         val tomlReader = ObjectMapper(TomlFactory())
         val obj = tomlReader.readValue(stream, Object::class.java)

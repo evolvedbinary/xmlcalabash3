@@ -177,6 +177,7 @@ open class InlineStep(val params: InlineStepParameters): AbstractAtomicStep() {
         }
     }
 
+    @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
     private fun parseYaml(bytes: ByteArray, contentType: MediaType?): XdmValue {
         val charset = contentType?.charset() ?: StandardCharsets.UTF_8
         val text = bytes.toString(charset)
@@ -188,6 +189,7 @@ open class InlineStep(val params: InlineStepParameters): AbstractAtomicStep() {
         return parseJson(str.toByteArray(StandardCharsets.UTF_8), contentType)
     }
 
+    @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
     private fun parseToml(bytes: ByteArray, contentType: MediaType?): XdmValue {
         val charset = contentType?.charset() ?: StandardCharsets.UTF_8
         val text = bytes.toString(charset)

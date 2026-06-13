@@ -122,6 +122,7 @@ class DocumentWriter(val doc: XProcDocument,
         }
     }
 
+    @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
     private fun writeJson() {
         if (!_params.containsKey(Ns.method)) {
             val docClass = doc.contentType?.classification() ?: MediaClassification.XML

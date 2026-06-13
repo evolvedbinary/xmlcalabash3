@@ -14,7 +14,6 @@ import com.xmlcalabash.resourcecache.CompiledResourceCache
 import com.xmlcalabash.runtime.parameters.StepParameters
 import com.xmlcalabash.spi.AtomicStepManager
 import com.xmlcalabash.spi.AtomicStepServiceProvider
-import com.xmlcalabash.spi.DocumentResolverServiceProvider
 import com.xmlcalabash.util.AssertionsLevel
 import net.sf.saxon.s9api.QName
 import org.apache.logging.log4j.kotlin.logger
@@ -165,17 +164,17 @@ open class CompileEnvironment(override val episode: String,
     }
 
     private val uniqueUris = mutableMapOf<String, Int>()
-    override fun uniqueUri(base: String): URI {
+    override fun uniqueUri(uri: String): URI {
         if (!xmlCalabashConfig.uniqueInlineUris) {
-            return URI(base)
+            return URI(uri)
         }
         synchronized(uniqueUris) {
-            val count = uniqueUris[base] ?: 0
-            uniqueUris[base] = count + 1
-            if (count == 0 && base != "") {
-                return URI(base)
+            val count = uniqueUris[uri] ?: 0
+            uniqueUris[uri] = count + 1
+            if (count == 0 && uri != "") {
+                return URI(uri)
             }
-            return URI("${base}?uniqueid=${count}")
+            return URI("${uri}?uniqueid=${count}")
         }
     }
 }

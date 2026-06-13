@@ -86,7 +86,7 @@ open class CompareStep(): AbstractAtomicStep() {
         if (source is XProcBinaryDocument && alternate is XProcBinaryDocument) {
             val sourceBytes = (source as XProcBinaryDocument).binaryValue
             val alternateBytes = (alternate as XProcBinaryDocument).binaryValue
-            report(sourceBytes == alternateBytes)
+            report(sourceBytes.contentEquals(alternateBytes))
             return
         }
 

@@ -95,10 +95,10 @@ open class StepConfiguration(val saxonConfig: SaxonConfiguration,
             NsP.run)
     }
 
-    override fun atomicStepAvailable(name: QName): Boolean {
-        val decl = stepDeclaration(name)
+    override fun atomicStepAvailable(type: QName): Boolean {
+        val decl = stepDeclaration(type)
         if (decl == null) {
-            return environment.atomicStepAvailable(name)
+            return environment.atomicStepAvailable(type)
         }
         return decl.isAtomic
     }

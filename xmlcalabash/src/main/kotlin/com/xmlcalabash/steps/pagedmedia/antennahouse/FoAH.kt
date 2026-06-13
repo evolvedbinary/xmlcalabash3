@@ -53,8 +53,8 @@ class FoAH(): AbstractAH(), FoProcessor {
         return "Antenna House"
     }
 
-    override fun initialize(stepConfig: XProcStepConfiguration, baseURI: URI, options: Map<QName, XdmValue>) {
-        this.stepConfig = stepConfig
+    override fun initialize(context: XProcStepConfiguration, baseURI: URI, options: Map<QName, XdmValue>) {
+        this.stepConfig = context
         this.options = options
 
         ah = XfoObj()

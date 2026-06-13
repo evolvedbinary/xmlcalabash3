@@ -369,7 +369,7 @@ class InternetProtocolRequest(val stepConfig: StepConfiguration, val uri: URI) {
             return MediaType.OCTET_STREAM
         }
 
-        return MediaType.parse(ctype.toString()).discardParameters(listOf("charset"))
+        return MediaType.parse(ctype).discardParameters(listOf("charset"))
     }
 
     private fun entityMetadata(headers: List<Header>): DocumentProperties {
@@ -614,7 +614,7 @@ class InternetProtocolRequest(val stepConfig: StepConfiguration, val uri: URI) {
     private fun requestReport(httpResult: HttpResponseEntity): XdmMap {
         var report = XdmMap()
         report = report.put(XdmAtomicValue("status-code"), XdmAtomicValue(httpResult.code))
-        report = report.put(XdmAtomicValue("base-uri"), XdmAtomicValue(finalURI!!))
+        report = report.put(XdmAtomicValue("base-uri"), XdmAtomicValue(finalURI))
 
         var headers = XdmMap()
         for ((name, value) in requestHeaders(httpResult)) {

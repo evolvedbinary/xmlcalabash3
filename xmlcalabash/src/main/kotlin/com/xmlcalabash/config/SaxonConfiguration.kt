@@ -73,6 +73,7 @@ class SaxonConfiguration private constructor(val licensed: Boolean,
         schemaDocuments.addAll(initialSchemaDocuments)
     }
 
+    @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
     private fun init(showLoadingMessage: Boolean, suppliedConfiguration: Configuration?) {
         _configuration = suppliedConfiguration
             ?: if (saxonConfigurationFile == null) {
