@@ -1,0 +1,70 @@
+#+TITLE: Building XML Calabash
+
+The build uses Gradle with build scripts written in the Kotlin flavored DSL. At
+the time of this writing, Gradle 9.5.1 is used.
+
+* Prerequisites
+:PROPERTIES:
+:CUSTOM_ID: prerequisites
+:END:
+
+You need to have Java installed. The XML Calabash classes are built for
+compatibility with Java 11, but…
+
++ The Polyglot steps and the BaseX extension steps require Java 17
++ The test driver requires Java 21 (because the Apache Jena components used for RDF are built with Java 21.)
+
+Building should work on macOS or Linux. I don’t routinely build on Windows, but
+it should work. Might work. Bug reports welcome, but it’s not a priority.
+
+* Build XML Calabash
+:PROPERTIES:
+:CUSTOM_ID: building-xmlcalabash
+:END:
+
+To build XML Calabash, run
+
+#+begin_src sh
+./gradlew stage
+#+end_src
+
+That should build a staged release in ~app/build/stage~.
+
+Other useful build targets:
+
++ ~documentation:reference~ and ~documentation:userguide~ build the guides
++ ~xmlcalabash:apidocs~ and ~dokkaHtmlMultiModule~ build the API documentation
++ ~test~ runs the unit tests (they should all pass)
++ ~test-report~ runs the test suites (see below)
++ ~quick-report~ runs the test suites (see below), except the Selenium tests
+
+The build requires network access to download all of the Maven components and the EXProc zip file.
+
+* Running the test suites
+:PROPERTIES:
+:CUSTOM_ID: test-suites
+:END:
+
+Make sure you have the up-to-date test suites:
+
+#+begin_src sh
+git submodule init
+git submodule update
+#+end_src
+
+A variety of tests (all of the ~p:http-request~ tests, but also others) require access to an HTTP server. 
+The ~p:send-mail~ test requies access to an SMTP server.
+
+In order to keep the network access requirements self-contained, severs are run with Docker. (No actual, external
+network access is required for the test suites.)
+
+#+begin_src sh
+cd tests/3.0-test-suite/docker && docker compose up -d
+cd tests/extra-suite/docker && docker compose up -d
+#+end_src
+
+With the Docker containers running, the test suite tasks should run without errors.
+
+In practice, some of the extra tests require additional components. The tests
+for ~cx:tesseract~ require Tesseract, the Selenium tests require a web driver,
+etc.
