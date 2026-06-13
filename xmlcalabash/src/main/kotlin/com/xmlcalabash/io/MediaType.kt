@@ -151,7 +151,7 @@ class MediaType private constructor(val mediaType: String, val mediaSubtype: Str
             }
         }
 
-        fun parse(mtype: String, forceEncoding: String? = null): MediaType {
+        fun parse(mtype: String, forceEncoding: String? = null, allowWildcard: Boolean = false): MediaType {
             val ctype = parseMatch(mtype, forceEncoding)
             if (!"[A-Za-z0-9][-A-Za-z0-9!#\$&0^_\\\\.+]*".toRegex().matches(ctype.mediaType) || ctype.mediaType.length > 127) {
                 throw XProcError.xdInvalidContentType(mtype).exception()
@@ -161,6 +161,10 @@ class MediaType private constructor(val mediaType: String, val mediaSubtype: Str
                 "${ctype.mediaSubtype}+${ctype.suffix}"
             } else {
                 ctype.mediaSubtype
+            }
+
+            if (subtype == "*" && allowWildcard) {
+                return ctype
             }
 
             if (!"[A-Za-z0-9][-A-Za-z0-9!#\$&0^_\\\\.+]*".toRegex().matches(subtype) || subtype.length > 127) {
@@ -276,7 +280,7 @@ class MediaType private constructor(val mediaType: String, val mediaSubtype: Str
                     "any" -> if (excl) mlist.addAll(MATCH_NOT_ANY) else mlist.addAll(MATCH_ANY)
                     else -> {
                         if (ctype.contains("/")) {
-                            mlist.add(parse(ctype))
+                            mlist.add(parse(ctype, allowWildcard = true))
                         } else {
                             throw XProcError.xsInvalidContentType(ctype).exception()
                         }
