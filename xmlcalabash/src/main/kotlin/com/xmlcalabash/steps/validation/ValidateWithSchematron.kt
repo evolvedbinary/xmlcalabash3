@@ -139,7 +139,7 @@ open class ValidateWithSchematron(): AbstractValidationStep() {
         }
 
         val xvrl = XvrlReport.fromSvrl(stepConfig, xvrlParameters, report)
-        xvrl.metadata.validator("SchXslt2", XmlCalabashBuildConfig.SCHXSLT2 ?: "unknown")
+        xvrl.metadata.validator("SchXslt2", XmlCalabashBuildConfig.SCHXSLT2)
         xvrl.metadata.document(document.baseURI)
 
         if (stepConfig.baseUri != null && schema.baseURI != null

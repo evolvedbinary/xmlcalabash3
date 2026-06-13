@@ -87,7 +87,7 @@ class PipelineVisualization private constructor(val instruction: XProcInstructio
             mapOf(
                 "base-uri" to pipeline.stepConfig.baseUri?.toString(),
                 "name" to pipeline.name,
-                "id" to pipeline.id.toString(),
+                "id" to pipeline.id,
                 "filename" to filenameMap[pipeline.id],
                 "type" to pipeline.type?.toString(),
                 "version" to pipeline.version?.toString(),

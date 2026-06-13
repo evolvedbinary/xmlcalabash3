@@ -21,6 +21,7 @@ import java.nio.charset.StandardCharsets
 
 class JsonPath {
     companion object {
+        @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
         fun evaluate(stepConfig: XProcStepConfiguration, source: XProcDocument, jsonPath: String, options: Set<Option>): XProcDocument {
             // TODO: can this be made more efficient than going through strings?
             val baos = ByteArrayOutputStream()
@@ -48,7 +49,7 @@ class JsonPath {
                         is Integer, is Double -> ByteArrayInputStream(result.toString().toByteArray(StandardCharsets.UTF_8))
                         is String -> {
                             val quoted = "\"${result.replace("\"", "\\\"")}\""
-                            ByteArrayInputStream(quoted.toString().toByteArray(StandardCharsets.UTF_8))
+                            ByteArrayInputStream(quoted.toByteArray(StandardCharsets.UTF_8))
                         }
                         else -> throw stepConfig.exception(XProcError.xcxUnparsableJsonPathResult())
                     }

@@ -93,7 +93,7 @@ class SparqlStep(): AbstractRdfStep() {
                     if (lit.language == null || lit.language == "") {
                         val dt = lit.datatypeURI
                         if (dt != null && !"".equals(dt)) {
-                            attr[Ns.datatype] = dt.toString()
+                            attr[Ns.datatype] = dt
                         }
                     } else {
                         attr[NsXml.lang] = node.asLiteral().language
@@ -155,7 +155,7 @@ class SparqlStep(): AbstractRdfStep() {
                     if (lit.language == null || lit.language == "") {
                         val dt = lit.datatypeURI
                         if (dt != null && !"".equals(dt)) {
-                            result = result.put(XdmAtomicValue("datatype"), XdmAtomicValue(dt.toString()))
+                            result = result.put(XdmAtomicValue("datatype"), XdmAtomicValue(dt))
                         }
                     } else {
                         result = result.put(XdmAtomicValue("xml:lang"), XdmAtomicValue(node.asLiteral().language))

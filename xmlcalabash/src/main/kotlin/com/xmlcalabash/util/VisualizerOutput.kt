@@ -108,7 +108,7 @@ class VisualizerOutput(val builder: XmlCalabashBuilder, val xmlCalabash: XmlCala
         }
 
         if (graphStyle != null) {
-            val source = SAXSource(InputSource(graphStyle!!.toString()))
+            val source = SAXSource(InputSource(graphStyle.toString()))
             transformDescription(source, ".xml")
         }
     }
