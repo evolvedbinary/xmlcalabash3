@@ -4,7 +4,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    id("org.jetbrains.kotlin.jvm")
+  id("org.jetbrains.kotlin.jvm")
 }
 
 val saxonGroup = project.findProperty("saxonGroup")

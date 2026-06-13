@@ -31,7 +31,7 @@ val saxonArtifact = project.findProperty("saxonArtifact")
 val saxonVersion = project.findProperty("saxonVersion")
 
 dependencies {
-  implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:2.0.21")
+  implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:2.3.21")
   implementation(libs.kotlin.gradle.plugin)
   implementation("nu.validator.htmlparser:htmlparser:1.4")
   implementation("${saxonGroup}:${saxonArtifact}:${saxonVersion}")
