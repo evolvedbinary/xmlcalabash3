@@ -234,7 +234,12 @@
     <td>{(@e:type/string(), @as/string(), "xs:string")[1]}</td>
     <xsl:if test="../p:option/@values">
       <td>
-        <xsl:text>{@values/string()}</xsl:text>
+        <!-- Remove comments, if there are any ... -->
+        <xsl:variable name="values"
+                      select="replace(@values/string(), '\(:[^:]+:\)', '')
+                              => normalize-space()
+                              => replace(',([&quot;''])', ', $1')"/>
+        <xsl:sequence select="$values"/>
         <xsl:text> </xsl:text>
       </td>
     </xsl:if>

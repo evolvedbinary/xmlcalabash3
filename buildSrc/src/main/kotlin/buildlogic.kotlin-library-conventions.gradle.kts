@@ -17,8 +17,11 @@ dependencies {
                                  "epubcheck", "find", "json-patch", "jsonpath",
                                  "markup-blitz", "metadata-extractor",
                                  "paged-media-fop", "paged-media-prince",
+                                 "pdf",
                                  "railroad", "rdf",
-                                 "selenium", "send-mail", "trang", "unique-id",
+                                 "selenium", "send-mail",
+                                 "tesseract", "trang",
+                                 "unique-id",
                                  "xmlunit", "pebble")).forEach {
     compileOnly(it) {
       exclude(group="net.sf.saxon", module="Saxon-HE")

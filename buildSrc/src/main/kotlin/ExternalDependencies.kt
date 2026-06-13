@@ -85,6 +85,10 @@ object ExternalDependencies {
 
         "paged-media-prince" to listOf("com.princexml:prince-java-wrapper:1.5.0"),
 
+        "pdf" to listOf("org.apache.pdfbox:pdfbox:3.0.7",
+            "org.apache.pdfbox:pdfbox-io:3.0.7",
+            "org.apache.pdfbox:xmpbox:3.0.7"),
+
         "polyglot" to listOf("org.graalvm.polyglot:polyglot:23.1.5",
             "org.graalvm.polyglot:js:23.1.5",
             "org.graalvm.polyglot:python:23.1.5"),
@@ -107,6 +111,8 @@ object ExternalDependencies {
         "send-mail" to listOf("javax.activation:activation:1.1.1",
             "javax.mail:javax.mail-api:1.6.2",
             "com.sun.mail:javax.mail:1.6.2"),
+
+        "tesseract" to listOf("net.sourceforge.tess4j:tess4j:5.19.0"),
 
         "trang" to listOf("org.relaxng:trang:20241231"),
 

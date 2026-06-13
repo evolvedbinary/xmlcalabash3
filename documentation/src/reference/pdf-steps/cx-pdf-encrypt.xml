@@ -1,0 +1,121 @@
+<refentry xmlns:p="http://www.w3.org/ns/xproc"
+          xmlns:e="http://www.w3.org/1999/XSL/Spec/ElementSyntax"
+          xmlns:cxerr="http://xmlcalabash.com/ns/error"
+          xmlns:xi="http://www.w3.org/2001/XInclude"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          xmlns="http://docbook.org/ns/docbook"
+          xml:id="cx-pdf-encrypt">
+<?db filename="cx-pdf-encrypt"?>
+<refnamediv>
+  <refname>cx:pdf-encrypt</refname>
+  <refpurpose>Encrypt a PDF</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv>
+<refsection role="introduction">
+<title>Introduction</title>
+<para>This step applies password protection to a PDF and can restrict the
+permissions available to users.
+</para>
+</refsection>
+
+<refsection role="step-declaration">
+<title>Step declaration</title>
+<xi:include href="../../../../xmlcalabash/src/main/resources/com/xmlcalabash/ext/pdf-steps.xpl"
+            xpointer="xpath(/*/*[@type='cx:pdf-encrypt'])"/>
+<?import pdf-steps.xpl?>
+</refsection>
+</refsynopsisdiv>
+
+<refsection>
+<title>Description</title>
+
+<para>This step applies owner and user passwords to a PDF. It can optionally
+apply permissions to limit a users ability to perform operations on the PDF,
+such as print it or modify it.</para>
+
+<refsection>
+<title>Options</title>
+
+<para>The access restriction options (assemble, extract, etc.) and the
+key size are defined by the PDF specification and the underlying PDFBox 
+APIs.</para>
+
+<para>If an access restriction is not specified, the PDFBox and/or PDF default
+value will be used.</para>
+
+<variablelist>
+<varlistentry><term><option>owner-password</option></term>
+<listitem>
+<para>The owner password. The owner has unrestricted access to the PDF.</para>
+</listitem>
+</varlistentry>
+<varlistentry><term><option>user-password</option></term>
+<listitem>
+<para>The user password. Users with this password are limited by the
+access restrictions.</para>
+</listitem>
+</varlistentry>
+<varlistentry><term><option>key-size</option></term>
+<listitem>
+<para>Sets the key size to use during encryption. The values 40, 128, and 256 are allowed.</para>
+</listitem>
+</varlistentry>
+<varlistentry><term><option>assemble</option></term>
+<listitem>
+<para>If false, users are restricted from assembling PDFs.</para>
+</listitem>
+</varlistentry>
+<varlistentry><term><option>extract</option></term>
+<listitem>
+<para>If false, users are restricted from extracting (copying and pasting)
+from the PDF.</para>
+</listitem>
+</varlistentry>
+<varlistentry><term><option>extract-for-accessibility</option></term>
+<listitem>
+<para>If false, users are restricted from using extraction for accessibility.</para>
+</listitem>
+</varlistentry>
+<varlistentry><term><option>fill-in-form</option></term>
+<listitem>
+<para>If false, users are prevented from filling in forms.</para>
+</listitem>
+</varlistentry>
+<varlistentry><term><option>modify</option></term>
+<listitem>
+<para>If false, users are restricted from modifying the PDF.</para>
+</listitem>
+</varlistentry>
+<varlistentry><term><option>modify-annotations</option></term>
+<listitem>
+<para>If false, users are restricted from modifying annotations in the PDF.</para>
+</listitem>
+</varlistentry>
+<varlistentry><term><option>print</option></term>
+<listitem>
+<para>If false, users are restricted from printing the PDF.</para>
+</listitem>
+</varlistentry>
+<varlistentry><term><option>print-faithful</option></term>
+<listitem>
+<para>If false, users are restricted from faithfully printing the PDF.</para>
+</listitem>
+</varlistentry>
+<varlistentry><term><option>readonly</option></term>
+<listitem>
+<para>Determines whether or not the PDF is readonly.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+</refsection>
+</refsection>
+
+<refsection>
+<title>Document properties</title>
+
+<para>No document properties are preserved.
+</para>
+</refsection>
+
+</refentry>

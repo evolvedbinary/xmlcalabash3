@@ -1,0 +1,48 @@
+<refentry xmlns:p="http://www.w3.org/ns/xproc"
+          xmlns:e="http://www.w3.org/1999/XSL/Spec/ElementSyntax"
+          xmlns:cxerr="http://xmlcalabash.com/ns/error"
+          xmlns:xi="http://www.w3.org/2001/XInclude"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          xmlns="http://docbook.org/ns/docbook"
+          xml:id="cx-pdf-merge">
+<?db filename="cx-pdf-merge"?>
+<refnamediv>
+  <refname>cx:pdf-merge</refname>
+  <refpurpose>Combine multiple PDFs</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv>
+<refsection role="introduction">
+<title>Introduction</title>
+<para>This step merges two or more PDF files.
+</para>
+</refsection>
+
+<refsection role="step-declaration">
+<title>Step declaration</title>
+<xi:include href="../../../../xmlcalabash/src/main/resources/com/xmlcalabash/ext/pdf-steps.xpl"
+            xpointer="xpath(/*/*[@type='cx:pdf-merge'])"/>
+<?import pdf-steps.xpl?>
+</refsection>
+</refsynopsisdiv>
+
+<refsection>
+<title>Description</title>
+
+<para>All of the PDF documents on the <port>secondary</port> port are
+appended to the <port>source</port> PDF, in order.</para>
+
+<para>If the <port>source</port> PDF is encrypted, it will be opened
+with the specified <option>password</option>. All of the PDF files on the
+<port>secondary</port> port must already be decrypted.</para>
+
+</refsection>
+
+<refsection>
+<title>Document properties</title>
+
+<para>No document properties are preserved.
+</para>
+</refsection>
+
+</refentry>

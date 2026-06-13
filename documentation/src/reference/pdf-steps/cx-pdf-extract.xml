@@ -1,0 +1,62 @@
+<refentry xmlns:p="http://www.w3.org/ns/xproc"
+          xmlns:e="http://www.w3.org/1999/XSL/Spec/ElementSyntax"
+          xmlns:cxerr="http://xmlcalabash.com/ns/error"
+          xmlns:xi="http://www.w3.org/2001/XInclude"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          xmlns="http://docbook.org/ns/docbook"
+          xml:id="cx-pdf-extract">
+<?db filename="cx-pdf-extract"?>
+<refnamediv>
+  <refname>cx:pdf-extract</refname>
+  <refpurpose>Extract pages from a PDF</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv>
+<refsection role="introduction">
+<title>Introduction</title>
+<para>This step extracts pages from a PDF.
+</para>
+</refsection>
+
+<refsection role="step-declaration">
+<title>Step declaration</title>
+<xi:include href="../../../../xmlcalabash/src/main/resources/com/xmlcalabash/ext/pdf-steps.xpl"
+            xpointer="xpath(/*/*[@type='cx:pdf-extract'])"/>
+<?import pdf-steps.xpl?>
+</refsection>
+</refsynopsisdiv>
+
+<refsection>
+<title>Description</title>
+
+<para>This step extracts pages from a PDF. It can also duplicate and
+re-order pages.</para>
+
+<para>The <option>pages</option> option specifies the pages to extract (to
+be included) in the result PDF. Individual page numbers, and page ranges, may be
+specified. For example, “<literal>1,3,10-12</literal>” would create a new PDF
+containing pages 1, 3, 10, 11, and 12 from the original PDF. Pages
+can be reordered; “<literal>2,1</literal>” would create a PDF containing
+page 2 of the original PDF followed by page 1 (and no other pages). Pages
+can also be duplicated; “<literal>1,1</literal>” would create a PDF containing
+two pages, both copies of page 1 from the original PDF.</para>
+
+<para>If a sequential subset of pages is selected, the resulting PDF is created
+by simply deleting the other pages. This always results in a smaller PDF file.
+Reordering or duplicating pages requires making copies of each page. This can 
+result in a larger PDF result, even though it’s a subset of the pages, because
+global resources in the original PDF (images, fonts, etc.) may be copied into
+each individual page copy.</para>
+
+<para>In principle, it’s possible to optimize the resulting PDF. In practice,
+it’s not clear how to do it reliably.</para>
+</refsection>
+
+<refsection>
+<title>Document properties</title>
+
+<para>No document properties are preserved.
+</para>
+</refsection>
+
+</refentry>

@@ -1,0 +1,102 @@
+<refentry xmlns:p="http://www.w3.org/ns/xproc"
+          xmlns:e="http://www.w3.org/1999/XSL/Spec/ElementSyntax"
+          xmlns:cxerr="http://xmlcalabash.com/ns/error"
+          xmlns:xi="http://www.w3.org/2001/XInclude"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          xmlns="http://docbook.org/ns/docbook"
+          xml:id="cx-pdf-form">
+<?db filename="cx-pdf-form"?>
+<refnamediv>
+  <refname>cx:pdf-form</refname>
+  <refpurpose>Programmatically fill in PDF forms</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv>
+<refsection role="introduction">
+<title>Introduction</title>
+<para>This step attempts to programmatically fill in PDF forms.</para>
+</refsection>
+
+<refsection role="step-declaration">
+<title>Step declaration</title>
+<xi:include href="../../../../xmlcalabash/src/main/resources/com/xmlcalabash/ext/pdf-steps.xpl"
+            xpointer="xpath(/*/*[@type='cx:pdf-form'])"/>
+<?import pdf-steps.xpl?>
+</refsection>
+</refsynopsisdiv>
+
+<refsection>
+<title>Description</title>
+
+<para>This step uses the form data provided on the <port>data</port> port to update
+the form in the PDF. The XML document on the <port>data</port> should conform to the
+RELAX NG grammar for the <uri>http://xmlcalabash.com/ns/acro-form</uri> namespace.</para>
+
+<para>The easiest way to construct an example of this grammar (for a given form) is to
+use the <tag>cx:pdf-info</tag> step with the <option>form-details</option> option set
+to true.</para>
+
+<para>For example, the test suite contains a PDF document with a form,
+<filename>libreoffice-form.pdf</filename>. The form details for that PDF are:</para>
+
+<programlisting language="xml"><![CDATA[<f:acro-form xmlns:f="http://xmlcalabash.com/ns/acro-form">
+  <f:text name="First Name" type="Tx">Alice</f:text>
+  <f:text name="Last Name" type="Tx"/>
+  <f:radiobutton name="female" type="Btn">Off</f:radiobutton>
+  <f:text name="Birthday" type="Tx"/>
+  <f:checkbox name="gdpr" type="Btn">Off</f:checkbox>
+  <f:checkbox name="other" type="Btn">Off</f:checkbox>
+  <f:text name="First Name_2" type="Tx">Bob</f:text>
+  <f:combobox name="Nationality" type="Ch">
+    <f:choice>Unknown</f:choice>
+    <f:choice>German</f:choice>
+    <f:choice>Indonesian</f:choice>
+    <f:choice>US-American</f:choice>
+    <f:choice>French</f:choice>
+    <f:choice>Spanish</f:choice>
+    <f:choice>Italian</f:choice>
+  </f:combobox>
+</f:acro-form>]]></programlisting>
+
+<para>To update that form, you might provide a document like this on the
+<port>data</port> port:</para>
+
+<programlisting language="xml"><![CDATA[<f:acro-form xmlns:f="http://xmlcalabash.com/ns/acro-form">
+  <f:text name="Last Name" type="Tx">Wonderland</f:text>
+  <f:radiobutton name="female" type="Btn">1</f:radiobutton>
+  <f:checkbox name="gdpr" type="Btn">1</f:checkbox>
+  <f:checkbox name="other" type="Btn">Off</f:checkbox>
+  <f:combobox name="Nationality" type="Ch">
+    <f:value>Unknown</f:value>
+  </f:combobox>
+</f:acro-form>]]></programlisting>
+
+<para>Fields not included will not be changed. It’s an error to include a field
+that does not exist. The PDFBox libraries also do some error checking on the
+values. And sometimes <tag>cx:pdf-form</tag> fails for reasons beyond XML
+Calabash’s control, such as missing fonts.
+</para>
+
+<para>Do not include the <code>f:signature</code> field, attempting to update
+signatures is not supported.</para>
+
+</refsection>
+
+<refsection>
+<title>AcroForm RELAX NG grammar</title>
+
+<para>This is the grammar for form data.</para>
+
+<programlisting
+><xi:include href="../../../../xmlcalabash/src/main/resources/com/xmlcalabash/acro-form.rnc"
+             parse="text"/></programlisting>
+</refsection>
+
+<refsection>
+<title>Document properties</title>
+
+<para>No document properties are preserved.
+</para>
+</refsection>
+
+</refentry>

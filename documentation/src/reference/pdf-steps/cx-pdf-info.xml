@@ -1,0 +1,83 @@
+<refentry xmlns:p="http://www.w3.org/ns/xproc"
+          xmlns:e="http://www.w3.org/1999/XSL/Spec/ElementSyntax"
+          xmlns:cxerr="http://xmlcalabash.com/ns/error"
+          xmlns:xi="http://www.w3.org/2001/XInclude"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          xmlns="http://docbook.org/ns/docbook"
+          xml:id="cx-pdf-info">
+<?db filename="cx-pdf-info"?>
+<refnamediv>
+  <refname>cx:pdf-info</refname>
+  <refpurpose>Get information about a PDF</refpurpose>
+</refnamediv>
+
+<refsynopsisdiv>
+<refsection role="introduction">
+<title>Introduction</title>
+<para>This step returns metadata, and optionally the content, of a PDF.
+</para>
+</refsection>
+
+<refsection role="step-declaration">
+<title>Step declaration</title>
+<xi:include href="../../../../xmlcalabash/src/main/resources/com/xmlcalabash/ext/pdf-steps.xpl"
+            xpointer="xpath(/*/*[@type='cx:pdf-info'])"/>
+<?import pdf-steps.xpl?>
+</refsection>
+</refsynopsisdiv>
+
+<refsection>
+<title>Description</title>
+
+<para>This step returns details about the content of a PDF: PDF version,
+number of pages, creator, title, etc.</para>
+
+<para>The <tag>page-size</tag> returned reflects the maximum width and the
+maximum height of all pages. In a document that contains different media sizes,
+use the <option>page-details</option> option to get information about each page.
+</para>
+
+<refsection>
+<title>Options</title>
+
+<variablelist>
+<varlistentry><term><option>page-details</option></term>
+<listitem>
+<para>If <option>page-details</option> is true, details about each
+page are included in the result.</para>
+</listitem>
+</varlistentry>
+<varlistentry><term><option>page-text</option></term>
+<listitem>
+<para>If <option>page-text</option> is true, the text content of each page
+is included in the result. There is tremendous variation in the way text can be placed on a
+page. This option will return more-or-less useful results depending on how
+the page was constructed. If the results are unusable, another approach
+that might work is to convert the page to images and then OCR them with
+the <tag>cx:tesseract</tag> step.</para>
+</listitem>
+</varlistentry>
+<varlistentry><term><option>form-details</option></term>
+<listitem>
+<para>If <option>page-details</option> is true, and the PDF contains a fillable form,
+details about the form fields are included in the result. The fields are listed in
+“field tree” order from the PDF. That may not reflect the order of the fields on the page.
+</para>
+<para>At present, only the fields directly in the field tree view are included.
+It’s likely that more complex arrangements are possible (nested fields, etc.).
+If you find such a PDF, and you can provide it as an example, please open an
+issue for it.</para>
+</listitem>
+</varlistentry>
+</variablelist>
+</refsection>
+</refsection>
+
+<refsection>
+<title>Document properties</title>
+
+<para>No document properties are preserved.
+</para>
+</refsection>
+
+</refentry>
