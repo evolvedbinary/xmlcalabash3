@@ -40,6 +40,7 @@ open class CompileEnvironment(override val episode: String,
     internal val _defaultContentTypes = mutableMapOf<String, String>(
         "7z" to "application/x-7z-compressed",
         "a" to "application/x-archive",
+        "adoc" to "text/asciidoc",
         "arj" to "application/x-arj",
         "bmp" to "image/bmp",
         "bz2" to "application/bzip2",
