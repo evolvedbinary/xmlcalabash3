@@ -139,6 +139,7 @@ class AsciidoctorStep(): AbstractAtomicStep() {
 
         options.setToFile(true)
         options.setSafe(SafeMode.UNSAFE)
+        options.setBackend("pdf")
 
         val adocFile = tempAsciidoctor.toFile()
         val pdfFile = File(adocFile.parentFile, adocFile.nameWithoutExtension + ".pdf")
