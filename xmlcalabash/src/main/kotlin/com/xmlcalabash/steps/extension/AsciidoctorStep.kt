@@ -168,7 +168,14 @@ class AsciidoctorStep(): AbstractAtomicStep() {
             val param = key.localName
             val svalue = value.underlyingValue.stringValue
             val bvalue = svalue != "false"
+
             when (param) {
+                Options.CATALOG_ASSETS -> {
+                    builder.catalogAssets(bvalue)
+                }
+                Options.BASEDIR -> {
+                    builder.baseDir(File(svalue))
+                }
                 Options.BACKEND -> {
                     builder.backend(svalue)
                 }
