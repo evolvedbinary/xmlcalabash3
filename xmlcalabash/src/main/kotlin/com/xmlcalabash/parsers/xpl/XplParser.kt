@@ -185,6 +185,8 @@ class XplParser internal constructor(val builder: PipelineBuilder) {
 
         processAttributes(node, library, attributeMapping)
 
+        library.version?.let { stepConfig._version = it }
+
         val elementMapping = mapOf<QName, (ElementNode) -> Unit>(
             NsP.import to { child -> parseImport(library as StepContainerInterface, child) },
             NsP.importFunctions to { child -> },
@@ -272,6 +274,8 @@ class XplParser internal constructor(val builder: PipelineBuilder) {
 
         processAttributes(node, decl, attributeMapping)
 
+        decl.version?.let { stepConfig._version = it }
+        
         val elementMapping = mutableMapOf<QName, (ElementNode) -> Unit>(
             NsP.import to { child -> parseImport(decl as StepContainerInterface, child) },
             NsP.importFunctions to { child -> },

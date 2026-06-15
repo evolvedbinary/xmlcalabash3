@@ -44,11 +44,16 @@ open class StepConfiguration(val saxonConfig: SaxonConfiguration,
             return _typeUtils!!
         }
 
+    internal var _version: Double? = null
+    val version: Double
+        get() = _version ?: 3.1
+
     override fun copy(): StepConfiguration {
         val newConfig = StepConfiguration(saxonConfig, context.copy(), environment)
         newConfig._inscopeStepTypes.putAll(_inscopeStepTypes)
         newConfig.validationMode = validationMode
         newConfig._stepName = _stepName
+        newConfig._version = _version
         return newConfig
     }
 

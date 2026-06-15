@@ -32,7 +32,6 @@ open class CompileEnvironment(override val episode: String,
     override val vendor = XmlCalabashBuildConfig.VENDOR_NAME
     override val vendorUri = XmlCalabashBuildConfig.VENDOR_URI
     override val locale = Locale.getDefault().toString().replace("_", "-")
-    override val version = "3.1"
     override val xpathVersion = "3.1"
     override val xmlCalabashConfig = xmlCalabash.config
     override val standardSteps = mutableMapOf<QName, DeclareStepInstruction>()

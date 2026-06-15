@@ -48,6 +48,7 @@ class InstructionConfiguration(saxonConfig: SaxonConfiguration,
         iconfig._inscopeVariables.putAll(_inscopeVariables)
         iconfig._staticBindings.putAll(_staticBindings)
         iconfig._inscopeStepTypes.putAll(_inscopeStepTypes)
+        iconfig._version = _version
         iconfig.drp = drp
         return iconfig
     }
