@@ -23,7 +23,6 @@ interface XProcEnvironment {
     val vendor: String
     val vendorUri: String
     val locale: String
-    val version: String
     val xpathVersion: String
 
     val xmlCalabash: XmlCalabash

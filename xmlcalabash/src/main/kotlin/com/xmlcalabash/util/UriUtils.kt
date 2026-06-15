@@ -158,7 +158,7 @@ class UriUtils {
                 return value
             }
 
-            if (config.baseUri == null || ExtensionName.EAGER_URI_RESOLUTION !in config.xmlCalabashConfig.extensions) {
+            if (config.baseUri == null || (config.version < 3.2 && ExtensionName.EAGER_URI_RESOLUTION !in config.xmlCalabashConfig.extensions)) {
                 return value
             }
 

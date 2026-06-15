@@ -85,6 +85,12 @@ class XmlCalabashCli private constructor() {
             abort(cliExplain, ex)
         }
 
+        /*
+        if (ExtensionName.EAGER_URI_RESOLUTION in (builder.extensions.get() ?: emptyList())) {
+            // Eventually print deprecation warning here...
+        }
+         */
+
         var tstart: Long = 0
         var tend: Long = 0
         try {

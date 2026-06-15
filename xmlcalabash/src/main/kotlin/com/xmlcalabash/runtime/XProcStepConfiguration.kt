@@ -17,6 +17,7 @@ class XProcStepConfiguration(saxonConfig: SaxonConfiguration,
             XProcStepConfiguration(config.saxonConfig, config.context, environment as RuntimeEnvironment)
         }
         xconfig._inscopeStepTypes.putAll(config.inscopeStepTypes)
+        xconfig._version = config.version
 
         return xconfig
     }
@@ -30,12 +31,14 @@ class XProcStepConfiguration(saxonConfig: SaxonConfiguration,
     override fun copy(): XProcStepConfiguration {
         val xconfig = XProcStepConfiguration(saxonConfig, context, environment as RuntimeEnvironment)
         xconfig._inscopeStepTypes.putAll(inscopeStepTypes)
+        xconfig._version = _version
         return xconfig
     }
 
     override fun copy(newConfig: SaxonConfiguration): XProcStepConfiguration {
         val xconfig = XProcStepConfiguration(newConfig, context.copy(newConfig), environment as RuntimeEnvironment)
         xconfig._inscopeStepTypes.putAll(inscopeStepTypes)
+        xconfig._version = _version
         return xconfig
     }
 }
