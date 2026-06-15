@@ -13,6 +13,38 @@ See the commits and pull requests on
 finer detail.</para>
 
 <revhistory>
+<revision xml:id="r3049">
+<revnumber>3.0.49</revnumber>
+<date>2026-06-15</date>
+<revdescription>
+<itemizedlist spacing="compact">
+<listitem><para>Implement
+<link xlink:href="https://codeberg.org/XProc/specification/issues/13">the change</link>
+to relative URI resolution for XProc 3.2. In steps labeled with version 3.2 or later,
+relative <type>xs:anyURI</type> options are resolved where they are specified
+(in the option shortcut or <tag>p:with-option</tag>), and not passed to a calling step as
+unresolved, relative URIs.</para>
+<para>This was always the correct behavior according to the spec, but XML Calabash
+got it wrong. The community group decision to make this
+dependent on the version of the step is not ideal, but it will prevent
+existing pipelines from suddenly behaving differently.
+</para></listitem>
+<listitem><para>Closed <cbissue number="726"/> by upgrading the build script to Gradle 9.5.1 and
+the version of Kotlin to 2.3.21. This meant bumping the version of Java used in several places,
+but the class compatibility is not (supposed to have) changed. Cleaned up a few warnings
+identified by the new compiler.
+</para></listitem>
+<listitem><para>Closed <cbissue number="716"/>. Fixed a number of documentation errors
+in the description of the <tag>cx:asciidoctor</tag> step.
+</para></listitem>
+<listitem><para>Closed <cbissue number="715"/>. Fixed the AsciiDoctor PDF backend.
+</para></listitem>
+<listitem><para>Closed <cbissue number="714"/>. Added a default MIME type mapping for the
+<filename class="extension">.adoc</filename> extension to <code>text/asciidoc</code>.
+</para></listitem>
+</itemizedlist>
+</revdescription>
+</revision>
 <revision xml:id="r3048">
 <revnumber>3.0.48</revnumber>
 <date>2026-06-13</date>
