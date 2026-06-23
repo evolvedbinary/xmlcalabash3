@@ -134,16 +134,19 @@ class SaxonConfiguration private constructor(val licensed: Boolean,
     private val functionLibraries = mutableListOf<Pair<URI, XProcFunctionLibrary>>()
     private val pipelineExtensionFunctions = mutableListOf<ExtensionFunctionDefinition>()
     private val standardExtensionFunctions = mutableListOf<(SaxonConfiguration) -> ExtensionFunctionDefinition>(
-        { config -> DocumentPropertyFunction(config) },
+        { config -> DocumentClassFunction(config) },
         { config -> DocumentPropertiesFunction(config) },
+        { config -> DocumentPropertyFunction(config) },
         { config -> ErrorFunction(config) },
         { config -> FunctionLibraryImportableFunction(config) },
         { config -> IterationPositionFunction(config) },
         { config -> IterationSizeFunction(config) },
+        { config -> LookupUriFunction(config) },
         { config -> StepAvailableFunction(config) },
         { config -> SystemPropertyFunction(config) },
         { config -> UrifyFunction(config) },
-        { config -> LookupUriFunction(config) }
+        { config -> VersionAvailableFunction(config) },
+        { config -> XPathVersionAvailableFunction(config) }
     )
 
     fun newConfiguration(): SaxonConfiguration {

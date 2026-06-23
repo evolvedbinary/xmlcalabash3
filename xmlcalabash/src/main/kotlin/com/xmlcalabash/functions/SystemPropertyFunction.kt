@@ -53,7 +53,7 @@ class SystemPropertyFunction(private val config: SaxonConfiguration): ExtensionF
                 NsP.productVersion -> env.productVersion
                 NsP.vendor -> env.vendor
                 NsP.vendorUri -> env.vendorUri
-                NsP.version -> "3.0 3.1" // FIXME:
+                NsP.version -> "3.2 3.1 3.0" // FIXME:
                 NsP.xpathVersion -> env.xpathVersion
                 NsP.psviSupported -> config.processor.isSchemaAware.toString()
                 NsCx.saxonVersion -> config.processor.saxonProductVersion
