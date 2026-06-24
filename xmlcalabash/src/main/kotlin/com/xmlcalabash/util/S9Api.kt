@@ -222,21 +222,20 @@ class S9Api {
                             props[Ns.baseUri] = baseUri
                         }
 
-                        val builder = SaxonTreeBuilder(stepConfig.processor)
-                        builder.startDocument(baseUri)
-                        builder.addSubtree(value)
-                        builder.endDocument()
+                        val result = if (value.nodeKind == XdmNodeKind.DOCUMENT) {
+                            value
+                        } else {
+                            val builder = SaxonTreeBuilder(stepConfig.processor)
+                            builder.startDocument(baseUri)
+                            builder.addSubtree(value)
+                            builder.endDocument()
+                            builder.result
+                        }
 
-                        when (value.nodeKind) {
-                            XdmNodeKind.TEXT -> {
-                                selections.add(XProcDocument.ofText(builder.result, stepConfig, MediaType.TEXT, props))
-                            }
-                            XdmNodeKind.ELEMENT, XdmNodeKind.DOCUMENT, XdmNodeKind.COMMENT, XdmNodeKind.PROCESSING_INSTRUCTION -> {
-                                selections.add(XProcDocument.ofXml(builder.result, stepConfig, MediaType.XML, props))
-                            }
-                            else -> {
-                                throw XProcError.xdInvalidSelection(value.nodeName).exception()
-                            }
+                        if (ValueUtils.contentClassification(result) == MediaType.TEXT) {
+                            selections.add(XProcDocument.ofText(result, stepConfig, MediaType.TEXT, props))
+                        } else {
+                            selections.add(XProcDocument.ofXml(result, stepConfig, MediaType.XML, props))
                         }
                     }
                     is XdmFunctionItem -> {

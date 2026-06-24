@@ -209,7 +209,6 @@ class ValueTemplateFilterXml(val originalNode: XdmNode, val contentType: MediaTy
                     addSubtree(builder, node)
                 }
             }
-            /*
             XdmNodeKind.COMMENT, XdmNodeKind.PROCESSING_INSTRUCTION -> {
                 if (expandText.peek() && version > 3.1) {
                     val sb = StringBuilder()
@@ -230,7 +229,6 @@ class ValueTemplateFilterXml(val originalNode: XdmNode, val contentType: MediaTy
                     addSubtree(builder, node)
                 }
             }
-             */
             else -> addSubtree(builder, node)
         }
     }
@@ -276,7 +274,6 @@ class ValueTemplateFilterXml(val originalNode: XdmNode, val contentType: MediaTy
                     nodes.add(Pair(node, null))
                 }
             }
-            /*
             XdmNodeKind.COMMENT, XdmNodeKind.PROCESSING_INSTRUCTION -> {
                 if (expandText.peek() && version > 3.1) {
                     val sb = StringBuilder()
@@ -304,7 +301,6 @@ class ValueTemplateFilterXml(val originalNode: XdmNode, val contentType: MediaTy
                     nodes.add(Pair(node, null))
                 }
             }
-             */
             else -> nodes.add(Pair(node, null))
         }
         return nodes
