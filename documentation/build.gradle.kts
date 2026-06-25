@@ -25,15 +25,15 @@ buildscript {
   configurations.all {
     resolutionStrategy.eachDependency {
       if (requested.group == "net.sf.saxon" && requested.name == "Saxon-HE") {
-        useVersion(project.properties["saxonVersion"].toString())
+        useVersion(providers.gradleProperty("saxonVersion").get())
       }
     }
   }
 
   dependencies {
-    classpath("net.sf.saxon:Saxon-HE:${project.properties["saxonVersion"]}")
-    classpath("org.docbook:schemas-docbook:${project.properties["docbookVersion"]}")
-    classpath("org.docbook:docbook-xslTNG:${project.properties["xslTNGversion"]}")
+    classpath("net.sf.saxon:Saxon-HE:${providers.gradleProperty("saxonVersion").get()}")
+    classpath("org.docbook:schemas-docbook:${providers.gradleProperty("docbookVersion").get()}")
+    classpath("org.docbook:docbook-xslTNG:${providers.gradleProperty("xslTNGversion").get()}")
   }
 }
 
@@ -45,10 +45,10 @@ plugins {
   id("com.nwalsh.gradle.relaxng.translate") version "0.10.5"
 }
 
-val saxonVersion = project.properties["saxonVersion"].toString()
-val docbookVersion = project.properties["docbookVersion"].toString()
-val xslTNGversion = project.properties["xslTNGversion"].toString()
-val schXslt2Version = project.properties["schxslt2"].toString()
+val saxonVersion = providers.gradleProperty("saxonVersion").get()
+val docbookVersion = providers.gradleProperty("docbookVersion").get()
+val xslTNGversion = providers.gradleProperty("xslTNGversion").get()
+val schXslt2Version = providers.gradleProperty("schxslt2").get()
 
 val refVersion = (project.findProperty("refVersion")
                       ?: project.findProperty("xmlcalabashVersion")).toString()
@@ -71,19 +71,19 @@ configurations.all {
   }
 }
 
-val transformation by configurations.creating
-val documentation by configurations.creating {
+val transformation = configurations.create("transformation")
+val documentation = configurations.create("documentation") {
   extendsFrom(configurations["transformation"])
 }
-val deltaxml by configurations.creating
-val transform by configurations.creating {
+val deltaxml = configurations.create("deltaxml")
+val transform = configurations.create("transform") {
   extendsFrom(configurations["documentation"])
 }
 
 dependencies {
   transformation ("net.sf.saxon:Saxon-HE:${saxonVersion}")
   transformation ("org.docbook:schemas-docbook:5.2")
-  transformation ("org.docbook:docbook-xslTNG:${project.properties["xslTNGversion"]}")
+  transformation ("org.docbook:docbook-xslTNG:${providers.gradleProperty("xslTNGversion").get()}")
 
   documentation("org.apache.xmlgraphics:fop:2.9")
   documentation("org.apache.avalon.framework:avalon-framework-api:4.3.1")

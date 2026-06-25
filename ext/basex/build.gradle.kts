@@ -19,12 +19,11 @@ buildscript {
 plugins {
   id("buildlogic.kotlin-library-conventions")
   id("com.xmlcalabash.build.xmlcalabash-build")
-  id("org.graalvm.buildtools.native") version "0.10.2"
   id("org.jetbrains.dokka") version "1.9.20"
   id("maven-publish")
 }
 
-val xmlcalabash by configurations.creating {}
+val xmlcalabash = configurations.create("xmlcalabash") {}
 
 configurations.forEach {
   it.exclude("net.sf.saxon.Saxon-HE")
@@ -51,7 +50,7 @@ tasks.jar {
   archiveFileName.set(xmlbuild.jarArchiveFilename())
 }
 
-val sourcesJar by tasks.registering(Jar::class) {
+val sourcesJar = tasks.register<Jar>("sourcesJar") {
   archiveClassifier = "sources"
   from(sourceSets.main.get().allSource)
 }
