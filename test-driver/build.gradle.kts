@@ -15,12 +15,12 @@ repositories {
   maven { url = uri("https://maven.saxonica.com/maven") }
 }
 
-val saxonVersion = project.properties["saxonVersion"].toString()
+val saxonVersion = providers.gradleProperty("saxonVersion").get()
 val requirePass = project.findProperty("requirePass")?.toString() ?: "true"
 val consoleOutput = project.findProperty("xmlcalabash.testDriver.consoleOutput")?.toString() ?: "false"
 
-val transformation by configurations.creating
-val testrunner by configurations.creating {
+val transformation = configurations.create("transformation")
+val testrunner = configurations.create("testrunner") {
   extendsFrom(configurations["runtimeClasspath"])
 }
 

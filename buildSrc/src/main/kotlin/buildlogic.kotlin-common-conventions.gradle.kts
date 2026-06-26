@@ -18,11 +18,11 @@ repositories {
     maven { url = uri("https://maven.saxonica.com/maven") }
 }
 
-val distributionClasspath by configurations.creating {
+val distributionClasspath = configurations.create("distributionClasspath") {
   extendsFrom(configurations["runtimeClasspath"])
 }
 
-val releaseArtifacts by configurations.consumable("releaseArtifacts")
+val releaseArtifacts = configurations.consumable("releaseArtifacts")
 
 // Force some versions across all the projects
 configurations.all {

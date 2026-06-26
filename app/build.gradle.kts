@@ -27,9 +27,9 @@ val saxonGroup = project.findProperty("saxonGroup")
 val saxonArtifact = project.findProperty("saxonArtifact")
 val saxonVersion = project.findProperty("saxonVersion")
 
-val xmlcalabashRelease by configurations.dependencyScope("xmlcalabashRelease")
+val xmlcalabashRelease = configurations.dependencyScope("xmlcalabashRelease")
 
-val stageJars by configurations.creating {
+val stageJars = configurations.create("stageJars") {
   extendsFrom(configurations["distributionClasspath"])
 }
 
@@ -192,7 +192,7 @@ tasks.register<Zip>("release") {
   archiveFileName = "xmlcalabash-${xmlbuild.version.get()}.zip"
 }
 
-val sourcesJar by tasks.registering(Jar::class) {
+val sourcesJar = tasks.register<Jar>("sourcesJar") {
   archiveClassifier = "sources"
   from(sourceSets.main.get().allSource)
 }

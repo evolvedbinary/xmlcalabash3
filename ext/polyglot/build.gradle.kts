@@ -1,5 +1,6 @@
 import java.nio.file.*
 import com.xmlcalabash.build.XmlCalabashBuildExtension
+import com.xmlcalabash.build.ExternalDependencies
 
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -19,25 +20,29 @@ buildscript {
 plugins {
   id("buildlogic.kotlin-library-conventions")
   id("com.xmlcalabash.build.xmlcalabash-build")
-  id("org.graalvm.buildtools.native") version "0.10.2"
+  id("org.graalvm.buildtools.native") version "1.1.2"
   id("org.jetbrains.dokka") version "1.9.20"
   id("maven-publish")
 }
 
-val xmlcalabash by configurations.creating {}
+val xmlcalabash = configurations.create("xmlcalabash") {}
 
 configurations.forEach {
   it.exclude("net.sf.saxon.Saxon-HE")
 }
 
-// Also update ExternalDependencies!!!
-val dep_graalvmJS = "23.1.5"
+var graalvm_version: String? = null
+ExternalDependencies.of(listOf("polyglot")).forEach {
+  if (it.contains("polyglot:polyglot:")) {
+    graalvm_version = it.split(":").last()
+  }
+}
 
 dependencies {
   implementation(project(":xmlcalabash"))
-  implementation("org.graalvm.polyglot:polyglot:${dep_graalvmJS}")
-  implementation("org.graalvm.polyglot:js:${dep_graalvmJS}")
-  implementation("org.graalvm.polyglot:python:${dep_graalvmJS}")
+  ExternalDependencies.of(listOf("polyglot")).forEach {
+    implementation(it)
+  }
   xmlcalabash(project(":xmlcalabash"))
 }
 
@@ -61,7 +66,7 @@ val jvmDefaultArgs = if (isGraalVM) {
   }
   
   dependencies {
-    "compilerClasspath"("org.graalvm.compiler:compiler:${dep_graalvmJS}")
+    "compilerClasspath"("org.graalvm.compiler:compiler:${graalvm_version}")
   }
   
   val compilerDependencies = configurations.getByName("compilerClasspath")
@@ -81,7 +86,7 @@ tasks.jar {
   archiveFileName.set(xmlbuild.jarArchiveFilename())
 }
 
-val sourcesJar by tasks.registering(Jar::class) {
+val sourcesJar = tasks.register<Jar>("sourcesJar") {
   archiveClassifier = "sources"
   from(sourceSets.main.get().allSource)
 }
