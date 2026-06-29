@@ -9,6 +9,7 @@ import com.xmlcalabash.util.SaxonTreeBuilder
 import net.sf.saxon.om.EmptyAttributeMap
 import net.sf.saxon.s9api.QName
 import net.sf.saxon.s9api.XdmAtomicValue
+import net.sf.saxon.s9api.XdmEmptySequence
 import java.net.URI
 
 open class PackStep(): AbstractAtomicStep() {
@@ -43,9 +44,15 @@ open class PackStep(): AbstractAtomicStep() {
             }
             builder.addEndElement()
             builder.endDocument()
-            val result = builder.result
-            val properties = DocumentProperties()
+
+            val properties = if (baseUri == null) {
+                DocumentProperties(mapOf(Ns.baseUri to XdmEmptySequence.getInstance()))
+            } else {
+                DocumentProperties(mapOf(Ns.baseUri to XdmAtomicValue(baseUri)))
+            }
             properties[Ns.contentType] = MediaType.XML
+
+            val result = builder.result
             receiver.output("result", XProcDocument.ofXml(result, stepConfig, properties))
         }
     }

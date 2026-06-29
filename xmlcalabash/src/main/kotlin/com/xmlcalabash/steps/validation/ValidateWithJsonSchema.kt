@@ -96,18 +96,12 @@ open class ValidateWithJsonSchema(): AbstractValidationStep() {
 
         val xvrl = XProcDocument.ofXml(report.asXml(), stepConfig)
 
-        if (assertions.isEmpty()) {
-            receiver.output("result", document)
-            receiver.output("report", xvrl)
-            return
-        }
-
-        if (assertValid) {
+        if (assertValid && !assertions.isEmpty()) {
             throw stepConfig.exception(XProcError.xcNotSchemaValidJson(xvrl))
         }
 
         receiver.output("result", document)
-        receiver.output("report", xvrl)
+        receiver.output("report", removeBaseUri(xvrl))
     }
 
     override fun toString(): String = "p:validate-with-json-schema"

@@ -1,11 +1,13 @@
 package com.xmlcalabash.steps.file
 
+import com.xmlcalabash.documents.DocumentProperties
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.namespace.Ns
 import com.xmlcalabash.namespace.NsP
 import com.xmlcalabash.util.UriUtils
 import net.sf.saxon.s9api.QName
+import net.sf.saxon.s9api.XdmEmptySequence
 import java.io.File
 import java.io.IOException
 import java.nio.file.Files
@@ -105,7 +107,8 @@ abstract class FileCopyOrMove(stepType: QName): FileStep(stepType) {
         }
 
         val result = resultDocument(targetHref)
-        receiver.output("result", XProcDocument.ofXml(result, stepConfig))
+        val properties = DocumentProperties(mapOf(Ns.baseUri to XdmEmptySequence.getInstance()))
+        receiver.output("result", XProcDocument.ofXml(result, stepConfig, properties))
     }
 
     private fun copyFile(source: File, target: File): Boolean {

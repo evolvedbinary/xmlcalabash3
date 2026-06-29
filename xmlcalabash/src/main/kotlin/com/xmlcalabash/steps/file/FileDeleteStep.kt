@@ -1,10 +1,12 @@
 package com.xmlcalabash.steps.file
 
+import com.xmlcalabash.documents.DocumentProperties
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.namespace.Ns
 import com.xmlcalabash.namespace.NsP
 import com.xmlcalabash.util.UriUtils
+import net.sf.saxon.s9api.XdmEmptySequence
 import java.io.File
 import java.io.IOException
 
@@ -25,10 +27,12 @@ class FileDeleteStep(): FileStep(NsP.fileDelete) {
         val recursive = booleanBinding(Ns.recursive) ?: false
         failOnError = booleanBinding(Ns.failOnError) ?: true
 
+        val properties = DocumentProperties(mapOf(Ns.baseUri to XdmEmptySequence.getInstance()))
+
         val file = File(UriUtils.path(href))
         if (!file.exists()) {
             val result = resultDocument(href)
-            receiver.output("result", XProcDocument.ofXml(result, stepConfig))
+            receiver.output("result", XProcDocument.ofXml(result, stepConfig, properties))
             return
         }
 
@@ -48,6 +52,6 @@ class FileDeleteStep(): FileStep(NsP.fileDelete) {
         }
 
         val result = resultDocument(href)
-        receiver.output("result", XProcDocument.ofXml(result, stepConfig))
+        receiver.output("result", XProcDocument.ofXml(result, stepConfig, properties))
     }
 }

@@ -1,5 +1,6 @@
 package com.xmlcalabash.steps
 
+import com.xmlcalabash.documents.DocumentProperties
 import com.xmlcalabash.documents.XProcBinaryDocument
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
@@ -13,6 +14,7 @@ import com.xmlcalabash.util.S9Api
 import com.xmlcalabash.util.SaxonTreeBuilder
 import net.sf.saxon.lib.ErrorReporter
 import net.sf.saxon.s9api.QName
+import net.sf.saxon.s9api.XdmEmptySequence
 import net.sf.saxon.s9api.XmlProcessingError
 
 open class CompareStep(): AbstractAtomicStep() {
@@ -53,16 +55,13 @@ open class CompareStep(): AbstractAtomicStep() {
             }
             builder.addEndElement()
             builder.endDocument()
-            receiver.output("differences", XProcDocument.ofXml(builder.result, stepConfig))
+            val properties = DocumentProperties(mapOf(Ns.baseUri to XdmEmptySequence.getInstance()))
+            receiver.output("differences", XProcDocument.ofXml(builder.result, stepConfig, properties))
         }
 
-        val builder = SaxonTreeBuilder(stepConfig)
-        builder.startDocument(stepConfig.baseUri)
-        builder.addStartElement(NsC.result)
-        builder.addText("${theSame}")
-        builder.addEndElement()
-        builder.endDocument()
-        receiver.output("result", XProcDocument.ofXml(builder.result, stepConfig))
+        val result = atomicResult("${theSame}")
+        val properties = DocumentProperties(mapOf(Ns.baseUri to XdmEmptySequence.getInstance()))
+        receiver.output("result", XProcDocument.ofXml(result, stepConfig, properties))
     }
 
     private fun deepEqualCompare() {

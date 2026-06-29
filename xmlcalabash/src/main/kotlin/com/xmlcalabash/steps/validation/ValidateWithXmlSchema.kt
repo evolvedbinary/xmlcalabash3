@@ -50,7 +50,7 @@ open class ValidateWithXmlSchema(): AbstractAtomicStep() {
 
         val validated = validator.validate(document)
         receiver.output("result", validated)
-        receiver.output("report", validator.xvrl!!)
+        receiver.output("report", removeBaseUri(validator.xvrl!!))
     }
 
     override fun toString(): String = "p:validate-with-xml-schema"

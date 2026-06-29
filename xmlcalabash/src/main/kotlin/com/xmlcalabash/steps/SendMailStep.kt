@@ -1,5 +1,6 @@
 package com.xmlcalabash.steps
 
+import com.xmlcalabash.documents.DocumentProperties
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.io.DocumentWriter
@@ -247,13 +248,9 @@ class SendMailStep(): AbstractAtomicStep() {
             throw stepConfig.exception(XProcError.xdStepFailed("p:send-mail failed"), ex)
         }
 
-        val builder = SaxonTreeBuilder(stepConfig)
-        builder.startDocument(stepConfig.baseUri)
-        builder.addStartElement(NsC.result)
-        builder.addText("true")
-        builder.addEndElement()
-        builder.endDocument()
-        receiver.output("result", XProcDocument.ofXml(builder.result, stepConfig))
+        val result = atomicResult("true")
+        val properties = DocumentProperties(mapOf(Ns.baseUri to XdmEmptySequence.getInstance()))
+        receiver.output("result", XProcDocument.ofXml(result, stepConfig, properties))
     }
 
     override fun reset() {

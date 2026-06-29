@@ -1,7 +1,9 @@
 package com.xmlcalabash.steps
 
+import com.xmlcalabash.documents.DocumentProperties
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
+import com.xmlcalabash.io.MediaType
 import com.xmlcalabash.namespace.Ns
 import com.xmlcalabash.namespace.NsP
 import com.xmlcalabash.runtime.parameters.StepParameters
@@ -32,7 +34,8 @@ open class JsonMergeStep(): AbstractAtomicStep() {
             }
         }
 
-        receiver.output("result", XProcDocument.ofJson(value, stepConfig))
+        val properties = DocumentProperties(mapOf(Ns.baseUri to XdmEmptySequence.getInstance()))
+        receiver.output("result", XProcDocument.ofJson(value, stepConfig, MediaType.JSON, properties))
     }
 
     private fun addMap(value: XdmMap, map: XdmMap): XdmMap {

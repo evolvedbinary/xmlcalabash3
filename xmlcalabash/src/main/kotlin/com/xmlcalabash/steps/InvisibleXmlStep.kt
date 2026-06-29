@@ -1,5 +1,6 @@
 package com.xmlcalabash.steps
 
+import com.xmlcalabash.documents.DocumentProperties
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.io.MediaType
 import com.xmlcalabash.namespace.Ns
@@ -11,6 +12,7 @@ import com.xmlcalabash.util.InvisibleXmlImpl
 import com.xmlcalabash.util.MediaClassification
 import com.xmlcalabash.util.SaxonErrorReporter
 import net.sf.saxon.s9api.QName
+import net.sf.saxon.s9api.XdmEmptySequence
 import net.sf.saxon.s9api.XdmNode
 import net.sf.saxon.s9api.XdmValue
 import java.net.URI
@@ -92,7 +94,8 @@ class InvisibleXmlStep(): AbstractAtomicStep() {
         } else {
             impl.parse(grammarURI, grammarText, input, failOnError, parameters)
         }
-        receiver.output("result", xml)
+
+        receiver.output("result", removeBaseUri(xml))
     }
 
     override fun toString(): String = "p:invisible-xml"

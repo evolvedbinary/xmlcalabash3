@@ -1,5 +1,6 @@
 package com.xmlcalabash.steps
 
+import com.xmlcalabash.documents.DocumentProperties
 import com.xmlcalabash.documents.XProcBinaryDocument
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
@@ -90,8 +91,8 @@ open class ArchiveManifestStep(): AbstractArchiveStep() {
         builder.endDocument()
 
         val result = builder.result
-
-        receiver.output("result", XProcDocument.ofXml(result, stepConfig))
+        val properties = DocumentProperties(mapOf(Ns.baseUri to XdmEmptySequence.getInstance()))
+        receiver.output("result", XProcDocument.ofXml(result, stepConfig, properties))
     }
 
     private fun archiveManifest(builder: SaxonTreeBuilder, format: String, archive: InputArchive) {
