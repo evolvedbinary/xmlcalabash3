@@ -7,6 +7,7 @@ import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.exceptions.XProcException
 import com.xmlcalabash.namespace.Ns
 import com.xmlcalabash.util.MediaClassification
+import net.sf.saxon.s9api.XdmEmptySequence
 
 open class TextJoinStep(): AbstractTextStep() {
     override fun run() {
@@ -42,7 +43,8 @@ open class TextJoinStep(): AbstractTextStep() {
             sb.append(suffix)
         }
 
-        val result = XProcDocument.ofText(sb.toString(), stepConfig, contentType, DocumentProperties())
+        val properties = DocumentProperties(mapOf(Ns.baseUri to XdmEmptySequence.getInstance()))
+        val result = XProcDocument.ofText(sb.toString(), stepConfig, contentType, properties)
         receiver.output("result", result)
     }
 

@@ -14,6 +14,7 @@ import com.xmlcalabash.util.SaxonTreeBuilder
 import com.xmlcalabash.util.UriUtils
 import com.xmlcalabash.util.Urify
 import net.sf.saxon.s9api.SaxonApiException
+import net.sf.saxon.s9api.XdmEmptySequence
 import java.io.*
 import java.net.URI
 import java.nio.charset.Charset
@@ -153,11 +154,12 @@ class OsExec(): AbstractAtomicStep() {
                 } else {
                     text
                 }
-                receiver.output("result", XProcDocument.ofText(outputText, stepConfig, resultContentType, DocumentProperties()))
+                val properties = DocumentProperties(mapOf(Ns.baseUri to XdmEmptySequence.getInstance()))
+                receiver.output("result", XProcDocument.ofText(outputText, stepConfig, resultContentType, properties))
             } else {
                 val outputLoader = DocumentLoader(stepConfig, null, DocumentProperties(), mapOf())
                 val output = outputLoader.load(ByteArrayInputStream(text.toByteArray()), resultContentType)
-                receiver.output("result", output)
+                receiver.output("result", removeBaseUri(output))
             }
         }
 
@@ -169,21 +171,18 @@ class OsExec(): AbstractAtomicStep() {
                 } else {
                     text
                 }
-                receiver.output("error", XProcDocument.ofText(outputText, stepConfig, errorContentType,DocumentProperties()))
+                val properties = DocumentProperties(mapOf(Ns.baseUri to XdmEmptySequence.getInstance()))
+                receiver.output("error", XProcDocument.ofText(outputText, stepConfig, errorContentType,properties))
             } else {
                 val errorLoader = DocumentLoader(stepConfig, null, DocumentProperties(), mapOf())
                 val error = errorLoader.load(ByteArrayInputStream(text.toByteArray()), errorContentType)
-                receiver.output("error", error)
+                receiver.output("error", removeBaseUri(error))
             }
         }
 
-        val sbuilder = SaxonTreeBuilder(stepConfig)
-        sbuilder.startDocument(null)
-        sbuilder.addStartElement(NsC.result)
-        sbuilder.addText(rc.toString())
-        sbuilder.addEndElement()
-        sbuilder.endDocument()
-        receiver.output("exit-status", XProcDocument.ofXml(sbuilder.result, stepConfig))
+        val result = atomicResult("${rc}")
+        val properties = DocumentProperties(mapOf(Ns.baseUri to XdmEmptySequence.getInstance()))
+        receiver.output("exit-status", XProcDocument.ofXml(result, stepConfig, properties))
     }
 
     private fun defaultCharset(type1: MediaType, type2: MediaType): Charset {
@@ -207,7 +206,7 @@ class OsExec(): AbstractAtomicStep() {
                 if (len == 0) {
                     Thread.sleep(250)
                 } else {
-                    buffer.append(buf, 0, len)
+                    buffer.appendRange(buf, 0, len)
                 }
                 len = reader.read(buf)
             }

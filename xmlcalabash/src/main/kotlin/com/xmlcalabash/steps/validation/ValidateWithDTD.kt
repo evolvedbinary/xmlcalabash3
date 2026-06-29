@@ -92,10 +92,12 @@ class ValidateWithDTD(): AbstractValidationStep() {
                 props.set(Ns.serialization, source.properties.get(Ns.serialization))
             }
             receiver.output("result", XProcDocument.ofXml(result, stepConfig, MediaType.XML, props))
-            receiver.output("report", XProcDocument.ofXml(report.asXml(), stepConfig, MediaType.XML, DocumentProperties()))
+            receiver.output("report", XProcDocument.ofXml(report.asXml(), stepConfig, MediaType.XML,
+                DocumentProperties(mapOf(Ns.baseUri to XdmEmptySequence.getInstance()))))
         } catch (ex: Exception) {
             report.detection("error", null, ex.message ?: "(no message)")
-            val xvrl = XProcDocument.ofXml(report.asXml(), stepConfig)
+            val xvrl = XProcDocument.ofXml(report.asXml(), stepConfig,
+                DocumentProperties(mapOf(Ns.baseUri to XdmEmptySequence.getInstance())))
 
             if (assertValid) {
                 throw stepConfig.exception(XProcError.xcDtdValidationFailed(xvrl))

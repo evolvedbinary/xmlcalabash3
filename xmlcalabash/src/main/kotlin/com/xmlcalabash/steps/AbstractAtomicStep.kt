@@ -1,10 +1,12 @@
 package com.xmlcalabash.steps
 
 import com.xmlcalabash.api.XProcStep
+import com.xmlcalabash.documents.DocumentProperties
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.io.MediaType
 import com.xmlcalabash.namespace.Ns
+import com.xmlcalabash.namespace.NsC
 import com.xmlcalabash.namespace.NsCx
 import com.xmlcalabash.namespace.NsXml
 import com.xmlcalabash.namespace.NsXmlns
@@ -15,6 +17,7 @@ import com.xmlcalabash.runtime.XProcStepConfiguration
 import com.xmlcalabash.runtime.api.Receiver
 import com.xmlcalabash.runtime.parameters.RuntimeStepParameters
 import com.xmlcalabash.util.AttributeValueTemplate
+import com.xmlcalabash.util.SaxonTreeBuilder
 import com.xmlcalabash.util.Urify
 import com.xmlcalabash.util.ValueTemplateParser
 import net.sf.saxon.om.NamespaceMap
@@ -405,5 +408,21 @@ abstract class AbstractAtomicStep(): XProcStep {
         }
 
         return pairs
+    }
+
+    fun atomicResult(result: String): XdmNode {
+        val builder = SaxonTreeBuilder(stepConfig)
+        builder.startDocument(null)
+        builder.addStartElement(NsC.result)
+        builder.addText(result)
+        builder.addEndElement()
+        builder.endDocument()
+        return builder.result
+    }
+
+    fun removeBaseUri(doc: XProcDocument): XProcDocument {
+        val properties = DocumentProperties(doc.properties)
+        properties[Ns.baseUri] = XdmEmptySequence.getInstance()
+        return doc.with(properties)
     }
 }

@@ -1,5 +1,6 @@
 package com.xmlcalabash.steps.file
 
+import com.xmlcalabash.documents.DocumentProperties
 import com.xmlcalabash.io.MediaType
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
@@ -10,6 +11,7 @@ import com.xmlcalabash.util.UriUtils
 import com.xmlcalabash.util.XAttributeMap
 import net.sf.saxon.om.AttributeMap
 import net.sf.saxon.s9api.QName
+import net.sf.saxon.s9api.XdmEmptySequence
 import net.sf.saxon.s9api.XdmNode
 import java.io.File
 import java.net.URI
@@ -146,7 +148,8 @@ abstract class FileStep(val stepType: QName): AbstractAtomicStep() {
             throw error.exception()
         } else {
             val err = errorDocument(source, error.code, target)
-            receiver.output("result", XProcDocument.ofXml(err, stepConfig))
+            val properties = DocumentProperties(mapOf(Ns.baseUri to XdmEmptySequence.getInstance()))
+            receiver.output("result", XProcDocument.ofXml(err, stepConfig, properties))
         }
     }
 

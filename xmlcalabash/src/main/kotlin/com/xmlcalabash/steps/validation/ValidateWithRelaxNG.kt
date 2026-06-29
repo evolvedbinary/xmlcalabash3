@@ -8,6 +8,7 @@ import com.thaiopensource.validate.auto.AutoSchemaReader
 import com.thaiopensource.validate.prop.rng.RngProperty
 import com.thaiopensource.validate.rng.CompactSchemaReader
 import com.xmlcalabash.XmlCalabashBuildConfig
+import com.xmlcalabash.documents.DocumentProperties
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.namespace.Ns
@@ -18,6 +19,7 @@ import com.xmlcalabash.util.XmlToSax
 import net.sf.saxon.om.NamespaceUri
 import net.sf.saxon.s9api.Axis
 import net.sf.saxon.s9api.QName
+import net.sf.saxon.s9api.XdmEmptySequence
 import net.sf.saxon.s9api.XdmNode
 import net.sf.saxon.s9api.XdmNodeKind
 import org.xml.sax.InputSource
@@ -142,7 +144,8 @@ open class ValidateWithRelaxNG(): AbstractValidationStep() {
             receiver.output("result", document)
         }
 
-        receiver.output("report", XProcDocument.ofXml(report.asXml(), stepConfig))
+        receiver.output("report", XProcDocument.ofXml(report.asXml(), stepConfig,
+            DocumentProperties(mapOf(Ns.baseUri to XdmEmptySequence.getInstance()))))
     }
 
     private fun augment(builder: SaxonTreeBuilder, node: XdmNode, defaultAttributes: Map<QName, Map<QName, String>>) {

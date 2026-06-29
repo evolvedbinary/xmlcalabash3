@@ -63,7 +63,7 @@ open class MarkdownToHtml(): AbstractAtomicStep() {
         val loader = DocumentLoader(stepConfig, document.baseURI, DocumentProperties(), mapOf())
         val result = loader.load(markup.byteInputStream(StandardCharsets.UTF_8), MediaType.HTML, StandardCharsets.UTF_8)
 
-        receiver.output("result", result)
+        receiver.output("result", removeBaseUri(result))
     }
 
     private fun configureExtensions(mapValue: XdmValue) {

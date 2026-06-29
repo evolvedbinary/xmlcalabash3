@@ -1,5 +1,6 @@
 package com.xmlcalabash.steps.file
 
+import com.xmlcalabash.documents.DocumentProperties
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.exceptions.XProcException
@@ -10,6 +11,7 @@ import com.xmlcalabash.namespace.NsP
 import com.xmlcalabash.util.SaxonTreeBuilder
 import com.xmlcalabash.util.UriUtils
 import com.xmlcalabash.util.Urify
+import net.sf.saxon.s9api.XdmEmptySequence
 import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Path
@@ -44,7 +46,8 @@ class CreateTempfileStep(): FileStep(NsP.fileCreateTempfile) {
                         throw stepConfig.exception(XProcError.xdDoesNotExist(dir.toString(), "path is not a directory"))
                     } else {
                         val err = errorDocument(href, NsErr.xd(11))
-                        receiver.output("result", XProcDocument.ofXml(err, stepConfig))
+                        val properties = DocumentProperties(mapOf(Ns.baseUri to XdmEmptySequence.getInstance()))
+                        receiver.output("result", XProcDocument.ofXml(err, stepConfig, properties))
                         return
                     }
                 }
@@ -88,6 +91,7 @@ class CreateTempfileStep(): FileStep(NsP.fileCreateTempfile) {
         }
 
         builder.endDocument()
-        receiver.output("result", XProcDocument(builder.result, stepConfig))
+        val properties = DocumentProperties(mapOf(Ns.baseUri to XdmEmptySequence.getInstance()))
+        receiver.output("result", XProcDocument(builder.result, stepConfig, properties))
     }
 }

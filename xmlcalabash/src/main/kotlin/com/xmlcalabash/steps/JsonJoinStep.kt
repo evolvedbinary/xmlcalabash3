@@ -1,10 +1,14 @@
 package com.xmlcalabash.steps
 
+import com.xmlcalabash.documents.DocumentProperties
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
+import com.xmlcalabash.io.MediaType
 import com.xmlcalabash.namespace.Ns
+import net.sf.saxon.om.EmptyAttributeMap
 import net.sf.saxon.s9api.XdmArray
 import net.sf.saxon.s9api.XdmAtomicValue
+import net.sf.saxon.s9api.XdmEmptySequence
 import net.sf.saxon.s9api.XdmMap
 import net.sf.saxon.s9api.XdmNode
 
@@ -42,7 +46,8 @@ open class JsonJoinStep(): AbstractAtomicStep() {
             }
         }
 
-        receiver.output("result", XProcDocument.ofJson(value, stepConfig))
+        val properties = DocumentProperties(mapOf(Ns.baseUri to XdmEmptySequence.getInstance()))
+        receiver.output("result", XProcDocument.ofJson(value, stepConfig, MediaType.JSON, properties))
     }
 
     private fun addArray(value: XdmArray, array: XdmArray, depth: Int): XdmArray {

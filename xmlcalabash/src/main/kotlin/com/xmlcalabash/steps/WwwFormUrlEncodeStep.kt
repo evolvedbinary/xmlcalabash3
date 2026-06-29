@@ -1,6 +1,8 @@
 package com.xmlcalabash.steps
 
+import com.xmlcalabash.documents.DocumentProperties
 import com.xmlcalabash.documents.XProcDocument
+import com.xmlcalabash.io.MediaType
 import com.xmlcalabash.namespace.Ns
 import com.xmlcalabash.util.UriUtils
 import net.sf.saxon.s9api.XdmEmptySequence
@@ -42,7 +44,8 @@ open class WwwFormUrlEncodeStep(): AbstractAtomicStep() {
             }
         }
 
-        receiver.output("result", XProcDocument.ofText(encoded.toString(), stepConfig))
+        val properties = DocumentProperties(mapOf(Ns.baseUri to XdmEmptySequence.getInstance()))
+        receiver.output("result", XProcDocument.ofText(encoded.toString(), stepConfig, MediaType.TEXT, properties))
     }
 
     private fun parseParameters(): Map<String,XdmValue> {

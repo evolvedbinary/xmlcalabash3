@@ -17,6 +17,7 @@ import net.sf.saxon.om.NodeInfo
 import net.sf.saxon.om.Sequence
 import net.sf.saxon.om.StructuredQName
 import net.sf.saxon.s9api.XdmAtomicValue
+import net.sf.saxon.s9api.XdmEmptySequence
 import net.sf.saxon.s9api.XdmMap
 import net.sf.saxon.s9api.XdmNodeKind
 import net.sf.saxon.type.Type
@@ -80,7 +81,11 @@ class DocumentPropertiesFunction(private val config: SaxonConfiguration): Extens
 
             for (key in map.keySet()) {
                 val value = map.get(key)
-                result = result.put(key, value)
+                // Setting the base-uri property to the empty sequence is a flag to say that
+                // the document has no base URI.
+                if (key.stringValue != "base-uri" || value != XdmEmptySequence.getInstance()) {
+                    result = result.put(key, value)
+                }
             }
 
             return result.underlyingValue

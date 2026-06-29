@@ -1,10 +1,12 @@
 package com.xmlcalabash.steps.file
 
+import com.xmlcalabash.documents.DocumentProperties
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.namespace.Ns
 import com.xmlcalabash.namespace.NsP
 import com.xmlcalabash.util.UriUtils
+import net.sf.saxon.s9api.XdmEmptySequence
 import net.sf.saxon.value.DateTimeValue
 import java.io.File
 import java.io.IOException
@@ -51,6 +53,7 @@ class FileTouchStep(): FileStep(NsP.fileTouch) {
         }
 
         val result = resultDocument(href)
-        receiver.output("result", XProcDocument.ofXml(result, stepConfig))
+        val properties = DocumentProperties(mapOf(Ns.baseUri to XdmEmptySequence.getInstance()))
+        receiver.output("result", XProcDocument.ofXml(result, stepConfig, properties))
     }
 }

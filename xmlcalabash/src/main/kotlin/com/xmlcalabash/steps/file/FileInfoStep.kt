@@ -1,11 +1,13 @@
 package com.xmlcalabash.steps.file
 
+import com.xmlcalabash.documents.DocumentProperties
 import com.xmlcalabash.io.MediaType
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.namespace.*
 import com.xmlcalabash.util.SaxonTreeBuilder
 import com.xmlcalabash.util.UriUtils
+import net.sf.saxon.s9api.XdmEmptySequence
 import java.io.File
 import java.nio.file.Files
 
@@ -67,6 +69,7 @@ class FileInfoStep(): FileStep(NsP.fileInfo) {
         builder.endDocument()
         val list = builder.result
 
-        receiver.output("result", XProcDocument.ofXml(list, stepConfig))
+        val properties = DocumentProperties(mapOf(Ns.baseUri to XdmEmptySequence.getInstance()))
+        receiver.output("result", XProcDocument.ofXml(list, stepConfig, properties))
     }
 }

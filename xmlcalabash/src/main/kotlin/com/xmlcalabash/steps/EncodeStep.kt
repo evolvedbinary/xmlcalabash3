@@ -1,5 +1,6 @@
 package com.xmlcalabash.steps
 
+import com.xmlcalabash.documents.DocumentProperties
 import com.xmlcalabash.documents.XProcBinaryDocument
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
@@ -8,6 +9,7 @@ import com.xmlcalabash.namespace.Ns
 import com.xmlcalabash.namespace.NsC
 import com.xmlcalabash.util.SaxonTreeBuilder
 import net.sf.saxon.s9api.QName
+import net.sf.saxon.s9api.XdmEmptySequence
 import java.io.ByteArrayOutputStream
 import java.nio.charset.StandardCharsets
 import java.util.*
@@ -35,7 +37,7 @@ class EncodeStep(): AbstractAtomicStep() {
         val encoder = Base64.getMimeEncoder()
         val encoded = encoder.encode(bytes).toString(StandardCharsets.UTF_8).replace("\r", "")
 
-        var attr = mutableMapOf<QName, String?>()
+        val attr = mutableMapOf<QName, String?>()
         attr[Ns.encoding] = encoding
         attr[Ns.contentType] = document.contentType.toString()
         serialization[Ns.encoding]?.let { attr[Ns.charset] = it.underlyingValue.stringValue }
@@ -47,7 +49,8 @@ class EncodeStep(): AbstractAtomicStep() {
         builder.addEndElement()
         builder.endDocument()
 
-        receiver.output("result", XProcDocument.ofXml(builder.result, stepConfig))
+        val properties = DocumentProperties(mapOf(Ns.baseUri to XdmEmptySequence.getInstance()))
+        receiver.output("result", XProcDocument.ofXml(builder.result, stepConfig, properties))
     }
 
     override fun toString(): String = "p:encode"

@@ -2,6 +2,7 @@ package com.xmlcalabash.steps
 
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.datamodel.DocumentContext
+import com.xmlcalabash.documents.DocumentProperties
 import com.xmlcalabash.namespace.Ns
 import com.xmlcalabash.namespace.NsXml
 import com.xmlcalabash.util.SaxonTreeBuilder
@@ -23,7 +24,7 @@ open class WrapSequenceStep(): AbstractAtomicStep() {
     override fun run() {
         super.run()
 
-        baseUri = stepConfig.baseUri
+        baseUri = null
         documents.addAll(queues["source"]!!)
         wrapperName = qnameBinding(Ns.wrapper)!!
         groupAdjacent = stringBinding(Ns.groupAdjacent)
@@ -69,7 +70,12 @@ open class WrapSequenceStep(): AbstractAtomicStep() {
         builder.addEndElement()
         builder.endDocument()
 
-        receiver.output("result", XProcDocument.ofXml(builder.result, stepConfig))
+        val properties = if (baseUri == null) {
+            DocumentProperties(mapOf(Ns.baseUri to XdmEmptySequence.getInstance()))
+        } else {
+            DocumentProperties(mapOf(Ns.baseUri to XdmAtomicValue(baseUri)))
+        }
+        receiver.output("result", XProcDocument.ofXml(builder.result, stepConfig, properties))
     }
 
     private fun runAdjacent() {
@@ -92,7 +98,12 @@ open class WrapSequenceStep(): AbstractAtomicStep() {
                         inGroup = false
                         builder!!.addEndElement()
                         builder.endDocument()
-                        receiver.output("result", XProcDocument.ofXml(builder.result, stepConfig))
+                        val properties = if (baseUri == null) {
+                            DocumentProperties(mapOf(Ns.baseUri to XdmEmptySequence.getInstance()))
+                        } else {
+                            DocumentProperties(mapOf(Ns.baseUri to XdmAtomicValue(baseUri)))
+                        }
+                        receiver.output("result", XProcDocument.ofXml(builder.result, stepConfig, properties))
                     }
                 }
             }
@@ -110,7 +121,12 @@ open class WrapSequenceStep(): AbstractAtomicStep() {
         if (inGroup) {
             builder!!.addEndElement()
             builder.endDocument()
-            receiver.output("result", XProcDocument.ofXml(builder.result, stepConfig))
+            val properties = if (baseUri == null) {
+                DocumentProperties(mapOf(Ns.baseUri to XdmEmptySequence.getInstance()))
+            } else {
+                DocumentProperties(mapOf(Ns.baseUri to XdmAtomicValue(baseUri)))
+            }
+            receiver.output("result", XProcDocument.ofXml(builder.result, stepConfig, properties))
         }
     }
 

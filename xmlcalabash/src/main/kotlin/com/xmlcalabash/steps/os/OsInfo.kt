@@ -1,5 +1,6 @@
 package com.xmlcalabash.steps.os
 
+import com.xmlcalabash.documents.DocumentProperties
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.namespace.Ns
 import com.xmlcalabash.namespace.NsC
@@ -7,6 +8,7 @@ import com.xmlcalabash.namespace.NsCx
 import com.xmlcalabash.steps.AbstractAtomicStep
 import com.xmlcalabash.util.SaxonTreeBuilder
 import net.sf.saxon.s9api.QName
+import net.sf.saxon.s9api.XdmEmptySequence
 import net.sf.saxon.s9api.XdmValue
 
 class OsInfo(): AbstractAtomicStep() {
@@ -67,7 +69,8 @@ class OsInfo(): AbstractAtomicStep() {
         builder.addEndElement()
         builder.endDocument()
 
-        receiver.output("result", XProcDocument.ofXml(builder.result, stepConfig))
+        val properties = DocumentProperties(mapOf(Ns.baseUri to XdmEmptySequence.getInstance()))
+        receiver.output("result", XProcDocument.ofXml(builder.result, stepConfig, properties))
     }
 
     override fun toString(): String = "p:os-info"

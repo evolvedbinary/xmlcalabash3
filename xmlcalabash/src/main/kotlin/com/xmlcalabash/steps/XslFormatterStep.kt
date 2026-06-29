@@ -13,6 +13,7 @@ import com.xmlcalabash.util.UriUtils
 import com.xmlcalabash.util.Verbosity
 import com.xmlcalabash.util.spi.StandardPagedMediaProvider
 import net.sf.saxon.s9api.QName
+import net.sf.saxon.s9api.XdmEmptySequence
 import net.sf.saxon.s9api.XdmValue
 import java.io.ByteArrayOutputStream
 import java.net.URI
@@ -85,7 +86,8 @@ open class XslFormatterStep(): AbstractAtomicStep() {
         val pdf = ByteArrayOutputStream()
         provider.format(document, contentType, pdf)
 
-        receiver.output("result", XProcDocument.ofBinary(pdf.toByteArray(), stepConfig, contentType, DocumentProperties()))
+        val properties = DocumentProperties(mapOf(Ns.baseUri to XdmEmptySequence.getInstance()))
+        receiver.output("result", XProcDocument.ofBinary(pdf.toByteArray(), stepConfig, contentType, properties))
     }
 
     override fun toString(): String = "p:xsl-formatter"

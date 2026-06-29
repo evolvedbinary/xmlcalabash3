@@ -1,6 +1,7 @@
 package com.xmlcalabash.steps.validation
 
 import com.xmlcalabash.XmlCalabashBuildConfig
+import com.xmlcalabash.documents.DocumentProperties
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.namespace.Ns
@@ -12,6 +13,7 @@ import com.xmlcalabash.util.SchematronImpl
 import com.xmlcalabash.xvrl.XvrlReport
 import net.sf.saxon.om.NamespaceUri
 import net.sf.saxon.s9api.QName
+import net.sf.saxon.s9api.XdmEmptySequence
 import net.sf.saxon.s9api.XdmMap
 import net.sf.saxon.s9api.XdmNode
 import net.sf.saxon.s9api.XdmValue
@@ -129,8 +131,9 @@ open class ValidateWithSchematron(): AbstractValidationStep() {
             }
         }
 
-        receiver.output("report", XProcDocument.ofXml(report, stepConfig))
-        receiver.output("result", document)
+        val properties = DocumentProperties(mapOf(Ns.baseUri to XdmEmptySequence.getInstance()))
+        receiver.output("report", XProcDocument.ofXml(report, stepConfig, properties))
+        receiver.output("result",  document)
     }
 
     private fun xvrlReport(document: XProcDocument, report: XdmNode, reportFormat: String, schema: XProcDocument, xvrlParameters: Map<String,String>): XdmNode {

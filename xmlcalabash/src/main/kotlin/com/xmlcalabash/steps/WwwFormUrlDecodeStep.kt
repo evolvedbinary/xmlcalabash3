@@ -1,6 +1,8 @@
 package com.xmlcalabash.steps
 
+import com.xmlcalabash.documents.DocumentProperties
 import com.xmlcalabash.documents.XProcDocument
+import com.xmlcalabash.io.MediaType
 import com.xmlcalabash.namespace.Ns
 import com.xmlcalabash.namespace.NsCx
 import net.sf.saxon.s9api.XdmAtomicValue
@@ -50,7 +52,8 @@ open class WwwFormUrlDecodeStep(): AbstractAtomicStep() {
             json = json.put(XdmAtomicValue(key), value)
         }
 
-        receiver.output("result", XProcDocument.ofJson(json, stepConfig))
+        val properties = DocumentProperties(mapOf(Ns.baseUri to XdmEmptySequence.getInstance()))
+        receiver.output("result", XProcDocument.ofJson(json, stepConfig, MediaType.JSON, properties))
     }
 
     override fun toString(): String = "p:www-form-url-decode"

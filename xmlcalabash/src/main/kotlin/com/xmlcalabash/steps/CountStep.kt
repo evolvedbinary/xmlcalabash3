@@ -1,9 +1,11 @@
 package com.xmlcalabash.steps
 
+import com.xmlcalabash.documents.DocumentProperties
 import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.namespace.Ns
 import com.xmlcalabash.namespace.NsC
 import com.xmlcalabash.util.SaxonTreeBuilder
+import net.sf.saxon.s9api.XdmEmptySequence
 import org.xml.sax.InputSource
 import java.io.ByteArrayInputStream
 import javax.xml.transform.sax.SAXSource
@@ -22,13 +24,9 @@ class CountStep(): AbstractAtomicStep() {
             min(limit, count)
         }
 
-        val builder = SaxonTreeBuilder(stepConfig)
-        builder.startDocument(null)
-        builder.addStartElement(NsC.result)
-        builder.addText(reportedCount.toString())
-        builder.addEndElement()
-        builder.endDocument()
-        receiver.output("result", XProcDocument.ofXml(builder.result, stepConfig))
+        val result = atomicResult(reportedCount.toString())
+        val properties = DocumentProperties(mapOf(Ns.baseUri to XdmEmptySequence.getInstance()))
+        receiver.output("result", XProcDocument.ofXml(result, stepConfig, properties))
     }
 
     override fun toString(): String = "p:count"
