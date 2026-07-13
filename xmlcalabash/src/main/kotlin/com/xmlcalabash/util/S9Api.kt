@@ -19,6 +19,7 @@ import net.sf.saxon.serialize.SerializationProperties
 import net.sf.saxon.str.UnicodeBuilder
 import net.sf.saxon.str.UnicodeString
 import net.sf.saxon.type.BuiltInAtomicType
+import net.sf.saxon.value.StringValue
 import org.xml.sax.InputSource
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -242,7 +243,11 @@ class S9Api {
                         throw XProcError.xdInvalidFunctionSelection().exception()
                     }
                     is XdmAtomicValue -> {
-                        selections.add(XProcDocument.ofJson(value, stepConfig))
+                        if (stepConfig.version >= 3.2 && value.underlyingValue is StringValue) {
+                            selections.add(XProcDocument.ofText(value.stringValue, stepConfig))
+                        } else {
+                            selections.add(XProcDocument.ofJson(value, stepConfig))
+                        }
                     }
                     else -> {
                         selections.add(XProcDocument(value, stepConfig))

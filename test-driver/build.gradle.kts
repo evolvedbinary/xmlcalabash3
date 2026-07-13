@@ -47,9 +47,10 @@ dependencies {
 }
 
 java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
-    }
+  toolchain {
+    // Must be 21 for the RDF tests
+    languageVersion = JavaLanguageVersion.of(21)
+  }
 }
 
 val xmlbuild = the<XmlCalabashBuildExtension>()
