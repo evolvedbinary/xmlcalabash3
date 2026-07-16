@@ -131,8 +131,16 @@ class CompoundStepHead(config: XProcStepConfiguration, val parent: CompoundStep,
             if (port.startsWith("Q{")) {
                 val name = stepConfig.typeUtils.parseQName(port)
 
-                if ((parent.type.namespaceUri == NsP.namespace && name == Ns.message)
-                    || (parent.type.namespaceUri != NsP.namespace && name == NsP.message)) {
+                // For user-defined steps, the type is p:declare-step. Ideally, I'd fix that,
+                // but it's a bit complicated so I'm just going to work around it for the moment.
+                val ptype = if (parent is PipelineStep) {
+                    parent.stepType!!
+                } else {
+                    parent.type
+                }
+
+                if ((ptype.namespaceUri == NsP.namespace && name == Ns.message)
+                    || (ptype.namespaceUri != NsP.namespace && name == NsP.message)) {
                     _message = doc.value
                 } else {
                     val olist = mutableListOf<XProcDocument>()
