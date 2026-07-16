@@ -5,6 +5,8 @@ import com.xmlcalabash.namespace.Ns
 import com.xmlcalabash.runtime.parameters.SelectStepParameters
 import com.xmlcalabash.steps.AbstractAtomicStep
 import com.xmlcalabash.util.S9Api
+import net.sf.saxon.s9api.XdmNode
+import net.sf.saxon.s9api.XdmNodeKind
 
 open class SelectStep(val params: SelectStepParameters): AbstractAtomicStep() {
     override fun run() {
@@ -29,9 +31,14 @@ open class SelectStep(val params: SelectStepParameters): AbstractAtomicStep() {
                     props[name] = value
                 }
 
-                if (doc.contentClassification != document.contentClassification) {
+                // If we changed document kinds or if the result wasn't a node
+                // (for example, if it was an atomic value), discard serialization
+                // But only for 3.2 at the moment because of PR #126
+                if ((stepConfig.version >= 3.2 && result !is XdmNode)
+                     || doc.contentClassification != document.contentClassification) {
                     props.remove(Ns.serialization)
                 }
+
                 receiver.output("result", doc.with(props))
             }
         }
