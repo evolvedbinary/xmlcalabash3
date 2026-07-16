@@ -35,7 +35,6 @@ open class XQuerySaxonProcessor(): XQueryProcessor {
 
     val parameters = mutableMapOf<QName,XdmValue>()
 
-    var goesBang: XProcError? = null
     var cachedQuery = false
 
     private var primaryDestination: Destination? = null
@@ -124,9 +123,6 @@ open class XQuerySaxonProcessor(): XQueryProcessor {
             throw ex
         } catch (ex: Exception) {
             underlyingConfig.collectionFinder = collectionFinder
-            if (goesBang != null) {
-                throw goesBang!!.exception()
-            }
             val err = XProcError.xcXQueryCompileError(ex.message ?: "(no error message)", ex)
             err.updateReports(errorReporter.errorMessages)
             throw stepConfig.exception(err, ex)
