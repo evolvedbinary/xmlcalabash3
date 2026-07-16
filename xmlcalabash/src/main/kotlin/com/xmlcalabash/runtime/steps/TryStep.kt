@@ -142,7 +142,11 @@ open class TryStep(config: XProcStepConfiguration, compound: CompoundStepModel):
                 cause = cause.cause as XPathException
             }
             if (cause is XPathException && cause.errorCodeQName != null) {
-                val pfx = if (cause.errorCodeQName.prefix == "") "cpfx" else cause.errorCodeQName.prefix
+                val pfx = if (cause.errorCodeQName.namespaceUri == NamespaceUri.NULL || cause.errorCodeQName.prefix != "") {
+                    cause.errorCodeQName.prefix
+                } else {
+                    "cpfx"
+                }
                 val causePrefix = getPrefix(bindings, cause.errorCodeQName.namespaceUri, pfx)
                 bindings[causePrefix] = cause.errorCodeQName.namespaceUri
                 causeCode = QName(cause.errorCodeQName.namespaceUri, "${causePrefix}:${cause.errorCodeQName.localPart}")
