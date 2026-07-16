@@ -318,6 +318,7 @@ open class XProcError protected constructor(val code: QName, val variant: Int, e
 
         fun xcUnsupportedScheme(scheme: String) = step(90, scheme)
         fun xcAttributeNameCollision(name: String) = step(92, name)
+        fun xcXsltCompileError(message: String, exception: Exception, errCode: QName) = step(93, message, exception, errCode)
         fun xcXsltCompileError(message: String, exception: Exception) = step(93, message, exception)
         fun xcXsltInputNot20Compatible() = step(Pair(94,1))
         fun xcXsltInputNot20Compatible(media: MediaType) = step(Pair(94,2), media)

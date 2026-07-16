@@ -50,7 +50,6 @@ open class XsltStep(): AbstractAtomicStep() {
     val templateTunnelParameters = mutableMapOf<QName,XdmValue>()
     var outputBaseUri: URI? = null
 
-    var goesBang: XProcError? = null
     var terminationError: XProcError? = null
     var forceEmptyGlobalContextItem = false
 
@@ -130,7 +129,6 @@ open class XsltStep(): AbstractAtomicStep() {
         templateParameters.clear()
         templateTunnelParameters.clear()
         outputBaseUri = null
-        goesBang = null
         terminationError = null
         forceEmptyGlobalContextItem = false
         primaryDestination = null
@@ -195,12 +193,6 @@ open class XsltStep(): AbstractAtomicStep() {
         val exec = try {
             getCompiledStylesheet()
         } catch (sae: Exception) {
-            // Compile time exceptions are caught
-            if (goesBang != null) {
-                throw goesBang!!.exception()
-            }
-
-            // Runtime ones are not
             var cause: QName? = null;
             if (sae.cause != null && sae.cause is XPathException) {
                 val sname = (sae.cause as XPathException).errorCodeQName
@@ -218,7 +210,7 @@ open class XsltStep(): AbstractAtomicStep() {
 
             val err = if (errorReporter.errorMessages.isNotEmpty()) {
                 val error = errorReporter.errorMessages.first()
-                val xerror = XProcError.xcXsltCompileError(error.message(), sae)
+                val xerror = XProcError.xcXsltCompileError(error.message(), sae, errorReporter.error!!.errorCode)
                 xerror.updateAt(error.location)
                 xerror.updateAtInput(error.inputLocation)
                 xerror

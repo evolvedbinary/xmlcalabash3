@@ -4,6 +4,7 @@ import com.xmlcalabash.documents.XProcDocument
 import com.xmlcalabash.exceptions.XProcException
 import com.xmlcalabash.namespace.NsC
 import com.xmlcalabash.namespace.NsCx
+import com.xmlcalabash.namespace.NsErr
 import com.xmlcalabash.namespace.NsFn
 import com.xmlcalabash.runtime.XProcStepConfiguration
 import com.xmlcalabash.runtime.model.CompoundStepModel
@@ -11,6 +12,7 @@ import com.xmlcalabash.util.S9Api
 import com.xmlcalabash.util.SaxonTreeBuilder
 import net.sf.saxon.om.NamespaceMap
 import net.sf.saxon.om.NamespaceUri
+import net.sf.saxon.om.StructuredQName
 import net.sf.saxon.s9api.QName
 import net.sf.saxon.s9api.SaxonApiException
 import net.sf.saxon.trans.XPathException
@@ -151,6 +153,19 @@ open class TryStep(config: XProcStepConfiguration, compound: CompoundStepModel):
                 bindings[causePrefix] = cause.errorCodeQName.namespaceUri
                 causeCode = QName(cause.errorCodeQName.namespaceUri, "${causePrefix}:${cause.errorCodeQName.localPart}")
             }
+
+            // This seems a bit of a hack.
+            if (causeCode == null && exception.error.code == NsErr.xc(93)) {
+                // An XSLT compile time error...
+                val detail = exception.error.details.getOrNull(2)
+                if (detail != null) {
+                    when (detail) {
+                        is QName -> causeCode = detail
+                        is StructuredQName -> causeCode = QName(detail.namespaceUri, detail.localPart)
+                        else -> Unit // ???
+                    }
+                }
+            }
         }
 
         var nsmap = NamespaceMap.emptyMap()
@@ -184,7 +199,13 @@ open class TryStep(config: XProcStepConfiguration, compound: CompoundStepModel):
             }
 
             if (causeCode != null) {
-                attr["cause"] = "${causeCode}"
+                if (causeCode.namespaceUri != NamespaceUri.NULL) {
+                    if (causeCode.namespaceUri == NsFn.errorNamespace) {
+                        attr["cause"] = "fnerr:${causeCode.localName}"
+                    } else {
+                        attr["cause"] = "Q{${causeCode.namespaceUri}}${causeCode.localName}"
+                    }
+                }
             }
 
             builder.addStartElement(NsC.error, step.stepConfig.typeUtils.stringAttributeMap(attr), nsmap)
