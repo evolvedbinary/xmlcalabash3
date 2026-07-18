@@ -31,6 +31,13 @@ are using Maven, include the BaseX step in your dependencies:
 <code>com.xmlcalabash:basex:<?version?></code>. This step also requires the BaseX API
 libraries.</para>
 
+<para>Starting in XML Calabash version 3.0.50, the BaseX APIs are no longer bundled in the
+XML Calabash extension, you must 
+<link xlink:href="https://basex.org/download/">obtain them</link>
+and put them on the classpath yourself. (They are
+<link xlink:href="https://central.sonatype.com/artifact/org.basex/basex">also available</link>
+on Maven Central.)
+XML Calabash is tested with BaseX version <?dep org.basex:basex?>.</para>
 </refsection>
 </refsynopsisdiv>
 
