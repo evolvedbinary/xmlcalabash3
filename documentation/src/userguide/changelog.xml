@@ -13,6 +13,69 @@ See the commits and pull requests on
 finer detail.</para>
 
 <revhistory>
+<revision xml:id="r3050">
+<revnumber>3.0.50</revnumber>
+<date>2026-07-18</date>
+<revdescription>
+<itemizedlist spacing="compact">
+<listitem><para>Closed <cbissue number="765"/> by making sure that the base URI is
+correctly set on inline documents. Previously, for XML documents, the base URI of the document element
+was always used.
+</para></listitem>
+<listitem><para>Closed <cbissue number="760"/> by making sure that typed maps and
+arrays work as parameters when <tag>p:run</tag> is called.
+</para></listitem>
+<listitem><para>Closed <cbissue number="759"/> by correctly reporting the error
+code for static errors encountered in stylesheets in <tag>p:xslt</tag>.
+</para></listitem>
+<listitem><para>Closed <cbissue number="755"/> by making sure that a single, atomic
+string result is a text/plain document. This change (temporarily) only applies
+to pipelines with version=3.2 because of backwards incompatibility consequences.
+</para></listitem>
+<listitem><para>Closed <cbissue number="757"/>. Don’t manufacture a prefix
+for error codes that are not in a namespace.
+</para></listitem>
+<listitem><para>Closed <cbissue number="753"/>. Make sure that the message option
+works on calls to user-defined steps.
+</para></listitem>
+<listitem><para>Closed <cbissue number="752"/>. Fixed <tag>p:xquery</tag> so the
+one-time configuration of the XQuery processor <emphasis>isn’t</emphasis>
+cleared by the reset method. Also added checks to make sure that reset and teardown don’t
+attempt to call the implementation if no implementation has been selected.
+</para></listitem>
+<listitem><para>Closed <cbissue number="751"/> by making sure that the
+reset method on <tag>p:http-request</tag> <emphasis>does</emphasis> clear its input documents.
+</para></listitem>
+<listitem><para>Closed <cbissue number="750"/>. Added dependencies to make it more likely
+that option initializing expressions will be evaluated “near” the step on which they are used.
+</para></listitem>
+<listitem><para>Closed <cbissue number="746"/> by making sure that the “no document
+properties are preserved” requirements are respected. Updated the test suite
+to add tests for correct behavior.
+</para></listitem>
+<listitem><para>Closed <cbissue number="721"/> by making sure that HTML documents get
+a proper document URI. (There’s a bug in the underlying HTML parser, but I’ve no hope
+for that being fixed. Instead, there’s a workaround.) I’ve also switched back to
+the version of the parser on Maven Central.
+</para></listitem>
+<listitem><para>Closed <cbissue number="713"/>. I’ve removed the BaseX distribution
+from the XML Calabash extension. This is possibly less convenient at first, but
+is less confusing when new versions of BaseX are released. 
+</para></listitem>
+<listitem><para>Added support for text value templates in comments and
+processing instructions.
+</para></listitem>
+<listitem><para>Added missing functions, <function>p:xpath-version-available</function>
+and <function>p:version-available</function>.
+</para></listitem>
+<listitem><para>Upgraded to Gradle 9.6.1. Fixed a bunch of Gradle features that
+raised deprecation warnings.
+</para></listitem>
+<listitem><para>Updated to the latest version of the XProc test suite.
+</para></listitem>
+</itemizedlist>
+</revdescription>
+</revision>
 <revision xml:id="r3049">
 <revnumber>3.0.49</revnumber>
 <date>2026-06-15</date>
