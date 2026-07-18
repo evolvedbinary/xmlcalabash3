@@ -6,65 +6,20 @@ import com.xmlcalabash.datamodel.Visibility
 import com.xmlcalabash.exceptions.XProcError
 import com.xmlcalabash.exceptions.XProcException
 import com.xmlcalabash.io.MediaType
-import com.xmlcalabash.namespace.Ns
-import com.xmlcalabash.namespace.NsErr
-import com.xmlcalabash.namespace.NsFn
-import com.xmlcalabash.namespace.NsP
-import com.xmlcalabash.namespace.NsXs
+import com.xmlcalabash.namespace.*
 import net.sf.saxon.event.ReceiverOption
 import net.sf.saxon.expr.parser.XPathParser
 import net.sf.saxon.ma.arrays.ArrayItem
 import net.sf.saxon.ma.arrays.ArrayItemType
 import net.sf.saxon.ma.map.MapItem
 import net.sf.saxon.ma.map.MapType
-import net.sf.saxon.om.AttributeInfo
-import net.sf.saxon.om.AttributeMap
-import net.sf.saxon.om.EmptyAttributeMap
-import net.sf.saxon.om.FingerprintedQName
-import net.sf.saxon.om.GroundedValue
-import net.sf.saxon.om.NamespaceUri
-import net.sf.saxon.om.NodeInfo
-import net.sf.saxon.om.StructuredQName
-import net.sf.saxon.s9api.Axis
-import net.sf.saxon.s9api.ItemType
-import net.sf.saxon.s9api.Location
-import net.sf.saxon.s9api.OccurrenceIndicator
-import net.sf.saxon.s9api.QName
-import net.sf.saxon.s9api.SaxonApiException
+import net.sf.saxon.om.*
+import net.sf.saxon.s9api.*
 import net.sf.saxon.s9api.SequenceType
-import net.sf.saxon.s9api.XdmArray
-import net.sf.saxon.s9api.XdmAtomicValue
-import net.sf.saxon.s9api.XdmEmptySequence
-import net.sf.saxon.s9api.XdmItem
-import net.sf.saxon.s9api.XdmMap
-import net.sf.saxon.s9api.XdmNode
-import net.sf.saxon.s9api.XdmValue
 import net.sf.saxon.sxpath.IndependentContext
 import net.sf.saxon.trans.XPathException
 import net.sf.saxon.type.BuiltInAtomicType
-import net.sf.saxon.value.AnyURIValue
-import net.sf.saxon.value.AtomicValue
-import net.sf.saxon.value.Base64BinaryValue
-import net.sf.saxon.value.BooleanValue
-import net.sf.saxon.value.DateTimeValue
-import net.sf.saxon.value.DateValue
-import net.sf.saxon.value.DayTimeDurationValue
-import net.sf.saxon.value.DecimalValue
-import net.sf.saxon.value.DoubleValue
-import net.sf.saxon.value.DurationValue
-import net.sf.saxon.value.FloatValue
-import net.sf.saxon.value.GDayValue
-import net.sf.saxon.value.GMonthDayValue
-import net.sf.saxon.value.GMonthValue
-import net.sf.saxon.value.GYearMonthValue
-import net.sf.saxon.value.GYearValue
-import net.sf.saxon.value.HexBinaryValue
-import net.sf.saxon.value.Int64Value
-import net.sf.saxon.value.QNameValue
-import net.sf.saxon.value.StringValue
-import net.sf.saxon.value.TimeValue
-import net.sf.saxon.value.YearMonthDurationValue
-import kotlin.collections.iterator
+import net.sf.saxon.value.*
 
 class TypeUtils(val context: DocumentContext) {
     companion object {
@@ -422,10 +377,10 @@ class TypeUtils(val context: DocumentContext) {
 
     fun validateAsType(value: XdmValue, type: net.sf.saxon.value.SequenceType, inscopeNamespaces: Map<String, NamespaceUri>): XdmValue {
         if (type.primaryType is ArrayItemType) {
-            return validateAsArray(value as XdmArray, type, inscopeNamespaces)
+            return validateAsArray(value, type, inscopeNamespaces)
         }
         if (type.primaryType is MapType) {
-            return validateAsMap(value as XdmMap, type, inscopeNamespaces)
+            return validateAsMap(value, type, inscopeNamespaces)
         }
 
         val values = mutableListOf<XdmValue>()
@@ -446,27 +401,53 @@ class TypeUtils(val context: DocumentContext) {
         return newValue
     }
 
-    private fun validateAsArray(value: XdmArray, type: net.sf.saxon.value.SequenceType, inscopeNamespaces: Map<String, NamespaceUri>): XdmValue {
+    private fun validateAsArray(value: XdmValue, type: net.sf.saxon.value.SequenceType, inscopeNamespaces: Map<String, NamespaceUri>): XdmValue {
         val memberType = (type.primaryType as ArrayItemType).memberType
-        val memberList = mutableListOf<XdmValue>()
-        for (index in 0..< value.arrayLength()) {
-            val member = value[index]
-            memberList.add(validateAsType(member, memberType!!, inscopeNamespaces))
+
+        if (value is XdmArray) {
+            val memberList = mutableListOf<XdmValue>()
+            for (index in 0..< value.arrayLength()) {
+                val member = value[index]
+                memberList.add(validateAsType(member, memberType!!, inscopeNamespaces))
+            }
+            return XdmArray(memberList.toTypedArray())
+        } else if (value.underlyingValue is ArrayItem) {
+            val arrayItem = value.underlyingValue as ArrayItem
+            val memberList = mutableListOf<XdmValue>()
+            for (index in 0..< arrayItem.arrayLength()) {
+                val member = arrayItem[index]
+                memberList.add(validateAsType(XdmValue.wrap(member), memberType!!, inscopeNamespaces))
+            }
+            return XdmArray(memberList.toTypedArray())
         }
-        return XdmArray(memberList.toTypedArray())
+        throw XProcError.xdBadType("Cannot convert ${value} to typed array").exception()
     }
 
-    private fun validateAsMap(value: XdmMap, type: net.sf.saxon.value.SequenceType, inscopeNamespaces: Map<String, NamespaceUri>): XdmValue {
+    private fun validateAsMap(value: XdmValue, type: net.sf.saxon.value.SequenceType, inscopeNamespaces: Map<String, NamespaceUri>): XdmValue {
         val keyType = (type.primaryType as MapType).keyType
         val valueType = (type.primaryType as MapType).valueType
-        var newValue = XdmMap()
-        for (key in value.keySet()) {
-            val mvalue = value.get(key)
-            val keyValue = checkSimpleType(key, keyType.basicAlphaCode, inscopeNamespaces)
-            val memberValue = validateAsType(mvalue, valueType, inscopeNamespaces)
-            newValue = newValue.put(keyValue as XdmAtomicValue, memberValue)
+
+        if (value is XdmMap) {
+            var newValue = XdmMap()
+            for (key in value.keySet()) {
+                val mvalue = value.get(key)
+                val keyValue = checkSimpleType(key, keyType.basicAlphaCode, inscopeNamespaces)
+                val memberValue = validateAsType(mvalue, valueType, inscopeNamespaces)
+                newValue = newValue.put(keyValue as XdmAtomicValue, memberValue)
+            }
+            return newValue
+        } else if (value.underlyingValue is MapItem) {
+            val mapItem = value.underlyingValue as MapItem
+            var newValue = XdmMap()
+            for (pair in mapItem.keyValuePairs()) {
+                val mvalue = pair.value
+                val keyValue = checkSimpleType(XdmAtomicValue(pair.key), keyType.basicAlphaCode, inscopeNamespaces)
+                val memberValue = validateAsType(XdmValue.wrap(mvalue), valueType, inscopeNamespaces)
+                newValue = newValue.put(keyValue as XdmAtomicValue, memberValue)
+            }
+            return newValue
         }
-        return newValue
+        throw XProcError.xdBadType("Cannot convert ${value} to typed map").exception()
     }
 
     private fun checkSimpleType(value: XdmValue, code: String, inscopeNamespaces: Map<String, NamespaceUri>): XdmValue {

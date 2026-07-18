@@ -102,8 +102,8 @@ class XProcPipeline internal constructor(val runtime: XProcRuntime, pipeline: Co
             config.typeUtils.checkType(name, value.value, option.asType, config.inscopeNamespaces, option.values)
         } catch (ex: XProcException) {
             throw ex
-        } catch (_: Exception) {
-            throw XProcError.xdBadType(value.value.toString(), TypeUtils.sequenceTypeToString(option.asType)).exception()
+        } catch (ex: Exception) {
+            throw XProcError.xdBadType(value.value.toString(), TypeUtils.sequenceTypeToString(option.asType)).exception(ex)
         }
 
         for (step in runnable.runnables.filterIsInstance<AtomicOptionStep>()) {

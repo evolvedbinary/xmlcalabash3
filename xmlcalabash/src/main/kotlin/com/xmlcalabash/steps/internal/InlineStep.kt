@@ -94,6 +94,7 @@ open class InlineStep(val params: InlineStepParameters): AbstractAtomicStep() {
             }
         }
 
+        var overrideBaseUri: URI? = null
         if (props.has(Ns.baseUri)) {
             val pbaseUri = props[Ns.baseUri]
             if (pbaseUri != null && pbaseUri != XdmEmptySequence.getInstance()) {
@@ -103,12 +104,13 @@ open class InlineStep(val params: InlineStepParameters): AbstractAtomicStep() {
                     if (!uri.isAbsolute) {
                         throw stepConfig.exception(XProcError.xdInvalidUri(uristr))
                     }
+                    overrideBaseUri = uri
                 } catch (ex: URISyntaxException) {
-                    throw stepConfig.exception(XProcError.xdInvalidUri(uristr))
+                    throw stepConfig.exception(XProcError.xdInvalidUri(uristr), ex)
                 }
             }
         } else {
-            props[Ns.baseUri] = xml.baseURI
+            props[Ns.baseUri] = stepConfig.baseUri
         }
 
         // Handle the special case where the baseURI is ()
@@ -129,7 +131,11 @@ open class InlineStep(val params: InlineStepParameters): AbstractAtomicStep() {
         }
 
         if (ctypeMarkup) {
-            val fixedXML = S9Api.adjustBaseUri(xml, props[Ns.baseUri])
+            val fixedXML = if (overrideBaseUri != null) {
+                S9Api.adjustBaseUri(xml, props[Ns.baseUri])
+            } else {
+                xml
+            }
             receiver.output("result", XProcDocument(fixedXML, stepConfig, props))
             return
         }
