@@ -13,6 +13,7 @@ import java.net.URI
 
 open class XQueryStep(): AbstractAtomicStep() {
     lateinit var xqueryImpl: XQueryProcessor
+    var processorInitialized = false;
     var requestedProcessor: URI? = null
     var fallbackProcessor: URI? = null
     var cachedQuery = false
@@ -42,6 +43,7 @@ open class XQueryStep(): AbstractAtomicStep() {
                 throw stepConfig.exception(XProcError.xdStepFailed("Cannot find requested XQuery processor (${requestedProcessor}) or fallback"))
             }
             xqueryImpl = proc.getImplementation()
+            processorInitialized = true
 
             val pconfig = stepConfig.xmlCalabashConfig.configuredXQueryProcessors[proc.implementationUri] ?: emptyMap()
             xqueryImpl.setup(stepConfig, receiver, stepParams, cachedQuery, pconfig)
@@ -53,9 +55,11 @@ open class XQueryStep(): AbstractAtomicStep() {
                 val proc = getProcessorProvider(processor)
                 if (proc != null) {
                     xqueryImpl = proc.getImplementation()
+                    processorInitialized = true
+                    found = true
+
                     val pconfig = stepConfig.xmlCalabashConfig.configuredXQueryProcessors[proc.implementationUri] ?: emptyMap()
                     xqueryImpl.setup(stepConfig, receiver, stepParams, cachedQuery, pconfig)
-                    found = true
                 } else {
                     attempted.add(processor)
                     val config = stepConfig.xmlCalabashConfig.configuredXQueryProcessors[processor] ?: emptyMap()
@@ -90,13 +94,17 @@ open class XQueryStep(): AbstractAtomicStep() {
 
     override fun reset() {
         super.reset()
-        xqueryImpl.reset()
-        requestedProcessor = null
-        fallbackProcessor = null
+        if (processorInitialized) {
+            xqueryImpl.reset()
+        }
+        processorInitialized = false
     }
 
     override fun teardown() {
         super.teardown()
-        xqueryImpl.teardown()
+        if (processorInitialized) {
+            xqueryImpl.teardown()
+        }
+        processorInitialized = false
     }
 }
