@@ -170,6 +170,9 @@
     <group id="io.pebbletemplates">
       <artifact id="pebble" version="4.1.1"/>
     </group>
+    <group id="org.basex">
+      <artifact id="basex" version="12.4"/>
+    </group>
   </repository>
 
   <kotlin>package com.xmlcalabash.build
@@ -324,10 +327,13 @@ object ExternalDependencies {
     <pebble>
       <artifact ref="pebble"/>
     </pebble>
+    <basex>
+      <artifact ref="basex"/>
+    </basex>
   </depends-on>))
 
   val implSteps = listOf("xmlcalabash", "send-mail")
-  val exclSteps = listOf("polyglot")
+  val exclSteps = listOf("polyglot", "basex")
   
   val compileSteps: List&lt;String&gt;
       get() {
@@ -349,6 +355,11 @@ object ExternalDependencies {
           }
         }
         return distSteps
+      }
+
+  val baseXSteps: List&lt;String&gt;
+      get() {
+        return listOf("basex")
       }
 
   fun of(keys: List&lt;String&gt;): List&lt;String&gt; {

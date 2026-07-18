@@ -34,7 +34,8 @@ val dep_graalvmJS = "23.1.5"
 
 dependencies {
   implementation(project(":xmlcalabash"))
-  implementation("org.basex:basex:12.0")
+  compileOnly("org.basex:basex:12.4")
+  testImplementation("org.basex:basex:12.4")
   xmlcalabash(project(":xmlcalabash"))
 }
 

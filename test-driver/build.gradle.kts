@@ -32,7 +32,14 @@ dependencies {
   implementation(project(":xmlcalabash"))
   testrunner(project(":test-driver"))
   implementation(project(":ext:polyglot"))
+
   implementation(project(":ext:basex"))
+  ExternalDependencies.of(ExternalDependencies.baseXSteps).forEach {
+    implementation(it) {
+      exclude(group="net.sf.saxon", module="Saxon-HE")
+    }
+  }
+
   implementation(project(":ext:existdb"))
   implementation(project(":app"))
   implementation("com.saxonica:Saxon-EE:${saxonVersion}")

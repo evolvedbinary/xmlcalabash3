@@ -120,10 +120,12 @@ object ExternalDependencies {
 
         "xmlunit" to listOf("org.xmlunit:xmlunit-core:2.11.0"),
 
-        "pebble" to listOf("io.pebbletemplates:pebble:4.1.1"))
+        "pebble" to listOf("io.pebbletemplates:pebble:4.1.1"),
+
+        "basex" to listOf("org.basex:basex:12.4"))
 
   val implSteps = listOf("xmlcalabash", "send-mail")
-  val exclSteps = listOf("polyglot")
+  val exclSteps = listOf("polyglot", "basex")
   
   val compileSteps: List<String>
       get() {
@@ -145,6 +147,11 @@ object ExternalDependencies {
           }
         }
         return distSteps
+      }
+
+  val baseXSteps: List<String>
+      get() {
+        return listOf("basex")
       }
 
   fun of(keys: List<String>): List<String> {

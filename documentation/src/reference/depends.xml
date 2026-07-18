@@ -55,7 +55,7 @@ an appropriate license if you want to use licensed features (like XML Schema val
 </listitem>
 </varlistentry>
 <varlistentry>
-<term>htmlparser, version <?dep nu.validator:htmlparser?></term>
+<term>htmlparser, version <?dep nu.validator.htmlparser:htmlparser?></term>
 <listitem>
 <para>To parse HTML.
 </para>
