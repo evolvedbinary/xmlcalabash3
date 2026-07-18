@@ -161,6 +161,11 @@ abstract class StepDeclaration(parent: XProcInstruction?, stepConfig: Instructio
                 _staticOptions[option.name] = StaticOptionDetails(option)
             } else {
                 val exprStep = AtomicExpressionStepInstruction(this, option.name, option.select!!)
+
+                // Make sure we attempt to evaluate this option after we've evaluated all of the steps
+                // that this step depends on. (Avoid having all the options evaluated long before
+                // the step actually runs.)
+                exprStep.depends.addAll(findDependencies())
                 exprStep.depends.addAll(depends)
                 stepConfig.addVisibleStepName(exprStep)
 
@@ -200,7 +205,41 @@ abstract class StepDeclaration(parent: XProcInstruction?, stepConfig: Instructio
         return result
     }
 
-    open protected fun variableBindings(expr: XProcExpression, step: StepDeclaration) {
+    private fun findContainingStep(start: XProcInstruction): StepDeclaration? {
+        var instr: XProcInstruction? = start
+        while (instr != null && instr !is StepDeclaration) {
+            instr = instr.parent
+        }
+        return instr
+    }
+
+    private fun findDependencies(): Set<String> {
+        val names = mutableSetOf<String>()
+        if (stepConfig.drp != null) {
+            findContainingStep(stepConfig.drp!!)?.let { names.add(it.name) }
+        }
+        for (child in children) {
+            if (child is WithInputInstruction || child is WithOptionInstruction) {
+                for (conn in child.children.filterIsInstance<PipeInstruction>()) {
+                    val stepName = conn.step
+                    if (stepName != null && stepConfig.inscopeStepNames.contains(stepName)) {
+                        names.add(stepName)
+                    }
+                }
+            }
+        }
+        var instr: XProcInstruction? = this
+        while (names.isNotEmpty() && instr != null) {
+            if (instr is StepDeclaration && names.contains(instr.name)) {
+                names.remove(instr.name)
+            }
+            instr = instr.parent
+        }
+
+        return names
+    }
+
+    protected open fun variableBindings(expr: XProcExpression, step: StepDeclaration) {
         for (name in expr.variableRefs) {
             if (name !in step.stepConfig.inscopeVariables) {
                 throw stepConfig.exception(XProcError.xsXPathStaticError(name))
