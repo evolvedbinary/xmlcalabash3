@@ -243,6 +243,15 @@ class BasicDocumentLoader(val href: URI?,
         uri?.let { builder.baseURI = it }
 
         val treeBuilder = SaxonTreeBuilder(processor)
+        // The HTML parser doesn't set the systemId for the document parsed.
+        // It appears to be a bug in the way the HTML parser tokenizer is initialized.
+        // It creates the underlying HTML Document before calling its initLocation() method,
+        // so the Document has a null base URI. No one's touched the HTML validator
+        // code in 14 years, so I'm assuming they won't be fixing that bug.
+        // https://github.com/validator/htmlparser/issues/123`
+        // Adding an overrideBaseUri property to my tree builder is a hack...
+        treeBuilder.overrideBaseUri = uri
+
         val contentHandler = HtmlContentHandler(treeBuilder)
 
         val parser = HtmlParser(XmlViolationPolicy.ALTER_INFOSET)
@@ -510,34 +519,6 @@ class BasicDocumentLoader(val href: URI?,
             if (ch != null) {
                 builder.addComment(String(ch, start, length))
             }
-        }
-    }
-
-    private class SaxLocation(locator: Locator?): net.sf.saxon.s9api.Location {
-        val locatorSystemId = locator?.getSystemId()
-        val locatorPublicId = locator?.getPublicId()
-        val locatorLineNumber = locator?.getLineNumber() ?: -1
-        val locatorColumnNumber = locator?.getColumnNumber() ?: -1
-
-        override fun getSystemId(): String? {
-            return locatorSystemId
-        }
-
-        override fun getPublicId(): String? {
-            return locatorPublicId
-        }
-
-        override fun getLineNumber(): Int {
-            return locatorLineNumber
-        }
-
-        override fun getColumnNumber(): Int {
-            return locatorColumnNumber
-        }
-
-        override fun saveLocation(): net.sf.saxon.s9api.Location? {
-            // nop; not used here
-            return this
         }
     }
 }

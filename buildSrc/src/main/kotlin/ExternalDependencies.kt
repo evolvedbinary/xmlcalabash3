@@ -23,7 +23,7 @@ object ExternalDependencies {
             "com.vladsch.flexmark:flexmark-all:0.64.8",
             "commons-codec:commons-codec:1.22.0",
             "javax.activation:activation:1.1.1", // For mimetype mapping
-            "nu.validator:htmlparser:1.4.16",
+            "nu.validator.htmlparser:htmlparser:1.4",
             "org.apache.commons:commons-compress:1.28.0",
             "org.apache.httpcomponents.client5:httpclient5:5.6.1",
             "org.brotli:dec:0.1.2",

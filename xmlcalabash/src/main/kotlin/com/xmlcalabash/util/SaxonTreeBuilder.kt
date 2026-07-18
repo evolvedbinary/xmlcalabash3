@@ -54,6 +54,8 @@ open class SaxonTreeBuilder(val processor: Processor, val ignoreInvalidUris: Boo
     var inDocument = false
     var seenRoot = false
 
+    var overrideBaseUri: URI? = null
+
     fun excludeNamespaces(uris: Set<NamespaceUri>) {
         excludedNamespaces.addAll(uris)
     }
@@ -69,8 +71,10 @@ open class SaxonTreeBuilder(val processor: Processor, val ignoreInvalidUris: Boo
 
         receiver.setPipelineConfiguration(pipe)
 
-        if (baseURI != null) {
-            receiver.setSystemId(baseURI.toString())
+        if (overrideBaseUri != null) {
+            receiver.systemId = overrideBaseUri.toString()
+        } else if (baseURI != null) {
+            receiver.systemId = baseURI.toString()
         }
         location = null
 

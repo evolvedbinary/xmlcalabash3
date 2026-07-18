@@ -81,8 +81,8 @@
     <group id="net.sourceforge.plantuml">
       <artifact id="plantuml" version="1.2026.2"/>
     </group>
-    <group id="nu.validator">
-      <artifact id="htmlparser" version="1.4.16"/>
+    <group id="nu.validator.htmlparser">
+      <artifact id="htmlparser" version="1.4"/>
     </group>
     <group id="org.apache.avalon.framework">
       <artifact id="avalon-framework-api" version="4.3.1"/>
