@@ -279,6 +279,7 @@ open class HttpRequestStep(): AbstractAtomicStep() {
 
     override fun reset() {
         super.reset()
+        documents.clear();
         method = "GET"
         serialization.clear()
         headers.clear()
