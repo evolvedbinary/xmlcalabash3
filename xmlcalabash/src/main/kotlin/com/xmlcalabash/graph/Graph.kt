@@ -108,47 +108,12 @@ class Graph private constructor(val environment: GraphEnvironment) {
     }
 
     private fun loops(): String? {
-        for (node in models) {
-            val loop = loop(node)
-            if (loop != null) {
-                return loop
-            }
+        try {
+            val checker = LoopChecker()
+            checker.check()
+        } catch (ex: IllegalStateException) {
+            return ex.message
         }
-        return null
-    }
-
-    private fun loop(model: Model, visited: Stack<Model> = Stack()): String? {
-        if (visited.contains(model)) {
-            val sbx = StringBuilder()
-            var first = true
-            var found = false
-            for (snode in visited) {
-                found = found || model == snode
-                if (found) {
-                    if (!first) {
-                        sbx.append(" -> ")
-                    }
-                    sbx.append(snode)
-                    first = false
-                }
-            }
-            sbx.append(" -> ")
-            sbx.append(model)
-            return sbx.toString()
-        }
-        visited.push(model)
-
-        val checkedForLoop = mutableSetOf<Model>()
-        for (edge in edges.filter { it.from == model }) {
-            if (edge.to !in checkedForLoop) {
-                val loop = loop(edge.to, visited)
-                if (loop != null) {
-                    return loop
-                }
-                checkedForLoop.add(edge.to)
-            }
-        }
-        visited.pop()
         return null
     }
 
@@ -402,6 +367,52 @@ class Graph private constructor(val environment: GraphEnvironment) {
                     candidates.add(edge.from)
                 }
             }
+        }
+    }
+
+    private inner class LoopChecker() {
+        private val edgeMap = mutableMapOf<Model, MutableList<Model>>()
+        private val checked = mutableSetOf<Model>()
+
+        fun check() {
+            for (edge in edges) {
+                if (edge.from in edgeMap) {
+                    edgeMap[edge.from]!!.add(edge.to)
+                } else {
+                    edgeMap[edge.from] = mutableListOf(edge.to)
+                }
+            }
+
+            for (model in models) {
+                traverse(model);
+            }
+
+        }
+
+        private fun traverse(node: Model, seen: List<Model> = emptyList()) {
+            if (node in seen) {
+                val sb = StringBuilder()
+                var started = false
+                for (step in seen) {
+                    if (started || node === step) {
+                        started = true
+                        sb.append(step).append(" -> ")
+                    }
+                }
+                sb.append(node)
+                throw IllegalStateException(sb.toString());
+            }
+
+            val nextSeen = seen + node;
+            if (node in edgeMap) {
+                for (next in edgeMap[node]!!) {
+                    if (next !in checked) {
+                        traverse(next, nextSeen)
+                    }
+                }
+            }
+
+            checked.add(node);
         }
     }
 }

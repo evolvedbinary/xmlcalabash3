@@ -330,7 +330,7 @@ Cannot resolve path (“$1”) with a non-hierarchical base URI: “$2”.
 It is a dynamic error if the basedir has a non-hierarchical scheme.
 
 XS0001
-Pipeline contains a loop through “$1”.
+Pipeline contains a loop: “$1”.
 It is a static error if there are any loops in the connections between steps,
 variables, and options: no step, variable, or option can be connected to itself
 nor can there be any sequence of connections through other steps that leads back
