@@ -13,6 +13,26 @@ See the commits and pull requests on
 finer detail.</para>
 
 <revhistory>
+<revision xml:id="r3051">
+<revnumber>3.0.51</revnumber>
+<date>2026-07-20</date>
+<revdescription>
+<itemizedlist spacing="compact">
+<listitem><para>Closed <cbissue number="775"/>. The code that checks for loops
+in the graph had catastrophically poor performance for a large number of
+nodes/edges. The fix for <cbissue number="750"/> added additional edges to
+expression steps which caused the combinatorics to become readily apparent.
+</para></listitem>
+<listitem><para>Closed <cbissue number="757"/> (again). The code has been
+updated and more tests have been added. The approach now favors reporting the
+cause as a QName (a lexical QName with a colon), using a manufactured prefix if
+necessary. </para></listitem>
+<listitem><para>Upgraded to Saxon 12.10 in version 3.0.50 but failed to note it in the
+change log.
+</para></listitem>
+</itemizedlist>
+</revdescription>
+</revision>
 <revision xml:id="r3050">
 <revnumber>3.0.50</revnumber>
 <date>2026-07-18</date>
