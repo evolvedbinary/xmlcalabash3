@@ -5,6 +5,10 @@ This is an extension step for [XML Calabash 3.x](https://github.com/xmlcalabash/
 To use this step, you must add it to your XML Calabash configuration. It doesn’t
 have any standalone functionality.
 
+NOTE: This step utilizes BaseX as a library. BaseX 12+ requires Java 17+,
+therefore if you wish to use this extension you must run XML Calabash on
+Java 17 or higher.
+
 # Install with Maven
 
 Alpha versions of XML Calabash and this step are published to the Maven
