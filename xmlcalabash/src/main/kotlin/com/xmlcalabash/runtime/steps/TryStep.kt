@@ -103,13 +103,16 @@ open class TryStep(config: XProcStepConfiguration, compound: CompoundStepModel):
         }
     }
 
-    private fun getPrefix(map: Map<String,NamespaceUri>, uri: NamespaceUri, pref: String): String {
+    private fun getPrefix(map: Map<String,NamespaceUri>, uri: NamespaceUri, pref: String, fallback: String? = null): String {
         for ((key, value) in map) {
             if (uri == value) {
                 return key
             }
         }
         if (pref in map) {
+            if (fallback != null) {
+                return fallback
+            }
             return S9Api.uniquePrefix(map.keys)
         }
         return pref
@@ -118,6 +121,7 @@ open class TryStep(config: XProcStepConfiguration, compound: CompoundStepModel):
     private fun errorDocument(step: AbstractStep, exception: Exception): XProcDocument {
         var codePrefix = ""
         var causeCode: QName? = null
+        var causePrefix: String = "";
 
         // There's some risk of namespace collisions here; should work around that but not today
         val bindings = mutableMapOf<String, NamespaceUri>()
@@ -149,8 +153,10 @@ open class TryStep(config: XProcStepConfiguration, compound: CompoundStepModel):
                 } else {
                     "cpfx"
                 }
-                val causePrefix = getPrefix(bindings, cause.errorCodeQName.namespaceUri, pfx)
-                bindings[causePrefix] = cause.errorCodeQName.namespaceUri
+                causePrefix = getPrefix(bindings, cause.errorCodeQName.namespaceUri, pfx, "cpfx")
+                if (causePrefix.isNotEmpty()) {
+                    bindings[causePrefix] = cause.errorCodeQName.namespaceUri
+                }
                 causeCode = QName(cause.errorCodeQName.namespaceUri, "${causePrefix}:${cause.errorCodeQName.localPart}")
             }
 
@@ -199,11 +205,13 @@ open class TryStep(config: XProcStepConfiguration, compound: CompoundStepModel):
             }
 
             if (causeCode != null) {
-                if (causeCode.namespaceUri != NamespaceUri.NULL) {
-                    if (causeCode.namespaceUri == NsFn.errorNamespace) {
-                        attr["cause"] = "fnerr:${causeCode.localName}"
+                if (causeCode.namespaceUri == NsFn.errorNamespace) {
+                    attr["cause"] = "fnerr:${causeCode.localName}"
+                } else {
+                    if (causePrefix.isNotEmpty()) {
+                        attr["cause"] = "${causePrefix}:${causeCode.localName}"
                     } else {
-                        attr["cause"] = "Q{${causeCode.namespaceUri}}${causeCode.localName}"
+                        attr["cause"] = causeCode.localName
                     }
                 }
             }
