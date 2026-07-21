@@ -132,9 +132,15 @@ open class InlineStep(val params: InlineStepParameters): AbstractAtomicStep() {
 
         if (ctypeMarkup) {
             val fixedXML = if (overrideBaseUri != null) {
+                // This makes a copy
                 S9Api.adjustBaseUri(xml, props[Ns.baseUri])
             } else {
-                xml
+                // Make a copy so that each inline is a different document...
+                val builder = SaxonTreeBuilder(xml.processor)
+                builder.startDocument(props.baseURI)
+                builder.addSubtree(xml);
+                builder.endDocument()
+                builder.result
             }
             receiver.output("result", XProcDocument(fixedXML, stepConfig, props))
             return
