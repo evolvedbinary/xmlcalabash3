@@ -1,7 +1,6 @@
 <p:declare-step xmlns:p="http://www.w3.org/ns/xproc"
                 xmlns:cx="http://xmlcalabash.com/ns/extensions"
                 xmlns:xs="http://www.w3.org/2001/XMLSchema"
-                xmlns:exist="http://exist.sourceforge.net/NS/exist"
                 exclude-inline-prefixes="cx xs" version="3.0">
 
 <p:import href="https://xmlcalabash.com/ext/library/elemental.xpl"/>

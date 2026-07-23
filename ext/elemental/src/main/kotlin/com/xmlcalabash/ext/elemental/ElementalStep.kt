@@ -9,7 +9,7 @@ import java.net.URI
 
 class ElementalStep(): AbstractAtomicStep() {
     companion object {
-        val EXISTDB = URI.create("https://elemental.xyz/")
+        val ELEMENTAL = URI.create("https://elemental.xyz/")
         val _databaseUri = QName("database-uri")
         val _queryParameters = QName("query-parameters")
         val _queryProperties = QName("query-properties")
@@ -31,7 +31,7 @@ class ElementalStep(): AbstractAtomicStep() {
         super.run()
 
         val config = mutableMapOf<QName, String>()
-        config.putAll(stepConfig.xmlCalabashConfig.configuredXQueryProcessors[EXISTDB] ?: emptyMap())
+        config.putAll(stepConfig.xmlCalabashConfig.configuredXQueryProcessors[ELEMENTAL] ?: emptyMap())
 
         stringBinding(_databaseUri)?.let { config[_databaseUri] = it }
         stringBinding(Ns.username)?.let { config[Ns.username] = it }
